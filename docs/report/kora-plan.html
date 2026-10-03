@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Kora: daily Tunisian football games. Plan</title>
+<title>Kora: Tunisian football games. Plan v2</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;600;700&family=Inter:wght@400;500;600;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 <style>
@@ -11,101 +11,170 @@
   html, body { margin: 0; padding: 0; background: #0b1510; color: #eef3ef; font-family: Inter, system-ui, sans-serif; }
   .slide { width: 1280px; height: 720px; padding: 48px 64px; position: relative; page-break-after: always; overflow: hidden; background: #0b1510; }
   .slide:last-child { page-break-after: auto; }
-  .eyebrow { font-family: "JetBrains Mono", monospace; font-size: 14px; letter-spacing: 3px; text-transform: uppercase; color: #e63946; margin: 0 0 14px; }
-  h1 { font-size: 64px; line-height: 1.02; margin: 0 0 18px; font-weight: 800; letter-spacing: -1.5px; }
+  .eyebrow { font-family: "JetBrains Mono", monospace; font-size: 13px; letter-spacing: 3px; text-transform: uppercase; color: #e63946; margin: 0 0 12px; }
+  h1 { font-size: 62px; line-height: 1.02; margin: 0 0 16px; font-weight: 800; letter-spacing: -1.5px; }
   h2 { font-size: 34px; line-height: 1.1; margin: 0 0 18px; font-weight: 800; letter-spacing: -1px; }
-  h3 { font-size: 18px; margin: 0 0 6px; font-weight: 600; }
-  p, li { font-size: 16px; line-height: 1.4; color: #cfd8d2; }
+  h3 { font-size: 17px; margin: 0 0 5px; font-weight: 600; color: #eef3ef; }
+  p, li { font-size: 15.5px; line-height: 1.4; color: #cfd8d2; margin: 0; }
   p.lead { font-size: 22px; color: #eef3ef; max-width: 900px; }
   .muted { color: #8fa39a; }
-  .grid { display: grid; gap: 16px; }
-  .cols2 { grid-template-columns: 1fr 1fr; }
-  .cols3 { grid-template-columns: 1fr 1fr 1fr; }
-  .cols4 { grid-template-columns: repeat(4, 1fr); }
-  .card { background: #122019; border: 1px solid #22362b; border-radius: 14px; padding: 16px 18px; }
-  .card p { margin: 6px 0 0; }
-  .card h3 { color: #eef3ef; }
-  .stat { font-size: 46px; font-weight: 800; letter-spacing: -2px; color: #fff; line-height: 1; margin: 6px 0 8px; }
-  .stat small { font-size: 18px; font-weight: 500; letter-spacing: 0; color: #8fa39a; }
-  .pill { display: inline-block; font-family: "JetBrains Mono", monospace; font-size: 13px; padding: 4px 10px; border-radius: 999px; background: #1b2f24; color: #9ad4b4; margin: 2px 4px 2px 0; }
-  table { width: 100%; border-collapse: collapse; font-size: 15px; }
-  th, td { text-align: left; padding: 7px 10px; border-bottom: 1px solid #22362b; vertical-align: top; color: #cfd8d2; }
-  th { color: #8fa39a; font-weight: 600; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; }
+  .grid { display: grid; gap: 14px; }
+  .cols2 { grid-template-columns: 1fr 1fr; } .cols3 { grid-template-columns: 1fr 1fr 1fr; } .cols4 { grid-template-columns: repeat(4, 1fr); }
+  .card { background: #122019; border: 1px solid #22362b; border-radius: 14px; padding: 15px 17px; }
+  .card p { margin-top: 5px; }
+  .stat { font-size: 44px; font-weight: 800; letter-spacing: -2px; color: #fff; line-height: 1; margin: 4px 0 6px; }
+  .pill { display: inline-block; font-family: "JetBrains Mono", monospace; font-size: 12px; padding: 4px 10px; border-radius: 999px; background: #1b2f24; color: #9ad4b4; margin: 2px 4px 2px 0; }
+  .badge { display:inline-block; font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 6px; background: #1b2f24; color: #9ad4b4; letter-spacing: .5px; }
+  .badge.red { background: #3a1419; color: #ff8a93; }
+  table { width: 100%; border-collapse: collapse; font-size: 14.5px; }
+  th, td { text-align: left; padding: 6px 9px; border-bottom: 1px solid #22362b; vertical-align: top; color: #cfd8d2; }
+  th { color: #8fa39a; font-weight: 600; font-size: 12.5px; text-transform: uppercase; letter-spacing: 1px; }
   td strong { color: #eef3ef; }
-  .decision { border: 2px solid #e63946; background: #1a1114; padding: 14px 16px; }
-  .decision h3 { font-size: 17px; }
-  .decision p { font-size: 14px; line-height: 1.35; }
-  .decision .tag { font-family: "JetBrains Mono", monospace; font-size: 12px; color: #fff; background: #e63946; padding: 3px 8px; border-radius: 6px; letter-spacing: 1px; }
-  .foot { position: absolute; left: 72px; right: 72px; bottom: 28px; display: flex; justify-content: space-between; font-family: "JetBrains Mono", monospace; font-size: 12px; color: #5f7369; }
+  .decision { border: 2px solid #e63946; background: #1a1114; padding: 12px 14px; }
+  .decision h3 { font-size: 16px; margin-top: 7px; }
+  .decision p { font-size: 13px; line-height: 1.35; }
+  .decision .tag { font-family: "JetBrains Mono", monospace; font-size: 11px; color: #fff; background: #e63946; padding: 2px 7px; border-radius: 5px; letter-spacing: 1px; }
+  .foot { position: absolute; left: 64px; right: 64px; bottom: 24px; display: flex; justify-content: space-between; font-family: "JetBrains Mono", monospace; font-size: 12px; color: #5f7369; }
   .ar { font-family: "IBM Plex Sans Arabic", sans-serif; direction: rtl; }
-  /* phone mockup */
-  .phone { width: 290px; height: 560px; border-radius: 40px; border: 8px solid #2a3b32; background: #0f1b15; padding: 22px 16px; position: relative; box-shadow: 0 30px 60px rgba(0,0,0,.5); }
-  .phone .top { display:flex; justify-content: space-between; align-items:center; margin-bottom: 14px; }
-  .phone .brand { font-weight: 800; font-size: 18px; color: #fff; }
-  .phone .lang { font-size: 11px; color: #9ad4b4; border: 1px solid #22362b; padding: 2px 8px; border-radius: 999px; }
-  .phone .q { font-size: 13px; color: #8fa39a; margin: 0 0 10px; }
-  .row { display: grid; grid-template-columns: repeat(6, 1fr); gap: 4px; margin-bottom: 6px; }
-  .tile { height: 44px; border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 9px; color: #fff; text-align: center; padding: 2px; }
-  .tile b { font-size: 11px; }
+  .hub { background: #0f1b15; border: 1px solid #22362b; border-radius: 14px; padding: 16px; }
+  .hub .nav { display:flex; gap: 14px; font-size: 12px; color:#8fa39a; margin-bottom: 12px; align-items:center; }
+  .hub .nav b { color:#fff; font-size: 14px; margin-right: 6px; }
+  .hub h4 { font-size: 24px; margin: 0 0 4px; font-weight: 800; letter-spacing: -.5px; color:#fff; }
+  .hub h4 span { color: #e63946; }
+  .hub .sub { font-size: 12px; color:#8fa39a; margin: 0 0 10px; }
+  .hub .cta { display:inline-block; background:#e63946; color:#fff; font-weight:600; font-size:12px; padding:6px 12px; border-radius:999px; margin-right:6px; }
+  .hub .cta.ghost { background:#1b2f24; color:#9ad4b4; }
+  .strip { margin: 12px 0; border:1px solid #3a1419; border-radius: 10px; padding: 8px 10px; display:flex; gap: 8px; align-items:center; font-size: 11.5px; }
+  .strip .lbl { color:#e63946; font-family:"JetBrains Mono",monospace; font-size:10px; letter-spacing:2px; margin-right:6px; }
+  .strip span.g { background:#1b2f24; padding: 3px 8px; border-radius: 6px; color:#eef3ef; }
+  .modes { display:grid; grid-template-columns: repeat(4,1fr); gap: 8px; }
+  .mode { background:#122019; border:1px solid #22362b; border-radius: 10px; padding: 9px 10px; min-height: 74px; }
+  .mode .ic { font-size: 16px; }
+  .mode b { display:block; font-size: 11.5px; color:#fff; margin: 3px 0 2px; letter-spacing:.3px; }
+  .mode p { font-size: 10px; line-height: 1.3; color:#9fb0a8; }
+  .mode .badge { font-size: 9px; margin-top: 4px; padding: 1px 6px; }
+  .phone { width: 250px; height: 500px; border-radius: 34px; border: 7px solid #2a3b32; background: #0f1b15; padding: 16px 12px; box-shadow: 0 24px 50px rgba(0,0,0,.5); }
+  .phone .top { display:flex; justify-content: space-between; align-items:center; margin-bottom: 10px; }
+  .phone .brand { font-weight: 800; font-size: 15px; color: #fff; }
+  .phone .lang { font-size: 9px; color: #9ad4b4; border: 1px solid #22362b; padding: 2px 7px; border-radius: 999px; }
+  .phone .q { font-size: 12px; color: #eef3ef; margin: 0 0 8px; font-weight:600; }
+  .row { display: grid; grid-template-columns: repeat(6, 1fr); gap: 3px; margin-bottom: 5px; }
+  .tile { height: 36px; border-radius: 6px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 7.5px; color: #fff; text-align: center; padding: 2px; }
+  .tile b { font-size: 9px; }
   .g { background: #2e9e5b; } .y { background: #c99a1e; } .x { background: #2c3a33; color: #b9c6bf; }
-  .name { font-size: 12px; color: #eef3ef; margin: 0 0 4px; display:flex; justify-content: space-between; }
-  .input { margin-top: 10px; border: 1px solid #22362b; border-radius: 10px; padding: 10px 12px; color: #6f8479; font-size: 13px; background:#0b1510; }
-  .share { margin-top: 12px; background:#122019; border-radius: 10px; padding: 10px 12px; font-size: 12px; line-height: 1.5; }
-  .legend { display:flex; gap: 10px; font-size: 12px; margin-top: 8px; color:#8fa39a; }
-  .legend i { display:inline-block; width: 12px; height: 12px; border-radius: 3px; vertical-align: -1px; margin-right: 4px; }
+  .name { font-size: 10.5px; color: #eef3ef; margin: 0 0 3px; display:flex; justify-content: space-between; }
+  .share { margin-top: 8px; background:#122019; border-radius: 8px; padding: 8px 10px; font-size: 10px; line-height: 1.45; }
+  .hint { margin-top: 8px; border:1px dashed #3a1419; border-radius: 8px; padding: 7px 9px; font-size: 10px; color:#ff8a93; }
   svg text { font-family: Inter, sans-serif; }
 </style>
 </head>
 <body>
 
-<!-- 1. Title -->
 <section class="slide">
-  <p class="eyebrow">Project 3 · plan for approval · 4 October 2026</p>
-  <h1>Kora<br><span style="color:#8fa39a;font-weight:600">daily Tunisian football games</span></h1>
-  <p class="lead">One mystery Tunisian player a day. Six clues per guess, eight guesses, a result you paste into Facebook. Arabic and French. Free to run, built to be measured.</p>
-  <div style="margin-top:36px">
-    <span class="pill">Next.js 16</span><span class="pill">Neon</span><span class="pill">Upstash Redis</span><span class="pill">Wikidata</span><span class="pill">PostHog</span><span class="pill">Vercel</span><span class="pill">Student Pack domain</span>
+  <p class="eyebrow">Project 3 · plan v2 for approval · 4 October 2026</p>
+  <h1>Kora<br><span style="color:#8fa39a;font-weight:600">Tunisian football games, in Derja</span></h1>
+  <p class="lead">A hub of games copied from the sites that work (NBA 82-0, playfootball.games, Immaculate Footy), built on Tunisian players: one daily puzzle, one endless streak, one viral season simulator at launch, then five more. Derja first, French second. Free to run, measured, with an AI layer that costs nothing.</p>
+  <div style="margin-top:28px">
+    <span class="pill">Next.js 16</span><span class="pill">Neon</span><span class="pill">Upstash Redis</span><span class="pill">PartyKit</span><span class="pill">SSE</span><span class="pill">Wikidata</span><span class="pill">Gemini free tier</span><span class="pill">PostHog</span><span class="pill">Student Pack domain</span>
   </div>
-  <p class="muted" style="margin-top:40px">Eight decisions are marked in red. Everything else is my recommendation, ready to build.</p>
-  <div class="foot"><span>kora · plan</span><span>1 / 13</span></div>
+  <p class="muted" style="margin-top:30px">Ten decisions are marked in red on page 14. Everything else is my recommendation, ready to build.</p>
+  <div class="foot"><span>kora · plan v2</span><span>1 / 16</span></div>
 </section>
 
-<!-- 2. Why -->
 <section class="slide">
   <p class="eyebrow">Why this, why now</p>
-  <h2>Football is the sport, Facebook is the square, and nobody made the game</h2>
+  <h2>Football is the sport, Facebook is the square, and nobody built the games in Derja</h2>
   <div class="grid cols4">
     <div class="card"><div class="stat">9.1M</div><p>Tunisians on Facebook, 72% of the population</p></div>
     <div class="card"><div class="stat">2.3M</div><p>followers of Espérance's page alone</p></div>
-    <div class="card"><div class="stat">5.6M<small> /mo</small></div><p>visits to LiveFPL, one fan tool for one game</p></div>
-    <div class="card"><div class="stat">0</div><p>daily Tunisian football guessing games today</p></div>
+    <div class="card"><div class="stat">53%</div><p>of Tunisian Facebook comments are in Arabizi, 34% Arabic script, 13% mixed</p></div>
+    <div class="card"><div class="stat">0</div><p>Tunisian football game sites; none in Derja</p></div>
   </div>
-  <div class="grid cols2" style="margin-top:22px">
-    <div class="card"><h3>The mechanic that spreads</h3><p>Same puzzle for everyone, once a day, with an emoji result you paste anywhere. Wordle, Who Are Ya?, NBA 82-0's Hoople all grew on it. The share grid is the product.</p></div>
-    <div class="card"><h3>What we don't compete with</h3><p>Tunisian Football Fantasy already exists and is heavier. Transport and pharmacy apps exist. Free football APIs don't cover Ligue 1 Tunisie; Wikidata does cover Tunisian players.</p></div>
+  <div class="grid cols2" style="margin-top:14px">
+    <div class="card"><h3>What spreads</h3><p>Same puzzle for everyone, once a day, with a result you paste. And one simulator: 82-0's creators say the squad builder, not the puzzles, is what went viral in 2026 (ESPN, SI and Yahoo covered it; NBA players played it).</p></div>
+    <div class="card"><h3>What we don't compete with</h3><p>Tunisian Football Fantasy exists and is heavier. Free football APIs don't cover Ligue 1 Tunisie; Wikidata covers Tunisian players (1,090; 310 with Arabic names; 285 photos).</p></div>
   </div>
-  <div class="foot"><span>sources: NapoleonCat Sep 2026, Facebook, Semrush Oct 2025, own search</span><span>2 / 13</span></div>
+  <div class="foot"><span>NapoleonCat Sep 2026 · arXiv 2020 Tunisian Arabizi study · DNVR, ESPN on 82-0 · Wikidata 3 Oct 2026</span><span>2 / 16</span></div>
 </section>
 
-<!-- 3. The game -->
 <section class="slide">
-  <p class="eyebrow">The game</p>
-  <div class="grid" style="grid-template-columns: 320px 1fr; align-items:start">
+  <p class="eyebrow">Research: the sites we copy</p>
+  <h2>Four sites, one pattern</h2>
+  <table>
+    <tr><th>Site</th><th>Shape</th><th>Games</th><th>We copy</th></tr>
+    <tr><td><strong>NBA 82-0</strong><br><span class="muted">viral 2026</span></td><td>dark hub: hero, "Today's puzzles" strip, mode cards with badges (Daily, Endless, Quiz, Timed, Predict), "Today's top sides", Hall of Fame on device</td><td>82-0 squad builder + season sim · Hoople · Guess the Player · Draft Class · Higher or Lower · Career Path · Beat the Clock · Score Predictor · Bracket</td><td>the hub, the badges, the simulator as centre, daily strip, device-saved boards</td></tr>
+    <tr><td><strong>playfootball.games</strong></td><td>hub with league pickers, daily and multiplayer sections</td><td>Who Are Ya? · Box2Box · Missing XI · Career Path · Football Wordle · Tiki-Taka-Toe (2 players) · Bingo · Connections</td><td>Who Are Ya? tiles, Missing XI, the multiplayer duel</td></tr>
+    <tr><td><strong>Immaculate Footy</strong> (FBref)</td><td>one game, perfectly</td><td>3×3 grid of clubs × criteria, nine guesses, rarity score</td><td>the grid and the rarity score</td></tr>
+    <tr><td><strong>KitTok · Transfer Quiz · higherorlower</strong></td><td>single games</td><td>reveal the kit · guess from transfers · market value higher/lower</td><td>endless higher/lower, later kit reveal</td></tr>
+  </table>
+  <div class="grid cols4" style="margin-top:14px">
+    <div class="card"><h3>Free, no login</h3><p>Anonymous play, device-saved streaks, optional account.</p></div>
+    <div class="card"><h3>Dark, one accent</h3><p>Every one of them. Ours: pitch green and shirt red.</p></div>
+    <div class="card"><h3>Share grid + archive</h3><p>Emoji result; yesterday's puzzles playable.</p></div>
+    <div class="card"><h3>Ads</h3><p>They run them. We don't: Vercel Hobby terms, and the portfolio reads better.</p></div>
+  </div>
+  <div class="foot"><span>screens reviewed 4 October 2026</span><span>3 / 16</span></div>
+</section>
+
+<section class="slide">
+  <p class="eyebrow">The hub</p>
+  <h2>Laid out like 82-0, filled with Tunisia</h2>
+  <div class="hub">
+    <div class="nav"><b>Kora</b> <span>Ligue 1</span><span>Équipe nationale</span><span>Légendes</span><span style="margin-left:auto">عربي · 3arbi · FR</span></div>
+    <h4>DÉMARRE UNE SAISON <span>30–0</span></h4>
+    <p class="sub">Tire un club et une époque, drafte une légende à chaque poste, et vise les 30 victoires. Puis attaque les mini-jeux.</p>
+    <span class="cta">⚡ Lance le tirage</span><span class="cta ghost">Tous les jeux</span><span class="cta ghost">Classement du jour</span>
+    <div class="strip"><span class="lbl">NOUVEAU CHAQUE JOUR</span><span class="g">شكون؟ Chkoun?</span><span class="g">المسيرة Masira</span><span class="g">الشبكة Box 3×3</span><span class="g">الحداش El 11</span></div>
+    <div class="modes">
+      <div class="mode"><span class="ic">🕵️</span><b>CHKOUN?</b><p>Devine le joueur tunisien mystère en 8 essais.</p><span class="badge">Daily</span></div>
+      <div class="mode"><span class="ic">🏆</span><b>30–0</b><p>Drafte des légendes et simule une saison parfaite.</p><span class="badge red">Simulator</span></div>
+      <div class="mode"><span class="ic">📈</span><b>AKTAR WALA A9ALL</b><p>Plus de sélections, de buts, de titres ? Garde la série.</p><span class="badge">Endless</span></div>
+      <div class="mode"><span class="ic">🧭</span><b>MASIRA</b><p>Les clubs se dévoilent un à un. Nomme le joueur.</p><span class="badge">Daily</span></div>
+      <div class="mode"><span class="ic">🔲</span><b>BOX 3×3</b><p>Clubs × trophées × époques. Neuf cases, score de rareté.</p><span class="badge">Daily</span></div>
+      <div class="mode"><span class="ic">📋</span><b>EL 11</b><p>Un onze historique. Retrouve les onze noms.</p><span class="badge">Daily</span></div>
+      <div class="mode"><span class="ic">🔮</span><b>TBANNEN</b><p>Pronostique le derby et les matchs des Aigles.</p><span class="badge">Predict · live</span></div>
+      <div class="mode"><span class="ic">⚔️</span><b>DUEL</b><p>Tiki-Taka-Toe à deux, en temps réel, par lien.</p><span class="badge">Multiplayer</span></div>
+    </div>
+  </div>
+  <p class="muted" style="margin-top:10px">Mockup in French; the default language is a decision (D2). Mode badges, the daily strip and "classement du jour" are lifted straight from 82-0.</p>
+  <div class="foot"><span>kora · plan v2</span><span>4 / 16</span></div>
+</section>
+
+<section class="slide">
+  <p class="eyebrow">The games</p>
+  <h2>Eight games, three at launch</h2>
+  <table>
+    <tr><th>#</th><th>Game · Derja name</th><th>Type</th><th>Mechanic (copied from)</th><th>Phase</th></tr>
+    <tr><td>1</td><td><strong>Chkoun?</strong> · شكون؟ · C'est qui ?</td><td>Daily</td><td>Mystery Tunisian player, 8 guesses, 6 clue tiles (Who Are Ya?, Hoople)</td><td><span class="badge red">Launch</span></td></tr>
+    <tr><td>2</td><td><strong>30–0</strong> · ٣٠–٠</td><td>Simulator</td><td>Spin a club and era, draft a legend per position, simulate a 30-match season, share the squad (82-0)</td><td><span class="badge red">Launch</span></td></tr>
+    <tr><td>3</td><td><strong>Aktar wala A9all</strong> · أكثر ولا أقل</td><td>Endless</td><td>More caps, goals, trophies? Keep the streak (Higher or Lower)</td><td><span class="badge red">Launch</span></td></tr>
+    <tr><td>4</td><td><strong>Masira</strong> · المسيرة</td><td>Daily</td><td>Clubs revealed one by one; fewer = more points (Career Path)</td><td>2</td></tr>
+    <tr><td>5</td><td><strong>Box 3×3</strong> · الشبكة</td><td>Daily</td><td>Clubs × trophies × eras, nine guesses, rarity score (Immaculate Footy, Box2Box)</td><td>2</td></tr>
+    <tr><td>6</td><td><strong>El 11</strong> · الحداش</td><td>Daily</td><td>A famous Tunisia or derby line-up; name the eleven (Missing XI)</td><td>3</td></tr>
+    <tr><td>7</td><td><strong>Tbannen</strong> · تبنّن</td><td>Predict · live</td><td>Score predictions for derbies and the Eagles; live points (Score Predictor)</td><td>3</td></tr>
+    <tr><td>8</td><td><strong>Duel</strong> · ديول</td><td>Multiplayer</td><td>Two players, 3×3 of clubs and criteria, turns in real time (Tiki-Taka-Toe)</td><td>3</td></tr>
+  </table>
+  <p class="muted" style="margin-top:10px">30–0 ratings are computed from caps, goals, honours and era and shown with their inputs on every card, so the arguments happen in the comments and not with us.</p>
+  <div class="foot"><span>kora · plan v2</span><span>5 / 16</span></div>
+</section>
+
+<section class="slide">
+  <p class="eyebrow">Game 1 in detail</p>
+  <div class="grid" style="grid-template-columns: 270px 1fr; align-items:start; gap: 28px">
     <div class="phone">
-      <div class="top"><span class="brand">Kora</span><span class="lang">AR · FR</span></div>
-      <p class="q ar" style="text-align:right">مين اللاعب؟ · محاولة 3 من 8</p>
+      <div class="top"><span class="brand">Kora</span><span class="lang">عربي</span></div>
+      <p class="q ar" style="text-align:right">شكون اللاعب؟ · المحاولة 3 من 8</p>
       <div class="name"><span>Ferjani Sassi</span><span class="muted">#1</span></div>
-      <div class="row"><div class="tile x"><b>Club</b>Zamalek</div><div class="tile y"><b>Pays</b>Égypte</div><div class="tile g"><b>Poste</b>MIL</div><div class="tile y"><b>Âge</b>33 ↓</div><div class="tile y"><b>Sél.</b>80+ ↓</div><div class="tile g"><b>Gouv.</b>Tunis</div></div>
+      <div class="row"><div class="tile x"><b>Club</b>Zamalek</div><div class="tile y"><b>Pays</b>EGY</div><div class="tile g"><b>Poste</b>MIL</div><div class="tile y"><b>Âge</b>33 ↓</div><div class="tile y"><b>Sél.</b>80+ ↓</div><div class="tile g"><b>Gouv.</b>Tunis</div></div>
       <div class="name"><span>Ellyes Skhiri</span><span class="muted">#2</span></div>
-      <div class="row"><div class="tile x"><b>Club</b>Francfort</div><div class="tile x"><b>Pays</b>Allemagne</div><div class="tile g"><b>Poste</b>MIL</div><div class="tile g"><b>Âge</b>31</div><div class="tile g"><b>Sél.</b>60–79</div><div class="tile x"><b>Gouv.</b>Lunel</div></div>
+      <div class="row"><div class="tile x"><b>Club</b>SGE</div><div class="tile x"><b>Pays</b>GER</div><div class="tile g"><b>Poste</b>MIL</div><div class="tile g"><b>Âge</b>31</div><div class="tile g"><b>Sél.</b>60–79</div><div class="tile x"><b>Gouv.</b>—</div></div>
       <div class="name"><span>Aïssa Laïdouni</span><span class="muted">#3</span></div>
-      <div class="row"><div class="tile g"><b>Club</b>Al-Wakrah</div><div class="tile g"><b>Pays</b>Qatar</div><div class="tile g"><b>Poste</b>MIL</div><div class="tile g"><b>Âge</b>29</div><div class="tile g"><b>Sél.</b>60–79</div><div class="tile g"><b>Gouv.</b>Tunis</div></div>
-      <div class="share">Kora #41 · 3/8 🔥12<br>⬜🟨🟩🟨🟨🟩<br>⬜⬜🟩🟩🟩⬜<br>🟩🟩🟩🟩🟩🟩<br><span class="muted">kora.app</span></div>
-      <div class="input">Partager · مشاركة</div>
-      <div class="legend"><span><i class="g"></i>exact</span><span><i class="y"></i>proche</span><span><i class="x"></i>non</span></div>
+      <div class="row"><div class="tile g"><b>Club</b>Wakrah</div><div class="tile g"><b>Pays</b>QAT</div><div class="tile g"><b>Poste</b>MIL</div><div class="tile g"><b>Âge</b>29</div><div class="tile g"><b>Sél.</b>60–79</div><div class="tile g"><b>Gouv.</b>Tunis</div></div>
+      <div class="hint ar" style="text-align:right">💡 لعب نهائي الدربي في 2019 (hint A1)</div>
+      <div class="share">Kora شكون؟ #41 · 3/8 🔥12<br>⬜🟨🟩🟨🟨🟩<br>⬜⬜🟩🟩🟩⬜<br>🟩🟩🟩🟩🟩🟩</div>
     </div>
     <div>
-      <h2 style="margin-top:0">Guess the player: six clues, eight guesses</h2>
+      <h2 style="margin-top:0">Chkoun? Six clues, eight guesses, rolls at midnight by itself</h2>
       <table>
         <tr><th>Tile</th><th>Green</th><th>Amber</th></tr>
         <tr><td><strong>Club</strong></td><td>same club</td><td>club in the same country</td></tr>
@@ -115,226 +184,191 @@
         <tr><td><strong>Caps</strong></td><td>same band</td><td>adjacent band, with ↑ ↓</td></tr>
         <tr><td><strong>Governorate of birth</strong></td><td>same</td><td>same region (north, centre, south)</td></tr>
       </table>
-      <p style="margin-top:18px">Pool at launch: about 300 curated players: internationals since 2000, current Ligue 1 squads, Tunisians abroad. Autocomplete accepts Arabic, French and English spellings. After the puzzle: the player card, the share grid, the streak, a countdown to midnight (Africa/Tunis).</p>
-      <p class="muted">Later modes: Career Path (guess from the list of clubs), Higher or Lower (caps, goals). Decision D8.</p>
+      <p style="margin-top:12px">Pool: about 300 curated players (internationals since 2000, Ligue 1 squads, Tunisians abroad). Search accepts Arabic, Arabizi and French spellings ("mejbri", "مجبري", "hanibal" all work). After guess 4, an AI hint in Derja. After the game: player card, share grid, streak, countdown; at 00:00 Africa/Tunis the page rolls to the new puzzle without a refresh.</p>
     </div>
   </div>
-  <div class="foot"><span>example names are illustrative</span><span>3 / 13</span></div>
+  <div class="foot"><span>names illustrative</span><span>6 / 16</span></div>
 </section>
 
-<!-- 4. Terminology -->
 <section class="slide">
-  <p class="eyebrow">Terminology</p>
-  <h2>The words we will use everywhere, in code and in copy</h2>
-  <div class="grid cols2">
-    <table>
-      <tr><td><strong>Puzzle</strong></td><td>one day's mystery player; same for everyone; rolls at 00:00 Africa/Tunis</td></tr>
-      <tr><td><strong>Pool</strong></td><td>the players a puzzle can be, and a guess can name</td></tr>
-      <tr><td><strong>Guess</strong></td><td>one submitted name; 8 per puzzle</td></tr>
-      <tr><td><strong>Clue tiles</strong></td><td>the six-cell row after a guess</td></tr>
-    </table>
-    <table>
-      <tr><td><strong>Streak</strong></td><td>consecutive solved days; on the device, synced if signed in</td></tr>
-      <tr><td><strong>Share grid</strong></td><td>the emoji result; the growth engine</td></tr>
-      <tr><td><strong>Season</strong></td><td>a calendar month; leaderboards reset</td></tr>
-      <tr><td><strong>Mode</strong></td><td>a game type; one at launch</td></tr>
-    </table>
+  <p class="eyebrow">Game 2 in detail: the growth bet</p>
+  <h2>30–0: draft legends into a Ligue 1 club and chase a perfect season</h2>
+  <div class="grid cols3">
+    <div class="card"><h3>1 · Spin</h3><p>A club (Espérance, Club Africain, Étoile, CSS, Stade Tunisien, …) and an era (80s, 90s, 2000s, 2010s, now). Both random, both re-spinnable once.</p></div>
+    <div class="card"><h3>2 · Draft</h3><p>Eleven positions; for each, three legends from that club's history across eras, with computed ratings 60–99 and the inputs shown (caps, goals, honours, era).</p></div>
+    <div class="card"><h3>3 · Simulate and share</h3><p>Thirty matches against the league, seeded and reproducible. The record and the squad card go to "Today's top sides" and to Facebook as an image.</p></div>
   </div>
-  <div class="card" style="margin-top:26px"><h3>In Arabic and French</h3><p class="ar" style="font-size:22px;color:#eef3ef">اللاعب · المحاولة · السلسلة · شارك النتيجة</p><p>le joueur · l'essai · la série · partager le résultat. Copy lives in one file per language; a native speaker reviews the Arabic before launch.</p></div>
-  <div class="foot"><span>kora · plan</span><span>4 / 13</span></div>
+  <div class="grid cols2" style="margin-top:14px">
+    <div class="card"><h3>Why it spreads</h3><p>Every Tunisian fan has an opinion on the all-time Espérance XI. The card invites the argument; the argument brings the next player. 82-0 went viral on exactly this.</p></div>
+    <div class="card"><h3>Engineering inside</h3><p>A documented rating formula, a deterministic season engine with property tests (same seed, same season; a 99-rated XI wins more than a 70 one, always), an edge-generated share image, a live board over SSE.</p></div>
+  </div>
+  <div class="foot"><span>kora · plan v2</span><span>7 / 16</span></div>
 </section>
 
-<!-- 5. Data -->
+<section class="slide">
+  <p class="eyebrow">Language</p>
+  <h2>Derja first, in both scripts people actually type</h2>
+  <div class="grid cols3">
+    <div class="card"><p class="ar" style="font-size:26px;font-weight:700;color:#fff;text-align:right">شكون اللاعب؟</p><h3 style="margin-top:8px">Derja, Arabic script</h3><p>How fan pages post. 34% of comments.</p></div>
+    <div class="card"><p style="font-size:26px;font-weight:700;color:#fff">Chkoun el la3eb?</p><h3 style="margin-top:8px">Derja, Arabizi</h3><p>How people type on phones. 53% of comments. Recognised by Ethnologue as Tunisia's informal script.</p></div>
+    <div class="card"><p style="font-size:26px;font-weight:700;color:#fff">C'est qui ?</p><h3 style="margin-top:8px">French</h3><p>Second language of the web in Tunisia; the diaspora.</p></div>
+  </div>
+  <div class="grid cols2" style="margin-top:14px">
+    <div class="card"><h3>Rules</h3><p>No Modern Standard Arabic in the UI. Copy written in Derja by you, reviewed by one more Tunisian before launch; no machine translation. Western digits everywhere. Player names in the chosen script with the Latin spelling underneath.</p></div>
+    <div class="card"><h3>Search that understands Derja</h3><p>A transliteration table (3→ع, 7→ح, 9→ق, kh/5→خ) plus fuzzy matching, tested against 200 real misspellings collected from fan pages. Not an LLM: fast, free, predictable.</p></div>
+  </div>
+  <p class="muted" style="margin-top:12px">Sources: study of 1.2M Tunisian social-media comments (arXiv 2020); Ethnologue 2016.</p>
+  <div class="foot"><span>kora · plan v2</span><span>8 / 16</span></div>
+</section>
+
+<section class="slide">
+  <p class="eyebrow">The AI layer</p>
+  <h2>Four features, zero cost, each with a fallback</h2>
+  <table>
+    <tr><th></th><th>Feature</th><th>How</th><th>Cost ceiling</th></tr>
+    <tr><td><strong>A1</strong></td><td><strong>Hint of the day</strong><br>after guess 4, one hint in Derja generated from the player's Wikipedia text</td><td>generated nightly by the data job (Gemini free tier), stored, editable in the review queue</td><td>one call a day</td></tr>
+    <tr><td><strong>A2</strong></td><td><strong>Coach's report</strong><br>two lines in Derja about your guesses, to paste with the share grid</td><td>at request time, cached by (puzzle, guess pattern); Gemini free tier, 1,500 requests/day; template when the quota is hit</td><td>free to ~1,000 games/day, then templates <span class="badge red">D9</span></td></tr>
+    <tr><td><strong>A3</strong></td><td><strong>Name understanding</strong><br>Arabizi, Arabic and French spellings all find the player</td><td>transliteration + fuzzy matching, no model</td><td>none</td></tr>
+    <tr><td><strong>A4</strong></td><td><strong>Review assistant</strong><br>turns "he moved to Al-Ahli in July" reports into proposed data fixes</td><td>nightly batch, Gemini free tier; nothing changes without your click</td><td>a few calls a day</td></tr>
+  </table>
+  <div class="grid cols2" style="margin-top:14px">
+    <div class="card"><h3>Why not a chatbot</h3><p>It would cost money at any real traffic and add nothing to the share loop. These four are bounded, cached, measurable (hint opens, report shares) and fail to templates.</p></div>
+    <div class="card"><h3>Free tiers, verified</h3><p>Gemini Flash: free, about 1,500 requests/day. Groq: 1,000/day. Cloudflare Workers AI: 10,000 neurons/day, second provider if Gemini's quota is hit.</p></div>
+  </div>
+  <div class="foot"><span>limits as published by the providers, October 2026</span><span>9 / 16</span></div>
+</section>
+
+<section class="slide">
+  <p class="eyebrow">Real-time, the right tool per need</p>
+  <h2>Nothing refreshes; three transports, each chosen for a reason</h2>
+  <table>
+    <tr><th>Need</th><th>Technology</th><th>Why</th></tr>
+    <tr><td>Daily puzzle rolls at midnight with no refresh</td><td><strong>Timer + ISR</strong>: client timer against the server clock, then <code>router.refresh()</code>; page cached with a daily tag</td><td>no connection needed; zero cost</td></tr>
+    <tr><td>"Today's top sides", streak boards, live points in Tbannen</td><td><strong>Server-Sent Events</strong> from a Next.js route handler reading Upstash Redis every few seconds</td><td>one-way; browsers reconnect by themselves; works on Vercel; free</td></tr>
+    <tr><td>Duel: two players, turns, presence</td><td><strong>WebSockets on PartyKit</strong> (Cloudflare Durable Objects): one object per room, state in memory</td><td>Vercel cannot hold WebSockets; rooms are what Durable Objects are; free for non-commercial use</td></tr>
+    <tr><td>Fallback</td><td>Ably free (200 connections, 6M messages/month) or Supabase Realtime (200 connections)</td><td>if PartyKit's terms change</td></tr>
+  </table>
+  <svg viewBox="0 0 1100 170" width="1100" height="170" style="margin-top:12px">
+    <defs><marker id="m" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#9ad4b4"/></marker></defs>
+    <g fill="#122019" stroke="#22362b"><rect x="10" y="40" width="170" height="90" rx="12"/><rect x="330" y="10" width="200" height="60" rx="12"/><rect x="330" y="95" width="200" height="60" rx="12"/><rect x="680" y="10" width="190" height="60" rx="12"/><rect x="680" y="95" width="190" height="60" rx="12"/></g>
+    <g fill="#eef3ef" font-size="14" font-weight="600"><text x="28" y="78">Phone</text><text x="348" y="35">GET page (ISR)</text><text x="348" y="120">EventSource /live</text><text x="698" y="35">Vercel</text><text x="698" y="120">Upstash Redis</text></g>
+    <g fill="#8fa39a" font-size="12"><text x="28" y="100">timer rolls at 00:00</text><text x="348" y="55">daily tag, no answer</text><text x="348" y="140">SSE, reconnects alone</text><text x="698" y="55">route handlers</text><text x="698" y="140">sorted sets, pub</text></g>
+    <g stroke="#9ad4b4" stroke-width="2" fill="none" marker-end="url(#m)"><path d="M180,70 L330,40"/><path d="M180,100 L330,125"/><path d="M530,40 L680,40"/><path d="M530,125 L680,125"/></g>
+    <g fill="#122019" stroke="#e63946"><rect x="920" y="50" width="170" height="70" rx="12"/></g>
+    <g fill="#eef3ef" font-size="14" font-weight="600"><text x="938" y="80">PartyKit room</text></g><g fill="#8fa39a" font-size="12"><text x="938" y="100">WebSocket, Duel only</text></g>
+    <g stroke="#e63946" stroke-width="2" fill="none" stroke-dasharray="6 4" marker-end="url(#m)"><path d="M180,115 C 450,168 760,168 920,100"/></g>
+  </svg>
+  <div class="foot"><span>rule: a timer or SSE unless two people must see each other's moves</span><span>10 / 16</span></div>
+</section>
+
 <section class="slide">
   <p class="eyebrow">Data</p>
-  <h2>Free, legal, reviewed: Wikidata plus your corrections plus the audience</h2>
-  <div class="grid" style="grid-template-columns: 1.2fr 1fr">
-    <svg viewBox="0 0 640 300" width="640" height="300">
+  <h2>Free, legal, reviewed: Wikidata, your corrections, the audience, and an AI that only proposes</h2>
+  <div class="grid" style="grid-template-columns: 1.1fr 1fr">
+    <svg viewBox="0 0 600 300" width="600" height="300">
       <defs><marker id="a" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#9ad4b4"/></marker></defs>
-      <g fill="#122019" stroke="#22362b"><rect x="10" y="20" width="150" height="70" rx="12"/><rect x="10" y="120" width="150" height="70" rx="12"/><rect x="10" y="220" width="150" height="70" rx="12"/><rect x="240" y="110" width="170" height="90" rx="12"/><rect x="480" y="110" width="150" height="90" rx="12"/></g>
-      <g fill="#eef3ef" font-size="14" font-weight="600"><text x="30" y="50">Wikidata SPARQL</text><text x="30" y="150">overrides.json</text><text x="30" y="250">Player reports</text><text x="262" y="145">Nightly job</text><text x="500" y="145">pool.json</text></g>
-      <g fill="#8fa39a" font-size="12"><text x="30" y="70">1,090 Tunisian players</text><text x="30" y="170">your verified fixes</text><text x="30" y="270">"something is wrong"</text><text x="262" y="165">normalise, merge,</text><text x="262" y="182">diff, open a PR</text><text x="500" y="165">~300 at launch</text><text x="500" y="182">seeded to Neon</text></g>
-      <g stroke="#9ad4b4" stroke-width="2" fill="none" marker-end="url(#a)"><path d="M160,55 L240,140"/><path d="M160,155 L240,155"/><path d="M160,255 L240,170"/><path d="M410,155 L480,155"/></g>
+      <g fill="#122019" stroke="#22362b"><rect x="10" y="10" width="150" height="62" rx="12"/><rect x="10" y="90" width="150" height="62" rx="12"/><rect x="10" y="170" width="150" height="62" rx="12"/><rect x="230" y="80" width="170" height="110" rx="12"/><rect x="460" y="80" width="130" height="110" rx="12"/></g>
+      <g fill="#eef3ef" font-size="14" font-weight="600"><text x="28" y="36">Wikidata SPARQL</text><text x="28" y="116">overrides.json</text><text x="28" y="196">Player reports</text><text x="250" y="108">Nightly job</text><text x="478" y="108">pool.json</text></g>
+      <g fill="#8fa39a" font-size="11.5"><text x="28" y="56">1,090 Tunisian players</text><text x="28" y="136">your verified fixes</text><text x="28" y="216">"something is wrong"</text><text x="250" y="128">normalise · merge · ratings</text><text x="250" y="146">A1 hints · A4 proposals</text><text x="250" y="164">diff → pull request</text><text x="478" y="128">~300 at launch</text><text x="478" y="146">clubs, honours,</text><text x="478" y="164">ratings, hints</text></g>
+      <g stroke="#9ad4b4" stroke-width="2" fill="none" marker-end="url(#a)"><path d="M160,41 L230,110"/><path d="M160,121 L230,130"/><path d="M160,201 L230,160"/><path d="M400,135 L460,135"/></g>
+      <text x="30" y="275" fill="#8fa39a" font-size="12">Curated line-ups for El 11 and fixtures for Tbannen are hand-entered files in the same repo.</text>
     </svg>
     <div>
       <table>
-        <tr><th>Field</th><th>From Wikidata</th></tr>
+        <tr><th>Field</th><th>Coverage on Wikidata</th></tr>
         <tr><td>Names ar / fr / en</td><td>310 / 357 / 366 of current-era players</td></tr>
-        <tr><td>Clubs with dates, position, birth date and place</td><td>yes; clubs lag the current season</td></tr>
-        <tr><td>Caps</td><td>yes, for internationals</td></tr>
-        <tr><td>Photos</td><td>285 on Commons; only CC BY / BY-SA used, with credit</td></tr>
+        <tr><td>Clubs with dates, position, birth date and place</td><td>yes; the current season lags</td></tr>
+        <tr><td>Caps, honours</td><td>caps yes; honours partly, overrides fill the rest</td></tr>
+        <tr><td>Photos</td><td>285 on Commons; only CC BY / BY-SA, credited</td></tr>
       </table>
-      <p style="margin-top:14px">Every change to the pool is a pull request, so the data is versioned and reviewed. Each field keeps its provenance. The schedule is a seeded shuffle a year ahead with manual pins (a birthday, a derby).</p>
+      <p style="margin-top:12px">Every change to the pool is a pull request: versioned, reviewed, with provenance per field. Ratings for 30–0 come from a documented formula (caps, goals per match, honours, era, position) scaled 60–99 and shown with their inputs.</p>
     </div>
   </div>
-  <div class="foot"><span>counts from Wikidata, 3 October 2026</span><span>5 / 13</span></div>
+  <div class="foot"><span>counts from Wikidata, 3 October 2026</span><span>11 / 16</span></div>
 </section>
 
-<!-- 6. Architecture -->
 <section class="slide">
-  <p class="eyebrow">Architecture</p>
-  <h2>Static page, server-side guesses, nothing on the client can reveal the answer</h2>
-  <svg viewBox="0 0 1130 330" width="980" height="286">
-    <defs><marker id="b" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#9ad4b4"/></marker></defs>
-    <g fill="#122019" stroke="#22362b">
-      <rect x="10" y="110" width="180" height="100" rx="14"/>
-      <rect x="290" y="30" width="220" height="110" rx="14"/>
-      <rect x="290" y="190" width="220" height="110" rx="14"/>
-      <rect x="620" y="30" width="200" height="110" rx="14"/>
-      <rect x="620" y="190" width="200" height="110" rx="14"/>
-      <rect x="920" y="110" width="200" height="100" rx="14"/>
-    </g>
-    <g fill="#eef3ef" font-size="16" font-weight="600">
-      <text x="30" y="145">Phone (Facebook</text><text x="30" y="167">in-app browser)</text>
-      <text x="310" y="62">Static page, ISR daily</text>
-      <text x="310" y="222">Server action: guess</text>
-      <text x="640" y="62">Upstash Redis</text>
-      <text x="640" y="222">Neon Postgres</text>
-      <text x="940" y="145">Nightly data job</text>
-    </g>
-    <g fill="#8fa39a" font-size="13">
-      <text x="30" y="192">AR / FR · PWA</text>
-      <text x="310" y="85">puzzle id, names for autocomplete</text><text x="310" y="104">no answer in the payload</text>
-      <text x="310" y="245">rate limit · evaluate · store once</text><text x="310" y="264">returns tiles only</text>
-      <text x="640" y="85">leaderboards (sorted sets)</text><text x="640" y="104">rate limits · today's meta</text>
-      <text x="640" y="245">pool · schedule · results</text><text x="640" y="264">reports · accounts</text>
-      <text x="940" y="170">GitHub Actions → PR</text><text x="940" y="190">→ seed on deploy</text>
-    </g>
-    <g stroke="#9ad4b4" stroke-width="2" fill="none" marker-end="url(#b)">
-      <path d="M190,140 L290,90"/><path d="M190,180 L290,240"/><path d="M510,85 L620,85"/><path d="M510,245 L620,245"/><path d="M510,230 L620,100"/><path d="M920,160 L820,230"/>
-    </g>
-    <g fill="#5f7369" font-size="12"><text x="200" y="110">GET</text><text x="200" y="215">POST</text></g>
-  </svg>
-  <div class="grid cols3" style="margin-top:10px">
-    <div class="card"><h3>Game engine</h3><p>Pure TypeScript, no I/O: evaluate, score, schedule. Property-tested.</p></div>
-    <div class="card"><h3>Observability</h3><p>PostHog funnels and retention, Sentry errors, Lighthouse budget in CI.</p></div>
-    <div class="card"><h3>Hosting</h3><p>Vercel Hobby, fra1, cron for the daily roll. Zero cost; no ads, no prizes.</p></div>
-  </div>
-  <div class="foot"><span>kora · plan</span><span>6 / 13</span></div>
-</section>
-
-<!-- 7. Stack -->
-<section class="slide">
-  <p class="eyebrow">Stack</p>
-  <h2>Same family as the other two projects, two new pieces that matter</h2>
+  <p class="eyebrow">Architecture and stack</p>
+  <h2>Static pages, server-side game engines, three transports, zero cost</h2>
   <table>
-    <tr><th>Layer</th><th>Choice</th><th>Why</th><th>Cost</th></tr>
-    <tr><td><strong>App</strong></td><td>Next.js 16, TypeScript, Tailwind 4, next-intl (AR/FR, RTL)</td><td>known stack; i18n with RTL is new and visible</td><td>0</td></tr>
-    <tr><td><strong>Data</strong></td><td>Neon Postgres + Prisma</td><td>pool, schedule, results, reports</td><td>0 (free tier)</td></tr>
-    <tr><td><strong>Speed and fairness</strong></td><td>Upstash Redis (Vercel marketplace)</td><td>sorted-set leaderboards, rate limits, daily meta cache</td><td>0 (free tier)</td></tr>
-    <tr><td><strong>Auth (D3)</strong></td><td>Auth.js, Google</td><td>optional; streak sync and a name on the board</td><td>0</td></tr>
-    <tr><td><strong>Analytics</strong></td><td>PostHog Cloud, cookieless</td><td>funnels, retention, no banner</td><td>0 to 1M events</td></tr>
-    <tr><td><strong>Errors</strong></td><td>Sentry</td><td>Student Pack: 50k errors, 1 year</td><td>0</td></tr>
-    <tr><td><strong>Domain</strong></td><td>Name.com (.app/.dev/.live) or Namecheap .me</td><td>Student Pack, 1 year free</td><td>0</td></tr>
-    <tr><td><strong>Quality</strong></td><td>Vitest + fast-check, Postgres tests, Playwright, Lighthouse CI, GitHub Actions</td><td>the habits from Payout Ledger and tnpay</td><td>0</td></tr>
+    <tr><th>Layer</th><th>Choice</th><th>Why</th></tr>
+    <tr><td><strong>App</strong></td><td>Next.js 16, TypeScript, Tailwind 4, next-intl (ar-TN script, ar-TN Latin, fr), PWA</td><td>the family stack; three locales with RTL and LTR is new and visible</td></tr>
+    <tr><td><strong>Engines</strong></td><td>pure TypeScript modules: chkoun, season, higher-lower, grid; fast-check property tests</td><td>no I/O, reproducible from a seed, answers never leave the server</td></tr>
+    <tr><td><strong>Data</strong></td><td>Neon Postgres + Prisma; nightly GitHub Actions job</td><td>pool, schedule, results, reports, accounts; data reviewed by PR</td></tr>
+    <tr><td><strong>Live</strong></td><td>Upstash Redis + SSE; PartyKit on Cloudflare for Duel</td><td>page 10</td></tr>
+    <tr><td><strong>AI</strong></td><td>Gemini free tier (A1, A2, A4); Cloudflare Workers AI as second provider</td><td>page 9</td></tr>
+    <tr><td><strong>Identity, analytics, errors</strong></td><td>Auth.js (Google, optional) · PostHog cookieless · Sentry (Student Pack)</td><td>streak sync; funnels and retention; errors</td></tr>
+    <tr><td><strong>Domain, CI</strong></td><td>Student Pack free domain · GitHub Actions: lint, typecheck, unit, Postgres, Playwright, Lighthouse budget</td><td>habits from Payout Ledger and tnpay</td></tr>
   </table>
-  <div class="foot"><span>Student Pack also offers Azure $100, Heroku $13/mo, MongoDB $50, Datadog, New Relic: not needed here</span><span>7 / 13</span></div>
+  <div class="grid cols3" style="margin-top:12px">
+    <div class="card"><h3>Student Pack used</h3><p>Free domain (Name.com .app/.dev/.live or Namecheap .me), Sentry for a year, Copilot. Azure, Heroku, MongoDB credits not needed.</p></div>
+    <div class="card"><h3>Hosting</h3><p>Vercel Hobby, fra1, cron for the daily roll and the nightly job. No ads, no prizes (Hobby terms).</p></div>
+    <div class="card"><h3>Costs</h3><p>Zero. Vercel, Neon, Upstash, PartyKit, PostHog, Gemini free tiers.</p></div>
+  </div>
+  <div class="foot"><span>kora · plan v2</span><span>12 / 16</span></div>
 </section>
 
-<!-- 8. Technical depth -->
 <section class="slide">
   <p class="eyebrow">What a recruiter will see</p>
   <h2>Seven places the engineering shows</h2>
-  <div class="grid cols3">
-    <div class="card"><h3>1 · Data pipeline with provenance</h3><p>Nightly SPARQL, normalisation, overrides, a diff opened as a PR, audience reports feeding a review queue.</p></div>
-    <div class="card"><h3>2 · Server-authoritative engine</h3><p>Pure functions, property tests, a deterministic schedule that is correct across time zones and never repeats a player within 90 days.</p></div>
-    <div class="card"><h3>3 · Redis the right way</h3><p>Sorted-set leaderboards, per-id and per-IP limits, one result per player per day (idempotency, again).</p></div>
-    <div class="card"><h3>4 · Arabic and French in one layout</h3><p>RTL, Arabic numerals and dates, two scripts for every name, a native review before launch.</p></div>
-    <div class="card"><h3>5 · Performance on a 3G Android</h3><p>Static page with ISR, edge share images, a Lighthouse budget enforced in CI, PWA offline for today's puzzle.</p></div>
-    <div class="card"><h3>6 · Measured growth</h3><p>Funnels from open to share, D1/D7 retention by language, decisions taken from the numbers and written down.</p></div>
-    <div class="card"><h3>7 · Abuse without accounts</h3><p>Anonymous ids, rate limits, the answer never leaves the server until the day ends; a public write-up if it is ever cheated.</p></div>
+  <div class="grid cols3" style="gap:12px">
+    <div class="card"><h3>1 · Data pipeline with provenance</h3><p>Nightly SPARQL, overrides, audience reports, an AI that proposes and a human that approves, every change a PR.</p></div>
+    <div class="card"><h3>2 · Deterministic engines</h3><p>Seeded season simulator, time-zone-correct schedule, grid rarity computed from everyone's answers; property-tested.</p></div>
+    <div class="card"><h3>3 · Three transports by need</h3><p>ISR + timer, SSE on Redis, WebSockets in Durable Objects, with the written reasons.</p></div>
+    <div class="card"><h3>4 · A dialect in two scripts</h3><p>RTL and LTR in one layout, transliteration-aware search, no machine translation.</p></div>
+    <div class="card"><h3>5 · AI with a ceiling</h3><p>Cached, quota-aware, template fallbacks, measured by its own events.</p></div>
+    <div class="card"><h3>6 · Fast on a 3G Android</h3><p>Lighthouse budget in CI, edge share images, PWA offline for today's puzzles.</p></div>
   </div>
-  <div class="foot"><span>kora · plan</span><span>8 / 13</span></div>
+  <div class="card" style="margin-top:12px"><h3>7 · Abuse without accounts</h3><p>Anonymous ids, per-id and per-IP limits, answers that never leave the server, one result per player per game per day (the idempotency habit from Payout Ledger), and a public write-up if the game is ever cheated.</p></div>
+  <div class="foot"><span>kora · plan v2</span><span>13 / 16</span></div>
 </section>
 
-<!-- 9. Users and growth -->
-<section class="slide">
-  <p class="eyebrow">Real users, measured</p>
-  <h2>How we count them, and how they arrive</h2>
-  <div class="grid cols2">
-    <div>
-      <table>
-        <tr><th>Event</th><th>Why</th></tr>
-        <tr><td>puzzle_opened</td><td>daily players</td></tr>
-        <tr><td>guess_made · puzzle_solved · puzzle_failed</td><td>difficulty tuning</td></tr>
-        <tr><td>result_shared (channel)</td><td>the growth loop</td></tr>
-        <tr><td>language_changed · signed_in</td><td>audience shape</td></tr>
-      </table>
-      <div class="grid cols3" style="margin-top:20px">
-        <div class="card"><div class="stat" style="font-size:40px">500</div><p class="muted">daily players, month 1 target</p></div>
-        <div class="card"><div class="stat" style="font-size:40px">25%</div><p class="muted">share rate</p></div>
-        <div class="card"><div class="stat" style="font-size:40px">30%</div><p class="muted">D7 retention</p></div>
-      </div>
-    </div>
-    <div class="card">
-      <h3>Launch plan</h3>
-      <p>Day 0: you post the share grid of puzzle #1 in the two or three biggest fan groups and on a Facebook page for the game (D7). Derby days get a pinned puzzle and a post. The game itself never posts; people do, because the grid is theirs.</p>
-      <h3 style="margin-top:14px">Privacy</h3><p>No personal data without sign-in. Cookieless analytics, so no banner. Reports and accounts deletable on request.</p>
-    </div>
-  </div>
-  <div class="foot"><span>kora · plan</span><span>9 / 13</span></div>
-</section>
-
-<!-- 10. Design direction -->
-<section class="slide">
-  <p class="eyebrow">Look and feel</p>
-  <h2>Big type, one red, a dark pitch green</h2>
-  <div class="grid" style="grid-template-columns: 1fr 1fr 1fr; align-items:start">
-    <div class="card"><h3>Palette</h3>
-      <div style="display:flex;gap:8px;margin:10px 0 14px"><div style="width:52px;height:52px;border-radius:10px;background:#0b1510;border:1px solid #22362b"></div><div style="width:52px;height:52px;border-radius:10px;background:#122019"></div><div style="width:52px;height:52px;border-radius:10px;background:#e63946"></div><div style="width:52px;height:52px;border-radius:10px;background:#2e9e5b"></div><div style="width:52px;height:52px;border-radius:10px;background:#c99a1e"></div></div>
-      <p>Pitch dark, card green, shirt red for actions, tile green and amber for results. Light mode later.</p></div>
-    <div class="card"><h3>Type</h3><p style="font-size:30px;font-weight:800;color:#fff;margin:6px 0">Kora #41</p><p class="ar" style="font-size:28px;font-weight:700;color:#fff;text-align:right;margin:0 0 8px">مين اللاعب؟</p><p>Inter for Latin, IBM Plex Sans Arabic for Arabic; 17px base on phones, tiles readable at arm's length.</p></div>
-    <div class="card"><h3>Motion</h3><p>Tiles flip in as the result arrives; the share grid pulses once; the streak counts up. All of it off under reduced motion. Nothing moves while the player is typing.</p></div>
-  </div>
-  <div class="card" style="margin-top:22px"><h3>Screens at launch</h3><p>Today's puzzle · result and player card · how to play · leaderboard (phase 3) · settings (language, sign-in). That is all.</p></div>
-  <div class="foot"><span>kora · plan</span><span>10 / 13</span></div>
-</section>
-
-<!-- 11. Decisions -->
 <section class="slide">
   <p class="eyebrow">Decisions for you</p>
-  <h2>Eight choices; my recommendation in each</h2>
-  <div class="grid cols4" style="gap:12px">
-    <div class="card decision"><span class="tag">D1</span><h3 style="margin-top:8px">Name and domain</h3><p>"Kora" family (kora.me, koratounsia.app), "Dawri", "El La3eb", or yours. <strong>Rec:</strong> a short Arabic-sounding name, not a club's; check the free domain first.</p></div>
-    <div class="card decision"><span class="tag">D2</span><h3 style="margin-top:8px">Default language</h3><p>Arabic or French. <strong>Rec:</strong> Arabic default, French one tap away.</p></div>
-    <div class="card decision"><span class="tag">D3</span><h3 style="margin-top:8px">Accounts</h3><p>Anonymous only, or anonymous + optional Google. <strong>Rec:</strong> optional Google in phase 3.</p></div>
-    <div class="card decision"><span class="tag">D4</span><h3 style="margin-top:8px">Pool scope</h3><p>Tunisian players only, or also foreigners in Ligue 1. <strong>Rec:</strong> Tunisians only at launch.</p></div>
-    <div class="card decision"><span class="tag">D5</span><h3 style="margin-top:8px">Photos</h3><p>Licensed Commons photos with credit, or silhouettes only. <strong>Rec:</strong> licensed photos, silhouettes as fallback.</p></div>
-    <div class="card decision"><span class="tag">D6</span><h3 style="margin-top:8px">Analytics</h3><p>PostHog cookieless, Umami, or Vercel Analytics. <strong>Rec:</strong> PostHog.</p></div>
-    <div class="card decision"><span class="tag">D7</span><h3 style="margin-top:8px">Launch channel</h3><p>You in fan groups, a dedicated page, or both. <strong>Rec:</strong> both.</p></div>
-    <div class="card decision"><span class="tag">D8</span><h3 style="margin-top:8px">Second mode</h3><p>Career Path, Higher or Lower, or none yet. <strong>Rec:</strong> Career Path, decided from week-one data.</p></div>
+  <h2>Ten choices; my recommendation in each</h2>
+  <div class="grid" style="grid-template-columns: repeat(5, 1fr); gap: 10px">
+    <div class="card decision"><span class="tag">D1</span><h3>Name and domain</h3><p>Kora family (kora.me, koratounsia.app), Dawri, or yours. <strong>Rec:</strong> short, Derja-sounding, not a club's; claim the free domain.</p></div>
+    <div class="card decision"><span class="tag">D2</span><h3>Default language</h3><p>Derja Arabic script / Derja Arabizi / French. <strong>Rec:</strong> Arabic script; the other two one tap away.</p></div>
+    <div class="card decision"><span class="tag">D3</span><h3>Accounts</h3><p>Anonymous only, or + optional Google. <strong>Rec:</strong> optional Google in phase 3.</p></div>
+    <div class="card decision"><span class="tag">D4</span><h3>Pool scope</h3><p>Tunisians only, or + foreigners in Ligue 1. <strong>Rec:</strong> Tunisians at launch; foreigners when 30–0 needs full squads.</p></div>
+    <div class="card decision"><span class="tag">D5</span><h3>Photos</h3><p>Licensed Commons photos with credit, or silhouettes. <strong>Rec:</strong> photos, silhouettes as fallback.</p></div>
+    <div class="card decision"><span class="tag">D6</span><h3>Analytics</h3><p>PostHog cookieless / Umami / Vercel Analytics. <strong>Rec:</strong> PostHog.</p></div>
+    <div class="card decision"><span class="tag">D7</span><h3>Launch channel</h3><p>Fan groups / a page for the game / both. <strong>Rec:</strong> both.</p></div>
+    <div class="card decision"><span class="tag">D8</span><h3>Launch set</h3><p>Chkoun? + 30–0 + Aktar wala A9all / Chkoun? only / all dailies. <strong>Rec:</strong> the three.</p></div>
+    <div class="card decision"><span class="tag">D9</span><h3>AI at runtime</h3><p>Coach's report on (quota, then templates) / only nightly AI. <strong>Rec:</strong> on, with the ceiling.</p></div>
+    <div class="card decision"><span class="tag">D10</span><h3>Duel transport</h3><p>PartyKit on Cloudflare / Ably / skip Duel. <strong>Rec:</strong> PartyKit, phase 3.</p></div>
   </div>
-  <div class="foot"><span>reply "D1 Kora, kora.me · D2 ok · …" and I start</span><span>11 / 13</span></div>
+  <p class="muted" style="margin-top:14px">Reply with one line per decision, or "all as recommended, D1 = …".</p>
+  <div class="foot"><span>kora · plan v2</span><span>14 / 16</span></div>
 </section>
 
-<!-- 12. Phases -->
 <section class="slide">
   <p class="eyebrow">Plan</p>
-  <h2>Twelve working days to a live, measured game</h2>
+  <h2>Launch in eight working days, eight games in four weeks</h2>
   <div class="grid cols4">
-    <div class="card"><p class="eyebrow" style="color:#9ad4b4">Days 1–3</p><h3>Foundation</h3><p>Repo, CI, engine with property tests, data pipeline and first pool, schedule generator.</p></div>
-    <div class="card"><p class="eyebrow" style="color:#9ad4b4">Days 4–7</p><h3>The game</h3><p>Page in AR and FR, server-side guessing, share grid, streaks, PWA, Playwright, Lighthouse budget, PostHog, Sentry, domain. <strong>Launch.</strong></p></div>
-    <div class="card"><p class="eyebrow" style="color:#9ad4b4">Days 8–12</p><h3>Keep them</h3><p>Leaderboards on Redis, optional sign-in, OG result images, report button and review queue, first nightly data PR.</p></div>
-    <div class="card"><p class="eyebrow" style="color:#9ad4b4">Week 3+</p><h3>Grow</h3><p>Second mode, derby pins, page content, retention work from the numbers, portfolio case study with real figures.</p></div>
+    <div class="card"><p class="eyebrow" style="color:#9ad4b4">Days 1–3</p><h3>Foundation</h3><p>Repo, CI, data pipeline with ratings and first pool, engines for Chkoun?, season and higher-or-lower with property tests.</p></div>
+    <div class="card"><p class="eyebrow" style="color:#9ad4b4">Days 4–8</p><h3>Launch</h3><p>Hub, the three games in three languages, share grid and squad card, SSE board, PWA, PostHog, Sentry, domain, A1 hints, A3 search. <strong>Live.</strong></p></div>
+    <div class="card"><p class="eyebrow" style="color:#9ad4b4">Days 9–14</p><h3>Keep</h3><p>Leaderboards, optional sign-in, Masira, Box 3×3, A2 coach's report, A4 review assistant, report button, first nightly data PR.</p></div>
+    <div class="card"><p class="eyebrow" style="color:#9ad4b4">Weeks 3–4</p><h3>Grow</h3><p>El 11, Tbannen for a national-team match, Duel on PartyKit, archive, retention work from the numbers, portfolio case study with real figures.</p></div>
   </div>
-  <div class="grid cols2" style="margin-top:14px">
-    <div class="card"><h3>Risks</h3><p>Stale clubs → overrides and reports. Facebook browser quirks → test in it. Nobody shares → measure share rate from day one and iterate. Photo licences → CC only, credited.</p></div>
-    <div class="card"><h3>Costs</h3><p>Zero. Vercel Hobby, Neon, Upstash, PostHog free tiers; Sentry and the domain from the Student Pack. No ads or prizes (Hobby terms).</p></div>
+  <div class="grid cols3" style="margin-top:14px">
+    <div class="card"><h3>Targets, month one</h3><p>500 daily players · 25% share rate · 30% D7 retention · 20% of visitors try 30–0.</p></div>
+    <div class="card"><h3>Risks</h3><p>Stale clubs → overrides and reports. Gemini quota → templates, then Workers AI. PartyKit terms → Ably. Nobody shares → measure from day one.</p></div>
+    <div class="card"><h3>Privacy</h3><p>No personal data without sign-in. Cookieless analytics, no banner. Everything deletable on request.</p></div>
   </div>
-  <div class="foot"><span>kora · plan</span><span>12 / 13</span></div>
+  <div class="foot"><span>kora · plan v2</span><span>15 / 16</span></div>
 </section>
 
-<!-- 13. Next -->
 <section class="slide">
   <p class="eyebrow">Next</p>
   <h2>What happens after you answer</h2>
   <div class="grid cols3">
-    <div class="card"><h3>You</h3><p>Answer D1–D8 (one line each is enough). Claim the domain in the Student Pack. Tell me which fan groups you are in.</p></div>
-    <div class="card"><h3>Me, same day</h3><p>Write the implementation plan, scaffold the repo, build the engine and the data pipeline, show you the first real pool.</p></div>
-    <div class="card"><h3>Me, by day 7</h3><p>A playable game on the free domain, Arabic and French, measured, with the launch post ready for you.</p></div>
+    <div class="card"><h3>You</h3><p>Answer D1–D10 (one line each). Claim the domain in the Student Pack. Write or review the Derja copy when I send the file (about 80 strings). Name the fan groups you're in.</p></div>
+    <div class="card"><h3>Me, same day</h3><p>Implementation plan, repo, CI, the data pipeline, the first real pool with ratings, the three engines with tests.</p></div>
+    <div class="card"><h3>Me, by day 8</h3><p>The hub live on the free domain with Chkoun?, 30–0 and Aktar wala A9all in three languages, measured, with your launch post ready.</p></div>
   </div>
-  <p class="lead" style="margin-top:40px">Full design with every detail: <span style="font-family:'JetBrains Mono',monospace;font-size:18px;color:#9ad4b4">kora/docs/superpowers/specs/2026-10-03-kora-design.md</span></p>
-  <div class="foot"><span>kora · plan</span><span>13 / 13</span></div>
+  <p class="lead" style="margin-top:36px">Full design: <span style="font-family:'JetBrains Mono',monospace;font-size:17px;color:#9ad4b4">kora/docs/superpowers/specs/2026-10-03-kora-design.md</span></p>
+  <div class="foot"><span>kora · plan v2</span><span>16 / 16</span></div>
 </section>
 
 </body>
