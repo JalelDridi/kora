@@ -2,6 +2,7 @@ import { execFile } from "node:child_process";
 import { cp, mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
+import { pathToFileURL } from "node:url";
 import { promisify } from "node:util";
 import { describe, expect, it } from "vitest";
 import { checkData, inspectData } from "./check.ts";
@@ -9,6 +10,12 @@ import type { Pool } from "./types.ts";
 
 const run = promisify(execFile);
 const CLI = path.join(process.cwd(), "src", "pipeline", "cli.ts");
+/** Every spawned CLI loads no-network.ts first: its fetch always throws. */
+const NO_NETWORK_ARGS = [
+  "--import",
+  pathToFileURL(path.join(process.cwd(), "src", "pipeline", "no-network.ts"))
+    .href,
+];
 
 /** A copy of the repository's data/ in a temporary folder, to break one file at a time. */
 async function copyOfData(): Promise<{
@@ -162,9 +169,13 @@ describe("checkData", () => {
 
 describe("pnpm data:check (node src/pipeline/cli.ts check)", () => {
   it("passes on the repository's data and prints no module warning", async () => {
-    const { stdout, stderr } = await run(process.execPath, [CLI, "check"], {
-      cwd: process.cwd(),
-    });
+    const { stdout, stderr } = await run(
+      process.execPath,
+      [...NO_NETWORK_ARGS, CLI, "check"],
+      {
+        cwd: process.cwd(),
+      },
+    );
     expect(stdout).toContain("data:check: ok");
     expect(stderr).not.toContain("MODULE_TYPELESS_PACKAGE_JSON");
   });
@@ -172,9 +183,13 @@ describe("pnpm data:check (node src/pipeline/cli.ts check)", () => {
   it("says what it could not check while there is no pool", async () => {
     const { root } = await copyOfData();
     await rm(path.join(root, "data", "pool.json"), { force: true });
-    const { stdout } = await run(process.execPath, [CLI, "check"], {
-      cwd: root,
-    });
+    const { stdout } = await run(
+      process.execPath,
+      [...NO_NETWORK_ARGS, CLI, "check"],
+      {
+        cwd: root,
+      },
+    );
     expect(stdout).toContain(
       "no data/pool.json yet: overrides checked for shape only, not against the pool",
     );
@@ -188,9 +203,13 @@ describe("pnpm data:check (node src/pipeline/cli.ts check)", () => {
       players: { Q1: { caps: { value: -1, ...by } } },
       clubTitles: {},
     });
-    const failed = await run(process.execPath, [CLI, "check"], {
-      cwd: root,
-    }).then(
+    const failed = await run(
+      process.execPath,
+      [...NO_NETWORK_ARGS, CLI, "check"],
+      {
+        cwd: root,
+      },
+    ).then(
       () => null,
       (error: { code: number; stderr: string }) => error,
     );
@@ -255,9 +274,13 @@ describe("stale overrides (fix round 1, finding 4)", () => {
         "data/overrides.json: players.Q8: stale override: seen by the pipeline but not in the current pool; not applied",
       ],
     });
-    const { stdout } = await run(process.execPath, [CLI, "check"], {
-      cwd: root,
-    });
+    const { stdout } = await run(
+      process.execPath,
+      [...NO_NETWORK_ARGS, CLI, "check"],
+      {
+        cwd: root,
+      },
+    );
     expect(stdout).toContain(
       "data:check: warning: data/overrides.json: players.Q7: stale override",
     );
@@ -271,9 +294,13 @@ describe("stale overrides (fix round 1, finding 4)", () => {
     expect(await checkData(root)).toEqual([
       "data/overrides.json: players.Q8: not a footballer in the pool",
     ]);
-    const failed = await run(process.execPath, [CLI, "check"], {
-      cwd: root,
-    }).then(
+    const failed = await run(
+      process.execPath,
+      [...NO_NETWORK_ARGS, CLI, "check"],
+      {
+        cwd: root,
+      },
+    ).then(
       () => null,
       (error: { code: number; stderr: string }) => error,
     );

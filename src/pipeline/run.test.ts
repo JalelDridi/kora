@@ -2,6 +2,7 @@ import { execFile } from "node:child_process";
 import { access, mkdir, mkdtemp, readFile, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
+import { pathToFileURL } from "node:url";
 import { promisify } from "node:util";
 import { describe, expect, it } from "vitest";
 import { createPoliteClient, StoppedError } from "./http.ts";
@@ -528,19 +529,53 @@ describe("planRequests", () => {
   });
 });
 
+/** Thrown by no-network.ts; not imported here, so its side effect comes from the setup alone. */
+const NO_NETWORK = "network is not allowed in tests";
+
+/** node --import no-network.ts src/pipeline/cli.ts <args>, in `cwd`. */
+async function cli(args: string[], cwd: string) {
+  const here = path.join(process.cwd(), "src", "pipeline");
+  return promisify(execFile)(
+    process.execPath,
+    [
+      "--import",
+      pathToFileURL(path.join(here, "no-network.ts")).href,
+      path.join(here, "cli.ts"),
+      ...args,
+    ],
+    { cwd },
+  ).then(
+    () => null,
+    (error: { code: number; stdout: string; stderr: string }) => error,
+  );
+}
+
+describe("no network in tests", () => {
+  it("makes fetch throw inside the test process", async () => {
+    // A closed local port: without the setup file this fails differently.
+    await expect(fetch("http://127.0.0.1:9/")).rejects.toThrow(NO_NETWORK);
+  });
+
+  it("makes a spawned build fail on its first request", async () => {
+    const root = await setup();
+    const failed = await cli(["build"], root);
+    expect(failed?.code).toBe(1);
+    expect(failed?.stdout).toContain(`wikidata: ${NO_NETWORK}; no cached copy`);
+    expect(failed?.stdout).not.toContain("wdqs players:");
+    expect(failed?.stderr).toContain(
+      `data:build refused: wikidata failed and there is no cached copy (${NO_NETWORK})`,
+    );
+    expect(await exists(file(root, "pool.json"))).toBe(false);
+  });
+});
+
 describe("pnpm data:build (node src/pipeline/cli.ts build)", () => {
   it("refuses with exit code 1, before any request, on a broken overrides file", async () => {
     const root = await setup({
       players: { Q1: { caps: { value: -1 } } },
       clubTitles: {},
     });
-    const cli = path.join(process.cwd(), "src", "pipeline", "cli.ts");
-    const failed = await promisify(execFile)(process.execPath, [cli, "build"], {
-      cwd: root,
-    }).then(
-      () => null,
-      (error: { code: number; stdout: string; stderr: string }) => error,
-    );
+    const failed = await cli(["build"], root);
     expect(failed?.code).toBe(1);
     expect(failed?.stdout).toContain("data/overrides.json: players.Q1.caps");
     expect(failed?.stderr).toContain(

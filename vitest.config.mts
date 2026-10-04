@@ -9,5 +9,7 @@ export default defineConfig({
     environment: "node",
     include: ["src/**/*.test.ts"],
     exclude: ["src/**/*.db.test.ts"],
+    // Unit tests never reach the network: fetch throws (src/pipeline/no-network.ts).
+    setupFiles: ["src/pipeline/no-network.ts"],
   },
 });
