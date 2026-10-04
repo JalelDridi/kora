@@ -32,6 +32,7 @@ import {
   redirectsUrl,
   revisionsUrl,
 } from "./wiki/fetch.ts";
+import type { Page } from "./wiki/fetch.ts";
 import { parseEnInfobox } from "./wiki/infobox-en.ts";
 import { parseFrInfobox } from "./wiki/infobox-fr.ts";
 import {
@@ -62,9 +63,12 @@ import {
 export type RunDeps = {
   root: string;
   today: string;
-  wdqs: PoliteClient;
-  wikimedia: PoliteClient;
-  github: PoliteClient;
+  /** The three clients; an offline build has none and makes no request. */
+  wdqs?: PoliteClient;
+  wikimedia?: PoliteClient;
+  github?: PoliteClient;
+  /** Every source from data/cache/, parsed again; no request at all. */
+  offline?: boolean;
   log: (line: string) => void;
   /** How outputs are written (tests inject a failure); default fs.writeFile. */
   writeFile?: (file: string, text: string) => Promise<void>;
@@ -82,7 +86,9 @@ export type ClientName = "wdqs" | "wikimedia" | "github";
  */
 export function createClients(
   options: { fetch?: FetchLike; sleep?: (ms: number) => Promise<void> } = {},
-): Pick<RunDeps, ClientName> & { attempts: () => Record<ClientName, number> } {
+): Record<ClientName, PoliteClient> & {
+  attempts: () => Record<ClientName, number>;
+} {
   const counts: Record<ClientName, number> = {
     wdqs: 0,
     wikimedia: 0,
@@ -122,10 +128,12 @@ const GITHUB_DOWNLOADS = 2;
 
 /**
  * The format of data/cache/<source>.json. Bump it whenever a cached shape
- * changes (a parser's output, Infobox, Photo, WdClub…): a copy of another
- * version is then ignored, as if there were no cache.
+ * changes: a copy of another version is then ignored, as if there were no
+ * cache. Version 2: the cache keeps what the servers sent (wikitext, SPARQL
+ * results, Commons pages, CSV rows) and every run parses it again, so a
+ * parser change needs no new request. Version 1 kept parsed values.
  */
-export const CACHE_VERSION = 1;
+export const CACHE_VERSION = 2;
 
 type CacheEntry<T> = {
   version: number;
@@ -140,23 +148,43 @@ const listOf = (v: unknown) => Array.isArray(v);
 const pairs = (v: unknown) =>
   Array.isArray(v) && v.every((e) => Array.isArray(e) && e.length === 2);
 
-/** The least a cached payload must look like before the run uses it. */
+const sparqlResult = (v: unknown) =>
+  isObject(v) && isObject(v.results) && listOf(v.results.bindings);
+
+/** The least a cached raw answer must look like before the run parses it. */
 const SHAPES: Record<string, (v: unknown) => boolean> = {
   wikidata: (v) =>
     isObject(v) &&
-    listOf(v.players) &&
-    pairs(v.aliases) &&
-    listOf(v.memberships) &&
-    listOf(v.honours) &&
-    isObject(v.honoursReading),
-  "infobox-en": pairs,
-  "infobox-fr": pairs,
+    ["players", "aliases", "memberships", "honours"].every((q) =>
+      sparqlResult(v[q]),
+    ),
+  "infobox-en": (v) => isObject(v) && listOf(v.pages) && pairs(v.moved),
+  "infobox-fr": (v) => isObject(v) && listOf(v.pages) && pairs(v.moved),
   redirects: (v) => isObject(v) && pairs(v.en) && pairs(v.fr),
-  clubs: listOf,
+  clubs: (v) =>
+    Array.isArray(v) &&
+    v.every((e) => Array.isArray(e) && e.length === 2 && sparqlResult(e[1])),
   commons: listOf,
-  martj42: listOf,
-  "martj42-goals": pairs,
+  martj42: (v) => typeof v === "string",
+  "martj42-goals": (v) => typeof v === "string",
 };
+
+/** Wikitext before the first section heading: the lead, where the infobox is. */
+export function sectionZero(wikitext: string): string {
+  const heading = /^==[^=].*$/m.exec(wikitext);
+  return heading ? wikitext.slice(0, heading.index) : wikitext;
+}
+
+/**
+ * The header and every row naming Tunisia: all that tunisiaMatches and
+ * tunisiaScorers read (each filters further), at a fraction of the 3 MB files.
+ */
+function tunisiaRows(csv: string): string {
+  const [header = "", ...lines] = csv.replace(/\r/g, "").split("\n");
+  return (
+    [header, ...lines.filter((l) => l.includes("Tunisia"))].join("\n") + "\n"
+  );
+}
 
 /** An answer that should hold something but holds nothing is a failure. */
 function nonEmpty<T>(list: T[], what: string): T[] {
@@ -275,22 +303,29 @@ async function build(deps: RunDeps): Promise<RunResult> {
   const data = path.join(deps.root, "data");
   const statuses: Record<string, SourceStatus> = {};
   const sent = { wdqs: 0, wikimedia: 0, github: 0 };
-  const count = (name: keyof typeof sent): PoliteClient => ({
-    getJson(url, init) {
-      sent[name]++;
-      return deps[name].getJson(url, init);
-    },
-    getText(url, init) {
-      sent[name]++;
-      return deps[name].getText(url, init);
-    },
-  });
+  const count = (name: keyof typeof sent): PoliteClient => {
+    const client = () => {
+      const c = deps[name];
+      if (!c || deps.offline) throw new Error(`no ${name} client in this run`);
+      return c;
+    };
+    return {
+      getJson(url, init) {
+        sent[name]++;
+        return client().getJson(url, init);
+      },
+      getText(url, init) {
+        sent[name]++;
+        return client().getText(url, init);
+      },
+    };
+  };
   const wdqs = count("wdqs");
   const wikimedia = count("wikimedia");
   const github = count("github");
 
   /** The cached copy of a source, or null when there is none worth using (the log says why). */
-  async function readCache<T>(name: string): Promise<CacheEntry<T> | null> {
+  async function readCache<R>(name: string): Promise<CacheEntry<R> | null> {
     let text: string;
     try {
       text = await readFile(path.join(data, "cache", `${name}.json`), "utf8");
@@ -316,27 +351,54 @@ async function build(deps: RunDeps): Promise<RunResult> {
       return ignore("no source or date");
     if (!(SHAPES[name] ?? (() => true))(entry.value))
       return ignore("the answer has the wrong shape");
-    return entry as CacheEntry<T>;
+    return entry as CacheEntry<R>;
   }
 
   /**
-   * Fetch, or fall back to the last good answer, recording which; no answer
-   * at all stops the run. A fetcher throws on an error body or an empty
-   * answer, so only answers worth keeping replace the cached copy.
+   * One source: fetch its raw answer and parse it, or fall back to the raw
+   * answer last cached and parse that, recording which. Fresh or cached, the
+   * same `parse` runs, so a parser change takes effect without a request.
+   * `fetchRaw` throws on an error body or an answer cut short, `parse` on an
+   * empty answer: only answers worth keeping replace the cached copy. No
+   * answer at all stops the run. Offline, every source is read from the cache.
    */
-  async function cached<T>(
+  async function source<R, T>(
     name: string,
-    fetcher: () => Promise<T>,
+    fetchRaw: () => Promise<R>,
+    parse: (raw: R) => T,
   ): Promise<T> {
+    const fromCache = async (note: string, refusal: string): Promise<T> => {
+      const last = await readCache<R>(name);
+      deps.log(
+        `${name}: ${note}; ${last ? `using the copy from ${last.savedAt}` : "no cached copy"}`,
+      );
+      if (!last) throw new Refusal(refusal);
+      let value: T;
+      try {
+        value = parse(last.value);
+      } catch (error) {
+        throw new Refusal(
+          `${name}: the cached copy from ${last.savedAt} does not parse (${(error as Error).message})`,
+        );
+      }
+      statuses[name] = { status: "cached", retrievedAt: last.savedAt, note };
+      return value;
+    };
+    if (deps.offline)
+      return fromCache(
+        "offline build",
+        `${name} has no usable cached copy (offline build)`,
+      );
     const file = path.join(data, "cache", `${name}.json`);
     try {
-      const value = await fetcher();
+      const raw = await fetchRaw();
+      const value = parse(raw);
       await mkdir(path.dirname(file), { recursive: true });
-      const entry: CacheEntry<T> = {
+      const entry: CacheEntry<R> = {
         version: CACHE_VERSION,
         savedAt: deps.today,
         source: name,
-        value,
+        value: raw,
       };
       await writeFile(file, JSON.stringify(entry));
       statuses[name] = { status: "fresh", retrievedAt: deps.today };
@@ -344,20 +406,10 @@ async function build(deps: RunDeps): Promise<RunResult> {
     } catch (error) {
       if (error instanceof Refusal) throw error;
       const note = error instanceof Error ? error.message : String(error);
-      const last = await readCache<T>(name);
-      deps.log(
-        `${name}: ${note}; ${last ? `using the copy from ${last.savedAt}` : "no cached copy"}`,
-      );
-      if (!last)
-        throw new Refusal(
-          `${name} failed and there is no cached copy (${note})`,
-        );
-      statuses[name] = {
-        status: "cached",
-        retrievedAt: last.savedAt,
+      return fromCache(
         note,
-      };
-      return last.value;
+        `${name} failed and there is no cached copy (${note})`,
+      );
     }
   }
 
@@ -404,8 +456,10 @@ async function build(deps: RunDeps): Promise<RunResult> {
     (await readJson<CuratedHonour[]>(
       path.join(data, "curated", "honours.json"),
     )) ?? [];
+  if (deps.offline)
+    deps.log("offline build: every source from data/cache/, no request");
 
-  // Wikidata.
+  // Wikidata: the four SPARQL results as sent.
   const sparql = async (label: string, query: string) => {
     const { url, init } = sparqlRequest(query);
     const started = performance.now();
@@ -415,29 +469,36 @@ async function build(deps: RunDeps): Promise<RunResult> {
     );
     return json;
   };
-  const wikidata = await cached<Wikidata>("wikidata", async () => {
-    const players = nonEmpty(
-      parsePlayers(await sparql("players", PLAYERS_QUERY)),
-      "no footballers",
-    );
-    const aliases = nonEmpty(
-      parseAliases(await sparql("aliases", ALIASES_QUERY)),
-      "no aliases",
-    );
-    const memberships = nonEmpty(
-      parseMemberships(await sparql("memberships", MEMBERSHIPS_QUERY)),
-      "no memberships",
-    );
-    const report = parseHonoursReport(await sparql("honours", HONOURS_QUERY));
-    nonEmpty(report.honours, "no honours");
-    return {
-      players,
-      aliases,
-      memberships,
-      honours: report.honours,
-      honoursReading: { issues: report.issues, skipped: report.skipped },
-    };
-  });
+  type WikidataRaw = Record<
+    "players" | "aliases" | "memberships" | "honours",
+    unknown
+  >;
+  const wikidata = await source<WikidataRaw, Wikidata>(
+    "wikidata",
+    async () => ({
+      players: await sparql("players", PLAYERS_QUERY),
+      aliases: await sparql("aliases", ALIASES_QUERY),
+      memberships: await sparql("memberships", MEMBERSHIPS_QUERY),
+      honours: await sparql("honours", HONOURS_QUERY),
+    }),
+    (raw) => {
+      const players = nonEmpty(parsePlayers(raw.players), "no footballers");
+      const aliases = nonEmpty(parseAliases(raw.aliases), "no aliases");
+      const memberships = nonEmpty(
+        parseMemberships(raw.memberships),
+        "no memberships",
+      );
+      const report = parseHonoursReport(raw.honours);
+      nonEmpty(report.honours, "no honours");
+      return {
+        players,
+        aliases,
+        memberships,
+        honours: report.honours,
+        honoursReading: { issues: report.issues, skipped: report.skipped },
+      };
+    },
+  );
   const aliases = new Map(wikidata.aliases);
   const players = wikidata.players.map((p) => ({
     ...p,
@@ -461,53 +522,67 @@ async function build(deps: RunDeps): Promise<RunResult> {
   deps.log(
     `${players.length} footballers on Wikidata, ${wanted.length} men born 1965 or later: ${titles.en.length} English and ${titles.fr.length} French articles, ${files.length} photos`,
   );
-  deps.log(
-    `plan: wdqs ${plan.wdqs}, wikimedia ${plan.wikimedia} (+ redirects, counted before they are asked), github ${plan.github}: at most ${plan.total} requests before redirects, plus retries after a 503 (budget ${budget})`,
-  );
-  if (plan.total > budget)
-    throw new Refusal(
-      `the run would make at least ${plan.total} requests before redirects, over the budget of ${budget}`,
+  if (!deps.offline) {
+    deps.log(
+      `plan: wdqs ${plan.wdqs}, wikimedia ${plan.wikimedia} (+ redirects, counted before they are asked), github ${plan.github}: at most ${plan.total} requests before redirects, plus retries after a 503 (budget ${budget})`,
     );
+    if (plan.total > budget)
+      throw new Refusal(
+        `the run would make at least ${plan.total} requests before redirects, over the budget of ${budget}`,
+      );
+  }
 
-  // English and French infoboxes, keyed by the title Wikidata gives and by
-  // the title the page answers to (a sitelink may go through a redirect).
+  // English and French infoboxes. The cache keeps section 0 of each page
+  // (with its revision id and timestamp) and how requested titles moved; the
+  // infobox parser runs on it every time. Infoboxes are keyed by the page's
+  // title and by each title that moved to it (a sitelink may be a redirect).
+  type PagesRaw = { pages: Page[]; moved: [string, string][] };
   const infoboxes = async (lang: "en" | "fr") =>
-    new Map(
-      await cached<[string, Infobox][]>(`infobox-${lang}`, async () => {
-        const out: [string, Infobox][] = [];
-        let pages = 0;
+    source<PagesRaw, Map<string, Infobox>>(
+      `infobox-${lang}`,
+      async () => {
+        const raw: PagesRaw = { pages: [], moved: [] };
         for (const batch of chunk(titles[lang])) {
           const json = await wikimedia.getJson(revisionsUrl(lang, batch));
           pagesOf(json, batch.length);
           const read = parseRevisions(json);
-          const moved = new Map(read.aliases);
-          const target = (title: string) => {
-            let t = title;
-            for (let i = 0; i < 3 && moved.has(t); i++) t = moved.get(t)!;
-            return t;
-          };
-          const boxes = new Map<string, Infobox>();
-          for (const page of read.pages) {
-            pages++;
-            const box =
-              lang === "en"
-                ? parseEnInfobox(page.title, page.wikitext)
-                : parseFrInfobox(page.title, page.wikitext);
-            if (box) boxes.set(page.title, box);
-          }
-          for (const [title, box] of boxes) out.push([title, box]);
-          for (const title of batch) {
-            const box = boxes.get(target(title));
-            if (box && !boxes.has(title)) out.push([title, box]);
-          }
+          raw.pages.push(
+            ...read.pages.map((p) => ({
+              ...p,
+              wikitext: sectionZero(p.wikitext),
+            })),
+          );
+          raw.moved.push(...read.aliases);
+        }
+        return raw;
+      },
+      (raw) => {
+        const moved = new Map(raw.moved);
+        const boxes = new Map<string, Infobox>();
+        for (const page of raw.pages) {
+          const box =
+            lang === "en"
+              ? parseEnInfobox(page.title, page.wikitext)
+              : parseFrInfobox(page.title, page.wikitext);
+          if (box) boxes.set(page.title, box);
+        }
+        const out = new Map(boxes);
+        for (const from of moved.keys()) {
+          let to = from;
+          for (let i = 0; i < 3 && moved.has(to); i++) to = moved.get(to)!;
+          const box = boxes.get(to);
+          if (box && !out.has(from)) out.set(from, box);
         }
         deps.log(
-          `infobox-${lang}: ${titles[lang].length} titles, ${pages} pages, ${new Set(out.map(([, b]) => b)).size} infoboxes`,
+          `infobox-${lang}: ${raw.pages.length} pages, ${boxes.size} infoboxes`,
         );
         if (titles[lang].length > 0)
-          nonEmpty(out, `no infobox in ${titles[lang].length} titles`);
+          nonEmpty(
+            [...boxes.values()],
+            `no infobox in ${titles[lang].length} titles`,
+          );
         return out;
-      }),
+      },
     );
   const en = await infoboxes("en");
   const fr = await infoboxes("fr");
@@ -538,34 +613,36 @@ async function build(deps: RunDeps): Promise<RunResult> {
     files: files.length,
     redirects: { en: currentClubs.en.length, fr: currentClubs.fr.length },
   });
-  deps.log(
-    `plan with redirects: wdqs ${exact.wdqs}, wikimedia ${exact.wikimedia}, github ${exact.github}: at most ${exact.total} requests, plus retries after a 503 (budget ${budget})`,
-  );
-  if (exact.total > budget)
-    throw new Refusal(
-      `with ${exact.wikimedia - plan.wikimedia} redirect lookups the run would make up to ${exact.total} requests, over the budget of ${budget}`,
+  if (!deps.offline) {
+    deps.log(
+      `plan with redirects: wdqs ${exact.wdqs}, wikimedia ${exact.wikimedia}, github ${exact.github}: at most ${exact.total} requests, plus retries after a 503 (budget ${budget})`,
     );
-  const redirects = await cached<{
-    en: [string, string][];
-    fr: [string, string][];
-  }>("redirects", async () => {
-    const out: { en: [string, string][]; fr: [string, string][] } = {
-      en: [],
-      fr: [],
-    };
-    for (const lang of ["en", "fr"] as const) {
-      for (const batch of chunk(currentClubs[lang])) {
-        const json = await wikimedia.getJson(redirectsUrl(lang, batch));
-        pagesOf(json, batch.length);
-        out[lang].push(...parseRevisions(json).aliases);
+    if (exact.total > budget)
+      throw new Refusal(
+        `with ${exact.wikimedia - plan.wikimedia} redirect lookups the run would make up to ${exact.total} requests, over the budget of ${budget}`,
+      );
+  }
+  // The answer's `normalized` and `redirects` lists, as from → to pairs.
+  type Moves = { en: [string, string][]; fr: [string, string][] };
+  const redirects = await source<Moves, Moves>(
+    "redirects",
+    async () => {
+      const out: Moves = { en: [], fr: [] };
+      for (const lang of ["en", "fr"] as const) {
+        for (const batch of chunk(currentClubs[lang])) {
+          const json = await wikimedia.getJson(redirectsUrl(lang, batch));
+          pagesOf(json, batch.length);
+          out[lang].push(...parseRevisions(json).aliases);
+        }
       }
-    }
-    return out;
-  });
+      return out;
+    },
+    (raw) => raw,
+  );
 
   // Clubs: by id (the wanted footballers' memberships, honours, curated
   // honours, overrides) and by title (infoboxes, this season's Ligue 1), in
-  // up to three queries.
+  // up to three queries, each SPARQL result kept as sent.
   const overrides = shape.overrides;
   const wantedQids = new Set(wanted.map((p) => p.qid));
   const clubQids = [
@@ -593,26 +670,33 @@ async function build(deps: RunDeps): Promise<RunResult> {
     ...new Set([...titlesOf(boxesOf(en), redirects.en), ...ligue1.clubs]),
   ];
   const frTitles = titlesOf(boxesOf(fr), redirects.fr);
-  const clubs = await cached<WdClub[]>("clubs", async () => {
-    const found = new Map<string, WdClub>();
-    const parts: [string, string[], string[], string[]][] = [
-      ["clubs by id", clubQids, [], []],
-      ["clubs by English title", [], enTitles, []],
-      ["clubs by French title", [], [], frTitles],
-    ];
-    for (const [label, qids, enT, frT] of parts) {
-      if (qids.length + enT.length + frT.length === 0) continue;
-      for (const club of parseClubs(
-        await sparql(label, clubsQuery(qids, enT, frT)),
-      ))
-        if (!found.has(club.qid)) found.set(club.qid, club);
-    }
-    // One title part may rightly match nothing; all of them together may not.
-    const asked = clubQids.length + enTitles.length + frTitles.length;
-    if (asked > 0)
-      nonEmpty([...found.values()], `no club for ${asked} ids and titles`);
-    return [...found.values()];
-  });
+  const asked = clubQids.length + enTitles.length + frTitles.length;
+  const clubs = await source<[string, unknown][], WdClub[]>(
+    "clubs",
+    async () => {
+      const out: [string, unknown][] = [];
+      const parts: [string, string[], string[], string[]][] = [
+        ["clubs by id", clubQids, [], []],
+        ["clubs by English title", [], enTitles, []],
+        ["clubs by French title", [], [], frTitles],
+      ];
+      for (const [label, qids, enT, frT] of parts) {
+        if (qids.length + enT.length + frT.length === 0) continue;
+        out.push([label, await sparql(label, clubsQuery(qids, enT, frT))]);
+      }
+      return out;
+    },
+    (raw) => {
+      const found = new Map<string, WdClub>();
+      for (const [, json] of raw)
+        for (const club of parseClubs(json))
+          if (!found.has(club.qid)) found.set(club.qid, club);
+      // One title part may rightly match nothing; all of them together may not.
+      if (asked > 0)
+        nonEmpty([...found.values()], `no club for ${asked} ids and titles`);
+      return [...found.values()];
+    },
+  );
 
   // Overrides against what the sources know: every footballer Wikidata gave,
   // every club the queries found; ids the pipeline met before are stale.
@@ -626,28 +710,32 @@ async function build(deps: RunDeps): Promise<RunResult> {
   });
   if (!checked.ok) return refuseOverrides(checked.errors);
 
-  const photos = await cached<Photo[]>("commons", async () => {
-    const out: Photo[] = [];
-    for (const batch of chunk(files)) {
-      const json = await wikimedia.getJson(commonsUrl(batch));
-      const found = parseCommons(json); // throws on an error body
-      pagesOf(json, batch.length);
-      out.push(...found.values());
-    }
-    return out;
-  });
-  const matches = await cached<Match[]>("martj42", async () =>
-    nonEmpty(
-      tunisiaMatches(await github.getText(RESULTS_URL)),
-      "no Tunisia match",
-    ),
+  // Commons: each file's page object (imageinfo with its metadata) as sent.
+  const photos = await source<unknown[], Photo[]>(
+    "commons",
+    async () => {
+      const out: unknown[] = [];
+      for (const batch of chunk(files)) {
+        const json = await wikimedia.getJson(commonsUrl(batch));
+        parseCommons(json); // throws on an error body
+        pagesOf(json, batch.length);
+        out.push(...(json as { query: { pages: unknown[] } }).query.pages);
+      }
+      return out;
+    },
+    (raw) => [...parseCommons({ query: { pages: raw } }).values()],
+  );
+  // martj42: the header and the rows naming Tunisia, as text.
+  const matches = await source<string, Match[]>(
+    "martj42",
+    async () => tunisiaRows(await github.getText(RESULTS_URL)),
+    (raw) => nonEmpty(tunisiaMatches(raw), "no Tunisia match"),
   );
   // A floor for goals, never a confirmation (addendum §5).
-  const scorers = await cached<[string, number][]>("martj42-goals", async () =>
-    nonEmpty(
-      tunisiaScorers(await github.getText(GOALSCORERS_URL)),
-      "no Tunisia scorer",
-    ),
+  const scorers = await source<string, [string, number][]>(
+    "martj42-goals",
+    async () => tunisiaRows(await github.getText(GOALSCORERS_URL)),
+    (raw) => nonEmpty(tunisiaScorers(raw), "no Tunisia scorer"),
   );
 
   const { pool, ids } = buildPool({

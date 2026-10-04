@@ -1,18 +1,24 @@
 # Data
 
-| File                        | Written by                          | What it is                                                                               |
-| --------------------------- | ----------------------------------- | ---------------------------------------------------------------------------------------- |
-| `pool.json`                 | the nightly job (`pnpm data:build`) | Footballers, clubs and honours the games use; every field names its source               |
-| `ids.json`                  | the nightly job                     | Every id ever given, keyed by Wikidata id; ids are permanent                             |
-| `report.md`                 | the nightly job                     | What changed, coverage, and flags to review; also the nightly pull request's description |
-| `overrides.json`            | Jalel                               | Corrections that always win, each with who decided and when                              |
-| `curated/governorates.json` | Jalel                               | The 24 governorates, their names and their region                                        |
-| `curated/ligue1-clubs.json` | Jalel                               | This season's Ligue 1 clubs, as English Wikipedia titles                                 |
-| `curated/honours.json`      | Jalel                               | Club titles Wikidata does not have                                                       |
-| `cache/` (not committed)    | the job                             | The last good answer from each source, used when a source fails                          |
-| `LICENSE`                   | Jalel                               | The data's licence: CC BY-SA 4.0                                                         |
+| File                        | Written by                          | What it is                                                                                                                                    |
+| --------------------------- | ----------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| `pool.json`                 | the nightly job (`pnpm data:build`) | Footballers, clubs and honours the games use; every field names its source                                                                    |
+| `ids.json`                  | the nightly job                     | Every id ever given, keyed by Wikidata id; ids are permanent                                                                                  |
+| `report.md`                 | the nightly job                     | What changed, coverage, and flags to review; also the nightly pull request's description                                                      |
+| `overrides.json`            | Jalel                               | Corrections that always win, each with who decided and when                                                                                   |
+| `curated/governorates.json` | Jalel                               | The 24 governorates, their names and their region                                                                                             |
+| `curated/ligue1-clubs.json` | Jalel                               | This season's Ligue 1 clubs, as English Wikipedia titles                                                                                      |
+| `curated/honours.json`      | Jalel                               | Club titles Wikidata does not have                                                                                                            |
+| `cache/` (not committed)    | the job                             | The last good raw answer from each source (wikitext, SPARQL results, Commons pages, CSV rows), used when a source fails and by offline builds |
+| `LICENSE`                   | Jalel                               | The data's licence: CC BY-SA 4.0                                                                                                              |
 
 Nothing here reaches the database until a pull request is merged: the deploy that follows writes `pool.json` to that environment's database.
+
+## The cache and offline builds
+
+`cache/` keeps what each server sent, not what the pipeline made of it: section 0 of each Wikipedia article (the lead with its infobox) with its revision id and timestamp, the SPARQL results of each Wikidata query, each Commons file's metadata, and the header and Tunisia rows of the martj42 files. Every build parses these again, so a parser change takes effect without a new request. Each file records its format version, the day it was saved and its source; a copy of another version is ignored.
+
+`pnpm data:build --offline` rebuilds `pool.json`, `ids.json` and `report.md` from the cache alone: no request is made, every source is reported as `cached` with its date, and the build refuses if a source has no usable copy. Use it to check a parser or merge change in seconds.
 
 ## An override
 

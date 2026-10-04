@@ -3,7 +3,13 @@
 
 export const BATCH = 50;
 
-export type Page = { title: string; revid: number; wikitext: string };
+export type Page = {
+  title: string;
+  revid: number;
+  /** When the revision was saved; null when the answer does not say. */
+  timestamp: string | null;
+  wikitext: string;
+};
 
 export function chunk<T>(items: T[], size = BATCH): T[][] {
   const out: T[][] = [];
@@ -27,7 +33,7 @@ function api(lang: "en" | "fr", params: Record<string, string>): string {
 export function revisionsUrl(lang: "en" | "fr", titles: string[]): string {
   return api(lang, {
     prop: "revisions",
-    rvprop: "content|ids",
+    rvprop: "content|ids|timestamp",
     rvslots: "main",
     redirects: "1",
     titles: titles.join("|"),
@@ -38,7 +44,11 @@ export function redirectsUrl(lang: "en" | "fr", titles: string[]): string {
   return api(lang, { redirects: "1", titles: titles.join("|") });
 }
 
-type Revision = { revid?: number; slots?: { main?: { content?: string } } };
+type Revision = {
+  revid?: number;
+  timestamp?: string;
+  slots?: { main?: { content?: string } };
+};
 type ApiPage = { title?: string; missing?: boolean; revisions?: Revision[] };
 type Move = { from?: string; to?: string };
 type ApiResponse = {
@@ -71,6 +81,7 @@ export function parseRevisions(json: unknown): {
     pages.push({
       title: page.title,
       revid: revision?.revid ?? 0,
+      timestamp: revision?.timestamp ?? null,
       wikitext: content,
     });
   }

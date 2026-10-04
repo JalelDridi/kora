@@ -4,19 +4,22 @@ import { inspectData } from "./check.ts";
 import { createClients, run } from "./run.ts";
 
 // Run with Node directly:
-//   node src/pipeline/cli.ts build   fetch, merge, write data/pool.json, data/ids.json, data/report.md
-//   node src/pipeline/cli.ts check   check every file in data/
+//   node src/pipeline/cli.ts build             fetch, merge, write data/pool.json, data/ids.json, data/report.md
+//   node src/pipeline/cli.ts build --offline   the same from data/cache/ alone: no client, no request
+//   node src/pipeline/cli.ts check             check every file in data/
 // An entry point: app code never imports this file.
 const command = process.argv[2];
 
 if (command === "build") {
   const started = Date.now();
+  const offline = process.argv.includes("--offline");
   const result = await run({
     root: process.cwd(),
     today: new Date().toISOString().slice(0, 10),
-    // wdqs, wikimedia (en, fr and Commons share it) and github, each counting
-    // its HTTP attempts (ruling R2; see createClients in run.ts).
-    ...createClients(),
+    // Online: wdqs, wikimedia (en, fr and Commons share it) and github, each
+    // counting its HTTP attempts (ruling R2; see createClients in run.ts).
+    // Offline: no client is created at all.
+    ...(offline ? { offline: true } : createClients()),
     log: (line) => console.log(line),
   });
   console.log(`data:build: ${((Date.now() - started) / 1000).toFixed(0)} s`);
@@ -50,6 +53,6 @@ if (command === "build") {
   }
   console.log("data:check: ok");
 } else {
-  console.error("usage: node src/pipeline/cli.ts build|check");
+  console.error("usage: node src/pipeline/cli.ts build [--offline] | check");
   process.exit(2);
 }

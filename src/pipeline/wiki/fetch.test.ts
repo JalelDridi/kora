@@ -10,6 +10,7 @@ describe("revisionsUrl and redirectsUrl", () => {
     expect(url.searchParams.get("redirects")).toBe("1");
     expect(url.searchParams.get("maxlag")).toBe("5");
     expect(url.searchParams.has("rvsection")).toBe(false);
+    expect(url.searchParams.get("rvprop")).toBe("content|ids|timestamp");
   });
 
   it("resolves redirects without content", () => {
@@ -39,7 +40,11 @@ describe("parseRevisions", () => {
           {
             title: "Wahbi Khazri",
             revisions: [
-              { revid: 7, slots: { main: { content: "{{Infobox}}" } } },
+              {
+                revid: 7,
+                timestamp: "2026-09-30T10:00:00Z",
+                slots: { main: { content: "{{Infobox}}" } },
+              },
             ],
           },
           {
@@ -51,8 +56,18 @@ describe("parseRevisions", () => {
       },
     });
     expect(result.pages).toEqual([
-      { title: "Wahbi Khazri", revid: 7, wikitext: "{{Infobox}}" },
-      { title: "Espérance Sportive de Tunis", revid: 8, wikitext: "x" },
+      {
+        title: "Wahbi Khazri",
+        revid: 7,
+        timestamp: "2026-09-30T10:00:00Z",
+        wikitext: "{{Infobox}}",
+      },
+      {
+        title: "Espérance Sportive de Tunis",
+        revid: 8,
+        timestamp: null,
+        wikitext: "x",
+      },
     ]);
     expect(result.aliases).toEqual([
       ["wahbi_Khazri", "Wahbi Khazri"],

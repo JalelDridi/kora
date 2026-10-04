@@ -20,6 +20,7 @@ import {
   MAX_REQUESTS,
   planRequests,
   run,
+  sectionZero,
 } from "./run.ts";
 import type { RunDeps } from "./run.ts";
 import type { Pool } from "./types.ts";
@@ -1025,4 +1026,199 @@ describe("pnpm data:build (node src/pipeline/cli.ts build)", () => {
     expect(failed?.stdout).not.toContain("plan:");
     expect(await exists(file(root, "pool.json"))).toBe(false);
   });
+});
+
+describe("the raw cache and offline builds", () => {
+  const cachePath = (root: string, name: string) =>
+    path.join(root, "data", "cache", `${name}.json`);
+  const entry = async (root: string, name: string) =>
+    JSON.parse(await readFile(cachePath(root, name), "utf8")) as {
+      version: number;
+      savedAt: string;
+      source: string;
+      value: Record<string, unknown> & unknown[];
+    };
+  /** Clients that record every call; offline builds must leave them at zero. */
+  const recording = () => {
+    const calls: string[] = [];
+    const client = (name: string): PoliteClient => ({
+      getJson: async (url) => {
+        calls.push(`${name} ${url}`);
+        throw new Error("no request expected");
+      },
+      getText: async (url) => {
+        calls.push(`${name} ${url}`);
+        throw new Error("no request expected");
+      },
+    });
+    return {
+      calls,
+      wdqs: client("wdqs"),
+      wikimedia: client("wikimedia"),
+      github: client("github"),
+    };
+  };
+
+  it("keeps what the servers sent: wikitext, SPARQL results, Commons pages, CSV rows", async () => {
+    const root = await setup();
+    await run(deps(root));
+    const en = await entry(root, "infobox-en");
+    expect(en.version).toBe(CACHE_VERSION);
+    expect(en.value.pages).toEqual([
+      {
+        title: "Test Footballer",
+        revid: 1,
+        timestamp: null,
+        wikitext: expect.stringContaining("{{Infobox football biography"),
+      },
+    ]);
+    // No parsed infobox in the cache: the parser runs again on every build.
+    expect(await readFile(cachePath(root, "infobox-en"), "utf8")).not.toContain(
+      '"spells"',
+    );
+    const wd = await entry(root, "wikidata");
+    expect(Object.keys(wd.value).sort()).toEqual([
+      "aliases",
+      "honours",
+      "memberships",
+      "players",
+    ]);
+    expect(wd.value.players).toEqual(answers.players);
+    expect((await entry(root, "commons")).value[0]).toMatchObject({
+      title: "File:Test.jpg",
+      imageinfo: [
+        { extmetadata: { LicenseShortName: { value: "CC BY-SA 4.0" } } },
+      ],
+    });
+    expect((await entry(root, "martj42")).value).toBe(csv);
+    expect((await entry(root, "martj42-goals")).value).toBe(goalsCsv);
+  });
+
+  it("keeps only section 0 of an article: the infobox, not the body", () => {
+    expect(
+      sectionZero("{{Infobox x}}\nLead.\n== Career ==\nBody\n=== Club ===\n"),
+    ).toBe("{{Infobox x}}\nLead.\n");
+    expect(sectionZero("{{Infobox x}}\nno heading")).toBe(
+      "{{Infobox x}}\nno heading",
+    );
+  });
+
+  it("rebuilds offline, with no request, the same pool and registry", async () => {
+    const root = await setup();
+    await run(deps(root));
+    const pool = await readFile(file(root, "pool.json"), "utf8");
+    const ids = await readFile(file(root, "ids.json"), "utf8");
+    const clients = recording();
+    const lines: string[] = [];
+    expect(
+      await run({
+        root,
+        today: "2026-10-04",
+        offline: true,
+        ...clients,
+        log: (l) => lines.push(l),
+      }),
+    ).toEqual({ ok: true, changed: false });
+    expect(clients.calls).toEqual([]);
+    expect(await readFile(file(root, "pool.json"), "utf8")).toBe(pool);
+    expect(await readFile(file(root, "ids.json"), "utf8")).toBe(ids);
+    const report = await readFile(file(root, "report.md"), "utf8");
+    expect(report).toContain(
+      "| infobox-en | cached | 2026-10-04 | offline build |",
+    );
+    expect(report).toContain(
+      "| wikidata | cached | 2026-10-04 | offline build |",
+    );
+    expect(lines.join("\n")).not.toContain("plan:");
+  });
+
+  it("parses the cached answer again, so a parser change shows without a request", async () => {
+    const root = await setup();
+    await run(deps(root));
+    // As if the parser now read 31 where it read 30: change what it reads.
+    const en = await entry(root, "infobox-en");
+    const page = (en.value.pages as { wikitext: string }[])[0];
+    page.wikitext = page.wikitext.replace(
+      "nationalcaps1 = 30",
+      "nationalcaps1 = 31",
+    );
+    await writeFile(cachePath(root, "infobox-en"), JSON.stringify(en));
+    const clients = recording();
+    await run({
+      root,
+      today: "2026-10-04",
+      offline: true,
+      ...clients,
+      log: () => {},
+    });
+    expect((await readPool(root)).players[0].caps).toBe(31);
+    expect(clients.calls).toEqual([]);
+  });
+
+  it("refuses offline when a source has no usable copy, writing nothing", async () => {
+    const root = await setup();
+    const outcome = await run({
+      root,
+      today: "2026-10-04",
+      offline: true,
+      log: () => {},
+    });
+    expect(outcome).toEqual({
+      ok: false,
+      reason: "wikidata has no usable cached copy (offline build)",
+    });
+    expect(await exists(file(root, "pool.json"))).toBe(false);
+  });
+
+  it("takes a cache of the old, parsed shape (version 1) for no cache", async () => {
+    const root = await setup();
+    await mkdir(path.join(root, "data", "cache"), { recursive: true });
+    await writeFile(
+      cachePath(root, "wikidata"),
+      JSON.stringify({
+        version: 1,
+        savedAt: "2026-10-04",
+        source: "wikidata",
+        value: {
+          players: [],
+          aliases: [],
+          memberships: [],
+          honours: [],
+          honoursReading: {},
+        },
+      }),
+    );
+    const lines: string[] = [];
+    const outcome = await run({
+      root,
+      today: "2026-10-04",
+      offline: true,
+      log: (l) => lines.push(l),
+    });
+    expect(outcome).toMatchObject({ ok: false });
+    expect(lines).toContain(
+      `wikidata: cached copy ignored: version 1, this build reads ${CACHE_VERSION}`,
+    );
+    expect(CACHE_VERSION).toBeGreaterThan(1);
+  });
+
+  it("runs offline from the CLI without reaching fetch", async () => {
+    const root = await setup();
+    await run(deps(root));
+    const here = path.join(process.cwd(), "src", "pipeline");
+    const { stdout } = await promisify(execFile)(
+      process.execPath,
+      [
+        "--import",
+        pathToFileURL(path.join(here, "no-network.ts")).href,
+        path.join(here, "cli.ts"),
+        "build",
+        "--offline",
+      ],
+      { cwd: root },
+    );
+    expect(stdout).toContain("offline build: every source from data/cache/");
+    expect(stdout).not.toContain(NO_NETWORK);
+    expect(stdout).toMatch(/data:build: (no change|the pool changed)/);
+  }, 30_000);
 });
