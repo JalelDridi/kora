@@ -576,3 +576,41 @@ describe("honours replaced by curated rows, in the report (fix round 1, finding 
     expect(missingSeasons(two, "caf_cc", 2017, 2019)).toEqual([2017, 2019]);
   });
 });
+
+describe("stale overrides, in the report (fix round 1, finding 4)", () => {
+  const p = pool([player("x")]);
+  const render = (overrideWarnings?: string[]) =>
+    renderReport({
+      pool: p,
+      diff: diffPools(null, p),
+      statuses: {},
+      today: "2026-10-04",
+      overrideWarnings,
+    });
+
+  it("lists each stale override after the left-out footballers", () => {
+    const report = render([
+      "players.Q7: stale override: seen by the pipeline but not in the current pool; not applied",
+    ]);
+    expect(report).toContain(
+      [
+        "## Stale overrides (1)",
+        "",
+        "- players.Q7: stale override: seen by the pipeline but not in the current pool; not applied",
+        "",
+      ].join("\n"),
+    );
+    expect(report.indexOf("## Stale overrides")).toBeGreaterThan(
+      report.indexOf("## Left out of the pool"),
+    );
+    expect(report.indexOf("## Stale overrides")).toBeLessThan(
+      report.indexOf("## Honours read from Wikidata"),
+    );
+  });
+
+  it("says none when there are none", () => {
+    const none = ["## Stale overrides (0)", "", "None.", ""].join("\n");
+    expect(render([])).toContain(none);
+    expect(render()).toContain(none);
+  });
+});

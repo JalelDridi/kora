@@ -205,6 +205,8 @@ export function renderReport(input: {
   today: string;
   /** From parseHonoursReport; absent when this run did not read Wikidata's honours. */
   honoursReading?: HonoursReading | null;
+  /** The warnings of validateOverrides: stale overrides, not applied. */
+  overrideWarnings?: string[];
 }): string {
   const { pool, diff, statuses, today } = input;
   const clubName = new Map(pool.clubs.map((c) => [c.id, c.nameLatin]));
@@ -232,6 +234,7 @@ export function renderReport(input: {
   const skipped = pool.flags.filter((f) => SKIP_KINDS.includes(f.kind));
   const undatedSpells = pool.flags.filter((f) => f.kind === "fr-undated-spell");
   const reading = input.honoursReading ?? null;
+  const stale = input.overrideWarnings ?? [];
   // In neither pool, yet the merge could not read his caps or a row: a former
   // international may be hiding here, so each is named.
   const unread = pool.dropped.filter(
@@ -305,6 +308,10 @@ export function renderReport(input: {
             ? [`- … ${unread.length - FLAG_LIMIT} more in data/pool.json`]
             : []),
         ]),
+    "",
+    `## Stale overrides (${stale.length})`,
+    "",
+    ...(stale.length === 0 ? ["None."] : stale.map((w) => `- ${w}`)),
     "",
     `## Honours read from Wikidata: corrections and drops (${reading ? reading.issues.length : "not read"})`,
     "",

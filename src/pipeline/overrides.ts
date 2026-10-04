@@ -71,10 +71,20 @@ function isRecord(v: unknown): v is Record<string, unknown> {
  * stops the build), so an error result carries no overrides at all.
  */
 export type OverridesResult =
-  { ok: true; overrides: Overrides } | { ok: false; errors: string[] };
+  | { ok: true; overrides: Overrides; warnings: string[] }
+  | { ok: false; errors: string[] };
 
-/** What the overrides may name: the pool's footballers and clubs (Wikidata ids). */
-export type KnownIds = { players: Set<string>; clubs: Set<string> };
+/**
+ * What the overrides may name: the pool's footballers and clubs (Wikidata
+ * ids), and `seen`, footballers the pipeline has met (the id registry and the
+ * pool's left-out list). An override for one seen but not in `players` is
+ * stale: a warning, not applied. An id in neither is an error.
+ */
+export type KnownIds = {
+  players: Set<string>;
+  clubs: Set<string>;
+  seen: Set<string>;
+};
 
 export function validateOverrides(
   json: unknown,
@@ -82,7 +92,8 @@ export function validateOverrides(
   known: KnownIds,
 ): OverridesResult {
   const overrides: Overrides = { players: {}, clubTitles: {} };
-  if (json === null || json === undefined) return { ok: true, overrides };
+  if (json === null || json === undefined)
+    return { ok: true, overrides, warnings: [] };
   if (
     !isRecord(json) ||
     !isRecord(json.players) ||
@@ -94,13 +105,20 @@ export function validateOverrides(
     };
   }
   const errors: string[] = [];
+  const warnings: string[] = [];
   for (const [qid, entry] of Object.entries(json.players)) {
     if (!QID.test(qid) || !isRecord(entry)) {
       errors.push(`players.${qid}: not a Wikidata id with an object`);
       continue;
     }
     if (!known.players.has(qid)) {
-      errors.push(`players.${qid}: not a footballer in the pool`);
+      if (known.seen.has(qid)) {
+        warnings.push(
+          `players.${qid}: stale override: seen by the pipeline but not in the current pool; not applied`,
+        );
+      } else {
+        errors.push(`players.${qid}: not a footballer in the pool`);
+      }
       continue;
     }
     const clean: Record<string, unknown> = {};
@@ -151,5 +169,7 @@ export function validateOverrides(
     }
     overrides.clubTitles[key] = qid;
   }
-  return errors.length > 0 ? { ok: false, errors } : { ok: true, overrides };
+  return errors.length > 0
+    ? { ok: false, errors }
+    : { ok: true, overrides, warnings };
 }

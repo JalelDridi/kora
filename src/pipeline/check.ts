@@ -23,24 +23,36 @@ function usablePool(json: unknown): json is Pool {
 }
 
 /**
- * Who the overrides may name. With a pool: its footballers and clubs, plus
- * footballers the overrides exclude (an excluded footballer is never in the
- * pool). Without a usable pool there is nothing to check them against, so
- * every id the file names counts as known and only its shape is checked.
+ * Who the overrides may name. With a pool: its footballers (and those the
+ * left-out list says are excluded, since an excluded footballer is never in
+ * the pool) and its clubs; `seen` adds every footballer in the id registry
+ * and the left-out list, so an override for one of them is a warning. Without
+ * a usable pool there is nothing to check them against, so every id the file
+ * names counts as known and only its shape is checked.
  */
-export function knownIds(pool: unknown, overrides: unknown): KnownIds {
+export function knownIds(
+  pool: unknown,
+  overrides: unknown,
+  registry: unknown = undefined,
+): KnownIds {
   const players =
     isRecord(overrides) && isRecord(overrides.players) ? overrides.players : {};
   if (usablePool(pool)) {
-    const excluded = Object.entries(players)
-      .filter(
-        ([, o]) =>
-          isRecord(o) && isRecord(o.exclude) && o.exclude.value === true,
-      )
-      .map(([qid]) => qid);
+    const dropped = (Array.isArray(pool.dropped) ? pool.dropped : []).filter(
+      (d) => isRecord(d) && typeof d.wikidataId === "string",
+    );
     return {
-      players: new Set([...pool.players.map((p) => p.wikidataId), ...excluded]),
+      players: new Set([
+        ...pool.players.map((p) => p.wikidataId),
+        ...dropped
+          .filter((d) => d.reason === "excluded")
+          .map((d) => d.wikidataId),
+      ]),
       clubs: new Set(pool.clubs.map((c) => c.wikidataId)),
+      seen: new Set([
+        ...(isRecord(registry) ? Object.keys(registry) : []),
+        ...dropped.map((d) => d.wikidataId),
+      ]),
     };
   }
   const clubs = Object.values(players)
@@ -53,10 +65,20 @@ export function knownIds(pool: unknown, overrides: unknown): KnownIds {
   return {
     players: new Set(Object.keys(players)),
     clubs: new Set(clubs.filter((q): q is string => typeof q === "string")),
+    seen: new Set(),
   };
 }
 
+/** The errors of checkData. */
 export async function checkData(root: string): Promise<string[]> {
+  return (await inspectData(root)).errors;
+}
+
+/** Errors fail data:check; warnings (stale overrides) are printed and pass. */
+export async function inspectData(
+  root: string,
+): Promise<{ errors: string[]; warnings: string[] }> {
+  const warnings: string[] = [];
   const errors: string[] = [];
   const read = async (name: string): Promise<unknown> => {
     try {
@@ -96,14 +118,18 @@ export async function checkData(root: string): Promise<string[]> {
   }
 
   const pool = await read("pool.json");
+  // data/ids.json is written by the first build; before it, there is no registry to check.
+  const registry = await read("ids.json");
   const overrides = await read("overrides.json");
   const checked = validateOverrides(
     overrides ?? null,
     ids,
-    knownIds(pool, overrides),
+    knownIds(pool, overrides, registry),
   );
   if (!checked.ok)
     errors.push(...checked.errors.map((e) => `data/overrides.json: ${e}`));
+  else
+    warnings.push(...checked.warnings.map((w) => `data/overrides.json: ${w}`));
 
   const ligue1 = await read("curated/ligue1-clubs.json");
   if (
@@ -156,8 +182,6 @@ export async function checkData(root: string): Promise<string[]> {
     }
   }
 
-  // data/ids.json is written by the first build; before it, there is no registry to check.
-  const registry = await read("ids.json");
   const registryErrors =
     registry === undefined ? [] : validateIdRegistry(registry);
   errors.push(...registryErrors.map((e) => `data/ids.json: ${e}`));
@@ -176,5 +200,5 @@ export async function checkData(root: string): Promise<string[]> {
         (e) => `data/pool.json: ${e}`,
       ),
     );
-  return errors;
+  return { errors, warnings };
 }

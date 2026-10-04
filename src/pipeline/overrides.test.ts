@@ -7,6 +7,8 @@ const by = { by: "jalel", at: "2026-10-05" };
 const known = {
   players: new Set(["Q1", "Q2836275"]),
   clubs: new Set(["Q201", "Q202"]),
+  /** Seen by the pipeline (id registry, left-out list) but not in the pool. */
+  seen: new Set(["Q1", "Q2836275", "Q77"]),
 };
 
 describe("validateOverrides", () => {
@@ -105,10 +107,56 @@ describe("validateOverrides", () => {
     expect(validateOverrides(null, governorates, known)).toEqual({
       ok: true,
       overrides: { players: {}, clubTitles: {} },
+      warnings: [],
     });
     expect(validateOverrides([], governorates, known)).toEqual({
       ok: false,
       errors: ["overrides.json must be { players: {}, clubTitles: {} }"],
+    });
+  });
+});
+
+describe("stale overrides (fix round 1, finding 4)", () => {
+  it("warns about a footballer seen before but not in the pool, and does not apply his override", () => {
+    const result = validateOverrides(
+      {
+        players: {
+          Q77: { caps: { value: 3, ...by } },
+          Q1: { caps: { value: 4, ...by } },
+        },
+        clubTitles: {},
+      },
+      governorates,
+      known,
+    );
+    expect(result).toEqual({
+      ok: true,
+      overrides: {
+        players: { Q1: { caps: { value: 4, ...by } } },
+        clubTitles: {},
+      },
+      warnings: [
+        "players.Q77: stale override: seen by the pipeline but not in the current pool; not applied",
+      ],
+    });
+  });
+
+  it("still refuses an id never seen, and then applies nothing", () => {
+    const result = validateOverrides(
+      {
+        players: {
+          Q77: { caps: { value: 3, ...by } },
+          Q1: { caps: { value: 4, ...by } },
+          Q5: { caps: { value: 1, ...by } },
+        },
+        clubTitles: {},
+      },
+      governorates,
+      known,
+    );
+    expect(result).toEqual({
+      ok: false,
+      errors: ["players.Q5: not a footballer in the pool"],
     });
   });
 });

@@ -1,13 +1,15 @@
 import { access } from "node:fs/promises";
 import path from "node:path";
-import { checkData } from "./check.ts";
+import { inspectData } from "./check.ts";
 
 // Run with Node directly: node src/pipeline/cli.ts check
 const command = process.argv[2];
 
 if (command === "check") {
   const root = process.cwd();
-  const errors = await checkData(root);
+  const { errors, warnings } = await inspectData(root);
+  for (const warning of warnings)
+    console.log(`data:check: warning: ${warning}`);
   for (const error of errors) console.error(error);
   if (errors.length > 0) {
     console.error(
