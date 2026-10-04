@@ -679,6 +679,109 @@ describe("mergePlayer", () => {
     expect(merged?.draft.provenance.goals?.source).toBe("enwiki");
   });
 
+  // Fix round 1, finding 3: caps and goals always carry provenance; an
+  // unknown count is never a silent, known-looking zero.
+  describe("unknown caps and goals", () => {
+    const noCaps = (
+      en: Partial<Infobox> | null,
+      fr: Partial<Infobox> | null,
+      memberships: WdMembership[] = [],
+    ): MergeContext => ({
+      ...context(),
+      memberships: new Map([["Q19956607", memberships]]),
+      infoboxes: {
+        en: new Map(en ? [["Yassine Meriah", box("en", en)]] : []),
+        fr: new Map(fr ? [["Yassine Meriah (football)", box("fr", fr)]] : []),
+      },
+    });
+
+    it("reads an infobox with no senior Tunisia row as 0, from the newer infobox", () => {
+      const merged = mergePlayer(
+        wdPlayer(),
+        noCaps({ capsAsOf: "2026-01-01" }, { capsAsOf: "2026-09-01" }),
+      );
+      expect([merged?.draft.caps, merged?.draft.goals]).toEqual([0, 0]);
+      for (const field of ["caps", "goals"] as const) {
+        expect(merged?.draft.provenance[field]).toMatchObject({
+          source: "frwiki",
+          asOf: "2026-09-01",
+          confidence: "medium",
+          agreeing: ["frwiki"],
+          confidenceNote: "no senior national row",
+        });
+      }
+      expect(merged?.flags.map((f) => f.kind)).not.toContain("caps-unknown");
+    });
+
+    it("does not read 0 from an infobox that skipped a national row", () => {
+      const skipped = [
+        {
+          field: "sélection nationale",
+          raw: "|2019 (janv.)|{{TUN football}}|3 (1)",
+          reason: "years" as const,
+        },
+      ];
+      const merged = mergePlayer(
+        wdPlayer(),
+        noCaps(null, { capsAsOf: "2026-09-01", skipped }),
+      );
+      expect(merged?.draft.provenance.caps).toMatchObject({
+        source: "none",
+        confidence: "low",
+      });
+      expect(merged?.flags.map((f) => f.kind)).toContain("caps-unknown");
+    });
+
+    it("flags caps no source gives, rated low on no source", () => {
+      const merged = mergePlayer(wdPlayer(), noCaps(null, null));
+      expect([
+        merged?.draft.caps,
+        merged?.draft.goals,
+        merged?.draft.capsAsOf,
+      ]).toEqual([0, 0, null]);
+      for (const field of ["caps", "goals"] as const) {
+        expect(merged?.draft.provenance[field]).toMatchObject({
+          source: "none",
+          confidence: "low",
+          agreeing: ["none"],
+        });
+      }
+      expect(
+        merged?.flags
+          .filter((f) => f.kind.endsWith("-unknown"))
+          .map((f) => f.kind),
+      ).toEqual(["caps-unknown"]);
+    });
+
+    it("flags goals when the caps source has none and no other source does", () => {
+      const merged = mergePlayer(
+        wdPlayer(),
+        noCaps(null, null, [
+          membership("Q27971", 2015, null, {
+            national: true,
+            apps: 80,
+            goals: null,
+          }),
+        ]),
+      );
+      expect([merged?.draft.caps, merged?.draft.goals]).toEqual([80, 0]);
+      expect(merged?.draft.provenance.caps).toMatchObject({
+        source: "wikidata",
+        confidence: "low",
+      });
+      expect(merged?.draft.provenance.goals).toMatchObject({
+        source: "none",
+        confidence: "low",
+        agreeing: ["none"],
+      });
+      expect(
+        merged?.flags
+          .filter((f) => f.kind.endsWith("-unknown"))
+          .map((f) => f.kind),
+      ).toEqual(["goals-unknown"]);
+    });
+  });
+
   // Fix round 1, finding 2: an override rates only the field it overrides.
   it("lets a capsAsOf override date the caps without rating them as decided", () => {
     const merged = mergePlayer(

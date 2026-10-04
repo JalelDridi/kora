@@ -46,7 +46,9 @@ export type SourceId =
   | "commons"
   | "martj42"
   | "override"
-  | "curated";
+  | "curated"
+  /** No source gives the value; the merge stores a placeholder rated low. */
+  | "none";
 
 /** Decision P26: how far the sources agree on a chosen value. */
 export type Confidence = "high" | "medium" | "low";
@@ -320,7 +322,11 @@ export type FlagKind =
   | "caps-row-skipped"
   | "career-row-skipped"
   /** Ruling R1: a French spell without a start year, dropped beside an English career. */
-  | "fr-undated-spell";
+  | "fr-undated-spell"
+  /** No source gives his Tunisia caps; the 0 stored is a placeholder. */
+  | "caps-unknown"
+  /** The caps source gives no goals and no other source does; the 0 is a placeholder. */
+  | "goals-unknown";
 
 /** Something for Jalel to look at. `subject` is a Wikidata id or a title. */
 export type Flag = { subject: string; kind: FlagKind; detail: string };

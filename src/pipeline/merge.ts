@@ -618,6 +618,46 @@ export function mergePlayer(
       goalsFrom.ref,
     );
   }
+  // Caps and goals always carry provenance; the 0 the database needs is
+  // never left looking like a known count.
+  // An infobox with no senior Tunisia row (and no skipped national row) says 0:
+  // the newer such infobox is the source. Otherwise no source has caps.
+  const silent = capsPick.chosen
+    ? undefined
+    : [en, fr]
+        .filter(
+          (b): b is Infobox =>
+            b !== null && !b.skipped.some((r) => NATIONAL_FIELD.test(r.field)),
+        )
+        .map((box) => ({ box, source: sourceOf(box), asOf: box.capsAsOf }))
+        .sort(newestFirst)[0];
+  if (silent) {
+    capsAsOf = silent.asOf;
+    prov.caps = provenance(
+      silent.source,
+      ctx.today,
+      silent.asOf,
+      silent.box.title,
+    );
+    prov.goals = { ...prov.caps };
+  } else if (!capsPick.chosen) {
+    prov.caps = { source: "none", retrievedAt: ctx.today };
+    prov.goals = { source: "none", retrievedAt: ctx.today };
+    if (!o.caps) {
+      flags.push({
+        kind: "caps-unknown",
+        detail: "no source gives his Tunisia caps or goals",
+      });
+    }
+  } else if (!goalsFrom) {
+    prov.goals = { source: "none", retrievedAt: ctx.today };
+    if (!o.goals) {
+      flags.push({
+        kind: "goals-unknown",
+        detail: `${capsPick.chosen.source} gives ${capsPick.chosen.caps} caps but no goals, and no other source gives goals`,
+      });
+    }
+  }
   // An override rates only its own field: caps and goals are each "decided by
   // Jalel" only when overridden; a capsAsOf override only re-dates the caps
   // (the source and its rating stay), saying who chose the date.
@@ -775,6 +815,14 @@ export function mergePlayer(
   };
   const rated = rateFields(prov, chosen, evidence, ctx.today);
   flags.push(...rated.flags);
+  if (silent) {
+    for (const field of ["caps", "goals"] as const) {
+      const entry = rated.provenance[field];
+      if (entry && entry.source === silent.source) {
+        entry.confidenceNote = "no senior national row";
+      }
+    }
+  }
 
   return {
     draft: {

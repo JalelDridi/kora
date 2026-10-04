@@ -33,6 +33,13 @@ export const OVERRIDE_RATING: Rating = {
   confidenceNote: "decided by Jalel",
 };
 
+/** A placeholder value that no source gives. */
+export const NONE_RATING: Rating = {
+  confidence: "low",
+  agreeing: ["none"],
+  confidenceNote: "no source gives a value",
+};
+
 /** Fields two sources can confirm in Sprint 1; the rest have one source. */
 export const CROSS_CHECKED: readonly ProvenancedField[] = [
   "caps",
@@ -281,6 +288,11 @@ export function rateFields(
   const flags: Found[] = [];
   for (const field of Object.keys(provenance) as ProvenancedField[]) {
     const p = provenance[field]!;
+    // A placeholder no source gives (caps or goals unknown) is always low.
+    if (p.source === "none") {
+      out[field] = { ...p, ...NONE_RATING };
+      continue;
+    }
     if (p.source === "override") {
       out[field] = { ...p, ...OVERRIDE_RATING };
       continue;
@@ -395,11 +407,26 @@ export const CHKOUN_FIELDS: readonly ProvenancedField[] = [
   "caps",
 ];
 
-/** Active footballers with no low field a Chkoun? puzzle shows. $1 = CHKOUN_FIELDS. Data for Sprint 2. */
+const CHKOUN_LIST = CHKOUN_FIELDS.map((field) => `'${field}'`).join(", ");
+const PLACE_FIELD =
+  "CASE WHEN p.governorate IS NULL THEN 'birthPlace' ELSE 'governorate' END";
+
+/**
+ * Active footballers ready to be a Chkoun? answer (P27), as data for Sprint 2.
+ * It reads the jsonb column players.provenance, shaped as written by the
+ * merge: { "<field>": { "source": …, "confidence": "high" | "medium" | "low",
+ * "agreeing": […], … }, … }. Ready means an entry EXISTS for every field in
+ * CHKOUN_FIELDS and for the governorate (born abroad: the birthplace), and
+ * none of those entries is low. A missing entry means not ready. No
+ * parameters: the field names are written in from CHKOUN_FIELDS.
+ */
 export const ANSWER_READY_SQL = `
 SELECT p.id FROM players p
-WHERE p.pool_active AND NOT EXISTS (
-  SELECT 1 FROM jsonb_each(p.provenance) AS e(field, entry)
-  WHERE (e.field = ANY($1::text[]) OR e.field = CASE WHEN p.governorate IS NULL THEN 'birthPlace' ELSE 'governorate' END)
-    AND e.entry->>'confidence' = 'low')
+WHERE p.pool_active
+  AND p.provenance ?& ARRAY[${CHKOUN_LIST}]
+  AND p.provenance ? (${PLACE_FIELD})
+  AND NOT EXISTS (
+    SELECT 1 FROM jsonb_each(p.provenance) AS e(field, entry)
+    WHERE (e.field IN (${CHKOUN_LIST}) OR e.field = ${PLACE_FIELD})
+      AND e.entry->>'confidence' = 'low')
 ORDER BY p.id`;

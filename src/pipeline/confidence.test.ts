@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
 import {
+  ANSWER_READY_SQL,
   capForSkipped,
   capsCeiling,
+  CHKOUN_FIELDS,
   rateCount,
   rateDated,
   rateUndated,
@@ -212,5 +214,17 @@ describe("ceiling and skipped rows", () => {
       ]).confidence,
     ).toBe("high");
     expect(capForSkipped(high, [])).toBe(high);
+  });
+});
+
+// Fix round 1, finding 3: a missing entry means not ready (P27). The query
+// itself runs against Postgres in Task 9.
+describe("ANSWER_READY_SQL", () => {
+  it("requires an entry for every Chkoun? field, and none of them low", () => {
+    for (const field of CHKOUN_FIELDS)
+      expect(ANSWER_READY_SQL).toContain(`'${field}'`);
+    expect(ANSWER_READY_SQL).toContain("p.provenance ?& ARRAY[");
+    expect(ANSWER_READY_SQL).toContain("e.entry->>'confidence' = 'low'");
+    expect(ANSWER_READY_SQL).not.toContain("$1");
   });
 });
