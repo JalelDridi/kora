@@ -8,10 +8,17 @@ import {
   resetDatabase,
   TEST_DATABASE_URL,
 } from "@/db/testing";
+import { ANSWER_READY_SQL } from "./confidence.ts";
 import { syncPool } from "./sync.ts";
 import type { SyncCounts } from "./sync.ts";
 import { runSync } from "./sync-run.ts";
-import type { GovernorateRow, Pool, PoolPlayer } from "./types.ts";
+import type {
+  Confidence,
+  GovernorateRow,
+  Pool,
+  PoolPlayer,
+  Provenance,
+} from "./types.ts";
 
 // The sync against the local Postgres: what a deploy writes, and that a
 // second deploy of the same pool rewrites nothing.
@@ -392,6 +399,92 @@ describe("syncPool", () => {
       await db.club.count(),
       await db.player.count(),
     ]).toEqual([0, 0, 0]);
+  });
+});
+
+describe("ANSWER_READY_SQL against synced rows (P27, for Sprint 2)", () => {
+  it("lists active footballers whose Chkoun? fields are all high or medium", async () => {
+    const rated = (confidence: Confidence): Provenance => ({
+      source: "enwiki",
+      retrievedAt: "2026-10-04",
+      confidence,
+      agreeing: ["enwiki"],
+    });
+    const ready = {
+      clubId: rated("high"),
+      position: rated("high"),
+      birthDate: rated("medium"),
+      caps: rated("medium"),
+    };
+    // An Arabic name rated low does not stop him: a puzzle does not show it.
+    const sure: PoolPlayer = {
+      ...maaloul,
+      provenance: {
+        ...ready,
+        governorate: rated("high"),
+        nameArabic: rated("low"),
+      },
+    };
+    const doubtful: PoolPlayer = {
+      ...sure,
+      id: "doubtful",
+      wikidataId: "Q1",
+      provenance: { ...sure.provenance, caps: rated("low") },
+    };
+    // An entry without a confidence is not trusted either.
+    const unrated: PoolPlayer = {
+      ...sure,
+      id: "unrated",
+      wikidataId: "Q2",
+      provenance: {
+        ...ready,
+        governorate: { source: "wikidata", retrievedAt: "2026-10-04" },
+      },
+    };
+    // Born abroad: the birthplace stands in for the governorate.
+    const abroad: PoolPlayer = {
+      ...sure,
+      id: "abroad",
+      wikidataId: "Q3",
+      governorate: null,
+      birthCountry: "FR",
+      provenance: { ...ready, birthPlace: rated("medium") },
+    };
+    const abroadLow: PoolPlayer = {
+      ...abroad,
+      id: "abroad-low",
+      wikidataId: "Q4",
+      provenance: { ...ready, birthPlace: rated("low") },
+    };
+    // A missing entry counts as not ready.
+    const missingCaps: PoolPlayer = {
+      ...sure,
+      id: "missing-caps",
+      wikidataId: "Q6",
+      provenance: { ...ready, caps: undefined, governorate: rated("high") },
+    };
+    const legendOnly: PoolPlayer = {
+      ...sure,
+      id: "legend-only",
+      wikidataId: "Q5",
+      pools: { active: false, legend: true },
+    };
+    await syncPool(
+      sql,
+      pool([
+        sure,
+        doubtful,
+        unrated,
+        abroad,
+        abroadLow,
+        missingCaps,
+        legendOnly,
+      ]),
+      governorates,
+    );
+
+    const { rows } = await client.query<{ id: string }>(ANSWER_READY_SQL);
+    expect(rows.map((r) => r.id)).toEqual(["abroad", "ali-maaloul"]);
   });
 });
 
