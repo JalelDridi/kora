@@ -72,3 +72,12 @@ test("an unknown page is a 404", async ({ request }) => {
   const response = await request.get("/ar/nope");
   expect(response.status()).toBe(404);
 });
+
+test("every page names an icon that exists", async ({ page, request }) => {
+  await page.goto(localeInfo[defaultLocale].prefix);
+  const href = await page.locator('link[rel="icon"]').getAttribute("href");
+  expect(href).toBeTruthy();
+  const icon = await request.get(href!);
+  expect(icon.status()).toBe(200);
+  expect(icon.headers()["content-type"]).toContain("image/svg+xml");
+});
