@@ -27,10 +27,17 @@ const lowCaps = pool.players.find((p) => levelOf(p, "caps") === "low")!;
 const sure = pool.players.find((p) =>
   CHECKED.every((f) => levelOf(p, f) !== "low"),
 )!;
-const skipped = pool.flags.find((f) =>
-  ["caps-row-skipped", "career-row-skipped", "fr-undated-spell"].includes(
-    f.kind,
-  ),
+// A footballer in the pool with a skipped infobox row or an undated French
+// spell; the test fails, rather than skips, when the pool has none.
+const ROW_KINDS = [
+  "caps-row-skipped",
+  "career-row-skipped",
+  "fr-undated-spell",
+];
+const skipped = pool.flags.find(
+  (f) =>
+    ROW_KINDS.includes(f.kind) &&
+    pool.players.some((p) => p.wikidataId === f.subject),
 );
 const skippedPlayer = pool.players.find(
   (p) => p.wikidataId === skipped?.subject,
@@ -175,12 +182,11 @@ test("a footballer's page shows where each field came from", async ({
     "noreferrer",
   );
 
-  if (skippedPlayer && skipped) {
-    await page.goto(`/admin/pool/${skippedPlayer.id}`);
-    await expect(
-      page.getByRole("list", { name: "Skipped rows" }),
-    ).toContainText(skipped.detail);
-  }
+  expect(skipped, "a footballer in the pool with a skipped row").toBeDefined();
+  await page.goto(`/admin/pool/${skippedPlayer!.id}`);
+  await expect(page.getByRole("list", { name: "Skipped rows" })).toContainText(
+    skipped!.detail,
+  );
 });
 
 test("an admin path that does not exist is a 404 behind the password", async ({
