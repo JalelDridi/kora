@@ -304,7 +304,9 @@ export type FlagKind =
   | "caps-above-ceiling"
   | "goals-below-floor"
   | "caps-row-skipped"
-  | "career-row-skipped";
+  | "career-row-skipped"
+  /** Ruling R1: a French spell without a start year, dropped beside an English career. */
+  | "fr-undated-spell";
 
 /** Something for Jalel to look at. `subject` is a Wikidata id or a title. */
 export type Flag = { subject: string; kind: FlagKind; detail: string };

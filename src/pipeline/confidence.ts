@@ -336,6 +336,16 @@ export function rateFields(
         );
         break;
       case "history":
+        // sameSet never matches an empty set, so a history with no known club
+        // would name no agreeing source, not even its own: low, on its source.
+        if (chosen.history.length === 0) {
+          r = {
+            confidence: "low",
+            agreeing: [p.source],
+            confidenceNote: "no club in this history matches a known club",
+          };
+          break;
+        }
         r = capForSkipped(
           rateDated({
             chosen: vote(chosen.history),
