@@ -1,0 +1,34 @@
+{{Infobox Footballeur
+ | nom                 = Yassine Meriah
+ | image               = Yassine Meriah.jpg
+ | taille image        = 
+ | légende             = Yassine Meriah lors de la [[Coupe du monde de football 2018|coupe du monde 2018]].
+ | club actuel         =
+ | numéro en club      =
+ | période pro         = [[2013 en football|2013]]-[[2026 en football|2026]]
+ | nom de naissance    = 
+ | date de naissance   = {{date de naissance|2|7|1993|âge=oui}}
+ | lieu de naissance   = [[Tunis]] ([[Tunisie]])
+ | nationalité         = [[Tunisie]]nne
+ | date de décès       = 
+ | lieu de décès       = 
+ | taille              = {{taille|m=1.83}}
+ | position            = [[Défenseur (football)#Défenseur central|Défenseur central]]
+ | pied                = Droit
+ | parcours pro        = {{trois colonnes
+                         |?-[[2013 en football|2013]]|{{TUN-d}} [[Association sportive de l'Ariana (football)|AS Ariana]]|{{0}}{{0}}? {{0}}(?)
+                         |[[2013 en football|2013]]-[[2015 en football|2015]]|{{TUN-d}} [[Étoile sportive de Métlaoui|ES Métlaoui]]|{{0}}27 {{0}}(0)
+                         |[[2015 en football|2015]]-[[2018 en football|2018]]|{{TUN-d}} [[Club sportif sfaxien (football)|CS Sfaxien]]|{{0}}93 {{0}}(6)
+                         |[[2018 en football|2018]]-[[2021 en football|2021]]|{{GRE-d}} [[Olympiakós (football)|Olympiakós]]|{{0}}44 {{0}}(1)
+                         |[[2020 en football|2020]]|{{prêt}} {{TUR-d}} [[Kasımpaşa SK]]|{{0}}15 {{0}}(0)
+                         |[[2020 en football|2020]]-[[2021 en football|2021]]|{{prêt}} {{TUR-d}} [[Çaykur Rizespor]]|{{0}}28 {{0}}(1)
+                         |[[2021 en football|2021]]-[[2022 en football|2022]]|{{EAU-d}} [[Al-Aïn Football Club|Al-Aïn]]|{{0}}11 {{0}}(1)
+                         |[[2022 en football|2022]]-[[2026 en football|2026]]|{{TUN-d}} [[Espérance sportive de Tunis (football)|ES Tunis]]|120{{0}}(17)
+                         |[[2026 en football|2026]]|{{TUN-d}} [[Club africain (football)|Club africain]]|{{0|00}}2 {{0}}(0)
+                         }}
+ | sélection nationale = {{parcours national
+                        |[[2015 en football|2015]]|{{TUN-d}} [[Équipe de Tunisie olympique de football|Tunisie olympique]]|{{0}}{{0}}3 {{0}}(0)
+                        |[[2015 en football|2015]]-[[2026 en football|2026]]|{{TUN football}}|{{0}}93 {{0}}(5)
+                        }}
+ | date de mise à jour = {{date|27/09/2026}}
+}}

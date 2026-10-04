@@ -1,0 +1,89 @@
+name: Nightly data
+
+# Rebuilds the pool from the sources and proposes it as one pull request.
+# Nothing merges without review; how to review: data/README.md.
+
+on:
+  schedule:
+    # 01:17 UTC, 02:17 in Tunis: off the hour, when Wikimedia is quiet.
+    - cron: "17 1 * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: nightly-data
+  cancel-in-progress: false
+
+# Each job asks for what it needs; nothing by default.
+permissions: {}
+
+jobs:
+  # Reads third-party pages and runs the build with a read-only token, kept
+  # out of .git/config.
+  build:
+    if: github.repository == 'JalelDridi/kora'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Restore the last good source answers
+        uses: actions/cache/restore@v4
+        with:
+          path: data/cache
+          # No entry has this key: restore-keys picks the newest "data-cache-".
+          key: data-cache-${{ github.run_id }}-${{ github.run_attempt }}
+          restore-keys: data-cache-
+      - name: Build the pool
+        # Exits non-zero when it refuses (invalid pool, shrink guard, a source
+        # without a usable copy): the job fails and no pull request is opened.
+        run: pnpm data:build
+      - name: Keep tonight's answers as the last good ones
+        uses: actions/cache/save@v4
+        with:
+          path: data/cache
+          key: data-cache-${{ github.run_id }}-${{ github.run_attempt }}
+      - name: Check the data as CI will
+        run: pnpm data:check
+      - uses: actions/upload-artifact@v4
+        with:
+          name: nightly-data
+          path: |
+            data/pool.json
+            data/ids.json
+            data/report.md
+          if-no-files-found: error
+          retention-days: 7
+
+  # Runs no project code: copies the three files over main and opens or
+  # updates the pull request.
+  propose:
+    needs: build
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+      pull-requests: write
+      # gh workflow run ci.yml: a pull request opened with this token starts no CI.
+      actions: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@v4
+        with:
+          name: nightly-data
+          path: data
+      - name: Open or update the pull request
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: bash scripts/open-data-pr.sh

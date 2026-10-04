@@ -1,0 +1,36 @@
+{{Infobox Footballeur
+ | nom                 = Hannibal Mejbri
+ | image               = Hannibal Mejbri 26042025 (1).jpg
+ | taille image        = 
+ | légende             = Hannibal Mejbri en 2025.
+ | alternative         = 
+ | club actuel         = {{ENG-d}} [[Burnley Football Club|Burnley FC]]
+ | numéro en club      = 28
+ | période pro         = [[2021 en football|2021]]-
+ | nom de naissance    = 
+ | date de naissance   = 21 janvier 2003
+ | lieu de naissance   = [[Ivry-sur-Seine]] ([[France]])
+ | nationalité         = [[France|Française]]<br>[[Tunisie]]nne
+ | nation sportive     = [[Tunisie]]nne
+ | taille              = {{taille|m=1.77}}<ref>{{Lien web|langue=en|format=pdf|titre=FIFA World Cup 2026 - Complete Squad Lists|url=https://fdp.fifa.org/assetspublic/ce281/pdf/SquadLists-English.pdf|site=fdp.fifa.org|éditeur=[[Fédération internationale de football association|FIFA]]|consulté le=2 juin 2026}}.</ref>
+ | position            = [[Milieu de terrain]]
+ | pied                = Droit
+ | parcours junior     = {{deux colonnes
+                         |[[2009 en football|2009]]-[[2017 en football|2017]]|{{FRA-d}} [[Paris Football Club|Paris FC]]
+                         |[[2017 en football|2017]]-[[2018 en football|2018]]|{{nobr|{{FRA-d}} [[Athletic Club de Boulogne-Billancourt (football)|AC Boulogne-Billancourt]]}}
+                         |[[2018 en football|2018]]-[[2019 en football|2019]]|{{FRA-d}} [[Association sportive de Monaco Football Club|AS Monaco]]
+                         |[[2019 en football|2019]]-[[2022 en football|2022]]|{{ENG-d}} [[Manchester United Football Club|Manchester United]]
+                         }}
+ | parcours senior     = {{trois colonnes
+                         |[[2021 en football|2021]]-[[2024 en football|2024]]|{{ENG-d}} [[Manchester United Football Club|Manchester United]]|{{0}}13 {{0}}(1)
+                         |[[2022 en football|2022]]-[[2023 en football|2023]]|{{prêt}} {{ENG-d}} [[Birmingham City Football Club|Birmingham City]]|{{0}}41 {{0}}(1)
+                         |[[2024 en football|2024]]|{{prêt}} {{ESP-d}} [[Sevilla Fútbol Club|Séville FC]]|{{0|00}}6 {{0}}(0)
+                         |[[2024 en football|2024]]-|{{ENG-d}} [[Burnley Football Club|Burnley FC]]|{{0}}76 {{0}}(2)
+                         }}
+ | sélection nationale = {{trois colonnes
+                         |[[2018 en football|2018]]-[[2019 en football|2019]]|{{FRA-d}} [[Équipe de France des moins de 16 ans de football|France -16 ans]]|{{0}}12 {{0}}(1)
+                         |[[2019 en football|2019]]|{{FRA-d}} [[Équipe de France des moins de 17 ans de football|France -17 ans]]|{{0}}{{0}}3 {{0}}(2)
+                         |[[2021 en football|2021]]-|{{TUN-d}} [[Équipe de Tunisie de football|Tunisie]]|{{0}}48 {{0}}(1)
+                         }}
+ | date de mise à jour = 6 septembre 2026
+}}

@@ -18,6 +18,10 @@ Then open http://localhost:3000.
 
 `bash check.sh` runs what CI runs: lint, format, types, unit tests, database tests, build, browser tests and the Lighthouse budget.
 
+## Data
+
+The footballers come from Wikidata, English and French Wikipedia, Wikimedia Commons and a CC0 results dataset, rebuilt every night and reviewed as a pull request. Every field records which sources agree on it; doubtful fields are reviewed first. Sources, licences and how corrections work: [data/README.md](data/README.md).
+
 ## Licence
 
-MIT.
+The code is MIT. The data in `data/` and the hints to come are CC BY-SA 4.0, because part of the data comes from Wikipedia; Wikidata and the results dataset are CC0. Photos, cropped or not, keep each Commons file's own licence and are credited per file: [data/LICENSE](data/LICENSE).

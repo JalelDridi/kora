@@ -25,6 +25,10 @@ next-env.d.ts
 /playwright-report/
 /.lighthouseci/
 
+# last good answers from the data sources (kept by actions/cache in CI)
+/data/cache/
+/data/.*.tmp
+
 # session notes and local agent tooling
 /HANDOVER.md
 .claude/

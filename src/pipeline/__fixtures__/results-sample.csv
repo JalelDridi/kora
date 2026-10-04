@@ -1,0 +1,46 @@
+date,home_team,away_team,home_score,away_score,tournament,city,country,neutral
+2024-01-06,Tunisia,Mauritania,0,0,Friendly,Radès,Tunisia,FALSE
+2024-01-10,Tunisia,Cape Verde,2,0,Friendly,Radès,Tunisia,FALSE
+2024-01-16,Tunisia,Namibia,0,1,African Cup of Nations,Korhogo,Ivory Coast,TRUE
+2024-01-20,Tunisia,Mali,1,1,African Cup of Nations,Korhogo,Ivory Coast,TRUE
+2024-01-24,South Africa,Tunisia,0,0,African Cup of Nations,Korhogo,Ivory Coast,TRUE
+2024-03-23,Tunisia,Croatia,0,0,FIFA Series,Cairo,Egypt,TRUE
+2024-03-26,New Zealand,Tunisia,0,0,FIFA Series,Cairo,Egypt,TRUE
+2024-06-05,Tunisia,Equatorial Guinea,1,0,FIFA World Cup qualification,Radès,Tunisia,FALSE
+2024-06-09,Namibia,Tunisia,0,0,FIFA World Cup qualification,Johannesburg,South Africa,TRUE
+2024-09-05,Tunisia,Madagascar,1,0,African Cup of Nations qualification,Radès,Tunisia,FALSE
+2024-09-08,Gambia,Tunisia,1,2,African Cup of Nations qualification,El Jadida,Morocco,TRUE
+2024-10-11,Tunisia,Comoros,0,1,African Cup of Nations qualification,Radès,Tunisia,FALSE
+2024-10-15,Comoros,Tunisia,1,1,African Cup of Nations qualification,Abidjan,Ivory Coast,TRUE
+2024-11-14,Madagascar,Tunisia,2,3,African Cup of Nations qualification,Pretoria,South Africa,TRUE
+2024-11-18,Tunisia,Gambia,0,1,African Cup of Nations qualification,Tunis,Tunisia,FALSE
+2025-03-19,Liberia,Tunisia,0,1,FIFA World Cup qualification,Monrovia,Liberia,FALSE
+2025-03-24,Tunisia,Malawi,2,0,FIFA World Cup qualification,Radès,Tunisia,FALSE
+2025-06-02,Tunisia,Burkina Faso,2,0,Friendly,Radès,Tunisia,FALSE
+2025-06-06,Morocco,Tunisia,2,0,Friendly,Fez,Morocco,FALSE
+2025-09-04,Tunisia,Liberia,3,0,FIFA World Cup qualification,Radès,Tunisia,FALSE
+2025-09-08,Equatorial Guinea,Tunisia,0,1,FIFA World Cup qualification,Malabo,Equatorial Guinea,FALSE
+2025-10-10,Tunisia,São Tomé and Príncipe,6,0,FIFA World Cup qualification,Radès,Tunisia,FALSE
+2025-10-13,Tunisia,Namibia,3,0,FIFA World Cup qualification,Radès,Tunisia,FALSE
+2025-11-12,Tunisia,Mauritania,1,1,Friendly,Radès,Tunisia,FALSE
+2025-11-14,Tunisia,Jordan,3,2,Friendly,Radès,Tunisia,FALSE
+2025-11-18,Brazil,Tunisia,1,1,Friendly,Lille,France,TRUE
+2025-12-01,Tunisia,Syria,0,1,Arab Cup,Al Rayyan,Qatar,TRUE
+2025-12-04,Palestine,Tunisia,2,2,Arab Cup,Lusail,Qatar,TRUE
+2025-12-07,Qatar,Tunisia,0,3,Arab Cup,Al Khor,Qatar,FALSE
+2025-12-23,Tunisia,Uganda,3,1,African Cup of Nations,Rabat,Morocco,TRUE
+2025-12-27,Nigeria,Tunisia,3,2,African Cup of Nations,Fez,Morocco,TRUE
+2025-12-30,Tanzania,Tunisia,1,1,African Cup of Nations,Rabat,Morocco,TRUE
+2026-01-03,Mali,Tunisia,1,1,African Cup of Nations,Casablanca,Morocco,TRUE
+2026-03-28,Haiti,Tunisia,0,1,Friendly,Toronto,Canada,TRUE
+2026-03-31,Canada,Tunisia,0,0,Friendly,Toronto,Canada,FALSE
+2026-06-01,Austria,Tunisia,1,0,Friendly,Vienna,Austria,FALSE
+2026-06-06,Belgium,Tunisia,5,0,Friendly,Brussels,Belgium,FALSE
+2026-06-14,Sweden,Tunisia,5,1,FIFA World Cup,Guadalupe,Mexico,TRUE
+2026-06-20,Tunisia,Japan,0,4,FIFA World Cup,Guadalupe,Mexico,TRUE
+2026-06-25,Tunisia,Netherlands,1,3,FIFA World Cup,Kansas City,United States,TRUE
+2026-08-16,Malaysia,Vietnam,0,2,ASEAN Championship,Kuala Lumpur,Malaysia,FALSE
+2026-08-18,Thailand,Singapore,1,2,ASEAN Championship,Bangkok,Thailand,FALSE
+2026-08-19,Vietnam,Malaysia,2,0,ASEAN Championship,Hanoi,Vietnam,FALSE
+2026-08-22,Thailand,Vietnam,0,2,ASEAN Championship,Bangkok,Thailand,FALSE
+2026-08-26,Vietnam,Thailand,2,2,ASEAN Championship,Hanoi,Vietnam,FALSE

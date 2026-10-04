@@ -1,0 +1,34 @@
+{{Infobox Footballeur
+ | image               = 
+ | taille image        = 
+ | légende             = 
+ | club actuel         = {{LBY-d}} [[Al Ahly Benghazi SC]]
+ | numéro en club      = 9
+ | période pro         = [[2015 en football|2015]]-
+ | nom de naissance    = 
+ | date de naissance   = {{date de naissance|8|5|1996|âge=oui}}
+ | lieu de naissance   = [[Sfax]] ([[Tunisie]])
+ | nationalité         = [[Tunisie]]nne
+ | date de décès       = 
+ | lieu de décès       = 
+ | taille              = {{taille|m=1.85}}<ref>{{Lien web |langue=en |format=pdf |titre=FIFA World Cup 2026 - Complete Squad Lists |url=https://fdp.fifa.org/assetspublic/ce281/pdf/SquadLists-English.pdf |site=fdp.fifa.org |éditeur=[[Fédération internationale de football association|FIFA]] |consulté le=2 juin 2026}}.</ref>
+ | position            = [[Attaquant (football)#Avant-centre|Avant-centre]]
+ | pied                = Droit
+ | parcours junior     = {{parcours junior
+                        ||{{TUN-d}} [[Stade sportif sfaxien|SS Sfax]]
+                        |{{0}}{{0}}{{0}}{{0}}-[[2015 en football|2015]]|{{TUN-d}} [[Club sportif sfaxien (football)|CS Sfaxien]]
+                        }}
+ | parcours pro        = {{parcours pro
+                        |[[2015 en football|2015]]-[[2022 en football|2022]]|{{TUN-d}} [[Club sportif sfaxien (football)|CS Sfaxien]]|148 (50)
+                        |[[2020 en football|2020]]|{{prêt}} {{KSA-d}} [[Abha Club]]|{{0}}13 {{0}}(1)
+                        |[[2022 en football|2022]]-[[2023 en football|2023]]|{{EGY-d}} [[Ismaily Sporting Club|Ismaily SC]]|{{0}}22 {{0}}(8)
+                        |[[2023 en football|2023]]-[[2024 en football|2024]]|{{BHR-d}} [[Al-Muharraq Club]]|{{0}}16 {{0}}(8)
+                        |[[2024 en football|2024]]-[[2025 en football|2025]]|{{TUN-d}} [[Étoile sportive du Sahel (football)|ES Sahel]]|{{0}}30 (19)
+                        |[[2025 en football|2025]]-[[2026 en football|2026]]|{{TUN-d}} [[Club africain (football)|Club africain]]|{{0}}26 (15)
+                        |[[2026 en football|2026]]-|{{LBY-d}} [[Al Ahly Benghazi SC]]|{{0}}{{0}}0 (0)
+                        }}
+ | sélection nationale = {{parcours national
+                        |[[2018 en football|2018]]-|{{TUN football}}|{{0}}31 {{0}}(6)
+                        }}
+ | date de mise à jour = {{date|11 septembre 2026}}
+}}

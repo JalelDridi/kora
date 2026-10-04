@@ -1,0 +1,162 @@
+{
+  "en/ali-maaloul": {
+    "currentClub": "CS Sfaxien",
+    "currentClubIsStaff": false,
+    "caps": 89,
+    "goals": 3,
+    "capsAsOf": "2024-04-01",
+    "clubsAsOf": "2026-09-04",
+    "spells": 3,
+    "firstSpell": { "clubTitle": "CS Sfaxien", "from": 2009, "to": 2016 }
+  },
+  "en/ellyes-skhiri": {
+    "currentClub": "1. FC Köln",
+    "currentClubIsStaff": false,
+    "caps": 86,
+    "goals": 4,
+    "capsAsOf": "2026-09-17",
+    "clubsAsOf": "2026-09-19",
+    "spells": 5,
+    "firstSpell": { "clubTitle": "Montpellier HSC", "from": 2014, "to": 2015 }
+  },
+  "en/ferjani-sassi": {
+    "currentClub": "Al-Gharafa SC",
+    "currentClubIsStaff": false,
+    "caps": 101,
+    "goals": 9,
+    "capsAsOf": "2026-01-03",
+    "clubsAsOf": "2025-11-21",
+    "spells": 7,
+    "firstSpell": { "clubTitle": "CS Sfaxien", "from": 2011, "to": 2014 }
+  },
+  "en/firas-chaouat": {
+    "currentClub": null,
+    "currentClubIsStaff": false,
+    "caps": 33,
+    "goals": 6,
+    "capsAsOf": "2026-06-26",
+    "clubsAsOf": "2026-07-29",
+    "spells": 7,
+    "firstSpell": { "clubTitle": "CS Sfaxien", "from": 2015, "to": 2020 }
+  },
+  "en/hannibal-mejbri": {
+    "currentClub": "Burnley F.C.",
+    "currentClubIsStaff": false,
+    "caps": 48,
+    "goals": 1,
+    "capsAsOf": "2026-06-26",
+    "clubsAsOf": "2026-09-06",
+    "spells": 4,
+    "firstSpell": { "clubTitle": "Manchester United F.C.", "from": 2021, "to": 2024 }
+  },
+  "en/wahbi-khazri": {
+    "currentClub": null,
+    "currentClubIsStaff": true,
+    "caps": 74,
+    "goals": 25,
+    "capsAsOf": null,
+    "clubsAsOf": null,
+    "spells": 6,
+    "firstSpell": { "clubTitle": "SC Bastia", "from": 2009, "to": 2014 }
+  },
+  "en/yassine-meriah": {
+    "currentClub": null,
+    "currentClubIsStaff": false,
+    "caps": 95,
+    "goals": 6,
+    "capsAsOf": null,
+    "clubsAsOf": null,
+    "spells": 8,
+    "firstSpell": { "clubTitle": "ES Métlaoui", "from": 2013, "to": 2015 }
+  },
+  "en/youssef-msakni": {
+    "currentClub": null,
+    "currentClubIsStaff": false,
+    "caps": 104,
+    "goals": 23,
+    "capsAsOf": null,
+    "clubsAsOf": null,
+    "spells": 7,
+    "firstSpell": { "clubTitle": "Stade Tunisien", "from": 2006, "to": 2007 }
+  },
+  "fr/ali-maaloul": {
+    "currentClub": "Club sportif sfaxien (football)",
+    "currentClubIsStaff": false,
+    "caps": 91,
+    "goals": 3,
+    "capsAsOf": "2026-07-25",
+    "clubsAsOf": "2026-07-25",
+    "spells": 3,
+    "firstSpell": { "clubTitle": "Club sportif sfaxien (football)", "from": 2009, "to": 2016 }
+  },
+  "fr/ellyes-skhiri": {
+    "currentClub": "1. FC Cologne",
+    "currentClubIsStaff": false,
+    "caps": 86,
+    "goals": 4,
+    "capsAsOf": "2026-09-19",
+    "clubsAsOf": "2026-09-19",
+    "spells": 4,
+    "firstSpell": { "clubTitle": "Montpellier Hérault Sport Club", "from": 2014, "to": 2019 }
+  },
+  "fr/ferjani-sassi": {
+    "currentClub": "Al-Gharafa Sports Club",
+    "currentClubIsStaff": false,
+    "caps": 104,
+    "goals": 9,
+    "capsAsOf": "2026-09-28",
+    "clubsAsOf": "2026-09-28",
+    "spells": 7,
+    "firstSpell": { "clubTitle": "Club sportif sfaxien (football)", "from": 2011, "to": 2015 }
+  },
+  "fr/firas-chaouat": {
+    "currentClub": "Al Ahly Benghazi SC",
+    "currentClubIsStaff": false,
+    "caps": 31,
+    "goals": 6,
+    "capsAsOf": "2026-09-11",
+    "clubsAsOf": "2026-09-11",
+    "spells": 7,
+    "firstSpell": { "clubTitle": "Club sportif sfaxien (football)", "from": 2015, "to": 2022 }
+  },
+  "fr/hannibal-mejbri": {
+    "currentClub": "Burnley Football Club",
+    "currentClubIsStaff": false,
+    "caps": 48,
+    "goals": 1,
+    "capsAsOf": "2026-09-06",
+    "clubsAsOf": "2026-09-06",
+    "spells": 4,
+    "firstSpell": { "clubTitle": "Manchester United Football Club", "from": 2021, "to": 2024 }
+  },
+  "fr/wahbi-khazri": {
+    "currentClub": null,
+    "currentClubIsStaff": false,
+    "caps": 74,
+    "goals": 25,
+    "capsAsOf": "2025-07-01",
+    "clubsAsOf": "2025-07-01",
+    "spells": 6,
+    "firstSpell": { "clubTitle": "Sporting Club de Bastia", "from": 2009, "to": 2014 }
+  },
+  "fr/yassine-meriah": {
+    "currentClub": null,
+    "currentClubIsStaff": false,
+    "caps": 93,
+    "goals": 5,
+    "capsAsOf": "2026-09-27",
+    "clubsAsOf": "2026-09-27",
+    "spells": 9,
+    "firstSpell": { "clubTitle": "Association sportive de l'Ariana (football)", "from": null, "to": 2013 }
+  },
+  "fr/youssef-msakni": {
+    "currentClub": null,
+    "currentClubIsStaff": false,
+    "caps": 104,
+    "goals": 23,
+    "capsAsOf": "2026-07-26",
+    "clubsAsOf": "2026-07-26",
+    "spells": 6,
+    "firstSpell": { "clubTitle": "Espérance sportive de Tunis (football)", "from": 2008, "to": 2013 }
+  }
+}

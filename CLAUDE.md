@@ -6,7 +6,8 @@ A hub of Tunisian football games in Derja. Public portfolio project with real us
 
 - `pnpm dev`: run locally (uses the Docker database via `.env.development`)
 - `pnpm db:up`: start local Postgres (Docker, port 5434)
-- `bash check.sh`: every CI check, in order, stopping at the first failure. Run it before every commit.
+- `bash check-fast.sh`: lint, formatting, types, unit tests, the data check and the database tests (about a minute). Run it before every commit.
+- `bash check.sh`: every CI check (adds the build, the browser tests and Lighthouse; several minutes), stopping at the first failure. Run it before every push, and whenever a change touches the app, its styles or its routes.
 - Local runs never use the hosted database. Next gives `.env.local` priority over `.env.development`, so hosted database values must not be put in `.env.local`: `pnpm dev`, the tests and Lighthouse all use the Docker database, and the hosted values live only in Vercel.
 - New migration: `DATABASE_URL_UNPOOLED=postgresql://postgres:postgres@localhost:5434/kora_test pnpm exec prisma migrate dev --name <name>`. The override on the command line targets the local database explicitly, whatever the `.env` files hold.
 - `pnpm format`: apply Prettier

@@ -1,0 +1,55 @@
+{{Infobox football biography
+| name = Wahbi Khazri
+| image = Wahbi Khazri.jpg
+| caption = Khazri lining up with [[Tunisia national football team|Tunisia]] at the [[2018 FIFA World Cup]]
+| full_name = Wahbi Khazri<ref>{{cite web |title=Squads for 2016/17 Premier League confirmed |url=https://www.premierleague.com/news/84136 |publisher=Premier League |date=1 September 2016 |access-date=11 September 2016}}</ref>
+| birth_date = {{Birth date and age|1991|2|8|df=y}}<ref>{{cite web |url=https://tournament.fifadata.com/documents/FWC/2018/pdf/FWC_2018_SQUADLISTS.PDF |title=2018 FIFA World Cup Russia – List of Players |website=FIFA.com |publisher=Fédération Internationale de Football Association |date=4 June 2018 |access-date=19 June 2018 |archive-url=https://web.archive.org/web/20180619164139/https://tournament.fifadata.com/documents/FWC/2018/pdf/FWC_2018_SQUADLISTS.PDF |archive-date=19 June 2018 |url-status=dead}}</ref>
+| birth_place = [[Ajaccio]], France
+| height = 1.76 m<ref>{{cite web |url=https://www.mhscfoot.com/joueur/wahbi-khazri |title=Wahbi Khazri |publisher=Montpellier HSC |access-date=4 June 2023}}</ref>
+| position = [[Midfielder#Attacking midfielder|Attacking midfielder]], [[left winger]], [[Forward (association football)|forward]]
+| currentclub = [[Tunisia national football team|Tunisia]] (Analyst)
+| clubnumber = 
+| youthyears1 = 1995–2003
+| youthclubs1 = JS Ajaccio
+| youthyears2 = 2003–2009
+| youthclubs2 = [[SC Bastia|Bastia]]
+| years1 = 2009–2014
+| clubs1 = [[SC Bastia|Bastia]]
+| caps1 = 171
+| goals1 = 31
+| years2 = 2014–2016
+| clubs2 = [[FC Girondins de Bordeaux|Bordeaux]]
+| caps2 = 52
+| goals2 = 14
+| years3 = 2016–2018
+| clubs3 = [[Sunderland A.F.C.|Sunderland]]
+| caps3 = 38
+| goals3 = 3
+| years4 = 2017–2018
+| clubs4 = → [[Stade Rennais F.C.|Rennes]] (loan)
+| caps4 = 24
+| goals4 = 9
+| years5 = 2018–2022
+| clubs5 = [[AS Saint-Étienne|Saint-Étienne]]
+| caps5 = 100
+| goals5 = 33
+| years6 = 2022–2025
+| clubs6 = [[Montpellier HSC|Montpellier]]
+| caps6 = 82
+| goals6 = 6
+| totalcaps= 467
+| totalgoals= 96
+| nationalyears1 = 2009
+| nationalteam1 = [[Tunisia national under-20 football team|Tunisia U20]]
+| nationalcaps1 = 1
+| nationalgoals1 = 1
+| nationalyears2 = 2012
+| nationalteam2 = [[France national under-21 football team|France U21]]
+| nationalcaps2 = 1
+| nationalgoals2 = 0
+| nationalyears3 = 2013–2022
+| nationalteam3 = [[Tunisia national football team|Tunisia]]
+| nationalcaps3 = 74
+| nationalgoals3 = 25
+| club-update = 
+}}

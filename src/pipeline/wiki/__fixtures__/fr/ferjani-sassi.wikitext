@@ -1,0 +1,37 @@
+{{Infobox Footballeur
+ | nom                 = Ferjani Sassi
+ | image               = Ferjani Sassi 2.jpg
+ | taille image        = 250
+ | légende             = Ferjani Sassi lors de la [[Coupe du monde de football 2018|coupe du monde 2018]].
+ | club actuel         = {{QAT-d}} [[Al-Gharafa Sports Club|Al-Gharafa SC]]
+ | numéro en club      = 13
+ | nom de naissance    = 
+ | période pro         = [[2011 en football|2011]]-
+ | date de naissance   = {{date de naissance|18|3|1992|âge=oui}}
+ | lieu de naissance   = [[Ariana]] ([[Tunisie]])
+ | nationalité         = [[Tunisie]]nne
+ | date de décès       = 
+ | lieu de décès       = 
+ | taille              = {{Taille|m=1.85}}
+ | position            = [[Milieu de terrain|Milieu défensif relayeur]]
+ | pied                = Droit
+ | parcours junior     = {{deux colonnes
+                         |[[2002 en football|2002]]-[[2006 en football|2006]]|{{TUN-d}} [[Association sportive de l'Ariana (football)|AS Ariana]]
+                         |[[2006 en football|2006]]-[[2009 en football|2009]]|{{TUN-d}} [[Étoile sportive du Sahel (football)|ES Sahel]]
+                         |[[2009 en football|2009]]-[[2010 en football|2010]]|{{EAU-d}} [[Al-Aïn Football Club|Al-Aïn FC]]
+                         |[[2010 en football|2010]]-[[2011 en football|2011]]|{{TUN-d}} [[Étoile sportive du Sahel (football)|ES Sahel]]
+                         }}
+ | parcours senior     = {{trois colonnes
+                         |[[2011 en football|2011]]-[[2015 en football|2015]]|{{TUN-d}} [[Club sportif sfaxien (football)|CS Sfaxien]]|102 {{0}}(9)
+                         |[[2015 en football|2015]]-[[2016 en football|2016]]|{{FRA-d}} [[Football Club de Metz|FC Metz]]|{{0}}40 {{0}}(1)
+                         |[[2016 en football|2016]]-[[2018 en football|2018]]|{{TUN-d}} [[Espérance sportive de Tunis (football)|ES Tunis]]|{{0}}56 {{0}}(9)
+                         |[[2018 en football|2018]]|{{KSA-d}} [[Al-Nassr Football Club|Al-Nassr FC]]|{{0|00}}9 {{0}}(0)
+                         |[[2018 en football|2018]]-[[2021 en football|2021]]|{{EGY-d}} [[Zamalek Sporting Club|Zamalek SC]]|102 (16)
+                         |[[2021 en football|2021]]-[[2023 en football|2023]]|{{QAT-d}} [[Al-Duhail Sports Club|Al-Duhail SC]]|{{0}}50 (10)
+                         |[[2023 en football|2023]]-|{{QAT-d}} [[Al-Gharafa Sports Club|Al-Gharafa SC]]|{{0}}99 (25)
+                         }}
+ | sélection nationale = {{trois colonnes
+                         |[[2013 en football|2013]]-|{{TUN football}}|104 {{0}}(9)
+                         }}
+ | date de mise à jour = {{date|28 septembre 2026}}
+}}

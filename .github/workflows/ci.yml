@@ -4,6 +4,9 @@ on:
   push:
     branches: [main]
   pull_request:
+  # The nightly data job dispatches CI on its branch: a pull request opened
+  # with the workflow's token starts no workflow by itself.
+  workflow_dispatch:
 
 concurrency:
   group: ci-${{ github.ref }}
@@ -44,6 +47,7 @@ jobs:
       - run: pnpm format:check
       - run: pnpm typecheck
       - run: pnpm test
+      - run: pnpm data:check
       - run: pnpm test:db
       - run: pnpm build
       - run: pnpm exec playwright install --with-deps chromium

@@ -1,0 +1,184 @@
+/* The admin pages' own styles: plain CSS, no Tailwind and no web font, so
+   nothing here reaches the public pages' stylesheet. Colours are the site's
+   (globals.css); every level is also written as a letter or a word. */
+
+:root {
+  color-scheme: dark;
+  --pitch-950: #0b1510;
+  --pitch-900: #101d16;
+  --pitch-700: #284334;
+  --mint: #9ad4b4;
+  --chalk: #eef3ef;
+  --chalk-dim: #cfd8d2;
+  --high: #1d4a33;
+  --medium: #4d4416;
+  --low: #6a1f26;
+}
+
+html {
+  background: var(--pitch-950);
+  color: var(--chalk);
+  font:
+    15px/1.45 system-ui,
+    sans-serif;
+}
+
+body {
+  margin: 0;
+  padding-block: 1.25rem 3rem;
+  padding-inline: 1rem;
+}
+
+main {
+  max-inline-size: 72rem;
+  margin-inline: auto;
+}
+
+h1 {
+  font-size: 1.75rem;
+  margin-block: 0 0.5rem;
+}
+
+h2,
+caption {
+  color: var(--mint);
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-block: 2rem 0.5rem;
+  text-align: start;
+}
+
+a {
+  color: var(--mint);
+}
+
+a[aria-current] {
+  color: var(--chalk);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+:focus-visible {
+  outline: 3px solid var(--mint);
+  outline-offset: 2px;
+}
+
+.dim {
+  color: var(--chalk-dim);
+}
+
+.facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(9rem, 1fr));
+  gap: 0.5rem;
+  margin: 1rem 0 0;
+}
+
+.facts div {
+  background: var(--pitch-900);
+  border: 1px solid var(--pitch-700);
+  border-radius: 6px;
+  padding: 0.4rem 0.6rem;
+}
+
+.facts dt {
+  color: var(--chalk-dim);
+  font-size: 0.85rem;
+}
+
+.facts dd {
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.scroll {
+  overflow-x: auto;
+}
+
+table {
+  border-collapse: collapse;
+  inline-size: 100%;
+}
+
+th,
+td {
+  border-block-end: 1px solid var(--pitch-700);
+  padding: 0.3rem 0.5rem;
+  text-align: start;
+  vertical-align: top;
+}
+
+th {
+  color: var(--chalk-dim);
+  font-weight: 600;
+}
+
+td.num,
+th.num {
+  text-align: end;
+  font-variant-numeric: tabular-nums;
+}
+
+.filters p {
+  margin-block: 0.35rem;
+}
+
+.filters form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-block-start: 0.5rem;
+}
+
+input,
+button {
+  background: var(--pitch-900);
+  border: 1px solid var(--chalk-dim);
+  border-radius: 4px;
+  color: var(--chalk);
+  font: inherit;
+  padding: 0.3rem 0.5rem;
+}
+
+.levels {
+  /* Wide enough that a row stays two or three lines high on a phone; the
+     table scrolls sideways instead. */
+  min-inline-size: 18rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.level {
+  border-radius: 4px;
+  font-size: 0.8rem;
+  padding: 0.05rem 0.35rem;
+  white-space: nowrap;
+  border: 1px solid var(--pitch-700);
+}
+
+.level-high {
+  background: var(--high);
+}
+
+.level-medium {
+  background: var(--medium);
+}
+
+.level-low {
+  background: var(--low);
+}
+
+.pages {
+  display: flex;
+  gap: 1rem;
+  margin-block-start: 1rem;
+}
+
+ul.plain {
+  padding-inline-start: 1.25rem;
+}

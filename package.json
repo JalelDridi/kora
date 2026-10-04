@@ -10,6 +10,9 @@
     "typecheck": "next typegen && tsc --noEmit",
     "test": "vitest run",
     "test:e2e": "playwright test",
+    "data:build": "node src/pipeline/cli.ts build",
+    "data:check": "node src/pipeline/cli.ts check",
+    "data:sync": "node src/pipeline/sync-cli.ts",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "test:db": "vitest run --config vitest.db.config.mts",
@@ -17,13 +20,14 @@
     "db:up": "docker compose up -d --wait",
     "deck": "node scripts/render-deck.mjs",
     "postinstall": "prisma generate",
-    "vercel-build": "prisma migrate deploy && next build"
+    "vercel-build": "bash scripts/vercel-build.sh"
   },
   "dependencies": {
     "@prisma/adapter-pg": "7.10.0",
     "@prisma/client": "7.10.0",
     "@sentry/nextjs": "11.4.0",
     "@upstash/redis": "1.39.0",
+    "@vercel/analytics": "^2.0.1",
     "next": "16.3.8",
     "next-intl": "4.14.9",
     "pg": "^8.23.1",

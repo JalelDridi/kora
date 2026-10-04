@@ -1,10 +1,12 @@
 import { defineConfig } from "@playwright/test";
+import { assertLocalDatabase } from "./src/pipeline/database-url.ts";
 
 const PORT = 3100;
 
 // The server under test gets its settings from here. Values set in the
 // environment win over .env files, so a test run can never reach a hosted
-// database, Redis or error tracker.
+// database, Redis or error tracker. The admin password is a test value, not
+// a secret: it only opens /admin on this local server.
 export const E2E_ENV: Record<string, string> = {
   DATABASE_URL:
     process.env.TEST_DATABASE_URL ??
@@ -12,7 +14,9 @@ export const E2E_ENV: Record<string, string> = {
   UPSTASH_REDIS_REST_URL: "",
   UPSTASH_REDIS_REST_TOKEN: "",
   SENTRY_DSN: "",
+  ADMIN_PASSWORD: "e2e-only-admin-password",
 };
+assertLocalDatabase(E2E_ENV.DATABASE_URL);
 
 export default defineConfig({
   testDir: "e2e",

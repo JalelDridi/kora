@@ -12,3 +12,7 @@ playwright-report
 docs/report
 docs/superpowers
 prisma/migrations
+src/pipeline/**/__fixtures__
+data/pool.json
+data/report.md
+data/ids.json

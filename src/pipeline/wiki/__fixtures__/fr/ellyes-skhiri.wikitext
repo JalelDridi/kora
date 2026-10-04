@@ -1,0 +1,32 @@
+{{Infobox Footballeur
+ | nom                 = Ellyes Skhiri
+ | image               = 2021-08-08 FC Carl Zeiss Jena gegen 1. FC Köln (DFB-Pokal) by Sandro Halank–182 (cropped2).jpg
+ | taille image        = 
+ | légende             = Ellyes Skhiri en 2021.
+ | club actuel         = {{GER-d}} [[1. FC Cologne|FC Cologne]]
+ | numéro en club      = 6
+ | période pro         = [[2014 en football|2014]]-
+ | nom de naissance    = 
+ | date de naissance   = {{Date de naissance|10|5|1995|âge=oui}}
+ | lieu de naissance   = [[Lunel]] ([[France]])
+ | nationalité         = [[France|Française]]<br>[[Tunisie]]nne
+ | nation sportive     = [[Tunisie]]nne
+ | taille              = {{taille|m=1.85}}<ref>{{Lien web|langue=en|format=pdf|titre=FIFA World Cup 2026 - Complete Squad Lists|url=https://fdp.fifa.org/assetspublic/ce281/pdf/SquadLists-English.pdf|site=fdp.fifa.org|éditeur=[[Fédération internationale de football association|FIFA]]|consulté le=2 juin 2026}}.</ref>
+ | position            = [[Milieu de terrain|Milieu défensif]]
+ | pied                = Droit
+ | parcours junior     = {{deux colonnes
+                        |[[1999 en football|1999]]-[[2010 en football|2010]]|{{FRA-d}} [[Gallia Club Lunel]]
+                        |[[2010 en football|2010]]-[[2014 en football|2014]]|{{FRA-d}} [[Montpellier Hérault Sport Club|Montpellier HSC]]
+                        }}
+ | parcours senior     = {{trois colonnes
+                         |[[2014 en football|2014]]-[[2019 en football|2019]]|{{FRA-d}} [[Montpellier Hérault Sport Club|Montpellier HSC]]|133 (10)
+                         |[[2019 en football|2019]]-[[2023 en football|2023]]|{{GER-d}} [[1. FC Cologne|FC Cologne]]|133 (20)
+                         |[[2023 en football|2023]]-[[2026 en football|2026]]|{{GER-d}} [[Eintracht Francfort]]|117 {{0}}(7)
+                         |[[2026 en football|2026]]-|{{GER-d}} [[1. FC Cologne|FC Cologne]]|{{0|00}}5 {{0}}(0)
+                        }}
+ | sélection nationale = {{trois colonnes
+                         |[[2015 en football|2015]]|{{TUN-d}} [[Équipe de Tunisie olympique de football|Tunisie olympique]]|{{0|00}}1 {{0}}(0)
+                         |[[2018 en football|2018]]-[[2026 en football|2026]]|{{TUN football}}|{{0}}86 {{0}}(4)
+                        }}
+ | date de mise à jour = {{date|19/09/2026}}
+}}

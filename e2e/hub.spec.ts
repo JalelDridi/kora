@@ -103,3 +103,13 @@ test("the language switcher changes language and direction", async ({
   await expect(page).toHaveURL(/\/ar$/);
   await expect(page.locator("html")).toHaveAttribute("dir", "rtl");
 });
+
+test("outside Vercel the page asks for no analytics script", async ({
+  page,
+}) => {
+  const requested: string[] = [];
+  page.on("request", (request) => requested.push(request.url()));
+  await page.goto("/ar");
+  await page.waitForLoadState("networkidle");
+  expect(requested.filter((url) => url.includes("/_vercel/"))).toEqual([]);
+});

@@ -1,0 +1,28 @@
+{{Infobox Footballeur
+ | nom                 = Ali Maaloul
+ | image               = Ali Maâloul VS C.F. Monterrey in 2021 FIFA Club World Cup (cropped).jpg
+ | taille image        = 
+ | légende             = Ali Maaloul en 2021.
+ | période pro         = [[2009 en football|2009]]-
+ | club actuel         = {{TUN-d}} [[Club sportif sfaxien (football)|CS Sfaxien]]
+ | numéro en club      = 10
+ | date de naissance   = {{date de naissance|1|1|1990|âge=oui}}
+ | lieu de naissance   = [[Sfax]] ([[Tunisie]])
+ | nationalité         = [[Tunisie]]nne
+ | taille              = {{Taille|m=1.75}}
+ | position            = [[Défenseur (football)#Arrière latéral|Arrière gauche]]
+ | pied                = Gauche
+ | parcours junior     = {{deux colonnes
+                         |[[2001 en football|2001]]-[[2009 en football|2009]]|{{TUN-d}} [[Club sportif sfaxien (football)|CS Sfaxien]]
+                         }}
+ | parcours pro        = {{trois colonnes
+                         |[[2009 en football|2009]]-[[2016 en football|2016]]|{{TUN-d}} [[Club sportif sfaxien (football)|CS Sfaxien]]|191 (40)
+                         |[[2016 en football|2016]]-[[2025 en football|2025]]|{{EGY-d}} [[Al Ahly Sporting Club|Al Ahly SC]]|292 (51)
+                         |[[2025 en football|2025]]-|{{TUN-d}} [[Club sportif sfaxien (football)|CS Sfaxien]]|{{0}}27 {{0}}(3)
+                         }}
+ | sélection nationale = {{trois colonnes
+                         |[[2011 en football|2011]]|{{TUN-d}} Tunisie -21 ans|{{0}}{{0}}4 {{0}}(1)
+                         |[[2013 en football|2013]]-|{{TUN football}}|{{0}}91 {{0}}(3)
+                         }}
+ | date de mise à jour = {{date|25 juillet 2026}}
+}}
