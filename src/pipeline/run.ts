@@ -1,4 +1,4 @@
-import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { mkdir, readFile, rename, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { knownIds } from "./check.ts";
 import { commonsUrl, parseCommons } from "./commons.ts";
@@ -66,6 +66,8 @@ export type RunDeps = {
   wikimedia: PoliteClient;
   github: PoliteClient;
   log: (line: string) => void;
+  /** How outputs are written (tests inject a failure); default fs.writeFile. */
+  writeFile?: (file: string, text: string) => Promise<void>;
   /** The most requests a run may plan, all clients together (default MAX_REQUESTS). */
   maxRequests?: number;
   /** HTTP attempts per client so far, retries included (createClients gives it); without it the run counts calls. */
@@ -676,21 +678,62 @@ async function build(deps: RunDeps): Promise<RunResult> {
   if (refusal) throw new Refusal(refusal);
 
   const diff = diffPools(previous, pool);
-  await writeFile(
-    path.join(data, "pool.json"),
-    JSON.stringify(pool, null, 2) + "\n",
-  );
-  await writeFile(path.join(data, "ids.json"), stableJson(ids));
-  await writeFile(
-    path.join(data, "report.md"),
-    renderReport({
-      pool,
-      diff,
-      statuses,
-      today: deps.today,
-      honoursReading: wikidata.honoursReading,
-      overrideWarnings: checked.warnings,
-    }),
-  );
+  // Everything is rendered before anything is written.
+  await commit(data, deps.writeFile ?? ((f, t) => writeFile(f, t)), [
+    ["ids.json", stableJson(ids)],
+    ["pool.json", JSON.stringify(pool, null, 2) + "\n"],
+    [
+      "report.md",
+      renderReport({
+        pool,
+        diff,
+        statuses,
+        today: deps.today,
+        honoursReading: wikidata.honoursReading,
+        overrideWarnings: checked.warnings,
+      }),
+    ],
+  ]);
   return { ok: true, changed: diff.changed };
+}
+
+/**
+ * Writes every output as a temporary file beside its target, then renames
+ * each into place, in the given order (ids.json first: the registry only
+ * grows, so a new registry beside an old pool is harmless). A failure while
+ * writing removes the temporary files and replaces nothing. A rename is
+ * atomic per file, also on Windows (it replaces an existing file); if one
+ * fails half-way (a file held open by another program), the files already
+ * renamed stay new, the rest stay old, the leftover temporary files are
+ * removed, and the refusal names what was replaced.
+ */
+async function commit(
+  folder: string,
+  write: (file: string, text: string) => Promise<void>,
+  outputs: [string, string][],
+): Promise<void> {
+  const temp = (name: string) =>
+    path.join(folder, `.${name}.${process.pid}.tmp`);
+  const cleanUp = () =>
+    Promise.all(outputs.map(([name]) => rm(temp(name), { force: true })));
+  try {
+    for (const [name, text] of outputs) await write(temp(name), text);
+  } catch (error) {
+    await cleanUp();
+    throw new Refusal(
+      `could not write the outputs, nothing was replaced (${(error as Error).message})`,
+    );
+  }
+  const replaced: string[] = [];
+  try {
+    for (const [name] of outputs) {
+      await rename(temp(name), path.join(folder, name));
+      replaced.push(name);
+    }
+  } catch (error) {
+    await cleanUp();
+    throw new Refusal(
+      `could not put the outputs in place; replaced: ${replaced.join(", ") || "none"} (${(error as Error).message})`,
+    );
+  }
 }

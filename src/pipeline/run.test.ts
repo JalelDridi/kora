@@ -1,5 +1,12 @@
 import { execFile } from "node:child_process";
-import { access, mkdir, mkdtemp, readFile, writeFile } from "node:fs/promises";
+import {
+  access,
+  mkdir,
+  mkdtemp,
+  readdir,
+  readFile,
+  writeFile,
+} from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
@@ -588,6 +595,37 @@ describe("run", () => {
     );
     expect(await exists(file(root, "ids.json"))).toBe(false);
     expect(await exists(file(root, "report.md"))).toBe(false);
+  });
+
+  it("leaves the previous three files untouched when writing fails after rendering", async () => {
+    const root = await setup();
+    await run(deps(root));
+    const names = ["ids.json", "pool.json", "report.md"];
+    const before = await Promise.all(
+      names.map((n) => readFile(file(root, n), "utf8")),
+    );
+    let writes = 0;
+    const outcome = await run(
+      deps(root, {
+        today: "2026-10-05",
+        wikimedia: stopped("en.wikipedia.org"),
+        writeFile: async (target, text) => {
+          if (++writes === 3) throw new Error("disk full");
+          await writeFile(target, text);
+        },
+      }),
+    );
+    expect(outcome).toEqual({
+      ok: false,
+      reason: "could not write the outputs, nothing was replaced (disk full)",
+    });
+    expect(
+      await Promise.all(names.map((n) => readFile(file(root, n), "utf8"))),
+    ).toEqual(before);
+    const left = (await readdir(path.join(root, "data"))).filter((n) =>
+      n.endsWith(".tmp"),
+    );
+    expect(left).toEqual([]);
   });
 
   it("refuses an invalid pool and writes nothing", async () => {
