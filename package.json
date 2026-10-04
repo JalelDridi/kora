@@ -11,11 +11,18 @@
     "test": "vitest run",
     "test:e2e": "playwright test",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "test:db": "vitest run --config vitest.db.config.mts",
+    "db:up": "docker compose up -d --wait",
+    "postinstall": "prisma generate",
+    "vercel-build": "prisma migrate deploy && next build"
   },
   "dependencies": {
+    "@prisma/adapter-pg": "7.10.0",
+    "@prisma/client": "7.10.0",
     "next": "16.3.8",
     "next-intl": "4.14.9",
+    "pg": "^8.23.1",
     "react": "19.2.8",
     "react-dom": "19.2.8"
   },
@@ -24,11 +31,14 @@
     "@playwright/test": "1.63.0",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^24.19.0",
+    "@types/pg": "^8.23.1",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "dotenv": "^18.0.5",
     "eslint": "^9",
     "eslint-config-next": "16.3.8",
     "prettier": "^3.9.9",
+    "prisma": "7.10.0",
     "tailwindcss": "^4",
     "typescript": "^5",
     "vitest": "^5.0.3"
