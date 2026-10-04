@@ -16,10 +16,14 @@ import "../globals.css";
 
 const latin = Inter({ subsets: ["latin"], variable: "--font-latin" });
 
+// Not preloaded: one layout serves all three locales, and /tn and /fr only
+// need the 600 weight for "تونسي". The browser fetches the Arabic files that
+// the page's characters need (unicode-range) as soon as the CSS is parsed.
 const arabic = IBM_Plex_Sans_Arabic({
   subsets: ["arabic"],
   weight: ["400", "600", "700"],
   variable: "--font-arabic",
+  preload: false,
 });
 
 export function generateStaticParams() {
