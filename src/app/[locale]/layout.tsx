@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { IBM_Plex_Sans_Arabic, Inter } from "next/font/google";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { isLocale, localeInfo, locales } from "@/i18n/locales";
+import { defaultLocale, isLocale, localeInfo, locales } from "@/i18n/locales";
 import { site } from "@/site";
 import "../globals.css";
 
@@ -31,9 +31,12 @@ export async function generateMetadata({
     description: t("description"),
     alternates: {
       canonical: localeInfo[locale].prefix,
-      languages: Object.fromEntries(
-        locales.map((other) => [other, localeInfo[other].prefix]),
-      ),
+      languages: {
+        ...Object.fromEntries(
+          locales.map((other) => [other, localeInfo[other].prefix]),
+        ),
+        "x-default": localeInfo[defaultLocale].prefix,
+      },
     },
   };
 }

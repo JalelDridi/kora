@@ -26,3 +26,4 @@ What Jalel decided, and when. The options behind D1–D10 are in the design, §1
 | P5  | Error tracking and analytics | Sentry on the server only; posthog-js loaded lazily when a key exists. Revisit in Sprint 4                                                                                              |
 | P7  | The simulator's name         | "30–0" in every language (Western digits everywhere)                                                                                                                                    |
 | P8  | next-intl without its plugin | The alias the plugin would set is written directly in next.config.ts, because the plugin loads @swc/core, which will not load on the development machine. Provisional: Jalel to confirm |
+| P9  | Language alternates          | Announced once, in the page head (canonical, one alternate per locale, x-default → /ar); next-intl's Link header is off. Provisional: Jalel to confirm                                  |
