@@ -1,5 +1,6 @@
 import type {
   Competition,
+  HonourIssue,
   WdClub,
   WdHonour,
   WdMembership,
@@ -34,6 +35,24 @@ function list(term: Term | undefined): string[] {
     .split("|")
     .map((s) => s.trim())
     .filter(Boolean);
+}
+
+/**
+ * P413 as "Q336286=defender|Q193592=midfielder", in Q-id order: GROUP_CONCAT
+ * has no defined order, and the first position decides a footballer's line.
+ * Entries without an id (older recordings hold bare labels) keep their order,
+ * after those with one.
+ */
+function positions(term: Term | undefined): string[] {
+  return list(term)
+    .map((entry, index) => {
+      const match = /^Q(\d+)=(.+)$/.exec(entry);
+      return match
+        ? { label: match[2].trim(), id: Number(match[1]), index }
+        : { label: entry, id: Number.POSITIVE_INFINITY, index };
+    })
+    .sort((a, b) => a.id - b.id || a.index - b.index)
+    .map((p) => p.label);
 }
 
 function year(term: Term | undefined): number | null {
@@ -74,7 +93,7 @@ export function parsePlayers(json: unknown): WdPlayer[] {
         aliases: [],
         male: gender === null || gender === MALE,
         birthDate: text(row.birth)?.slice(0, 10) ?? null,
-        positions: list(row.positions),
+        positions: positions(row.positions),
         birthPlaceQid: entity(row.birthPlace),
         birthPlaceName: text(row.birthPlaceName),
         birthCountry: text(row.birthCountry)?.toUpperCase() ?? null,
@@ -149,9 +168,12 @@ const COMPETITIONS: Record<string, Competition> = {
   "CAF Confederation Cup": "caf_cc",
 };
 
-/** "2018–19 …" or "2018-19 …" → 2019; "1999–2000 …" → 2000; "2018 …" → null. */
+/**
+ * "2018–19 …", "2018-19 …", "2018/19 …" or "2018/2019 …" → 2019;
+ * "1999–2000 …" → 2000; "2018 …" → null.
+ */
 function endFromLabel(label: string): number | null {
-  const match = /^(\d{4})\s*[–—-]\s*(\d{4}|\d{2})(?!\d)/.exec(label);
+  const match = /^(\d{4})\s*[–—/-]\s*(\d{4}|\d{2})(?!\d)/.exec(label);
   if (!match) return null;
   if (match[2].length === 4) return Number(match[2]);
   const start = Number(match[1]);
@@ -159,8 +181,23 @@ function endFromLabel(label: string): number | null {
   return end < start ? end + 100 : end;
 }
 
-export function parseHonours(json: unknown): WdHonour[] {
+/** "2018 CAF Champions League": a single-year edition, ending the year it starts. */
+function singleYearLabel(label: string): boolean {
+  return /^\d{4}(?!\d|\s*[–—/-]\s*\d)/.test(label);
+}
+
+/**
+ * Winners by competition and edition, with every correction and drop the
+ * parser makes, so the reviewer sees them.
+ */
+export function parseHonoursReport(json: unknown): {
+  honours: WdHonour[];
+  issues: HonourIssue[];
+} {
   const out = new Map<string, WdHonour>();
+  const issues = new Map<string, HonourIssue>();
+  const report = (issue: HonourIssue) =>
+    issues.set(JSON.stringify(issue), issue);
   for (const row of bindings(json)) {
     const competition = COMPETITIONS[text(row.compName) ?? ""];
     const label = text(row.seasonLabel);
@@ -171,20 +208,70 @@ export function parseHonours(json: unknown): WdHonour[] {
     const seasonStart =
       year(row.start) ?? (fromLabel ? Number(fromLabel[1]) : null);
     if (seasonStart === null) continue;
+    const id = entity(row.season);
+    const season = `"${label}"${id ? ` (${id})` : ""}`;
     // An edition ends the year it starts or the next one (the database checks
     // it): the end date first, then the label, then the start year.
-    const seasonEnd =
-      [year(row.end), endFromLabel(label)].find(
-        (end) => end !== null && end >= seasonStart && end <= seasonStart + 1,
-      ) ?? seasonStart;
+    const within = (end: number | null): end is number =>
+      end !== null && end >= seasonStart && end <= seasonStart + 1;
+    const endDate = year(row.end);
+    const endLabel = endFromLabel(label);
+    let seasonEnd: number;
+    if (within(endDate)) {
+      seasonEnd = endDate;
+    } else {
+      if (endDate !== null) {
+        report({
+          kind: "end-out-of-range",
+          competition,
+          seasonStart,
+          detail: `${season}: end date year ${endDate} is neither ${seasonStart} nor ${seasonStart + 1}`,
+        });
+      }
+      if (within(endLabel)) {
+        seasonEnd = endLabel;
+      } else {
+        seasonEnd = seasonStart;
+        // Silent when the label is a plain single year ("2018 CAF Champions
+        // League"): ending the year it starts is what the label says, not a
+        // guess. A row with no label never gets here (skipped above), so the
+        // start-year fallback is only reported when a label was there to read.
+        if (!singleYearLabel(label)) {
+          report({
+            kind: "label-unreadable",
+            competition,
+            seasonStart,
+            detail:
+              endLabel === null
+                ? `${season}: no end year in the label, so the end is the start year ${seasonStart}`
+                : `${season}: the label's end year ${endLabel} is neither ${seasonStart} nor ${seasonStart + 1}, so the end is the start year ${seasonStart}`,
+          });
+        }
+      }
+    }
     const key = `${competition}|${seasonStart}|${seasonEnd}`;
-    if (!out.has(key))
+    const kept = out.get(key);
+    if (!kept) {
       out.set(key, { competition, seasonStart, seasonEnd, winnerQid });
+    } else if (kept.winnerQid !== winnerQid) {
+      // The same winner again is SPARQL row multiplication, not news.
+      report({
+        kind: "duplicate-edition",
+        competition,
+        seasonStart,
+        detail: `${season}: edition ${seasonStart}–${seasonEnd} won by ${kept.winnerQid} and by ${winnerQid}; kept ${kept.winnerQid}`,
+      });
+    }
   }
-  return [...out.values()].sort(
+  const honours = [...out.values()].sort(
     (a, b) =>
       a.competition.localeCompare(b.competition) ||
       a.seasonStart - b.seasonStart ||
       a.seasonEnd - b.seasonEnd,
   );
+  return { honours, issues: [...issues.values()] };
+}
+
+export function parseHonours(json: unknown): WdHonour[] {
+  return parseHonoursReport(json).honours;
 }

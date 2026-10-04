@@ -9,7 +9,7 @@ const BASE = `{ ?p wdt:P106 wd:Q937857 ; wdt:P27 wd:Q948 . }
 
 export const PLAYERS_QUERY = `SELECT ?p (SAMPLE(?en) AS ?enLabel) (SAMPLE(?fr) AS ?frLabel) (SAMPLE(?ar) AS ?arLabel)
   (SAMPLE(?sex) AS ?gender) (MIN(?dob) AS ?birth)
-  (GROUP_CONCAT(DISTINCT ?posLabel; separator="|") AS ?positions)
+  (GROUP_CONCAT(DISTINCT CONCAT(STRAFTER(STR(?pos), "entity/"), "=", ?posLabel); separator="|") AS ?positions)
   (SAMPLE(?pob) AS ?birthPlace) (SAMPLE(?pobName) AS ?birthPlaceName) (SAMPLE(?pobIso) AS ?birthCountry)
   (GROUP_CONCAT(DISTINCT ?govLabel; separator="|") AS ?governorates)
   (SAMPLE(?img) AS ?image)

@@ -5,6 +5,7 @@ import {
   parseAliases,
   parseClubs,
   parseHonours,
+  parseHonoursReport,
   parseMemberships,
   parsePlayers,
 } from "./parse.ts";
@@ -52,6 +53,16 @@ describe("parsePlayers", () => {
       imageFile: "File:Wahbi Khazri 2018.jpg",
       titles: { en: "Wahbi Khazri", fr: null, ar: null },
     });
+  });
+
+  it("orders positions by their Wikidata id, whatever order the query returns", () => {
+    const parse = (positions: string) =>
+      parsePlayers(result({ p: uri("Q1"), positions: lit(positions) }))[0]
+        .positions;
+    const a = parse("Q1930187=striker|Q336286=defender|Q193592=midfielder");
+    const b = parse("Q336286=defender|Q193592=midfielder|Q1930187=striker");
+    expect(a).toEqual(["midfielder", "defender", "striker"]);
+    expect(b).toEqual(a);
   });
 
   it("knows women from P21", () => {
@@ -200,7 +211,7 @@ describe("parseClubs, parseAliases, parseHonours", () => {
   });
 
   it("keeps two editions that start in the same year, ending by date, label or start", () => {
-    const honours = parseHonours(
+    const report = parseHonoursReport(
       result(
         {
           compName: lit("CAF Champions League"),
@@ -221,13 +232,6 @@ describe("parseClubs, parseAliases, parseHonours", () => {
           end: lit("2007-11-24T00:00:00Z"),
           winner: uri("Q1024482"),
         },
-        // An end date out of reach of the start falls back to the label.
-        {
-          compName: lit("Tunisian Cup"),
-          seasonLabel: lit("2013-14 Tunisian Cup"),
-          end: lit("2025-01-01T00:00:00Z"),
-          winner: uri("Q300"),
-        },
         {
           compName: lit("Tunisian Cup"),
           seasonLabel: lit("1999–2000 Tunisian Cup"),
@@ -235,31 +239,83 @@ describe("parseClubs, parseAliases, parseHonours", () => {
         },
       ),
     );
-    expect(honours).toEqual([
-      {
-        competition: "caf_cc",
-        seasonStart: 2007,
-        seasonEnd: 2007,
-        winnerQid: "Q1024482",
-      },
-      {
-        competition: "caf_cl",
-        seasonStart: 2018,
-        seasonEnd: 2018,
-        winnerQid: "Q44897",
-      },
-      {
-        competition: "caf_cl",
-        seasonStart: 2018,
-        seasonEnd: 2019,
-        winnerQid: "Q44897",
-      },
-      {
-        competition: "tn_cup",
-        seasonStart: 1999,
-        seasonEnd: 2000,
-        winnerQid: "Q301",
-      },
+    expect(report).toEqual({
+      honours: [
+        {
+          competition: "caf_cc",
+          seasonStart: 2007,
+          seasonEnd: 2007,
+          winnerQid: "Q1024482",
+        },
+        {
+          competition: "caf_cl",
+          seasonStart: 2018,
+          seasonEnd: 2018,
+          winnerQid: "Q44897",
+        },
+        {
+          competition: "caf_cl",
+          seasonStart: 2018,
+          seasonEnd: 2019,
+          winnerQid: "Q44897",
+        },
+        {
+          competition: "tn_cup",
+          seasonStart: 1999,
+          seasonEnd: 2000,
+          winnerQid: "Q301",
+        },
+      ],
+      issues: [],
+    });
+  });
+
+  it("reads slash labels like dash labels", () => {
+    expect(
+      parseHonoursReport(
+        result(
+          {
+            compName: lit("Tunisian Cup"),
+            seasonLabel: lit("2018/19 Tunisian Cup"),
+            winner: uri("Q300"),
+          },
+          {
+            compName: lit("Tunisian Ligue Professionnelle 1"),
+            seasonLabel: lit("2018/2019 Tunisian Ligue Professionnelle 1"),
+            winner: uri("Q301"),
+          },
+        ),
+      ),
+    ).toEqual({
+      honours: [
+        {
+          competition: "tn_cup",
+          seasonStart: 2018,
+          seasonEnd: 2019,
+          winnerQid: "Q300",
+        },
+        {
+          competition: "tn_ligue1",
+          seasonStart: 2018,
+          seasonEnd: 2019,
+          winnerQid: "Q301",
+        },
+      ],
+      issues: [],
+    });
+  });
+
+  it("reports an end date out of range and falls back to the label", () => {
+    const report = parseHonoursReport(
+      result({
+        compName: lit("Tunisian Cup"),
+        season: uri("Q4000"),
+        seasonLabel: lit("2013-14 Tunisian Cup"),
+        end: lit("2025-01-01T00:00:00Z"),
+        winner: uri("Q300"),
+      }),
+    );
+    expect(report.honours).toEqual([
       {
         competition: "tn_cup",
         seasonStart: 2013,
@@ -267,6 +323,104 @@ describe("parseClubs, parseAliases, parseHonours", () => {
         winnerQid: "Q300",
       },
     ]);
+    expect(report.issues).toEqual([
+      {
+        kind: "end-out-of-range",
+        competition: "tn_cup",
+        seasonStart: 2013,
+        detail:
+          '"2013-14 Tunisian Cup" (Q4000): end date year 2025 is neither 2013 nor 2014',
+      },
+    ]);
+  });
+
+  it("reports a label whose end year cannot be read, and the single-year label it does not", () => {
+    const report = parseHonoursReport(
+      result(
+        {
+          compName: lit("CAF Champions League"),
+          season: uri("Q4001"),
+          seasonLabel: lit("CAF Champions League, season of 2018"),
+          start: lit("2018-11-27T00:00:00Z"),
+          winner: uri("Q200"),
+        },
+        {
+          compName: lit("CAF Confederation Cup"),
+          seasonLabel: lit("2007 CAF Confederation Cup"),
+          winner: uri("Q201"),
+        },
+      ),
+    );
+    expect(report.honours).toEqual([
+      {
+        competition: "caf_cc",
+        seasonStart: 2007,
+        seasonEnd: 2007,
+        winnerQid: "Q201",
+      },
+      {
+        competition: "caf_cl",
+        seasonStart: 2018,
+        seasonEnd: 2018,
+        winnerQid: "Q200",
+      },
+    ]);
+    expect(report.issues).toEqual([
+      {
+        kind: "label-unreadable",
+        competition: "caf_cl",
+        seasonStart: 2018,
+        detail:
+          '"CAF Champions League, season of 2018" (Q4001): no end year in the label, so the end is the start year 2018',
+      },
+    ]);
+  });
+
+  it("reports a second winner for the same edition and keeps the first", () => {
+    const row = {
+      compName: lit("Tunisian Ligue Professionnelle 1"),
+      seasonLabel: lit("2012–13 Tunisian Ligue Professionnelle 1"),
+    };
+    const report = parseHonoursReport(
+      result({ ...row, winner: uri("Q100") }, { ...row, winner: uri("Q101") }),
+    );
+    expect(report.honours).toEqual([
+      {
+        competition: "tn_ligue1",
+        seasonStart: 2012,
+        seasonEnd: 2013,
+        winnerQid: "Q100",
+      },
+    ]);
+    expect(report.issues).toEqual([
+      {
+        kind: "duplicate-edition",
+        competition: "tn_ligue1",
+        seasonStart: 2012,
+        detail:
+          '"2012–13 Tunisian Ligue Professionnelle 1": edition 2012–2013 won by Q100 and by Q101; kept Q100',
+      },
+    ]);
+  });
+
+  it("says nothing about rows that SPARQL merely repeats", () => {
+    const row = {
+      compName: lit("Tunisian Ligue Professionnelle 1"),
+      seasonLabel: lit("2012–13 Tunisian Ligue Professionnelle 1"),
+      winner: uri("Q100"),
+    };
+    expect(parseHonoursReport(result(row, row))).toEqual({
+      honours: [
+        {
+          competition: "tn_ligue1",
+          seasonStart: 2012,
+          seasonEnd: 2013,
+          winnerQid: "Q100",
+        },
+      ],
+      issues: [],
+    });
+    expect(parseHonours(result(row, row))).toHaveLength(1);
   });
 });
 

@@ -196,6 +196,20 @@ export type Match = {
   tournament: string;
 };
 
+/**
+ * A correction or a drop made while reading honours, for the reviewer.
+ * `end-out-of-range`: the end date's year is neither the start year nor the
+ * next; `label-unreadable`: no usable end date and no end year in the label,
+ * so the end is the start year; `duplicate-edition`: a second winner for the
+ * same edition, dropped.
+ */
+export type HonourIssue = {
+  kind: "end-out-of-range" | "label-unreadable" | "duplicate-edition";
+  competition: string;
+  seasonStart: number;
+  detail: string;
+};
+
 export type GovernorateRow = {
   id: string;
   nameLatin: string;
