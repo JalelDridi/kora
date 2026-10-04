@@ -1,6 +1,6 @@
 # Kora: Tunisian football games. Design (v2)
 
-Date: 4 October 2026 · Status: proposed; decisions D1–D10 open for Jalel. Working name "Kora"; the real name is decision D1. v2 adds: a hub of several games copied from the best sites, Tunisian Derja, an AI layer, and the real-time technology per game.
+Date: 4 October 2026 · Status: approved 4 October 2026; decisions recorded in docs/decisions.md. Working name "Kora"; the real name is decision D1. v2 adds: a hub of several games copied from the best sites, Tunisian Derja, an AI layer, and the real-time technology per game.
 
 ## 1. Why
 
@@ -26,7 +26,7 @@ Launch with three; add the rest in order. Names are working names in Derja (Arab
 | # | Game | Derja name | Type | Mechanic | Data needed | Real-time |
 | --- | --- | --- | --- | --- | --- | --- |
 | 1 | **Chkoun?** | شكون؟ · Chkoun? · C'est qui ? | Daily | Who Are Ya / Hoople: one mystery Tunisian player, 8 guesses, tiles: club, country of club, position, age, caps, governorate | pool | none; midnight rollover without refresh |
-| 2 | **30–0** | ٣٠–٠ · 30-0 · 30–0 | Simulator | 82-0 clone: spin a Ligue 1 club and an era, draft a legend into each of 11 positions from that club's history, simulate a 30-match season. Share the squad and the record. "Today's top sides" board | pool with club history and a rating per player | leaderboard updates live (SSE) |
+| 2 | **30–0** | 30–0 in all three | Simulator | 82-0 clone: spin a Ligue 1 club and an era, draft a legend into each of 11 positions from that club's history, simulate a 30-match season. Share the squad and the record. "Today's top sides" board | pool with club history and a rating per player | leaderboard updates live (SSE) |
 | 3 | **Aktar wala A9all** | أكثر ولا أقل · Aktar wala a9all · Plus ou moins | Endless | Higher or Lower: more caps, goals, trophies? Keep the streak | pool stats | none |
 | 4 | **Masira** | المسيرة · Masira · Carrière | Daily | Career Path: clubs revealed one by one, name the player, fewer = more points | club history | none |
 | 5 | **Box 3×3** | الشبكة · Chabka · Grille | Daily | Immaculate grid: rows and columns are clubs, trophies, eras; nine guesses, rarity score | club history, honours | none |
