@@ -227,7 +227,11 @@ describe("ANSWER_READY_SQL", () => {
     for (const field of CHKOUN_FIELDS)
       expect(ANSWER_READY_SQL).toContain(`'${field}'`);
     expect(ANSWER_READY_SQL).toContain("p.provenance ?& ARRAY[");
-    expect(ANSWER_READY_SQL).toContain("e.entry->>'confidence' = 'low'");
+    // m3 (fix round 2): an entry without a confidence key is not ready.
+    expect(ANSWER_READY_SQL).toContain(
+      "COALESCE(e.entry->>'confidence', '') NOT IN ('high', 'medium')",
+    );
+    expect(ANSWER_READY_SQL).not.toContain("= 'low'");
     expect(ANSWER_READY_SQL).not.toContain("$1");
   });
 });

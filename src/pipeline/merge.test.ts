@@ -849,6 +849,26 @@ describe("mergePlayer", () => {
       expect(merged?.flags.map((f) => f.kind)).toContain("caps-unknown");
     });
 
+    // Fix round 2, m1: a caps override does not make unknown goals known.
+    it("flags unknown goals under a caps override", () => {
+      const merged = mergePlayer(wdPlayer(), {
+        ...noCaps(null, null),
+        overrides: {
+          players: { Q19956607: { caps: { value: 12, ...by } } },
+          clubTitles: {},
+        },
+      });
+      expect(merged?.draft.provenance.goals).toMatchObject({
+        source: "none",
+        confidence: "low",
+      });
+      expect(
+        merged?.flags
+          .filter((f) => f.kind.endsWith("-unknown"))
+          .map((f) => f.kind),
+      ).toEqual(["goals-unknown"]);
+    });
+
     it("flags caps no source gives, rated low on no source", () => {
       const merged = mergePlayer(wdPlayer(), noCaps(null, null));
       expect([

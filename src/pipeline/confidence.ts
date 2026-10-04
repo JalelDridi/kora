@@ -417,8 +417,10 @@ const PLACE_FIELD =
  * merge: { "<field>": { "source": …, "confidence": "high" | "medium" | "low",
  * "agreeing": […], … }, … }. Ready means an entry EXISTS for every field in
  * CHKOUN_FIELDS and for the governorate (born abroad: the birthplace), and
- * none of those entries is low. A missing entry means not ready. No
- * parameters: the field names are written in from CHKOUN_FIELDS.
+ * each of those entries has a confidence of exactly "high" or "medium". A
+ * missing entry means not ready, and so does an entry without a confidence
+ * key (an unrated value: nothing says it can be trusted). No parameters: the
+ * field names are written in from CHKOUN_FIELDS.
  */
 export const ANSWER_READY_SQL = `
 SELECT p.id FROM players p
@@ -428,5 +430,5 @@ WHERE p.pool_active
   AND NOT EXISTS (
     SELECT 1 FROM jsonb_each(p.provenance) AS e(field, entry)
     WHERE (e.field IN (${CHKOUN_LIST}) OR e.field = ${PLACE_FIELD})
-      AND e.entry->>'confidence' = 'low')
+      AND COALESCE(e.entry->>'confidence', '') NOT IN ('high', 'medium'))
 ORDER BY p.id`;

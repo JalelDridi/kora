@@ -658,6 +658,12 @@ export function mergePlayer(
         kind: "caps-unknown",
         detail: "no source gives his Tunisia caps or goals",
       });
+    } else if (!o.goals) {
+      // Jalel gave the caps, not the goals: the goals are still unknown.
+      flags.push({
+        kind: "goals-unknown",
+        detail: "caps from an override; no source gives his goals",
+      });
     }
   } else if (!goalsFrom) {
     prov.goals = { source: "none", retrievedAt: ctx.today };
