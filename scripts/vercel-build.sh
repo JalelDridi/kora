@@ -18,5 +18,8 @@ step() {
 # gives up after five (P1001). Wait for it before anything else connects.
 step "wake the database" node src/pipeline/sync-cli.ts wake
 step "apply migrations" prisma migrate deploy
+# data/pool.json into this environment's database, in one transaction; it
+# refuses an empty or invalid pool before connecting.
+step "sync data/pool.json" node src/pipeline/sync-cli.ts
 step "build the app" next build
 echo "vercel-build: done"

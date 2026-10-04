@@ -15,6 +15,8 @@ Eight tables. A **player** is a footballer; the person playing a game is a **vis
 
 The pool tables are written only by the data sync (`src/pipeline/sync.ts`), from `data/pool.json`, when a deploy builds. A player who leaves the pool keeps his row with both pool flags off, so puzzles and results that point at him stay valid.
 
+Every deploy runs the sync in one transaction, after `prisma migrate deploy` and before `next build` (`scripts/vercel-build.sh`); a `wake` step first starts a suspended Neon compute. A row is written only when it differs from the file, so a second sync of the same pool rewrites nothing. Footballer and club ids never change once given (the append-only registry `data/ids.json`), so the sync upserts by id; a changed id for the same Wikidata id breaks `players_wikidata_id_key` or `clubs_wikidata_id_key` and fails the deploy rather than duplicate a row. Each provenance entry also holds `confidence` (high, medium or low), `agreeing` and `confidenceNote` (decision P26). A footballer's career is the file's, position by position. Honours are upserted on (competition, season_start, season_end); an edition no longer in the pool is deleted (nothing references honours). Clubs are never deleted; one no longer in the file loses its Ligue 1 mark.
+
 ## Rules the database enforces
 
 Each is proven by a test in `src/db/invariants.db.test.ts` or `src/db/pool.db.test.ts`.

@@ -12,6 +12,7 @@
     "test:e2e": "playwright test",
     "data:build": "node src/pipeline/cli.ts build",
     "data:check": "node src/pipeline/cli.ts check",
+    "data:sync": "node src/pipeline/sync-cli.ts",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "test:db": "vitest run --config vitest.db.config.mts",

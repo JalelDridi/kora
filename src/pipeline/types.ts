@@ -1,5 +1,6 @@
 // Shapes shared by the data pipeline. Everything in src/pipeline is pure
-// except run.ts, cli.ts and sync-cli.ts, which read, fetch and write.
+// except run.ts, cli.ts, sync-run.ts and sync-cli.ts, which read, fetch and
+// write (sync.ts writes only through the connection it is given).
 // Node runs these files by stripping types: no enums, no namespaces.
 
 export type Line = "goalkeeper" | "defender" | "midfielder" | "forward";
