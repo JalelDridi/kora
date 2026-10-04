@@ -326,7 +326,9 @@ export type FlagKind =
   /** No source gives his Tunisia caps; the 0 stored is a placeholder. */
   | "caps-unknown"
   /** The caps source gives no goals and no other source does; the 0 is a placeholder. */
-  | "goals-unknown";
+  | "goals-unknown"
+  /** Decision D-S1-2 ignored Wikidata's one open club: it started over 8 years ago. */
+  | "wd-club-too-old";
 
 /** Something for Jalel to look at. `subject` is a Wikidata id or a title. */
 export type Flag = { subject: string; kind: FlagKind; detail: string };

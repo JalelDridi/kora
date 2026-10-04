@@ -219,6 +219,10 @@ describe("pickClub (D-S1-2)", () => {
       today,
     });
     expect(stale.club).toBeNull();
+    // Fix round 1: the ignored club leaves a trace for the reviewer.
+    expect(stale.flags).toEqual([
+      { kind: "wd-club-too-old", detail: "Q3 since 2010, over 8 years ago" },
+    ]);
 
     const two = pickClub({
       en: null,

@@ -216,6 +216,12 @@ export function pickClub(input: {
   }
   const only = open[0];
   const recent = Number(input.today.slice(0, 4)) - 8;
+  if (only && only.start !== null && only.start < recent) {
+    flags.push({
+      kind: "wd-club-too-old",
+      detail: `${only.teamQid} since ${only.start}, over 8 years ago`,
+    });
+  }
   const club =
     only && only.start !== null && only.start >= recent
       ? input.index.byQid.get(only.teamQid)
