@@ -19,7 +19,7 @@
     "db:up": "docker compose up -d --wait",
     "deck": "node scripts/render-deck.mjs",
     "postinstall": "prisma generate",
-    "vercel-build": "prisma migrate deploy && next build"
+    "vercel-build": "bash scripts/vercel-build.sh"
   },
   "dependencies": {
     "@prisma/adapter-pg": "7.10.0",

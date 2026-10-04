@@ -1,27 +1,13 @@
 import type { PrismaClient } from "@/generated/prisma/client";
+import { assertLocalDatabase } from "@/pipeline/database-url.ts";
 import { createClient } from "./client";
+
+// The guard lives beside the sync, which Node runs without a bundler.
+export { assertLocalDatabase };
 
 export const TEST_DATABASE_URL =
   process.env.TEST_DATABASE_URL ??
   "postgresql://postgres:postgres@localhost:5434/kora_test";
-
-// Database tests truncate tables. Refuse to run against anything but a
-// local Postgres so a misconfigured environment cannot wipe a real database.
-export function assertLocalDatabase(url: string): void {
-  const { hostname, search } = new URL(url);
-  // The pg driver copies query parameters into its config, and ?host= or
-  // ?hostaddr= override the hostname checked below. Allow none at all.
-  if (search !== "") {
-    throw new Error(
-      "Refusing to run database tests against a URL with a query string",
-    );
-  }
-  if (hostname !== "localhost" && hostname !== "127.0.0.1") {
-    throw new Error(
-      `Refusing to run database tests against non-local host "${hostname}"`,
-    );
-  }
-}
 
 // Only clients made here have passed the check above, so only they may be
 // truncated.
