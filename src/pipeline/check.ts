@@ -3,8 +3,8 @@ import path from "node:path";
 import { validateOverrides } from "./overrides.ts";
 import type { KnownIds } from "./overrides.ts";
 import { competitions, regions } from "./types.ts";
-import type { Pool } from "./types.ts";
-import { validatePool } from "./validate.ts";
+import type { IdRegistry, Pool } from "./types.ts";
+import { validateIdRegistry, validatePool } from "./validate.ts";
 
 // Every file in data/ that people edit or the job writes, checked in CI.
 
@@ -156,7 +156,25 @@ export async function checkData(root: string): Promise<string[]> {
     }
   }
 
+  // data/ids.json is written by the first build; before it, there is no registry to check.
+  const registry = await read("ids.json");
+  const registryErrors =
+    registry === undefined ? [] : validateIdRegistry(registry);
+  errors.push(...registryErrors.map((e) => `data/ids.json: ${e}`));
+  // Its well-formed entries still check the pool, even when others are wrong.
+  const usableRegistry: IdRegistry | undefined = isRecord(registry)
+    ? Object.fromEntries(
+        Object.entries(registry).filter(
+          (e): e is [string, string] => typeof e[1] === "string",
+        ),
+      )
+    : undefined;
+
   if (pool !== undefined)
-    errors.push(...validatePool(pool, ids).map((e) => `data/pool.json: ${e}`));
+    errors.push(
+      ...validatePool(pool, ids, usableRegistry).map(
+        (e) => `data/pool.json: ${e}`,
+      ),
+    );
   return errors;
 }

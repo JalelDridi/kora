@@ -4,6 +4,7 @@ import { confederationOf, LIGUE1, slugify, TUNISIA_TEAM } from "./places.ts";
 import type {
   CuratedHonour,
   Flag,
+  IdRegistry,
   Line,
   Pool,
   PoolClub,
@@ -64,28 +65,35 @@ export function poolsFor(
   };
 }
 
-/** Ids never change once given; new ones are slugs, with the Wikidata id on a clash. */
+/**
+ * Ids are permanent. The registry (data/ids.json: Wikidata id → id) holds
+ * every id ever given; a registered footballer keeps his for ever, even after
+ * a night away. A new one gets a slug that no registered id uses, with the
+ * Wikidata id on a clash, then a counter. Append-only: the registry passed in
+ * is not changed; the returned one adds the new entries.
+ */
 export function assignIds(
   items: { key: string; name: string }[],
-  previous: Map<string, string>,
-): Map<string, string> {
+  registry: IdRegistry,
+): { ids: Map<string, string>; registry: IdRegistry } {
+  const next: IdRegistry = { ...registry };
   const ids = new Map<string, string>();
-  const taken = new Set<string>();
+  const taken = new Set(Object.values(registry));
   for (const item of items) {
-    const id = previous.get(item.key);
-    if (id && !taken.has(id)) {
-      ids.set(item.key, id);
-      taken.add(id);
-    }
+    if (Object.hasOwn(registry, item.key))
+      ids.set(item.key, registry[item.key]);
   }
   for (const item of items) {
     if (ids.has(item.key)) continue;
     const base = slugify(item.name) || item.key.toLowerCase();
-    const id = taken.has(base) ? `${base}-${item.key.toLowerCase()}` : base;
+    let id = taken.has(base) ? `${base}-${item.key.toLowerCase()}` : base;
+    for (let n = 2; taken.has(id); n++)
+      id = `${base}-${item.key.toLowerCase()}-${n}`;
     ids.set(item.key, id);
     taken.add(id);
+    next[item.key] = id;
   }
-  return ids;
+  return { ids, registry: next };
 }
 
 /** The value each provenance entry dates: "caps" covers caps and capsAsOf; goals are dated on their own. */
@@ -151,6 +159,8 @@ export type BuildInput = MergeContext & {
   curatedHonours: CuratedHonour[];
   ligue1Titles: string[];
   previous: Pool | null;
+  /** data/ids.json, or {} before the first build: every footballer id ever given. */
+  ids: IdRegistry;
 };
 
 type Kept = {
@@ -170,7 +180,8 @@ const honourKey = (h: {
   seasonEnd: number;
 }) => `${h.competition}|${h.seasonStart}|${h.seasonEnd}`;
 
-export function buildPool(input: BuildInput): Pool {
+/** The pool, and the id registry with tonight's new footballers added (Task 8 writes it to data/ids.json). */
+export function buildPool(input: BuildInput): { pool: Pool; ids: IdRegistry } {
   const flags: Flag[] = [];
   const kept: Kept[] = [];
   const dropped: PoolDropped[] = [];
@@ -286,8 +297,10 @@ export function buildPool(input: BuildInput): Pool {
   const clubList = [...wanted.values()].sort(byNumber);
   const clubIds = assignIds(
     clubList.map((c) => ({ key: c.qid, name: c.nameEn ?? c.nameFr ?? c.qid })),
-    new Map((input.previous?.clubs ?? []).map((c) => [c.wikidataId, c.id])),
-  );
+    Object.fromEntries(
+      (input.previous?.clubs ?? []).map((c) => [c.wikidataId, c.id]),
+    ),
+  ).ids;
   const clubId = (club: WdClub | null) =>
     club ? (clubIds.get(club.qid) ?? null) : null;
   const clubs: PoolClub[] = clubList
@@ -304,10 +317,11 @@ export function buildPool(input: BuildInput): Pool {
     }))
     .sort((a, b) => a.id.localeCompare(b.id));
 
-  const playerIds = assignIds(
+  const assigned = assignIds(
     kept.map(({ draft }) => ({ key: draft.wikidataId, name: draft.nameLatin })),
-    new Map((input.previous?.players ?? []).map((p) => [p.wikidataId, p.id])),
+    input.ids,
   );
+  const playerIds = assigned.ids;
   const before = new Map(
     (input.previous?.players ?? []).map((p) => [p.wikidataId, p]),
   );
@@ -376,7 +390,7 @@ export function buildPool(input: BuildInput): Pool {
     }
   }
 
-  return {
+  const pool: Pool = {
     version: 1,
     players,
     clubs,
@@ -392,4 +406,5 @@ export function buildPool(input: BuildInput): Pool {
     ),
     dropped,
   };
+  return { pool, ids: assigned.registry };
 }

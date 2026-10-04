@@ -1,5 +1,5 @@
 import { competitions, confidences, droppedReasons, lines } from "./types.ts";
-import type { Confidence, Pool } from "./types.ts";
+import type { Confidence, IdRegistry, Pool } from "./types.ts";
 
 // The same rules the database enforces, checked before anything is written,
 // so a bad night fails in the job and not in a deploy.
@@ -23,9 +23,32 @@ function rows<T>(list: unknown[], label: string, errors: string[]): T[] {
   }) as T[];
 }
 
+/** data/ids.json: Wikidata ids to slugs, and no slug given twice. */
+export function validateIdRegistry(json: unknown): string[] {
+  if (!isRecord(json)) return ["must be an object of Wikidata id to id"];
+  const errors: string[] = [];
+  const owner = new Map<string, string>();
+  const twice: string[] = [];
+  for (const [qid, id] of Object.entries(json)) {
+    if (!QID.test(qid) || typeof id !== "string" || !SLUG.test(id)) {
+      errors.push(`${qid}: not a Wikidata id with an id`);
+      continue;
+    }
+    const first = owner.get(id);
+    if (first) twice.push(`id ${id} given to ${first} and ${qid}`);
+    else owner.set(id, qid);
+  }
+  return [...errors, ...twice];
+}
+
+/**
+ * With `registry` (data/ids.json, when it exists), each footballer's id must be
+ * the one registered for his Wikidata id.
+ */
 export function validatePool(
   input: unknown,
   governorateIds: Set<string>,
+  registry?: IdRegistry,
 ): string[] {
   const pool = input as Pool;
   if (
@@ -96,6 +119,14 @@ export function validatePool(
         errors.push(`${at}: spell at ${s.clubName} has an impossible number`);
       if (s.from !== null && s.to !== null && s.from > s.to)
         errors.push(`${at}: spell at ${s.clubName} ends before it starts`);
+    }
+    if (registry && typeof p.wikidataId === "string") {
+      if (!Object.hasOwn(registry, p.wikidataId))
+        errors.push(`${at}: no entry in data/ids.json`);
+      else if (registry[p.wikidataId] !== p.id)
+        errors.push(
+          `${at}: id differs from data/ids.json (${registry[p.wikidataId]})`,
+        );
     }
     if (!p.pools.active && !p.pools.legend)
       errors.push(`${at}: in neither pool`);

@@ -198,3 +198,21 @@ describe("pnpm data:check (node src/pipeline/cli.ts check)", () => {
     );
   });
 });
+
+describe("data/ids.json (fix round 1, finding 2)", () => {
+  it("is optional before the first build", async () => {
+    const { root, write } = await copyOfData();
+    await write("pool.json", pool);
+    expect(await checkData(root)).toEqual([]);
+  });
+
+  it("must hold every pool member's id, and give no id twice", async () => {
+    const { root, write } = await copyOfData();
+    await write("pool.json", pool);
+    await write("ids.json", { Q1: "ali-maaloul", Q2: "ali-maaloul" });
+    expect(await checkData(root)).toEqual([
+      "data/ids.json: id ali-maaloul given to Q1 and Q2",
+      "data/pool.json: player ali-maaloul: no entry in data/ids.json",
+    ]);
+  });
+});

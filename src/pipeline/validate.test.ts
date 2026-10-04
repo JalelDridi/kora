@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { Pool, PoolPlayer } from "./types.ts";
-import { validatePool } from "./validate.ts";
+import { validateIdRegistry, validatePool } from "./validate.ts";
 
 const player: PoolPlayer = {
   id: "ali-maaloul",
@@ -224,6 +224,41 @@ describe("validatePool", () => {
       "club row 2: not an object",
       "player row 1: not an object",
       "honour row 1: not an object",
+    ]);
+  });
+});
+
+describe("the id registry (fix round 1, finding 2)", () => {
+  it("requires each footballer's id to be his registered one", () => {
+    expect(
+      validatePool(pool, governorates, { Q2836275: "ali-maaloul" }),
+    ).toEqual([]);
+    expect(validatePool(pool, governorates, { Q2836275: "maaloul" })).toEqual([
+      "player ali-maaloul: id differs from data/ids.json (maaloul)",
+    ]);
+    expect(validatePool(pool, governorates, {})).toEqual([
+      "player ali-maaloul: no entry in data/ids.json",
+    ]);
+  });
+
+  it("refuses an id given to two footballers, and a malformed registry", () => {
+    expect(validateIdRegistry({ Q1: "ali-abdi", Q2: "wahbi-khazri" })).toEqual(
+      [],
+    );
+    expect(
+      validateIdRegistry({
+        Q1: "ali-abdi",
+        Q2: "ali-abdi",
+        x: "y",
+        Q3: "Not A Slug",
+      }),
+    ).toEqual([
+      "x: not a Wikidata id with an id",
+      "Q3: not a Wikidata id with an id",
+      "id ali-abdi given to Q1 and Q2",
+    ]);
+    expect(validateIdRegistry([])).toEqual([
+      "must be an object of Wikidata id to id",
     ]);
   });
 });

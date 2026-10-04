@@ -191,20 +191,42 @@ describe("isCandidate (research rule, probe §2)", () => {
 });
 
 describe("assignIds", () => {
-  it("keeps earlier ids, then gives slugs, adding the Wikidata id on a clash", () => {
-    const ids = assignIds(
+  it("keeps registered ids, then gives slugs, adding the Wikidata id on a clash", () => {
+    const { ids } = assignIds(
       [
         { key: "Q5", name: "Ali Abdi" },
         { key: "Q9", name: "Ali Abdi" },
         { key: "Q7", name: "Wahbi Khazri" },
       ],
-      new Map([["Q7", "khazri"]]),
+      { Q7: "khazri" },
     );
     expect(Object.fromEntries(ids)).toEqual({
       Q5: "ali-abdi",
       Q9: "ali-abdi-q9",
       Q7: "khazri",
     });
+  });
+
+  it("never gives a new footballer an id the registry holds, even for someone absent tonight", () => {
+    const registry = { Q5: "ali-abdi", Q6: "ali-abdi-q9" };
+    const { ids, registry: next } = assignIds(
+      [
+        { key: "Q9", name: "Ali Abdi" },
+        { key: "Q7", name: "Wahbi Khazri" },
+      ],
+      registry,
+    );
+    expect(Object.fromEntries(ids)).toEqual({
+      Q9: "ali-abdi-q9-2",
+      Q7: "wahbi-khazri",
+    });
+    expect(next).toEqual({
+      Q5: "ali-abdi",
+      Q6: "ali-abdi-q9",
+      Q9: "ali-abdi-q9-2",
+      Q7: "wahbi-khazri",
+    });
+    expect(registry).toEqual({ Q5: "ali-abdi", Q6: "ali-abdi-q9" });
   });
 });
 
@@ -276,6 +298,9 @@ describe("carryProvenance", () => {
     ]).toEqual([today, "2026-10-01"]);
   });
 });
+
+/** The pool only; the registry is checked in "ids are permanent". */
+const build = (i: BuildInput) => buildPool(i).pool;
 
 describe("buildPool", () => {
   const en = (title: string, fields: Partial<Infobox>): Infobox => ({
@@ -383,11 +408,12 @@ describe("buildPool", () => {
       ],
       ligue1Titles: ["Espérance Sportive de Tunis", "Unknown FC"],
       previous: null,
+      ids: {},
     };
   }
 
   it("keeps footballers in at least one pool, with ids, clubs and honours", () => {
-    const pool = buildPool(input());
+    const pool = build(input());
 
     expect(pool.players.map((p) => [p.id, p.pools])).toEqual([
       ["hannibal-mejbri", { active: true, legend: true }],
@@ -420,7 +446,7 @@ describe("buildPool", () => {
   });
 
   it("flags what it dropped and what it could not match", () => {
-    const pool = buildPool(input());
+    const pool = build(input());
     expect(
       pool.flags.filter((f) =>
         ["dropped-missing-field", "ligue1-club-unresolved"].includes(f.kind),
@@ -435,18 +461,13 @@ describe("buildPool", () => {
     ]);
   });
 
-  it("keeps ids and first-read dates from the previous pool", () => {
+  it("keeps ids from the registry and first-read dates from the previous pool", () => {
     const first = buildPool(input());
-    const renamed = {
-      ...first,
-      players: first.players.map((p) =>
-        p.wikidataId === "Q331918" ? { ...p, id: "jaidi" } : p,
-      ),
-    };
-    const second = buildPool({
+    const second = build({
       ...input(),
       today: "2026-10-05",
-      previous: renamed,
+      previous: first.pool,
+      ids: { ...first.ids, Q331918: "jaidi" },
     });
     const jaidi = second.players.find((p) => p.wikidataId === "Q331918");
     expect(jaidi?.id).toBe("jaidi");
@@ -454,7 +475,7 @@ describe("buildPool", () => {
   });
 
   it("flags spell years the database cannot hold instead of dropping them silently", () => {
-    const pool = buildPool(input());
+    const pool = build(input());
     expect(pool.flags.filter((f) => f.kind === "spell-years-unusable")).toEqual(
       [
         {
@@ -467,7 +488,7 @@ describe("buildPool", () => {
   });
 
   it("flags an honour it leaves out because the winner has no club", () => {
-    const pool = buildPool(input());
+    const pool = build(input());
     expect(
       pool.flags.filter((f) => f.kind === "honour-winner-unresolved"),
     ).toEqual([
@@ -481,7 +502,7 @@ describe("buildPool", () => {
   });
 
   it("keeps a Wikidata honour and a curated one for different editions of the same start year", () => {
-    const pool = buildPool({
+    const pool = build({
       ...input(),
       honours: [
         {
@@ -544,7 +565,7 @@ describe("buildPool", () => {
     }
 
     it("lists every footballer left out, with the reason, by Wikidata number", () => {
-      const pool = buildPool(withLeftOut());
+      const pool = build(withLeftOut());
       expect(pool.dropped.map((d) => [d.wikidataId, d.name, d.reason])).toEqual(
         [
           ["Q500", "Old Reserve", "not-candidate"],
@@ -556,7 +577,7 @@ describe("buildPool", () => {
     });
 
     it("keeps the merge flags of those the merge ran for: a former international whose caps are unknown", () => {
-      const pool = buildPool(withLeftOut());
+      const pool = build(withLeftOut());
       const flagsOf = (qid: string) =>
         pool.dropped
           .find((d) => d.wikidataId === qid)
@@ -572,13 +593,58 @@ describe("buildPool", () => {
     });
 
     it("keeps the merge flags of a footballer dropped for a missing field", () => {
-      const pool = buildPool(withLeftOut());
+      const pool = build(withLeftOut());
       expect(
         pool.flags.filter((f) => f.subject === "Q600").map((f) => f.kind),
       ).toContain("dropped-missing-field");
       expect(
         pool.flags.filter((f) => f.subject === "Q600").length,
       ).toBeGreaterThan(1);
+    });
+  });
+  describe("ids are permanent (fix round 1, finding 2)", () => {
+    const night = (players: WdPlayer[], ids: Record<string, string>) =>
+      buildPool({ ...input(), players, ids });
+    const jaidi = wd("Q331918", "Radhi Jaïdi", "1975-08-30");
+    const namesake = wd("Q777", "Radhi Jaïdi", "1976-01-01");
+    const memberships = new Map([
+      ...input().memberships,
+      [
+        "Q777",
+        [
+          m("Q777", "Q27971", 1998, 2006, {
+            national: true,
+            apps: 30,
+            goals: 1,
+          }),
+        ],
+      ],
+    ]);
+    const nightWith = (players: WdPlayer[], ids: Record<string, string>) =>
+      buildPool({ ...input(), players, ids, memberships });
+
+    it("a namesake arriving after a footballer left does not take his id, and the footballer gets it back", () => {
+      const first = night([jaidi], {});
+      expect(first.pool.players.map((p) => p.id)).toEqual(["radhi-jaidi"]);
+      const second = nightWith([namesake], first.ids);
+      expect(second.pool.players.map((p) => [p.wikidataId, p.id])).toEqual([
+        ["Q777", "radhi-jaidi-q777"],
+      ]);
+      const third = nightWith([namesake, jaidi], second.ids);
+      expect(third.pool.players.map((p) => [p.wikidataId, p.id])).toEqual([
+        ["Q331918", "radhi-jaidi"],
+        ["Q777", "radhi-jaidi-q777"],
+      ]);
+    });
+
+    it("the registry only grows, and is not changed in place", () => {
+      const first = night([jaidi], {});
+      const before = { ...first.ids };
+      const second = nightWith([namesake], first.ids);
+      expect(first.ids).toEqual(before);
+      expect(second.ids).toEqual({ ...before, Q777: "radhi-jaidi-q777" });
+      const third = nightWith([], second.ids);
+      expect(third.ids).toEqual(second.ids);
     });
   });
 });
