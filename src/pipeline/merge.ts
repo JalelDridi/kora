@@ -94,7 +94,8 @@ function fromOverride(o: OverrideValue<unknown>): Provenance {
 
 export type CapsCandidate = Dated & {
   caps: number;
-  goals: number;
+  /** Null when the source has caps but no goals count: no goals vote. */
+  goals: number | null;
   ref: string;
 };
 
@@ -573,7 +574,7 @@ export function mergePlayer(
         source: sourceOf(box),
         asOf: box.capsAsOf,
         caps: box.caps,
-        goals: box.goals ?? 0,
+        goals: box.goals,
         ref: box.title,
       });
     }
@@ -586,14 +587,20 @@ export function mergePlayer(
       source: "wikidata",
       asOf: null,
       caps: national.apps,
-      goals: national.goals ?? 0,
+      goals: national.goals,
       ref: `P54 ${TUNISIA_TEAM} P1350`,
     });
   }
   const capsPick = pickCaps(candidates);
   flags.push(...capsPick.flags);
   let caps = capsPick.chosen?.caps ?? 0;
-  let goals = capsPick.chosen?.goals ?? 0;
+  // Goals from the caps source, else the newest source that has goals: a
+  // source with caps but no goals count gives no goals vote.
+  const goalsFrom =
+    capsPick.chosen?.goals != null
+      ? capsPick.chosen
+      : [...candidates].sort(newestFirst).find((c) => c.goals !== null);
+  let goals = goalsFrom?.goals ?? 0;
   let capsAsOf = capsPick.chosen?.asOf ?? null;
   if (capsPick.chosen) {
     prov.caps = provenance(
@@ -602,7 +609,14 @@ export function mergePlayer(
       capsPick.chosen.asOf,
       capsPick.chosen.ref,
     );
-    prov.goals = { ...prov.caps };
+  }
+  if (goalsFrom) {
+    prov.goals = provenance(
+      goalsFrom.source,
+      ctx.today,
+      goalsFrom.asOf,
+      goalsFrom.ref,
+    );
   }
   const capsOverride = o.caps ?? o.goals ?? o.capsAsOf;
   if (capsOverride) {
@@ -674,11 +688,7 @@ export function mergePlayer(
       value: c.caps,
       asOf: c.asOf,
     })),
-    goals: candidates.map((c) => ({
-      source: c.source,
-      value: c.goals,
-      asOf: c.asOf,
-    })),
+    goals: candidates.flatMap((c) => some(c.source, c.goals, c.asOf)),
     goalsFloor: ctx.goalsFloor?.get(p.qid) ?? null,
     capsCeiling: tunisia
       ? capsCeiling(ctx.tunisiaMatches, tunisia.start, tunisia.end, capsAsOf)

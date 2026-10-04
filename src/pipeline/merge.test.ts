@@ -679,6 +679,26 @@ describe("mergePlayer", () => {
     expect(merged?.draft.provenance.goals?.source).toBe("enwiki");
   });
 
+  // Fix round 1, finding 1: Wikidata with apps (P1350) but no goals (P1351).
+  it("takes no goals vote from a source that has caps but no goals", () => {
+    const ctx = context();
+    ctx.memberships.set("Q19956607", [
+      membership("Q27971", 2015, null, {
+        national: true,
+        apps: 80,
+        goals: null,
+      }),
+    ]);
+    const merged = mergePlayer(wdPlayer(), ctx);
+    expect(merged?.draft.goals).toBe(3);
+    expect(merged?.draft.provenance.goals).toMatchObject({
+      source: "enwiki",
+      confidence: "medium",
+      agreeing: ["enwiki"],
+      confidenceNote: "one fresh source",
+    });
+  });
+
   it("rates goals low and flags them when the infobox is under the martj42 floor", () => {
     const merged = mergePlayer(wdPlayer(), {
       ...context(),
