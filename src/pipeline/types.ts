@@ -343,18 +343,22 @@ export type Flag = { subject: string; kind: FlagKind; detail: string };
  * A footballer the pipeline read but left out of the pool, so a reviewer can
  * see him. `excluded`: an override excludes him (no merge ran: no flags).
  * `not-candidate`: the research rule does not take him. `no-pool`: a
- * candidate in neither pool. The last two carry his merge flags.
+ * candidate in neither pool. `missing-field`: placed in a pool but missing a
+ * required field (name, position, birth date); his merge flags end with
+ * `dropped-missing-field` naming the fields. `no-pool` and `missing-field`
+ * carry his merge flags.
  */
 export type PoolDropped = {
   wikidataId: string;
   name: string;
-  reason: "excluded" | "not-candidate" | "no-pool";
+  reason: "excluded" | "not-candidate" | "no-pool" | "missing-field";
   flags: Flag[];
 };
 export const droppedReasons: readonly PoolDropped["reason"][] = [
   "excluded",
   "not-candidate",
   "no-pool",
+  "missing-field",
 ];
 
 /** One namespace of the id registry: Wikidata id → id, every id ever given (append-only). */

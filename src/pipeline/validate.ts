@@ -158,7 +158,9 @@ export function validatePool(
         errors.push(`${at}: ${field} names no agreeing source`);
     }
   }
-  // Who was left out: never also in the pool.
+  // Who was left out: never also in the pool, in Wikidata-number order, once.
+  const leftOut = new Set<string>();
+  let last = 0;
   for (const d of rows<Pool["dropped"][number]>(
     pool.dropped,
     "dropped",
@@ -176,6 +178,13 @@ export function validatePool(
       errors.push(`${at}: reason ${String(d.reason)}`);
     } else if (qids.has(d.wikidataId)) {
       errors.push(`${at}: also in the pool`);
+    }
+    if (typeof d.wikidataId === "string" && QID.test(d.wikidataId)) {
+      const n = Number(d.wikidataId.slice(1));
+      if (leftOut.has(d.wikidataId)) errors.push(`${at}: listed twice`);
+      else if (n < last) errors.push(`${at}: not in Wikidata-number order`);
+      leftOut.add(d.wikidataId);
+      last = Math.max(last, n);
     }
   }
   // An edition ends the year it starts or the next one, as the database checks.

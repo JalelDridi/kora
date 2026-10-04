@@ -232,7 +232,7 @@ export function buildPool(input: BuildInput): {
   const dropped: PoolDropped[] = [];
 
   for (const p of [...input.players].sort(byNumber)) {
-    const name = p.nameEn ?? p.nameFr ?? p.qid;
+    const name = p.nameEn ?? p.nameFr ?? p.nameAr ?? p.qid;
     const merged = mergePlayer(p, input);
     if (!merged) {
       dropped.push({ wikidataId: p.qid, name, reason: "excluded", flags: [] });
@@ -284,13 +284,20 @@ export function buildPool(input: BuildInput): {
         position === null && "position",
         birthDate === null && "birth date",
       ];
-      flags.push({
-        subject: p.qid,
-        kind: "dropped-missing-field",
-        detail: missing.filter(Boolean).join(", "),
+      // Listed, not lost: an override can supply the field.
+      dropped.push({
+        wikidataId: p.qid,
+        name: nameLatin ?? draft.nameArabic ?? p.qid,
+        reason: "missing-field",
+        flags: [
+          ...found.map((f) => ({ subject: p.qid, ...f })),
+          {
+            subject: p.qid,
+            kind: "dropped-missing-field",
+            detail: missing.filter(Boolean).join(", "),
+          },
+        ],
       });
-      // His other flags stay visible too.
-      flags.push(...found.map((f) => ({ subject: p.qid, ...f })));
       continue;
     }
     for (const s of draft.history) {

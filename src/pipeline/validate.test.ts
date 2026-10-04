@@ -188,20 +188,21 @@ describe("validatePool", () => {
       validatePool(
         {
           ...pool,
+          // In Wikidata-number order, so only the rules under test fire.
           dropped: [
-            { ...left, wikidataId: "Q2836275" },
             { ...left, reason: "gone" },
+            { ...left, wikidataId: "Q6", flags: "x" },
             null,
-            { ...left, flags: "x" },
+            { ...left, wikidataId: "Q2836275" },
           ],
         },
         governorates,
       ),
     ).toEqual([
       "dropped row 3: not an object",
-      "dropped Q2836275: also in the pool",
       "dropped Q5: reason gone",
-      "dropped Q5: needs a Wikidata id, a name and a list of flags",
+      "dropped Q6: needs a Wikidata id, a name and a list of flags",
+      "dropped Q2836275: also in the pool",
     ]);
     const withoutList = { ...pool, dropped: undefined };
     expect(validatePool(withoutList, governorates)).toEqual([
@@ -282,6 +283,32 @@ describe("the id registry (fix round 1 finding 2, fix round 2 item 1)", () => {
     ]);
     expect(validateIdRegistry({ Q1: "ali-abdi" })).toEqual([
       "must be { players: {}, clubs: {} }",
+    ]);
+  });
+});
+
+describe("the left-out list (fix round 2, items 3 and 6)", () => {
+  const left = (
+    wikidataId: string,
+    reason: "missing-field" | "no-pool" = "no-pool",
+  ) => ({ wikidataId, name: "X", reason, flags: [] });
+  it("accepts missing-field as a reason", () => {
+    expect(
+      validatePool(
+        { ...pool, dropped: [left("Q5", "missing-field")] },
+        governorates,
+      ),
+    ).toEqual([]);
+  });
+  it("requires Wikidata-number order and no id twice", () => {
+    expect(
+      validatePool(
+        { ...pool, dropped: [left("Q10"), left("Q9"), left("Q9")] },
+        governorates,
+      ),
+    ).toEqual([
+      "dropped Q9: not in Wikidata-number order",
+      "dropped Q9: listed twice",
     ]);
   });
 });

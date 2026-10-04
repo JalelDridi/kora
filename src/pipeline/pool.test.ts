@@ -447,6 +447,8 @@ describe("buildPool", () => {
     ]);
   });
 
+  // Fix round 2, item 3: the footballer missing a field is listed in
+  // `dropped` (below), no longer in the pool's flags.
   it("flags what it dropped and what it could not match", () => {
     const pool = build(input());
     expect(
@@ -454,7 +456,6 @@ describe("buildPool", () => {
         ["dropped-missing-field", "ligue1-club-unresolved"].includes(f.kind),
       ),
     ).toEqual([
-      { subject: "Q600", kind: "dropped-missing-field", detail: "position" },
       {
         subject: "Unknown FC",
         kind: "ligue1-club-unresolved",
@@ -704,6 +705,7 @@ describe("buildPool", () => {
       expect(pool.dropped.map((d) => [d.wikidataId, d.name, d.reason])).toEqual(
         [
           ["Q500", "Old Reserve", "not-candidate"],
+          ["Q600", "No Position", "missing-field"],
           ["Q700", "Excluded One", "excluded"],
           ["Q800", "Few Caps", "no-pool"],
           ["Q900", "Unread Caps", "no-pool"],
@@ -727,14 +729,34 @@ describe("buildPool", () => {
       ).toBe(true);
     });
 
-    it("keeps the merge flags of a footballer dropped for a missing field", () => {
+    it("lists a footballer missing a field in dropped, with his merge flags and the missing fields (fix round 2, item 3)", () => {
       const pool = build(withLeftOut());
-      expect(
-        pool.flags.filter((f) => f.subject === "Q600").map((f) => f.kind),
-      ).toContain("dropped-missing-field");
-      expect(
-        pool.flags.filter((f) => f.subject === "Q600").length,
-      ).toBeGreaterThan(1);
+      const q600 = pool.dropped.find((d) => d.wikidataId === "Q600");
+      expect(q600?.reason).toBe("missing-field");
+      expect(q600?.flags.at(-1)).toEqual({
+        subject: "Q600",
+        kind: "dropped-missing-field",
+        detail: "position",
+      });
+      expect(q600?.flags.length).toBeGreaterThan(1);
+      expect(pool.flags.some((f) => f.subject === "Q600")).toBe(false);
+    });
+
+    it("names a footballer missing a field by his Arabic label when he has no Latin one", () => {
+      const pool = build({
+        ...withLeftOut(),
+        players: [
+          wd("Q600", "x", "1999-03-03", {
+            nameEn: null,
+            nameAr: "لاعب",
+            positions: [],
+          }),
+        ],
+      });
+      expect(pool.dropped.map((d) => [d.wikidataId, d.name, d.reason])).toEqual(
+        [["Q600", "لاعب", "missing-field"]],
+      );
+      expect(pool.dropped[0].flags.at(-1)?.detail).toBe("name, position");
     });
   });
   describe("ids are permanent (fix round 1, finding 2)", () => {

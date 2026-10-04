@@ -614,3 +614,41 @@ describe("stale overrides, in the report (fix round 1, finding 4)", () => {
     expect(render()).toContain(none);
   });
 });
+
+describe("footballers missing a field, in the report (fix round 2, item 3)", () => {
+  it("counts them and lists every one by name with the missing fields", () => {
+    const p = pool([player("x")]);
+    p.dropped = Array.from({ length: 120 }, (_, i) => ({
+      wikidataId: `Q${1000 + i}`,
+      name: `Footballer ${i}`,
+      reason: "missing-field" as const,
+      flags: [
+        {
+          subject: `Q${1000 + i}`,
+          kind: "governorate-unresolved" as const,
+          detail: "no birthplace",
+        },
+        {
+          subject: `Q${1000 + i}`,
+          kind: "dropped-missing-field" as const,
+          detail: "position",
+        },
+      ],
+    }));
+    const report = renderReport({
+      pool: p,
+      diff: diffPools(null, p),
+      statuses: {},
+      today: "2026-10-04",
+    });
+    expect(report).toContain("- missing-field: 120");
+    expect(report).toContain(
+      "### Missing a required field: an override can supply it (120)",
+    );
+    expect(report).toContain("- Footballer 0 (Q1000): position");
+    expect(report).toContain("- Footballer 119 (Q1119): position");
+    expect(report.indexOf("### Missing a required field")).toBeLessThan(
+      report.indexOf("## Stale overrides"),
+    );
+  });
+});

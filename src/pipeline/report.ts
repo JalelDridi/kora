@@ -235,6 +235,8 @@ export function renderReport(input: {
   const undatedSpells = pool.flags.filter((f) => f.kind === "fr-undated-spell");
   const reading = input.honoursReading ?? null;
   const stale = input.overrideWarnings ?? [];
+  // Every one is listed: an override can bring each of them in.
+  const missingField = pool.dropped.filter((d) => d.reason === "missing-field");
   // In neither pool, yet the merge could not read his caps or a row: a former
   // international may be hiding here, so each is named.
   const unread = pool.dropped.filter(
@@ -308,6 +310,15 @@ export function renderReport(input: {
             ? [`- … ${unread.length - FLAG_LIMIT} more in data/pool.json`]
             : []),
         ]),
+    "",
+    `### Missing a required field: an override can supply it (${missingField.length})`,
+    "",
+    ...(missingField.length === 0
+      ? ["None."]
+      : missingField.map(
+          (d) =>
+            `- ${d.name} (${d.wikidataId}): ${d.flags.find((f) => f.kind === "dropped-missing-field")?.detail ?? "a field"}`,
+        )),
     "",
     `## Stale overrides (${stale.length})`,
     "",
