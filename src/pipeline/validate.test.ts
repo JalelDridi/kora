@@ -61,6 +61,7 @@ const pool: Pool = {
     },
   ],
   flags: [],
+  dropped: [],
 };
 const governorates = new Set(["sfax"]);
 
@@ -171,6 +172,58 @@ describe("validatePool", () => {
       "honour tn_ligue1 2019–2021: invalid",
       "honour tn_ligue1 2020–2019: invalid",
       "honour tn_ligue1 2012–2013: duplicate edition",
+    ]);
+  });
+  it("checks the left-out list: shape, reasons, and nobody both in and out (fix round 1)", () => {
+    const left = {
+      wikidataId: "Q5",
+      name: "Gone",
+      reason: "no-pool" as const,
+      flags: [],
+    };
+    expect(validatePool({ ...pool, dropped: [left] }, governorates)).toEqual(
+      [],
+    );
+    expect(
+      validatePool(
+        {
+          ...pool,
+          dropped: [
+            { ...left, wikidataId: "Q2836275" },
+            { ...left, reason: "gone" },
+            null,
+            { ...left, flags: "x" },
+          ],
+        },
+        governorates,
+      ),
+    ).toEqual([
+      "dropped row 3: not an object",
+      "dropped Q2836275: also in the pool",
+      "dropped Q5: reason gone",
+      "dropped Q5: needs a Wikidata id, a name and a list of flags",
+    ]);
+    const withoutList = { ...pool, dropped: undefined };
+    expect(validatePool(withoutList, governorates)).toEqual([
+      "not a version 1 pool",
+    ]);
+  });
+
+  it("names a row that is not an object instead of failing", () => {
+    expect(
+      validatePool(
+        {
+          ...pool,
+          players: [null],
+          clubs: [...pool.clubs, 7],
+          honours: [null],
+        },
+        governorates,
+      ),
+    ).toEqual([
+      "club row 2: not an object",
+      "player row 1: not an object",
+      "honour row 1: not an object",
     ]);
   });
 });

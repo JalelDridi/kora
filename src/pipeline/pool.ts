@@ -7,6 +7,7 @@ import type {
   Line,
   Pool,
   PoolClub,
+  PoolDropped,
   PoolHonour,
   PoolPlayer,
   ProvenancedField,
@@ -172,10 +173,15 @@ const honourKey = (h: {
 export function buildPool(input: BuildInput): Pool {
   const flags: Flag[] = [];
   const kept: Kept[] = [];
+  const dropped: PoolDropped[] = [];
 
   for (const p of [...input.players].sort(byNumber)) {
+    const name = p.nameEn ?? p.nameFr ?? p.qid;
     const merged = mergePlayer(p, input);
-    if (!merged) continue;
+    if (!merged) {
+      dropped.push({ wikidataId: p.qid, name, reason: "excluded", flags: [] });
+      continue;
+    }
     const { draft } = merged;
     const found = [...merged.flags];
     if (draft.club && draft.club.country === null) {
@@ -188,6 +194,7 @@ export function buildPool(input: BuildInput): Pool {
     }
     const override = input.overrides.players[p.qid]?.pools;
     let pools = { active: false, legend: false };
+    let candidate = true;
     if (override) {
       pools = override.value;
     } else if (
@@ -201,8 +208,18 @@ export function buildPool(input: BuildInput): Pool {
         { club: draft.club, caps: draft.caps, birthDate: draft.birthDate },
         input.today,
       );
+    } else {
+      candidate = false;
     }
-    if (!pools.active && !pools.legend) continue;
+    if (!pools.active && !pools.legend) {
+      dropped.push({
+        wikidataId: p.qid,
+        name,
+        reason: candidate ? "no-pool" : "not-candidate",
+        flags: found.map((f) => ({ subject: p.qid, ...f })),
+      });
+      continue;
+    }
 
     const { nameLatin, position, birthDate } = draft;
     if (nameLatin === null || position === null || birthDate === null) {
@@ -216,6 +233,8 @@ export function buildPool(input: BuildInput): Pool {
         kind: "dropped-missing-field",
         detail: missing.filter(Boolean).join(", "),
       });
+      // His other flags stay visible too.
+      flags.push(...found.map((f) => ({ subject: p.qid, ...f })));
       continue;
     }
     for (const s of draft.history) {
@@ -371,5 +390,6 @@ export function buildPool(input: BuildInput): Pool {
       (a, b) =>
         a.kind.localeCompare(b.kind) || a.subject.localeCompare(b.subject),
     ),
+    dropped,
   };
 }

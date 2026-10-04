@@ -77,6 +77,7 @@ function pool(players: PoolPlayer[]): Pool {
     flags: [
       { subject: "Q999", kind: "club-unresolved", detail: "enwiki: Nowhere" },
     ],
+    dropped: [],
   };
 }
 
@@ -416,5 +417,116 @@ describe("the report puts doubt first", () => {
     expect(quiet).toContain(
       "- Only dates, sources or confidence ratings changed.",
     );
+  });
+});
+
+describe("who was left out, in the report (fix round 1, finding 1)", () => {
+  const flag = (
+    subject: string,
+    kind: "caps-unknown" | "governorate-unresolved" | "career-row-skipped",
+    detail: string,
+  ) => ({ subject, kind, detail });
+  const kept = pool([player("x")]);
+  kept.dropped = [
+    {
+      wikidataId: "Q500",
+      name: "Old Reserve",
+      reason: "not-candidate",
+      flags: [
+        flag(
+          "Q500",
+          "caps-unknown",
+          "no source gives his Tunisia caps or goals",
+        ),
+      ],
+    },
+    { wikidataId: "Q700", name: "Excluded One", reason: "excluded", flags: [] },
+    {
+      wikidataId: "Q800",
+      name: "Few Caps",
+      reason: "no-pool",
+      flags: [flag("Q800", "governorate-unresolved", "no birthplace")],
+    },
+    {
+      wikidataId: "Q900",
+      name: "Unread Caps",
+      reason: "no-pool",
+      flags: [
+        flag(
+          "Q900",
+          "caps-unknown",
+          "no source gives his Tunisia caps or goals",
+        ),
+        flag("Q900", "governorate-unresolved", "no birthplace"),
+      ],
+    },
+    {
+      wikidataId: "Q1000",
+      name: "Skipped Row",
+      reason: "no-pool",
+      flags: [
+        flag(
+          "Q1000",
+          "career-row-skipped",
+          "enwiki clubs2 (years): | ? | [[X]]",
+        ),
+      ],
+    },
+  ];
+  const report = renderReport({
+    pool: kept,
+    diff: diffPools(null, kept),
+    statuses: {},
+    today: "2026-10-04",
+  });
+
+  it("counts each reason and names the no-pool footballers with unknown caps or skipped rows, with their flags", () => {
+    expect(report).toContain(
+      [
+        "## Left out of the pool (5)",
+        "",
+        "- excluded: 1",
+        "- not-candidate: 1",
+        "- no-pool: 3",
+        "",
+      ].join("\n"),
+    );
+    expect(report).toContain(
+      "### In neither pool, with unknown caps or goals or skipped rows (2)",
+    );
+    expect(report).toContain(
+      "- Unread Caps (Q900): caps-unknown: no source gives his Tunisia caps or goals; governorate-unresolved: no birthplace",
+    );
+    expect(report).toContain(
+      "- Skipped Row (Q1000): career-row-skipped: enwiki clubs2 (years): | ? | [[X]]",
+    );
+    expect(report).not.toContain("Few Caps (Q800)");
+    expect(report).not.toContain("Old Reserve (Q500)");
+    expect(report.indexOf("- Unread Caps")).toBeLessThan(
+      report.indexOf("- Skipped Row"),
+    );
+  });
+
+  it("comes right after the low-confidence section", () => {
+    expect(report.indexOf("## Left out of the pool")).toBeGreaterThan(
+      report.indexOf("### French spells without a start year"),
+    );
+    expect(report.indexOf("## Left out of the pool")).toBeLessThan(
+      report.indexOf("## Honours read from Wikidata"),
+    );
+  });
+
+  it("counts a footballer who moved from the pool to the left-out list as removed", () => {
+    const before = pool([player("x"), player("y")]);
+    const after = pool([player("x")]);
+    after.dropped = [
+      {
+        wikidataId: player("y").wikidataId,
+        name: "y",
+        reason: "no-pool",
+        flags: [],
+      },
+    ];
+    expect(diffPools(before, after).removed).toEqual(["y"]);
   });
 });

@@ -1,4 +1,5 @@
 import { CROSS_CHECKED, SINGLE_SOURCE } from "./confidence.ts";
+import { droppedReasons } from "./types.ts";
 import type {
   Competition,
   Flag,
@@ -46,6 +47,13 @@ export function computeCoverage(players: PoolPlayer[]): CoverageRow[] {
 export const SKIP_KINDS: readonly string[] = [
   "caps-row-skipped",
   "career-row-skipped",
+];
+
+/** Flags that make a left-out footballer worth a look: his caps or a row could not be read. */
+export const LEFT_OUT_DOUBT: readonly string[] = [
+  "caps-unknown",
+  "goals-unknown",
+  ...SKIP_KINDS,
 ];
 
 export type ConfidenceRow = {
@@ -224,6 +232,13 @@ export function renderReport(input: {
   const skipped = pool.flags.filter((f) => SKIP_KINDS.includes(f.kind));
   const undatedSpells = pool.flags.filter((f) => f.kind === "fr-undated-spell");
   const reading = input.honoursReading ?? null;
+  // In neither pool, yet the merge could not read his caps or a row: a former
+  // international may be hiding here, so each is named.
+  const unread = pool.dropped.filter(
+    (d) =>
+      d.reason === "no-pool" &&
+      d.flags.some((f) => LEFT_OUT_DOUBT.includes(f.kind)),
+  );
 
   const out = [
     `# Nightly pool, ${today}`,
@@ -268,6 +283,28 @@ export function renderReport(input: {
     `### French spells without a start year, left out beside an English career (${undatedSpells.length})`,
     "",
     ...flagList(undatedSpells),
+    "",
+    `## Left out of the pool (${pool.dropped.length})`,
+    "",
+    ...droppedReasons.map(
+      (r) => `- ${r}: ${pool.dropped.filter((d) => d.reason === r).length}`,
+    ),
+    "",
+    `### In neither pool, with unknown caps or goals or skipped rows (${unread.length})`,
+    "",
+    ...(unread.length === 0
+      ? ["None."]
+      : [
+          ...unread
+            .slice(0, FLAG_LIMIT)
+            .map(
+              (d) =>
+                `- ${d.name} (${d.wikidataId}): ${d.flags.map((f) => `${f.kind}: ${f.detail}`).join("; ")}`,
+            ),
+          ...(unread.length > FLAG_LIMIT
+            ? [`- … ${unread.length - FLAG_LIMIT} more in data/pool.json`]
+            : []),
+        ]),
     "",
     `## Honours read from Wikidata: corrections and drops (${reading ? reading.issues.length : "not read"})`,
     "",

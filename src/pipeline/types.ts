@@ -337,12 +337,32 @@ export type FlagKind =
 /** Something for Jalel to look at. `subject` is a Wikidata id or a title. */
 export type Flag = { subject: string; kind: FlagKind; detail: string };
 
+/**
+ * A footballer the pipeline read but left out of the pool, so a reviewer can
+ * see him. `excluded`: an override excludes him (no merge ran: no flags).
+ * `not-candidate`: the research rule does not take him. `no-pool`: a
+ * candidate in neither pool. The last two carry his merge flags.
+ */
+export type PoolDropped = {
+  wikidataId: string;
+  name: string;
+  reason: "excluded" | "not-candidate" | "no-pool";
+  flags: Flag[];
+};
+export const droppedReasons: readonly PoolDropped["reason"][] = [
+  "excluded",
+  "not-candidate",
+  "no-pool",
+];
+
 export type Pool = {
   version: 1;
   players: PoolPlayer[];
   clubs: PoolClub[];
   honours: PoolHonour[];
   flags: Flag[];
+  /** Sorted by Wikidata number. */
+  dropped: PoolDropped[];
 };
 
 export type SourceStatus = {

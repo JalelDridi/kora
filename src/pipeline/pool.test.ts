@@ -509,4 +509,76 @@ describe("buildPool", () => {
       [2011, 2012, "cs-sfaxien", "curated"],
     ]);
   });
+  describe("who was left out (fix round 1, finding 1)", () => {
+    function withLeftOut(): BuildInput {
+      const base = input();
+      return {
+        ...base,
+        players: [
+          ...base.players,
+          wd("Q700", "Excluded One", "1995-01-01"),
+          wd("Q800", "Few Caps", "1980-01-01"),
+          wd("Q900", "Unread Caps", "1980-02-02"),
+        ],
+        memberships: new Map([
+          ...base.memberships,
+          [
+            "Q800",
+            [
+              m("Q800", "Q27971", 2001, 2005, {
+                national: true,
+                apps: 8,
+                goals: 0,
+              }),
+            ],
+          ],
+          ["Q900", [m("Q900", "Q27971", 2001, 2004, { national: true })]],
+        ]),
+        overrides: {
+          players: {
+            Q700: { exclude: { value: true, by: "jalel", at: "2026-10-05" } },
+          },
+          clubTitles: {},
+        },
+      };
+    }
+
+    it("lists every footballer left out, with the reason, by Wikidata number", () => {
+      const pool = buildPool(withLeftOut());
+      expect(pool.dropped.map((d) => [d.wikidataId, d.name, d.reason])).toEqual(
+        [
+          ["Q500", "Old Reserve", "not-candidate"],
+          ["Q700", "Excluded One", "excluded"],
+          ["Q800", "Few Caps", "no-pool"],
+          ["Q900", "Unread Caps", "no-pool"],
+        ],
+      );
+    });
+
+    it("keeps the merge flags of those the merge ran for: a former international whose caps are unknown", () => {
+      const pool = buildPool(withLeftOut());
+      const flagsOf = (qid: string) =>
+        pool.dropped
+          .find((d) => d.wikidataId === qid)
+          ?.flags.map((f) => f.kind);
+      expect(flagsOf("Q700")).toEqual([]);
+      expect(flagsOf("Q900")).toContain("caps-unknown");
+      expect(flagsOf("Q500")).toContain("caps-unknown");
+      expect(
+        pool.dropped
+          .flatMap((d) => d.flags)
+          .every((f) => f.subject.startsWith("Q")),
+      ).toBe(true);
+    });
+
+    it("keeps the merge flags of a footballer dropped for a missing field", () => {
+      const pool = buildPool(withLeftOut());
+      expect(
+        pool.flags.filter((f) => f.subject === "Q600").map((f) => f.kind),
+      ).toContain("dropped-missing-field");
+      expect(
+        pool.flags.filter((f) => f.subject === "Q600").length,
+      ).toBeGreaterThan(1);
+    });
+  });
 });

@@ -1,4 +1,4 @@
-import { competitions, confidences, lines } from "./types.ts";
+import { competitions, confidences, droppedReasons, lines } from "./types.ts";
 import type { Confidence, Pool } from "./types.ts";
 
 // The same rules the database enforces, checked before anything is written,
@@ -12,6 +12,16 @@ const year = (y: number | null) =>
   y === null || (Number.isInteger(y) && y >= 1900 && y <= 2100);
 const count = (n: number | null) =>
   n === null || (Number.isInteger(n) && n >= 0);
+const isRecord = (v: unknown): v is Record<string, unknown> =>
+  typeof v === "object" && v !== null && !Array.isArray(v);
+
+/** Rows that are objects; each other row is a named error, not a TypeError. */
+function rows<T>(list: unknown[], label: string, errors: string[]): T[] {
+  return list.filter((row, i) => {
+    if (!isRecord(row)) errors.push(`${label} row ${i + 1}: not an object`);
+    return isRecord(row);
+  }) as T[];
+}
 
 export function validatePool(
   input: unknown,
@@ -23,13 +33,14 @@ export function validatePool(
     !Array.isArray(pool.players) ||
     !Array.isArray(pool.clubs) ||
     !Array.isArray(pool.honours) ||
-    !Array.isArray(pool.flags)
+    !Array.isArray(pool.flags) ||
+    !Array.isArray(pool.dropped)
   ) {
     return ["not a version 1 pool"];
   }
   const errors: string[] = [];
   const clubIds = new Set<string>();
-  for (const club of pool.clubs) {
+  for (const club of rows<Pool["clubs"][number]>(pool.clubs, "club", errors)) {
     const at = `club ${club.id}`;
     if (!SLUG.test(club.id) || clubIds.has(club.id))
       errors.push(`${at}: bad or duplicate id`);
@@ -41,7 +52,11 @@ export function validatePool(
   }
   const ids = new Set<string>();
   const qids = new Set<string>();
-  for (const p of pool.players) {
+  for (const p of rows<Pool["players"][number]>(
+    pool.players,
+    "player",
+    errors,
+  )) {
     const at = `player ${p.id}`;
     if (!SLUG.test(p.id)) errors.push(`${at}: id is not a slug`);
     if (p.clubId !== null && !clubIds.has(p.clubId))
@@ -92,9 +107,33 @@ export function validatePool(
         errors.push(`${at}: ${field} names no agreeing source`);
     }
   }
+  // Who was left out: never also in the pool.
+  for (const d of rows<Pool["dropped"][number]>(
+    pool.dropped,
+    "dropped",
+    errors,
+  )) {
+    const at = `dropped ${String(d.wikidataId)}`;
+    if (
+      typeof d.wikidataId !== "string" ||
+      !QID.test(d.wikidataId) ||
+      typeof d.name !== "string" ||
+      !Array.isArray(d.flags)
+    ) {
+      errors.push(`${at}: needs a Wikidata id, a name and a list of flags`);
+    } else if (!droppedReasons.includes(d.reason)) {
+      errors.push(`${at}: reason ${String(d.reason)}`);
+    } else if (qids.has(d.wikidataId)) {
+      errors.push(`${at}: also in the pool`);
+    }
+  }
   // An edition ends the year it starts or the next one, as the database checks.
   const editions = new Set<string>();
-  for (const h of pool.honours) {
+  for (const h of rows<Pool["honours"][number]>(
+    pool.honours,
+    "honour",
+    errors,
+  )) {
     const at = `honour ${h.competition} ${h.seasonStart}–${h.seasonEnd}`;
     if (
       !competitions.includes(h.competition) ||

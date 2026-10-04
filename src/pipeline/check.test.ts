@@ -71,6 +71,7 @@ const pool: Pool = {
   ],
   honours: [],
   flags: [],
+  dropped: [],
 };
 const by = { by: "jalel", at: "2026-10-05" };
 
