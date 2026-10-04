@@ -1,3 +1,4 @@
+import { OVERRIDE_RATING } from "./confidence.ts";
 import { mergePlayer } from "./merge.ts";
 import type { ClubIndex, Draft, MergeContext } from "./merge.ts";
 import { confederationOf, LIGUE1, slugify, TUNISIA_TEAM } from "./places.ts";
@@ -111,6 +112,7 @@ const FIELDS: Record<ProvenancedField, (p: PoolPlayer) => unknown> = {
   goals: (p) => p.goals,
   history: (p) => p.history,
   photo: (p) => p.photo,
+  pools: (p) => p.pools,
 };
 
 /** An unchanged value keeps the date it was first read, so a quiet night changes nothing. */
@@ -252,7 +254,15 @@ export function buildPool(input: BuildInput): {
     let pools = { active: false, legend: false };
     let candidate = true;
     if (override) {
+      // Ruling (fix round 2): a pools override brings him in whatever the
+      // candidate rules say; his other overrides were applied by the merge.
       pools = override.value;
+      draft.provenance.pools = {
+        source: "override",
+        retrievedAt: override.at,
+        by: override.by,
+        ...OVERRIDE_RATING,
+      };
     } else if (
       draft.birthDate &&
       isCandidate(p, input.memberships.get(p.qid) ?? [], input.index, {

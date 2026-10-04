@@ -951,4 +951,72 @@ describe("buildPool", () => {
       );
     });
   });
+  describe("a pools override adds a footballer (fix round 2, item 5)", () => {
+    const by = { by: "jalel", at: "2026-10-05" };
+    const legend = { pools: { value: { active: false, legend: true }, ...by } };
+    const withOverrides = (
+      players: WdPlayer[],
+      overrides: BuildInput["overrides"]["players"],
+    ) =>
+      build({
+        ...input(),
+        players,
+        overrides: { players: overrides, clubTitles: {} },
+      });
+
+    it("brings in a footballer who is not a candidate, with provenance override", () => {
+      const pool = withOverrides([wd("Q500", "Old Reserve", "1960-05-05")], {
+        Q500: legend,
+      });
+      expect(pool.players.map((p) => [p.id, p.pools])).toEqual([
+        ["old-reserve", { active: false, legend: true }],
+      ]);
+      expect(pool.players[0].provenance.pools).toEqual({
+        source: "override",
+        retrievedAt: "2026-10-05",
+        by: "jalel",
+        confidence: "high",
+        agreeing: ["override"],
+        confidenceNote: "decided by Jalel",
+      });
+      expect(pool.dropped).toEqual([]);
+    });
+
+    it("drops him, visibly, as missing-field when he still lacks a position", () => {
+      const pool = withOverrides(
+        [wd("Q500", "Old Reserve", "1960-05-05", { positions: [] })],
+        { Q500: legend },
+      );
+      expect(pool.players).toEqual([]);
+      expect(
+        pool.dropped.map((d) => [
+          d.wikidataId,
+          d.reason,
+          d.flags.at(-1)?.detail,
+        ]),
+      ).toEqual([["Q500", "missing-field", "position"]]);
+    });
+
+    it("applies his other overrides first, so one can supply the missing field", () => {
+      const pool = withOverrides(
+        [wd("Q500", "Old Reserve", "1960-05-05", { positions: [] })],
+        {
+          Q500: { ...legend, position: { value: "goalkeeper", ...by } },
+        },
+      );
+      expect(
+        pool.players.map((p) => [
+          p.id,
+          p.position,
+          p.provenance.position?.source,
+        ]),
+      ).toEqual([["old-reserve", "goalkeeper", "override"]]);
+    });
+
+    it("gives pools provenance only when an override decided them", () => {
+      expect(
+        build(input()).players.every((p) => p.provenance.pools === undefined),
+      ).toBe(true);
+    });
+  });
 });

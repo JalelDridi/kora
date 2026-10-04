@@ -23,9 +23,10 @@ function usablePool(json: unknown): json is Pool {
 }
 
 /**
- * Who the overrides may name. With a pool: its footballers (and those the
- * left-out list says are excluded, since an excluded footballer is never in
- * the pool) and its clubs; `seen` adds every footballer in the id registry
+ * Who the overrides may name. With a pool: its footballers (and, from the
+ * left-out list, those excluded, since an excluded footballer is never in the
+ * pool, and those whose override names pools, since it can bring them in)
+ * and its clubs; `seen` adds every footballer in the id registry
  * and the left-out list, so an override for one of them is a warning. Without
  * a usable pool there is nothing to check them against, so every id the file
  * names counts as known and only its shape is checked.
@@ -37,6 +38,11 @@ export function knownIds(
 ): KnownIds {
   const players =
     isRecord(overrides) && isRecord(overrides.players) ? overrides.players : {};
+  // A pools override can bring in a footballer left out: never stale.
+  const namesPools = (qid: string) => {
+    const entry = players[qid];
+    return isRecord(entry) && Object.hasOwn(entry, "pools");
+  };
   if (usablePool(pool)) {
     const dropped = (Array.isArray(pool.dropped) ? pool.dropped : []).filter(
       (d) => isRecord(d) && typeof d.wikidataId === "string",
@@ -45,7 +51,7 @@ export function knownIds(
       players: new Set([
         ...pool.players.map((p) => p.wikidataId),
         ...dropped
-          .filter((d) => d.reason === "excluded")
+          .filter((d) => d.reason === "excluded" || namesPools(d.wikidataId))
           .map((d) => d.wikidataId),
       ]),
       clubs: new Set(pool.clubs.map((c) => c.wikidataId)),

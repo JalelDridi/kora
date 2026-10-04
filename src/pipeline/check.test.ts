@@ -283,3 +283,39 @@ describe("stale overrides (fix round 1, finding 4)", () => {
     );
   });
 });
+
+describe("a pools override is never stale for a footballer left out (fix round 2, item 5)", () => {
+  it("warns only about overrides that name no pools", async () => {
+    const { root, write } = await copyOfData();
+    await write("pool.json", {
+      ...pool,
+      dropped: [
+        {
+          wikidataId: "Q500",
+          name: "Old Reserve",
+          reason: "not-candidate",
+          flags: [],
+        },
+        {
+          wikidataId: "Q600",
+          name: "No Position",
+          reason: "missing-field",
+          flags: [],
+        },
+      ],
+    });
+    await write("overrides.json", {
+      players: {
+        Q500: { caps: { value: 3, ...by } },
+        Q600: { pools: { value: { active: false, legend: true }, ...by } },
+      },
+      clubTitles: {},
+    });
+    expect(await inspectData(root)).toEqual({
+      errors: [],
+      warnings: [
+        "data/overrides.json: players.Q500: stale override: seen by the pipeline but not in the current pool; not applied",
+      ],
+    });
+  });
+});

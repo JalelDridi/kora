@@ -253,7 +253,9 @@ export type ProvenancedField =
   | "caps"
   | "goals"
   | "history"
-  | "photo";
+  | "photo"
+  /** Only when an override decided the pools (fix round 2). */
+  | "pools";
 
 export type PoolPlayer = {
   id: string;

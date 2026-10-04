@@ -86,6 +86,8 @@ const VALUE: Record<ProvenancedField, (p: PoolPlayer) => string> = {
   birthPlace: (p) => p.birthPlace ?? "",
   nameArabic: (p) => p.nameArabic ?? "",
   photo: (p) => p.photo?.file ?? "",
+  pools: (p) =>
+    `${p.pools.active ? "active" : ""}${p.pools.active && p.pools.legend ? ", " : ""}${p.pools.legend ? "legend" : ""}`,
 };
 
 /** "none" is not a source: a value no source gives is said so in words. */
