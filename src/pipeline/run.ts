@@ -366,7 +366,9 @@ async function build(deps: RunDeps): Promise<RunResult> {
     const errors = validateIdRegistry(registryJson);
     if (errors.length > 0) {
       for (const e of errors) deps.log(`data/ids.json: ${e}`);
-      throw new Refusal(`data/ids.json has ${errors.length} errors`);
+      throw new Refusal(
+        `data/ids.json has ${errors.length} error${errors.length === 1 ? "" : "s"}`,
+      );
     }
   }
   // The registry is passed through: buildPool owns its format (pool.ts), the

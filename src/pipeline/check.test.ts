@@ -144,7 +144,9 @@ describe("checkData", () => {
     ]);
   });
 
-  it("checks overrides against the pool once there is one, excluded footballers allowed", async () => {
+  // Fix round 3: the build decides which footballers and clubs exist, so ids
+  // the last build did not see are warnings here, never errors.
+  it("checks overrides against the last pool once there is one, excluded footballers allowed", async () => {
     const { root, write } = await copyOfData();
     await write("pool.json", {
       ...pool,
@@ -160,10 +162,13 @@ describe("checkData", () => {
       },
       clubTitles: {},
     });
-    expect(await checkData(root)).toEqual([
-      'data/overrides.json: players.Q2836275.club: "Q44897" is not a club in the pool',
-      "data/overrides.json: players.Q5: not a footballer in the pool",
-    ]);
+    expect(await inspectData(root)).toEqual({
+      errors: [],
+      warnings: [
+        'data/overrides.json: players.Q2836275.club: club "Q44897" not seen by the last build; the next build will decide',
+        "data/overrides.json: players.Q5: not seen by the last build; the next build will decide",
+      ],
+    });
   });
 });
 
@@ -244,105 +249,105 @@ describe("data/ids.json (fix round 1, finding 2)", () => {
   });
 });
 
-describe("stale overrides (fix round 1, finding 4)", () => {
+describe("data:check agrees with the build about overrides (fix round 3)", () => {
   const leftOut: Pool = {
     ...pool,
     dropped: [
       { wikidataId: "Q7", name: "Left Out", reason: "no-pool", flags: [] },
+      {
+        wikidataId: "Q600",
+        name: "No Position",
+        reason: "missing-field",
+        flags: [],
+      },
     ],
   };
-  const stale = {
-    players: {
-      Q7: { caps: { value: 3, ...by } },
-      Q8: { caps: { value: 4, ...by } },
-    },
-    clubTitles: {},
-  };
+  const cli = (root: string) =>
+    run(process.execPath, [...NO_NETWORK_ARGS, CLI, "check"], {
+      cwd: root,
+    }).then(
+      ({ stdout }) => ({ code: 0, stdout, stderr: "" }),
+      (error: { code: number; stdout: string; stderr: string }) => error,
+    );
 
-  it("warns about footballers seen before (left-out list, id registry) but not in the pool", async () => {
+  it("warns about a footballer Wikidata added since the last build, even with a pools override; exit 0", async () => {
     const { root, write } = await copyOfData();
     await write("pool.json", leftOut);
     await write("ids.json", {
       players: { Q2836275: "ali-maaloul", Q8: "gone-for-good" },
       clubs: { Q1024482: "cs-sfaxien" },
     });
-    await write("overrides.json", stale);
-    expect(await inspectData(root)).toEqual({
-      errors: [],
-      warnings: [
-        "data/overrides.json: players.Q7: stale override: seen by the pipeline but not in the current pool; not applied",
-        "data/overrides.json: players.Q8: stale override: seen by the pipeline but not in the current pool; not applied",
-      ],
-    });
-    const { stdout } = await run(
-      process.execPath,
-      [...NO_NETWORK_ARGS, CLI, "check"],
-      {
-        cwd: root,
-      },
-    );
-    expect(stdout).toContain(
-      "data:check: warning: data/overrides.json: players.Q7: stale override",
-    );
-    expect(stdout).toContain("data:check: ok");
-  });
-
-  it("fails on an id never seen, exit 1", async () => {
-    const { root, write } = await copyOfData();
-    await write("pool.json", leftOut);
-    await write("overrides.json", stale);
-    expect(await checkData(root)).toEqual([
-      "data/overrides.json: players.Q8: not a footballer in the pool",
-    ]);
-    const failed = await run(
-      process.execPath,
-      [...NO_NETWORK_ARGS, CLI, "check"],
-      {
-        cwd: root,
-      },
-    ).then(
-      () => null,
-      (error: { code: number; stderr: string }) => error,
-    );
-    expect(failed?.code).toBe(1);
-    expect(failed?.stderr).toContain(
-      "data/overrides.json: players.Q8: not a footballer in the pool",
-    );
-  });
-});
-
-describe("a pools override is never stale for a footballer left out (fix round 2, item 5)", () => {
-  it("warns only about overrides that name no pools", async () => {
-    const { root, write } = await copyOfData();
-    await write("pool.json", {
-      ...pool,
-      dropped: [
-        {
-          wikidataId: "Q500",
-          name: "Old Reserve",
-          reason: "not-candidate",
-          flags: [],
-        },
-        {
-          wikidataId: "Q600",
-          name: "No Position",
-          reason: "missing-field",
-          flags: [],
-        },
-      ],
-    });
     await write("overrides.json", {
       players: {
-        Q500: { caps: { value: 3, ...by } },
-        Q600: { pools: { value: { active: false, legend: true }, ...by } },
+        Q8: { caps: { value: 4, ...by } },
+        Q9: { pools: { value: { active: false, legend: true }, ...by } },
       },
       clubTitles: {},
     });
+    const notSeen = "not seen by the last build; the next build will decide";
     expect(await inspectData(root)).toEqual({
       errors: [],
       warnings: [
-        "data/overrides.json: players.Q500: stale override: seen by the pipeline but not in the current pool; not applied",
+        `data/overrides.json: players.Q8: ${notSeen}`,
+        `data/overrides.json: players.Q9: ${notSeen}`,
       ],
     });
+    const out = await cli(root);
+    expect(out.code).toBe(0);
+    expect(out.stdout).toContain(
+      `data:check: warning: data/overrides.json: players.Q9: ${notSeen}`,
+    );
+    expect(out.stdout).toContain("data:check: ok");
+  });
+
+  it("says a footballer left out will get his override at the next build, never stale; exit 0", async () => {
+    const { root, write } = await copyOfData();
+    await write("pool.json", leftOut);
+    await write("overrides.json", {
+      players: {
+        Q7: { caps: { value: 3, ...by } },
+        Q600: { position: { value: "goalkeeper", ...by } },
+      },
+      clubTitles: {},
+    });
+    const { errors, warnings } = await inspectData(root);
+    expect(errors).toEqual([]);
+    expect(warnings).toEqual([
+      "data/overrides.json: players.Q7: left out by the last build (no-pool); this override will be applied by the next build",
+      "data/overrides.json: players.Q600: left out by the last build (missing-field); this override will be applied by the next build",
+    ]);
+    expect(warnings.some((w) => w.includes("stale"))).toBe(false);
+    expect((await cli(root)).code).toBe(0);
+  });
+
+  it("still fails on a shape error, exit 1", async () => {
+    const { root, write } = await copyOfData();
+    await write("pool.json", leftOut);
+    await write("overrides.json", {
+      players: { Q9: { position: { value: "striker", ...by } } },
+      clubTitles: {},
+    });
+    const out = await cli(root);
+    expect(out.code).toBe(1);
+    expect(out.stderr).toContain(
+      'data/overrides.json: players.Q9.position: invalid value "striker"',
+    );
+  });
+
+  it("fails on a footballer excluded and overridden at once", async () => {
+    const { root, write } = await copyOfData();
+    await write("pool.json", leftOut);
+    await write("overrides.json", {
+      players: {
+        Q7: {
+          exclude: { value: true, ...by },
+          pools: { value: { active: false, legend: true }, ...by },
+        },
+      },
+      clubTitles: {},
+    });
+    expect(await checkData(root)).toEqual([
+      "data/overrides.json: players.Q7: excluded and overridden at once",
+    ]);
   });
 });

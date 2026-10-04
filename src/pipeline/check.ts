@@ -23,13 +23,14 @@ function usablePool(json: unknown): json is Pool {
 }
 
 /**
- * Who the overrides may name. With a pool: its footballers (and, from the
- * left-out list, those excluded, since an excluded footballer is never in the
- * pool, and those whose override names pools, since it can bring them in)
- * and its clubs; `seen` adds every footballer in the id registry
- * and the left-out list, so an override for one of them is a warning. Without
- * a usable pool there is nothing to check them against, so every id the file
- * names counts as known and only its shape is checked.
+ * What the last build knew, for checking overrides in "check" mode (the build
+ * itself is the authority, see validateOverrides). With a pool: its
+ * footballers (plus those it excluded, since an excluded footballer is never
+ * in the pool) and its clubs; `leftOut` names the others it left out, with
+ * the reason; `seen` adds the id registry. Without a usable pool there is
+ * nothing to compare with, so every id the file names counts as known and
+ * only its shape is checked. run.ts uses the no-pool form for its first,
+ * shape-only pass.
  */
 export function knownIds(
   pool: unknown,
@@ -38,11 +39,6 @@ export function knownIds(
 ): KnownIds {
   const players =
     isRecord(overrides) && isRecord(overrides.players) ? overrides.players : {};
-  // A pools override can bring in a footballer left out: never stale.
-  const namesPools = (qid: string) => {
-    const entry = players[qid];
-    return isRecord(entry) && Object.hasOwn(entry, "pools");
-  };
   if (usablePool(pool)) {
     const dropped = (Array.isArray(pool.dropped) ? pool.dropped : []).filter(
       (d) => isRecord(d) && typeof d.wikidataId === "string",
@@ -51,7 +47,7 @@ export function knownIds(
       players: new Set([
         ...pool.players.map((p) => p.wikidataId),
         ...dropped
-          .filter((d) => d.reason === "excluded" || namesPools(d.wikidataId))
+          .filter((d) => d.reason === "excluded")
           .map((d) => d.wikidataId),
       ]),
       clubs: new Set(pool.clubs.map((c) => c.wikidataId)),
@@ -61,6 +57,11 @@ export function knownIds(
           : []),
         ...dropped.map((d) => d.wikidataId),
       ]),
+      leftOut: new Map(
+        dropped
+          .filter((d) => d.reason !== "excluded")
+          .map((d) => [d.wikidataId, String(d.reason)]),
+      ),
     };
   }
   const clubs = Object.values(players)
@@ -82,7 +83,7 @@ export async function checkData(root: string): Promise<string[]> {
   return (await inspectData(root)).errors;
 }
 
-/** Errors fail data:check; warnings (stale overrides) are printed and pass. */
+/** Errors fail data:check; warnings (overrides the next build will decide) are printed and pass. */
 export async function inspectData(
   root: string,
 ): Promise<{ errors: string[]; warnings: string[] }> {
@@ -133,6 +134,7 @@ export async function inspectData(
     overrides ?? null,
     ids,
     knownIds(pool, overrides, registry),
+    "check",
   );
   if (!checked.ok)
     errors.push(...checked.errors.map((e) => `data/overrides.json: ${e}`));

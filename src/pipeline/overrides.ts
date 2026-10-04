@@ -77,19 +77,32 @@ export type OverridesResult =
 /**
  * What the overrides may name: the pool's footballers and clubs (Wikidata
  * ids), and `seen`, footballers the pipeline has met (the id registry and the
- * pool's left-out list). An override for one seen but not in `players` is
- * stale: a warning, not applied. An id in neither is an error.
+ * pool's left-out list). In build mode an override for one seen but not in
+ * `players` is stale: a warning, not applied; an id in neither is an error.
+ * Check mode: see OverridesMode.
  */
 export type KnownIds = {
   players: Set<string>;
   clubs: Set<string>;
   seen: Set<string>;
+  /** Check mode: footballers the last build left out, with the reason. */
+  leftOut?: Map<string, string>;
 };
+
+/**
+ * "build" (run.ts, the authority: it has this run's Wikidata footballers and
+ * clubs): an unknown id is an error, a known one outside `players` is stale.
+ * "check" (data:check, which only has the last build): an id the last build
+ * did not know, or a footballer it left out, is a warning; the next build
+ * decides. Shape errors and conflicts are errors in both modes.
+ */
+export type OverridesMode = "build" | "check";
 
 export function validateOverrides(
   json: unknown,
   governorates: Set<string>,
   known: KnownIds,
+  mode: OverridesMode = "build",
 ): OverridesResult {
   const overrides: Overrides = { players: {}, clubTitles: {} };
   if (json === null || json === undefined)
@@ -106,21 +119,17 @@ export function validateOverrides(
   }
   const errors: string[] = [];
   const warnings: string[] = [];
+  const checker = mode === "check";
+  const notSeen = "not seen by the last build; the next build will decide";
   for (const [qid, entry] of Object.entries(json.players)) {
     if (!QID.test(qid) || !isRecord(entry)) {
       errors.push(`players.${qid}: not a Wikidata id with an object`);
       continue;
     }
-    if (!known.players.has(qid)) {
-      if (known.seen.has(qid)) {
-        warnings.push(
-          `players.${qid}: stale override: seen by the pipeline but not in the current pool; not applied`,
-        );
-      } else {
-        errors.push(`players.${qid}: not a footballer in the pool`);
-      }
-      continue;
-    }
+    // Shape first, whoever the footballer is: shape errors are errors in
+    // both modes.
+    const before = errors.length;
+    const clubWarnings: string[] = [];
     const clean: Record<string, unknown> = {};
     for (const [field, raw] of Object.entries(entry)) {
       const at = `players.${qid}.${field}`;
@@ -138,6 +147,13 @@ export function validateOverrides(
         !ISO_DATE.test(raw.at)
       ) {
         errors.push(`${at}: needs value, by and at (YYYY-MM-DD)`);
+      } else if (
+        field === "pools" &&
+        isRecord(raw.value) &&
+        raw.value.active === false &&
+        raw.value.legend === false
+      ) {
+        errors.push(`${at}: in neither pool; use exclude`);
       } else if (!check(raw.value, governorates)) {
         errors.push(`${at}: invalid value ${JSON.stringify(raw.value)}`);
       } else if (
@@ -145,11 +161,46 @@ export function validateOverrides(
         typeof raw.value === "string" &&
         !known.clubs.has(raw.value)
       ) {
-        errors.push(`${at}: "${raw.value}" is not a club in the pool`);
+        if (checker) {
+          clubWarnings.push(`${at}: club "${raw.value}" ${notSeen}`);
+          clean[field] = raw;
+        } else {
+          errors.push(`${at}: "${raw.value}" is not a club in the pool`);
+        }
       } else {
         clean[field] = raw;
       }
     }
+    if (errors.length > before) continue;
+    // Exclusion would silently win over the rest: say so instead.
+    if (
+      isRecord(entry.exclude) &&
+      entry.exclude.value === true &&
+      Object.keys(entry).length > 1
+    ) {
+      errors.push(`players.${qid}: excluded and overridden at once`);
+      continue;
+    }
+    if (!known.players.has(qid)) {
+      if (checker) {
+        // The build decides who exists; the checker only says what it saw.
+        const reason = known.leftOut?.get(qid);
+        warnings.push(
+          reason
+            ? `players.${qid}: left out by the last build (${reason}); this override will be applied by the next build`
+            : `players.${qid}: ${notSeen}`,
+        );
+      } else if (known.seen.has(qid)) {
+        warnings.push(
+          `players.${qid}: stale override: seen by the pipeline but not in the current pool; not applied`,
+        );
+        continue;
+      } else {
+        errors.push(`players.${qid}: not a footballer in the pool`);
+        continue;
+      }
+    }
+    warnings.push(...clubWarnings);
     overrides.players[qid] = clean as PlayerOverride;
   }
   for (const [key, qid] of Object.entries(json.clubTitles)) {
@@ -164,8 +215,11 @@ export function validateOverrides(
       continue;
     }
     if (!known.clubs.has(qid)) {
-      errors.push(`clubTitles.${key}: "${qid}" is not a club in the pool`);
-      continue;
+      if (!checker) {
+        errors.push(`clubTitles.${key}: "${qid}" is not a club in the pool`);
+        continue;
+      }
+      warnings.push(`clubTitles.${key}: club "${qid}" ${notSeen}`);
     }
     overrides.clubTitles[key] = qid;
   }

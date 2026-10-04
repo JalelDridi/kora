@@ -450,6 +450,32 @@ describe("run", () => {
     expect(await exists(file(root, "pool.json"))).toBe(false);
   });
 
+  it("refuses a footballer excluded and overridden at once, before any request (fix round 3)", async () => {
+    const by = { by: "jalel", at: "2026-10-05" };
+    const root = await setup({
+      players: {
+        Q1001: {
+          exclude: { value: true, ...by },
+          pools: { value: { active: false, legend: true }, ...by },
+        },
+      },
+      clubTitles: {},
+    });
+    const calls: Calls = { urls: [], queries: [] };
+    const lines: string[] = [];
+    const outcome = await run(
+      deps(root, { wdqs: wdqs(calls), log: (l) => lines.push(l) }),
+    );
+    expect(outcome).toEqual({
+      ok: false,
+      reason: "data/overrides.json has 1 error",
+    });
+    expect(calls.urls).toEqual([]);
+    expect(lines).toContain(
+      "data/overrides.json: players.Q1001: excluded and overridden at once",
+    );
+  });
+
   it("asks Wikidata for the clubs the overrides name, so a correct override passes", async () => {
     const root = await setup({
       players: {
@@ -699,10 +725,22 @@ describe("run", () => {
     const outcome = await run(deps(root, { wdqs: wdqs(calls) }));
     expect(outcome).toEqual({
       ok: false,
-      reason: "data/ids.json has 1 errors",
+      reason: "data/ids.json has 1 error",
     });
     expect(calls.urls).toEqual([]);
     expect(await exists(file(root, "pool.json"))).toBe(false);
+  });
+
+  it("counts several registry errors in the plural", async () => {
+    const root = await setup();
+    await writeFile(
+      file(root, "ids.json"),
+      JSON.stringify({ players: { x: "a", y: "b" }, clubs: {} }),
+    );
+    expect(await run(deps(root))).toEqual({
+      ok: false,
+      reason: "data/ids.json has 2 errors",
+    });
   });
 });
 

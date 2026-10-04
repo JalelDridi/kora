@@ -202,8 +202,8 @@ export function sharedIds(namespace: IdNamespace): string[] {
 
 /**
  * The registry to assign from: refused when an id serves two Wikidata ids in
- * a namespace (ids would no longer be permanent), and, when it is empty while
- * a previous pool exists, seeded from that pool's footballers and clubs.
+ * a namespace (ids would no longer be permanent); each empty namespace is
+ * seeded from the previous pool's footballers or clubs, when there is one.
  */
 function startingRegistry(ids: IdRegistry, previous: Pool | null): IdRegistry {
   for (const space of ["players", "clubs"] as const) {
@@ -211,15 +211,18 @@ function startingRegistry(ids: IdRegistry, previous: Pool | null): IdRegistry {
     if (shared.length > 0)
       throw new Error(`id registry: ${space} ${shared.join("; ")}`);
   }
-  const empty =
-    Object.keys(ids.players).length === 0 &&
-    Object.keys(ids.clubs).length === 0;
-  if (!empty || !previous) return ids;
+  if (!previous) return ids;
+  // Each namespace on its own: an empty one is seeded from the previous pool.
+  const seed = (
+    space: IdNamespace,
+    from: { wikidataId: string; id: string }[],
+  ) =>
+    Object.keys(space).length > 0
+      ? space
+      : Object.fromEntries(from.map((x) => [x.wikidataId, x.id]));
   return {
-    players: Object.fromEntries(
-      previous.players.map((p) => [p.wikidataId, p.id]),
-    ),
-    clubs: Object.fromEntries(previous.clubs.map((c) => [c.wikidataId, c.id])),
+    players: seed(ids.players, previous.players),
+    clubs: seed(ids.clubs, previous.clubs),
   };
 }
 

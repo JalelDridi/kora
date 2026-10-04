@@ -160,3 +160,89 @@ describe("stale overrides (fix round 1, finding 4)", () => {
     });
   });
 });
+
+describe("the build and the checker (fix round 3)", () => {
+  const checker = { ...known, leftOut: new Map([["Q77", "missing-field"]]) };
+
+  it("refuses a footballer excluded and overridden at once, in both modes", () => {
+    const json = {
+      players: {
+        Q1: {
+          exclude: { value: true, ...by },
+          position: { value: "forward", ...by },
+        },
+      },
+      clubTitles: {},
+    };
+    const error = {
+      ok: false,
+      errors: ["players.Q1: excluded and overridden at once"],
+    };
+    expect(validateOverrides(json, governorates, known)).toEqual(error);
+    expect(validateOverrides(json, governorates, checker, "check")).toEqual(
+      error,
+    );
+  });
+
+  it("refuses a pools override in neither pool: use exclude", () => {
+    expect(
+      validateOverrides(
+        {
+          players: {
+            Q1: { pools: { value: { active: false, legend: false }, ...by } },
+          },
+          clubTitles: {},
+        },
+        governorates,
+        known,
+      ),
+    ).toEqual({
+      ok: false,
+      errors: ["players.Q1.pools: in neither pool; use exclude"],
+    });
+  });
+
+  it("the build refuses a shape error even for a stale footballer", () => {
+    expect(
+      validateOverrides(
+        { players: { Q77: { caps: { value: -1, ...by } } }, clubTitles: {} },
+        governorates,
+        known,
+      ),
+    ).toEqual({ ok: false, errors: ["players.Q77.caps: invalid value -1"] });
+  });
+
+  it("the checker warns, never refuses, about ids the last build did not know, and names footballers it left out", () => {
+    const result = validateOverrides(
+      {
+        players: {
+          Q5: { caps: { value: 3, ...by } },
+          Q77: { position: { value: "goalkeeper", ...by } },
+          Q1: { club: { value: "Q9", ...by } },
+        },
+        clubTitles: { "fr:EST": "Q6" },
+      },
+      governorates,
+      checker,
+      "check",
+    );
+    expect(result.ok).toBe(true);
+    expect(result.ok && result.warnings).toEqual([
+      "players.Q5: not seen by the last build; the next build will decide",
+      "players.Q77: left out by the last build (missing-field); this override will be applied by the next build",
+      'players.Q1.club: club "Q9" not seen by the last build; the next build will decide',
+      'clubTitles.fr:EST: club "Q6" not seen by the last build; the next build will decide',
+    ]);
+  });
+
+  it("the checker still refuses a shape error", () => {
+    expect(
+      validateOverrides(
+        { players: { Q5: { caps: { value: -1, ...by } } }, clubTitles: {} },
+        governorates,
+        checker,
+        "check",
+      ),
+    ).toEqual({ ok: false, errors: ["players.Q5.caps: invalid value -1"] });
+  });
+});

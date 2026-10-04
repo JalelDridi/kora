@@ -759,6 +759,22 @@ describe("buildPool", () => {
       );
       expect(pool.dropped[0].flags.at(-1)?.detail).toBe("name, position");
     });
+
+    it("names him by his Wikidata id when he has no label at all (fix round 3)", () => {
+      const pool = build({
+        ...withLeftOut(),
+        players: [
+          wd("Q600", "x", "1999-03-03", {
+            nameEn: null,
+            nameAr: null,
+            positions: [],
+          }),
+        ],
+      });
+      expect(pool.dropped.map((d) => [d.wikidataId, d.name, d.reason])).toEqual(
+        [["Q600", "Q600", "missing-field"]],
+      );
+    });
   });
   describe("ids are permanent (fix round 1, finding 2)", () => {
     const night = (players: WdPlayer[], ids: IdRegistry) =>
@@ -901,6 +917,33 @@ describe("buildPool", () => {
       );
       expect(next.ids.players.Q331918).toBe("jaidi");
       expect(next.ids.clubs.Q12).toBe("gent");
+    });
+
+    it("seeds each empty namespace on its own (fix round 3)", () => {
+      const first = buildPool(input()).pool;
+      const renamed = {
+        ...first,
+        players: first.players.map((p) =>
+          p.wikidataId === "Q331918" ? { ...p, id: "jaidi" } : p,
+        ),
+        clubs: first.clubs.map((c) =>
+          c.wikidataId === "Q12" ? { ...c, id: "gent" } : c,
+        ),
+      };
+      const clubsOnly = buildPool({
+        ...input(),
+        previous: renamed,
+        ids: { players: { Q331918: "radhi" }, clubs: {} },
+      });
+      expect(clubsOnly.ids.clubs.Q12).toBe("gent");
+      expect(clubsOnly.ids.players.Q331918).toBe("radhi");
+      const playersOnly = buildPool({
+        ...input(),
+        previous: renamed,
+        ids: { players: {}, clubs: { Q12: "kaa-gent" } },
+      });
+      expect(playersOnly.ids.players.Q331918).toBe("jaidi");
+      expect(playersOnly.ids.clubs.Q12).toBe("kaa-gent");
     });
   });
   describe("a light left-out list, and no club for a replaced winner (fix round 2, items 4 and 6)", () => {
