@@ -1,0 +1,35 @@
+{{Infobox football biography
+| name           = Ali Maâloul<br />{{nobold|عَلِيّ مَعْلُول}}
+| image          = Ali Maâloul.jpg
+| caption        = Maâloul with [[Al Ahly]] at the [[2021 FIFA Club World Cup]]
+| full_name      = Ali Maâloul<ref name="FIFA"/>
+| birth_date     = {{Birth date and age|1990|01|01|df=y}}
+| birth_place    = [[Sfax]], Tunisia
+| height         = 1.75 m<ref name="FIFA">{{cite web|url=https://tournament.fifadata.com/documents/FWC/2018/pdf/FWC_2018_SQUADLISTS.PDF|title=2018 FIFA World Cup: List of players|publisher=FIFA|page=31|date=14 July 2018|access-date=14 July 2018|archive-url=https://web.archive.org/web/20180619164139/https://tournament.fifadata.com/documents/FWC/2018/pdf/FWC_2018_SQUADLISTS.PDF|archive-date=19 June 2018|url-status=dead}}</ref>
+| position       = [[Left-back]]
+| currentclub    = [[CS Sfaxien]]
+| clubnumber     = 10
+| youthyears1    = 2001–2009
+| youthclubs1    = [[CS Sfaxien]]
+| years1         = 2009–2016
+| clubs1         = [[CS Sfaxien]]
+| caps1          = 157
+| goals1         = 31
+| years2         = 2016–2025
+| clubs2         = [[Al Ahly SC|Al Ahly]]
+| caps2          = 163
+| goals2         = 35
+| years3         = 2025–
+| clubs3         = [[CS Sfaxien]]
+| caps3          = 25
+| goals3         = 2
+| nationalyears1 = 2013–
+| nationalteam1  = [[Tunisia national football team|Tunisia]]
+| nationalcaps1  = 89
+| nationalgoals1 = 3
+| club-update    = 4 September 2026
+| nationalteam-update = 1 April 2024
+| medaltemplates = {{MedalCountry|{{fb|TUN}}}}
+{{MedalComp|[[FIFA Arab Cup]]}}
+{{Medal|RU|[[2021 FIFA Arab Cup|2021 Qatar]]|}}
+}}

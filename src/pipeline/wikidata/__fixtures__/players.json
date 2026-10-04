@@ -1,0 +1,215 @@
+{
+  "head" : {
+    "vars" : [ "p", "enLabel", "frLabel", "arLabel", "gender", "birth", "positions", "birthPlace", "birthPlaceName", "birthCountry", "governorates", "image", "enwiki", "frwiki", "arwiki" ]
+  },
+  "results" : {
+    "bindings" : [ {
+      "p" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q2409513"
+      },
+      "enLabel" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "Youssef Msakni"
+      },
+      "frLabel" : {
+        "xml:lang" : "fr",
+        "type" : "literal",
+        "value" : "Youssef Msakni"
+      },
+      "arLabel" : {
+        "xml:lang" : "ar",
+        "type" : "literal",
+        "value" : "يوسف المساكني"
+      },
+      "gender" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q6581097"
+      },
+      "birth" : {
+        "datatype" : "http://www.w3.org/2001/XMLSchema#dateTime",
+        "type" : "literal",
+        "value" : "1990-10-28T00:00:00Z"
+      },
+      "positions" : {
+        "type" : "literal",
+        "value" : "wing half"
+      },
+      "birthPlace" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q948"
+      },
+      "birthPlaceName" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "Tunisia"
+      },
+      "birthCountry" : {
+        "type" : "literal",
+        "value" : "TN"
+      },
+      "governorates" : {
+        "type" : "literal",
+        "value" : ""
+      },
+      "image" : {
+        "type" : "uri",
+        "value" : "http://commons.wikimedia.org/wiki/Special:FilePath/Youssef%20Msakni%202015b.jpg"
+      },
+      "enwiki" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "Youssef Msakni"
+      },
+      "frwiki" : {
+        "xml:lang" : "fr",
+        "type" : "literal",
+        "value" : "Youssef Msakni"
+      },
+      "arwiki" : {
+        "xml:lang" : "ar",
+        "type" : "literal",
+        "value" : "يوسف المساكني"
+      }
+    }, {
+      "p" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q19956607"
+      },
+      "enLabel" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "Yassine Meriah"
+      },
+      "frLabel" : {
+        "xml:lang" : "fr",
+        "type" : "literal",
+        "value" : "Yassine Meriah"
+      },
+      "arLabel" : {
+        "xml:lang" : "ar",
+        "type" : "literal",
+        "value" : "ياسين مرياح"
+      },
+      "gender" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q6581097"
+      },
+      "birth" : {
+        "datatype" : "http://www.w3.org/2001/XMLSchema#dateTime",
+        "type" : "literal",
+        "value" : "1993-07-02T00:00:00Z"
+      },
+      "positions" : {
+        "type" : "literal",
+        "value" : "midfielder"
+      },
+      "birthPlace" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q3572"
+      },
+      "birthPlaceName" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "Tunis"
+      },
+      "birthCountry" : {
+        "type" : "literal",
+        "value" : "TN"
+      },
+      "governorates" : {
+        "type" : "literal",
+        "value" : "Tunis Governorate"
+      },
+      "image" : {
+        "type" : "uri",
+        "value" : "http://commons.wikimedia.org/wiki/Special:FilePath/Yassine%20Meriah.jpg"
+      },
+      "enwiki" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "Yassine Meriah"
+      },
+      "frwiki" : {
+        "xml:lang" : "fr",
+        "type" : "literal",
+        "value" : "Yassine Meriah"
+      },
+      "arwiki" : {
+        "xml:lang" : "ar",
+        "type" : "literal",
+        "value" : "ياسين مرياح"
+      }
+    }, {
+      "p" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q27794"
+      },
+      "enLabel" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "Wahbi Khazri"
+      },
+      "frLabel" : {
+        "xml:lang" : "fr",
+        "type" : "literal",
+        "value" : "Wahbi Khazri"
+      },
+      "arLabel" : {
+        "xml:lang" : "ar",
+        "type" : "literal",
+        "value" : "وهبي خزري"
+      },
+      "gender" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q6581097"
+      },
+      "birth" : {
+        "datatype" : "http://www.w3.org/2001/XMLSchema#dateTime",
+        "type" : "literal",
+        "value" : "1991-02-08T00:00:00Z"
+      },
+      "positions" : {
+        "type" : "literal",
+        "value" : "forward"
+      },
+      "birthPlace" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q40104"
+      },
+      "birthPlaceName" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "Ajaccio"
+      },
+      "birthCountry" : {
+        "type" : "literal",
+        "value" : "FR"
+      },
+      "governorates" : {
+        "type" : "literal",
+        "value" : ""
+      },
+      "image" : {
+        "type" : "uri",
+        "value" : "http://commons.wikimedia.org/wiki/Special:FilePath/Wahbi%20Khazri.jpg"
+      },
+      "enwiki" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "Wahbi Khazri"
+      },
+      "frwiki" : {
+        "xml:lang" : "fr",
+        "type" : "literal",
+        "value" : "Wahbi Khazri"
+      },
+      "arwiki" : {
+        "xml:lang" : "ar",
+        "type" : "literal",
+        "value" : "وهبي خزري"
+      }
+    } ]
+  }
+}

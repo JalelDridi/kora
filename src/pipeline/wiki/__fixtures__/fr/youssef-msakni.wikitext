@@ -1,0 +1,34 @@
+{{Infobox Footballeur
+ | nom                 = Youssef Msakni
+ | image               = Youssef Msakni 2018.png
+ | taille image        = 
+ | légende             = Youssef Msakni en 2018.
+ | période pro         = [[2008 en football|2008]]-[[2026 en football|2026]]
+ | nom de naissance    = 
+ | date de naissance   = {{date de naissance|28|10|1990|âge=oui}}
+ | lieu de naissance   = [[Tunis]] ([[Tunisie]])
+ | nationalité         = [[Tunisie]]nne
+ | date de décès       = 
+ | lieu de décès       = 
+ | taille              = {{Taille|m=1.79}}
+ | position            = [[Attaquant (football)|Ailier gauche]], [[Milieu de terrain|milieu offensif]]
+ | pied                = Droit
+ | parcours junior     = {{deux colonnes
+                         |[[2003 en football|2003]]-[[2008 en football|2008]]|{{TUN-d}} [[Stade tunisien (football)|Stade tunisien]]
+                         }}
+ | parcours senior     = {{trois colonnes
+                         |[[2008 en football|2008]]-[[2013 en football|2013]]|{{TUN-d}} [[Espérance sportive de Tunis (football)|ES Tunis]]|155 (49)
+                         |[[2013 en football|2013]]-[[2023 en football|2023]]|{{QAT-d}} [[Al-Duhail Sports Club|Al-Duhail SC]]|182 (97)
+                         |[[2019 en football|2019]]|{{prêt}} {{BEL-d}} [[KAS Eupen]]|{{0}}13 {{0}}(3)
+                         |[[2021 en football|2021]]-[[2023 en football|2023]]|{{prêt}} {{QAT-d}} [[Al-Arabi Sports Club|Al-Arabi SC]]|{{0}}46 (28)
+                         |[[2023 en football|2023]]–[[2025 en football|2025]]|{{QAT-d}} [[Al-Arabi Sports Club|Al-Arabi SC]]|{{0}}41 (20)
+                         |[[2025 en football|2025]]-[[2026 en football|2026]]|{{TUN-d}} [[Espérance sportive de Tunis (football)|ES Tunis]]|{{0}}{{0}}5 {{0}}(0)
+                         }}
+ | sélection nationale = {{trois colonnes
+                         |[[2006 en football|2006]]-[[2007 en football|2007]]|{{TUN-d}} [[Équipe de Tunisie des moins de 17 ans de football|Tunisie -17 ans]]|{{0}}13 {{0}}(4)
+                         |[[2009 en football|2009]]|{{TUN-d}} [[Équipe de Tunisie des moins de 20 ans de football|Tunisie -20 ans]]|{{0}}{{0}}3 {{0}}(0)
+                         |[[2009 en football|2009]]-[[2011 en football|2011]]|{{TUN-d}} [[Équipe de Tunisie olympique de football|Tunisie -23 ans]]|{{0}}{{0}}4 {{0}}(1)
+                         |[[2010 en football|2010]]-[[2024 en football|2024]]|{{TUN football}}|104 (23)
+                         }}
+ | date de mise à jour = {{date|26 juillet 2026}}
+}}

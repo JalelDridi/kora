@@ -1,0 +1,46 @@
+{{Infobox football biography
+|name = Ellyes Skhiri
+|image = 2021-08-08 FC Carl Zeiss Jena gegen 1. FC Köln (DFB-Pokal) by Sandro Halank–182 (cropped2).jpg
+|caption = Skhiri playing for [[1. FC Köln]] in 2021
+|full_name = Ellyes Joris Skhiri<ref name="FIFA">{{cite web |url=https://tournament.fifadata.com/documents/FWC/2018/pdf/FWC_2018_SQUADLISTS.PDF |title=2018 FIFA World Cup Russia – List of Players |website=FIFA.com |publisher=Fédération Internationale de Football Association |date=4 June 2018 |access-date=4 June 2018 |archive-url=https://web.archive.org/web/20180619164139/https://tournament.fifadata.com/documents/FWC/2018/pdf/FWC_2018_SQUADLISTS.PDF |archive-date=19 June 2018 |url-status=dead}}</ref>
+|birth_date = {{Birth date and age|1995|5|10|df=y}}<ref name="DFL"/>
+|birth_place = [[Lunel, Hérault|Lunel]], France
+|height = 1.85 m<ref name="FIFA"/><ref name="DFL">{{cite web |url=https://www.bundesliga.com/en/bundesliga/player/ellyes-skhiri |title=Ellyes Joris Skhiri {{!}} Playerprofile {{!}} Bundesliga |website=bundesliga.com |publisher=DFL |accessdate=20 December 2021}}</ref>
+|position = [[Defensive midfielder]]
+|currentclub = [[1. FC Köln]]
+|clubnumber = 6
+|youthyears1 = 1999–2010
+|youthclubs1 = Gallia Club Lunel
+|youthyears2 = 2010–2014
+|youthclubs2 = [[Montpellier HSC|Montpellier]]
+|years1 = 2014–2015
+|clubs1 = [[Montpellier HSC|Montpellier B]]
+|caps1 = 57
+|goals1 = 3
+|years2 = 2015–2019
+|clubs2 = [[Montpellier HSC|Montpellier]]
+|caps2 = 123
+|goals2 = 10
+|years3 = 2019–2023
+|clubs3 = [[1. FC Köln]]
+|caps3 = 118
+|goals3 = 17
+|years4 = 2023–2026
+|clubs4 = [[Eintracht Frankfurt]]
+|caps4 = 82
+|goals4 = 3
+|years5 = 2026–
+|clubs5 = [[1. FC Köln]]
+|caps5 = 3
+|goals5 = 0
+|nationalyears1 = 2014
+|nationalteam1 = [[Tunisia national under-23 football team|Tunisia U23]]
+|nationalcaps1 = 1
+|nationalgoals1 = 0
+|nationalyears2 = 2018–2026
+|nationalteam2 = [[Tunisia national football team|Tunisia]]
+|nationalcaps2 = 86
+|nationalgoals2 = 4
+|pcupdate = 17:30, 19 September 2026 (UTC)
+|ntupdate = 17:08, 17 September 2026 (UTC)
+}}

@@ -1,0 +1,345 @@
+{
+  "batchcomplete": true,
+  "query": {
+    "pages": [
+      {
+        "pageid": 39647706,
+        "ns": 6,
+        "title": "File:Youssef Msakni 2015b.jpg",
+        "imagerepository": "local",
+        "imageinfo": [
+          {
+            "size": 618744,
+            "width": 1319,
+            "height": 2196,
+            "thumburl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/8e/Youssef_Msakni_2015b.jpg/500px-Youssef_Msakni_2015b.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+            "thumbwidth": 400,
+            "thumbheight": 666,
+            "responsiveUrls": {
+              "2": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/8e/Youssef_Msakni_2015b.jpg/960px-Youssef_Msakni_2015b.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+            },
+            "thumbattribs": {
+              "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/8e/Youssef_Msakni_2015b.jpg/500px-Youssef_Msakni_2015b.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+              "decoding": "async",
+              "loading": "lazy",
+              "width": 400,
+              "height": 666,
+              "srcset": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/8e/Youssef_Msakni_2015b.jpg/960px-Youssef_Msakni_2015b.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail 2x"
+            },
+            "url": "https://upload.wikimedia.org/wikipedia/commons/8/8e/Youssef_Msakni_2015b.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+            "descriptionurl": "https://commons.wikimedia.org/wiki/File:Youssef_Msakni_2015b.jpg",
+            "descriptionshorturl": "https://commons.wikimedia.org/w/index.php?curid=39647706",
+            "extmetadata": {
+              "Artist": {
+                "value": "<a rel=\"nofollow\" class=\"external text\" href=\"https://www.flickr.com/people/dohastadiumplusqatar/\">Doha Stadium Plus Qatar</a> Photo by Mohan",
+                "source": "commons-desc-page"
+              },
+              "LicenseShortName": {
+                "value": "CC BY 2.0",
+                "source": "commons-desc-page",
+                "hidden": ""
+              },
+              "AttributionRequired": {
+                "value": "true",
+                "source": "commons-desc-page",
+                "hidden": ""
+              },
+              "LicenseUrl": {
+                "value": "https://creativecommons.org/licenses/by/2.0",
+                "source": "commons-desc-page"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "pageid": 70176509,
+        "ns": 6,
+        "title": "File:Wahbi Khazri.jpg",
+        "imagerepository": "local",
+        "imageinfo": [
+          {
+            "size": 66794,
+            "width": 316,
+            "height": 356,
+            "thumburl": "https://upload.wikimedia.org/wikipedia/commons/8/86/Wahbi_Khazri.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+            "thumbwidth": 400,
+            "thumbheight": 451,
+            "thumbattribs": {
+              "src": "https://upload.wikimedia.org/wikipedia/commons/8/86/Wahbi_Khazri.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+              "decoding": "async",
+              "loading": "lazy",
+              "width": 400,
+              "height": 451
+            },
+            "url": "https://upload.wikimedia.org/wikipedia/commons/8/86/Wahbi_Khazri.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+            "descriptionurl": "https://commons.wikimedia.org/wiki/File:Wahbi_Khazri.jpg",
+            "descriptionshorturl": "https://commons.wikimedia.org/w/index.php?curid=70176509",
+            "extmetadata": {
+              "Artist": {
+                "value": "Дмитрий Садовников",
+                "source": "commons-desc-page"
+              },
+              "LicenseShortName": {
+                "value": "CC BY-SA 3.0",
+                "source": "commons-desc-page",
+                "hidden": ""
+              },
+              "AttributionRequired": {
+                "value": "true",
+                "source": "commons-desc-page",
+                "hidden": ""
+              },
+              "LicenseUrl": {
+                "value": "https://creativecommons.org/licenses/by-sa/3.0",
+                "source": "commons-desc-page"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "pageid": 70176571,
+        "ns": 6,
+        "title": "File:Ferjani Sassi 2.jpg",
+        "imagerepository": "local",
+        "imageinfo": [
+          {
+            "size": 71998,
+            "width": 303,
+            "height": 438,
+            "thumburl": "https://upload.wikimedia.org/wikipedia/commons/4/49/Ferjani_Sassi_2.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+            "thumbwidth": 400,
+            "thumbheight": 578,
+            "thumbattribs": {
+              "src": "https://upload.wikimedia.org/wikipedia/commons/4/49/Ferjani_Sassi_2.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+              "decoding": "async",
+              "loading": "lazy",
+              "width": 400,
+              "height": 578
+            },
+            "url": "https://upload.wikimedia.org/wikipedia/commons/4/49/Ferjani_Sassi_2.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+            "descriptionurl": "https://commons.wikimedia.org/wiki/File:Ferjani_Sassi_2.jpg",
+            "descriptionshorturl": "https://commons.wikimedia.org/w/index.php?curid=70176571",
+            "extmetadata": {
+              "Artist": {
+                "value": "Дмитрий Садовников",
+                "source": "commons-desc-page"
+              },
+              "LicenseShortName": {
+                "value": "CC BY-SA 3.0",
+                "source": "commons-desc-page",
+                "hidden": ""
+              },
+              "AttributionRequired": {
+                "value": "true",
+                "source": "commons-desc-page",
+                "hidden": ""
+              },
+              "LicenseUrl": {
+                "value": "https://creativecommons.org/licenses/by-sa/3.0",
+                "source": "commons-desc-page"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "pageid": 70176817,
+        "ns": 6,
+        "title": "File:Yassine Meriah.jpg",
+        "imagerepository": "local",
+        "imageinfo": [
+          {
+            "size": 60106,
+            "width": 268,
+            "height": 392,
+            "thumburl": "https://upload.wikimedia.org/wikipedia/commons/c/c0/Yassine_Meriah.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+            "thumbwidth": 400,
+            "thumbheight": 585,
+            "thumbattribs": {
+              "src": "https://upload.wikimedia.org/wikipedia/commons/c/c0/Yassine_Meriah.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+              "decoding": "async",
+              "loading": "lazy",
+              "width": 400,
+              "height": 585
+            },
+            "url": "https://upload.wikimedia.org/wikipedia/commons/c/c0/Yassine_Meriah.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+            "descriptionurl": "https://commons.wikimedia.org/wiki/File:Yassine_Meriah.jpg",
+            "descriptionshorturl": "https://commons.wikimedia.org/w/index.php?curid=70176817",
+            "extmetadata": {
+              "Artist": {
+                "value": "Дмитрий Садовников",
+                "source": "commons-desc-page"
+              },
+              "LicenseShortName": {
+                "value": "CC BY-SA 3.0",
+                "source": "commons-desc-page",
+                "hidden": ""
+              },
+              "AttributionRequired": {
+                "value": "true",
+                "source": "commons-desc-page",
+                "hidden": ""
+              },
+              "LicenseUrl": {
+                "value": "https://creativecommons.org/licenses/by-sa/3.0",
+                "source": "commons-desc-page"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "pageid": 116212339,
+        "ns": 6,
+        "title": "File:Ali Maâloul.jpg",
+        "imagerepository": "local",
+        "imageinfo": [
+          {
+            "size": 45073,
+            "width": 508,
+            "height": 567,
+            "thumburl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/1b/Ali_Ma%C3%A2loul.jpg/500px-Ali_Ma%C3%A2loul.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+            "thumbwidth": 400,
+            "thumbheight": 446,
+            "responsiveUrls": {
+              "2": "https://upload.wikimedia.org/wikipedia/commons/1/1b/Ali_Ma%C3%A2loul.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled"
+            },
+            "thumbattribs": {
+              "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/1b/Ali_Ma%C3%A2loul.jpg/500px-Ali_Ma%C3%A2loul.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+              "decoding": "async",
+              "loading": "lazy",
+              "width": 400,
+              "height": 446,
+              "srcset": "https://upload.wikimedia.org/wikipedia/commons/1/1b/Ali_Ma%C3%A2loul.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled 2x"
+            },
+            "url": "https://upload.wikimedia.org/wikipedia/commons/1/1b/Ali_Ma%C3%A2loul.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+            "descriptionurl": "https://commons.wikimedia.org/wiki/File:Ali_Ma%C3%A2loul.jpg",
+            "descriptionshorturl": "https://commons.wikimedia.org/w/index.php?curid=116212339",
+            "extmetadata": {
+              "Artist": {
+                "value": "Mohammad Amin Ansari",
+                "source": "commons-desc-page"
+              },
+              "LicenseShortName": {
+                "value": "CC BY 4.0",
+                "source": "commons-desc-page",
+                "hidden": ""
+              },
+              "AttributionRequired": {
+                "value": "true",
+                "source": "commons-desc-page",
+                "hidden": ""
+              },
+              "LicenseUrl": {
+                "value": "https://creativecommons.org/licenses/by/4.0",
+                "source": "commons-desc-page"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "pageid": 128076893,
+        "ns": 6,
+        "title": "File:2021-08-08 FC Carl Zeiss Jena gegen 1. FC Köln (DFB-Pokal) by Sandro Halank–182 (cropped2).jpg",
+        "imagerepository": "local",
+        "imageinfo": [
+          {
+            "size": 2106023,
+            "width": 1709,
+            "height": 2734,
+            "thumburl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/bf/2021-08-08_FC_Carl_Zeiss_Jena_gegen_1._FC_K%C3%B6ln_%28DFB-Pokal%29_by_Sandro_Halank%E2%80%93182_%28cropped2%29.jpg/500px-2021-08-08_FC_Carl_Zeiss_Jena_gegen_1._FC_K%C3%B6ln_%28DFB-Pokal%29_by_Sandro_Halank%E2%80%93182_%28cropped2%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+            "thumbwidth": 400,
+            "thumbheight": 640,
+            "responsiveUrls": {
+              "2": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/bf/2021-08-08_FC_Carl_Zeiss_Jena_gegen_1._FC_K%C3%B6ln_%28DFB-Pokal%29_by_Sandro_Halank%E2%80%93182_%28cropped2%29.jpg/960px-2021-08-08_FC_Carl_Zeiss_Jena_gegen_1._FC_K%C3%B6ln_%28DFB-Pokal%29_by_Sandro_Halank%E2%80%93182_%28cropped2%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+            },
+            "thumbattribs": {
+              "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/bf/2021-08-08_FC_Carl_Zeiss_Jena_gegen_1._FC_K%C3%B6ln_%28DFB-Pokal%29_by_Sandro_Halank%E2%80%93182_%28cropped2%29.jpg/500px-2021-08-08_FC_Carl_Zeiss_Jena_gegen_1._FC_K%C3%B6ln_%28DFB-Pokal%29_by_Sandro_Halank%E2%80%93182_%28cropped2%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+              "decoding": "async",
+              "loading": "lazy",
+              "width": 400,
+              "height": 640,
+              "srcset": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/bf/2021-08-08_FC_Carl_Zeiss_Jena_gegen_1._FC_K%C3%B6ln_%28DFB-Pokal%29_by_Sandro_Halank%E2%80%93182_%28cropped2%29.jpg/960px-2021-08-08_FC_Carl_Zeiss_Jena_gegen_1._FC_K%C3%B6ln_%28DFB-Pokal%29_by_Sandro_Halank%E2%80%93182_%28cropped2%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail 2x"
+            },
+            "url": "https://upload.wikimedia.org/wikipedia/commons/b/bf/2021-08-08_FC_Carl_Zeiss_Jena_gegen_1._FC_K%C3%B6ln_%28DFB-Pokal%29_by_Sandro_Halank%E2%80%93182_%28cropped2%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+            "descriptionurl": "https://commons.wikimedia.org/wiki/File:2021-08-08_FC_Carl_Zeiss_Jena_gegen_1._FC_K%C3%B6ln_(DFB-Pokal)_by_Sandro_Halank%E2%80%93182_(cropped2).jpg",
+            "descriptionshorturl": "https://commons.wikimedia.org/w/index.php?curid=128076893",
+            "extmetadata": {
+              "Artist": {
+                "value": "<a href=\"//commons.wikimedia.org/wiki/User:Sandro_Halank\" title=\"User:Sandro Halank\">Sandro Halank</a>, Wikimedia Commons",
+                "source": "commons-desc-page"
+              },
+              "LicenseShortName": {
+                "value": "CC BY-SA 4.0",
+                "source": "commons-desc-page",
+                "hidden": ""
+              },
+              "AttributionRequired": {
+                "value": "true",
+                "source": "commons-desc-page",
+                "hidden": ""
+              },
+              "LicenseUrl": {
+                "value": "https://creativecommons.org/licenses/by-sa/4.0",
+                "source": "commons-desc-page"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "pageid": 164457332,
+        "ns": 6,
+        "title": "File:Hannibal Mejbri 26042025 (1).jpg",
+        "imagerepository": "local",
+        "imageinfo": [
+          {
+            "size": 345485,
+            "width": 1009,
+            "height": 1559,
+            "thumburl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/2f/Hannibal_Mejbri_26042025_%281%29.jpg/500px-Hannibal_Mejbri_26042025_%281%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+            "thumbwidth": 400,
+            "thumbheight": 618,
+            "responsiveUrls": {
+              "2": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/2f/Hannibal_Mejbri_26042025_%281%29.jpg/960px-Hannibal_Mejbri_26042025_%281%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+            },
+            "thumbattribs": {
+              "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/2f/Hannibal_Mejbri_26042025_%281%29.jpg/500px-Hannibal_Mejbri_26042025_%281%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+              "decoding": "async",
+              "loading": "lazy",
+              "width": 400,
+              "height": 618,
+              "srcset": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/2f/Hannibal_Mejbri_26042025_%281%29.jpg/960px-Hannibal_Mejbri_26042025_%281%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail 2x"
+            },
+            "url": "https://upload.wikimedia.org/wikipedia/commons/2/2f/Hannibal_Mejbri_26042025_%281%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+            "descriptionurl": "https://commons.wikimedia.org/wiki/File:Hannibal_Mejbri_26042025_(1).jpg",
+            "descriptionshorturl": "https://commons.wikimedia.org/w/index.php?curid=164457332",
+            "extmetadata": {
+              "Artist": {
+                "value": "<a href=\"//commons.wikimedia.org/wiki/User:Timmy96\" title=\"User:Timmy96\">Timmy96</a>",
+                "source": "commons-desc-page"
+              },
+              "LicenseShortName": {
+                "value": "CC0",
+                "source": "commons-desc-page",
+                "hidden": ""
+              },
+              "AttributionRequired": {
+                "value": "false",
+                "source": "commons-desc-page",
+                "hidden": ""
+              },
+              "LicenseUrl": {
+                "value": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+                "source": "commons-desc-page"
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

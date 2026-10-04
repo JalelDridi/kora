@@ -1,0 +1,39 @@
+{{Infobox Footballeur
+ | nom                 = Wahbi Khazri
+ | image               = Wahbi Khazri.jpg
+ | taille image        = 
+ | légende             = Khazri avec la Tunisie à la Coupe du monde 2018.
+ | club actuel         = 
+ | numéro en club      = 
+ | période pro         = [[2009 en football|2009]]-[[2025 en football|2025]]
+ | date de naissance   = {{date de naissance|8|2|1991|âge=oui}}
+ | lieu de naissance   = [[Ajaccio]] ([[France]])
+ | nationalité         = [[France|Française]]{{-}}[[Tunisie]]nne
+ | nation sportive     = [[Tunisie]]nne
+ | date de décès       = 
+ | lieu de décès       = 
+ | taille              = {{Taille|m=1.76}}<ref>{{Lien web|langue=fr|titre=Wahbi Khazri|url=https://www.staderennais.com/fiche/wahbi-khazri|site=[[Stade rennais Football Club]]|consulté le=19 janvier 2019}}.</ref>
+ | position            = [[Milieu de terrain|Milieu offensif]] ou [[Attaquant (football)|attaquant]]
+ | pied                = Droit
+ | parcours junior     = {{deux colonnes
+ |[[1995 en football|1995]]-[[2004 en football|2004]]|{{FRA-d}} JS Ajaccio
+ |[[2004 en football|2004]]-[[2009 en football|2009]]|{{FRA-d}} [[Sporting Club de Bastia|SC Bastia]]
+}}
+ | parcours senior     = {{trois colonnes
+ |[[2009 en football|2009]]-[[2014 en football|2014]]|{{FRA-d}} [[Sporting Club de Bastia|SC Bastia]]|188 (36)
+ |[[2014 en football|2014]]-[[2016 en football|2016]]|{{nobr|{{FRA-d}} [[Football Club des Girondins de Bordeaux|Girondins de Bordeaux]]}}|{{0}}64 (15)
+ |[[2016 en football|2016]]-[[2018 en football|2018]]|{{ENG-d}} [[Sunderland Association Football Club|Sunderland AFC]]|{{0}}42 {{0}}(3) 
+ |[[2017 en football|2017]]-[[2018 en football|2018]]|{{Prêt}} {{FRA-d}} [[Stade rennais Football Club|Stade rennais]]|{{0}}29 (11)
+ |[[2018 en football|2018]]-[[2022 en football|2022]]|{{FRA-d}} [[Association sportive de Saint-Étienne|AS Saint-Étienne]]|114 (37)
+ |[[2022 en football|2022]]-[[2025 en football|2025]]|{{FRA-d}} [[Montpellier Hérault Sport Club|Montpellier HSC]]|{{0}}87 {{0}}(6)
+}}
+ | sélection nationale = {{trois colonnes
+ |[[2006 en football|2006]]-[[2007 en football|2007]]|{{FRA-d}} [[Équipe de France des moins de 17 ans de football|France -17 ans]]|{{0|00}}2 {{0}}(0)
+ |[[2007 en football|2007]]-[[2008 en football|2008]]|{{TUN-d}} Tunisie -18 ans|{{0|00}}3 {{0}}(1)
+ |[[2008 en football|2008]]|{{FRA-d}} [[Équipe de France des moins de 19 ans de football|France -19 ans]]|{{0|00}}2 {{0}}(0)
+ |[[2009 en football|2009]]|{{TUN-d}} [[Équipe de Tunisie des moins de 20 ans de football|Tunisie -20 ans]]|{{0|00}}1 {{0}}(1)
+ |[[2012 en football|2012]]|{{FRA-d}} [[Équipe de France espoirs de football|France espoirs]]|{{0|00}}1 {{0}}(0)
+ |[[2013 en football|2013]]-[[2022 en football|2022]]|{{TUN football}}|{{0}}74 (25)
+}}
+ | date de mise à jour = {{date|01/07/2025}}
+}}
