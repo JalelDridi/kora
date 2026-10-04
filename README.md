@@ -2,7 +2,7 @@
 
 Tunisian football games in Derja: a daily guess-the-player puzzle, a season simulator and a streak game. In Arabic script, in Arabizi and in French.
 
-In development. The design is in [docs/superpowers/specs](docs/superpowers/specs/2026-10-03-kora-design.md); the decisions taken so far are in [docs/decisions.md](docs/decisions.md).
+Live at https://kora-tn.vercel.app (the hub only; the games arrive sprint by sprint). The design is in [docs/superpowers/specs](docs/superpowers/specs/2026-10-03-kora-design.md); the decisions taken so far are in [docs/decisions.md](docs/decisions.md).
 
 ## Run it
 
