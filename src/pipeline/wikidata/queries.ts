@@ -76,13 +76,20 @@ export function clubsQuery(
   const ids = qids.map((q) => `wd:${q}`).join(" ");
   const en = enTitles.map((t) => literal(t, "en")).join(" ");
   const fr = frTitles.map((t) => literal(t, "fr")).join(" ");
+  // An empty part is left out, so a run can ask for the ids and each
+  // language's titles in separate, smaller queries.
+  const parts = [
+    qids.length > 0 && `{ VALUES ?club { ${ids} } }`,
+    enTitles.length > 0 &&
+      `{ VALUES ?t { ${en} } ?a schema:name ?t ; schema:isPartOf <https://en.wikipedia.org/> ; schema:about ?club . }`,
+    frTitles.length > 0 &&
+      `{ VALUES ?u { ${fr} } ?b schema:name ?u ; schema:isPartOf <https://fr.wikipedia.org/> ; schema:about ?club . }`,
+  ].filter((p): p is string => typeof p === "string");
   return `SELECT ?club (SAMPLE(?enL) AS ?en) (SAMPLE(?frL) AS ?fr) (SAMPLE(?arL) AS ?ar) (SAMPLE(?isoCode) AS ?iso)
   (GROUP_CONCAT(DISTINCT STRAFTER(STR(?league), "entity/"); separator="|") AS ?leagues)
   (SAMPLE(?enT) AS ?enTitle) (SAMPLE(?frT) AS ?frTitle)
 WHERE {
-  { VALUES ?club { ${ids} } }
-  UNION { VALUES ?t { ${en} } ?a schema:name ?t ; schema:isPartOf <https://en.wikipedia.org/> ; schema:about ?club . }
-  UNION { VALUES ?u { ${fr} } ?b schema:name ?u ; schema:isPartOf <https://fr.wikipedia.org/> ; schema:about ?club . }
+  ${parts.join("\n  UNION ")}
   OPTIONAL { ?club rdfs:label ?enL FILTER(LANG(?enL) = "en") }
   OPTIONAL { ?club rdfs:label ?frL FILTER(LANG(?frL) = "fr") }
   OPTIONAL { ?club rdfs:label ?arL FILTER(LANG(?arL) = "ar") }

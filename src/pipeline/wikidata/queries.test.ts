@@ -14,6 +14,18 @@ describe("queries", () => {
     expect(query).toContain('"Club B"@fr');
   });
 
+  it("leave out an empty part, so the ids and each language can be asked apart", () => {
+    const byId = clubsQuery(["Q1"], [], []);
+    expect(byId).toContain("VALUES ?club { wd:Q1 }");
+    expect(byId).not.toContain("VALUES ?t");
+    expect(byId).not.toContain("VALUES ?u");
+    expect(byId).not.toContain("UNION");
+    const byTitle = clubsQuery([], [], ["Club B"]);
+    expect(byTitle).not.toContain("VALUES ?club");
+    expect(byTitle).toContain('VALUES ?u { "Club B"@fr }');
+    expect(byTitle).not.toContain("UNION");
+  });
+
   it("are sent by POST as a form, asking for JSON", () => {
     const { url, init } = sparqlRequest("SELECT 1");
     expect(url).toBe("https://query.wikidata.org/sparql");
