@@ -48,6 +48,10 @@ export type SourceId =
   | "override"
   | "curated";
 
+/** Decision P26: how far the sources agree on a chosen value. */
+export type Confidence = "high" | "medium" | "low";
+export const confidences: readonly Confidence[] = ["high", "medium", "low"];
+
 export type Provenance = {
   source: SourceId;
   /** ISO date the value was first read with this value. */
@@ -58,6 +62,12 @@ export type Provenance = {
   ref?: string;
   /** For overrides: who decided. */
   by?: string;
+  /** Decision P26, set by the merge. Optional so Tasks 3–5 compile; validatePool requires it. */
+  confidence?: Confidence;
+  /** The sources that give the chosen value; ["override"] when Jalel decided. */
+  agreeing?: SourceId[];
+  /** Why the level is what it is, in a few words. */
+  confidenceNote?: string;
 };
 
 /** A senior club spell as an infobox writes it. */
@@ -214,7 +224,7 @@ export type PoolSpell = {
   loan: boolean;
 };
 
-/** Fields that carry provenance. "caps" covers caps, goals and capsAsOf. */
+/** Fields that carry provenance. "caps" covers caps and capsAsOf; "goals" has its own confidence. */
 export type ProvenancedField =
   | "nameLatin"
   | "nameArabic"
@@ -225,6 +235,7 @@ export type ProvenancedField =
   | "governorate"
   | "clubId"
   | "caps"
+  | "goals"
   | "history"
   | "photo";
 
@@ -289,7 +300,11 @@ export type FlagKind =
   | "birthdate-january-first"
   | "photo-small"
   | "dropped-missing-field"
-  | "ligue1-club-unresolved";
+  | "ligue1-club-unresolved"
+  | "caps-above-ceiling"
+  | "goals-below-floor"
+  | "caps-row-skipped"
+  | "career-row-skipped";
 
 /** Something for Jalel to look at. `subject` is a Wikidata id or a title. */
 export type Flag = { subject: string; kind: FlagKind; detail: string };
