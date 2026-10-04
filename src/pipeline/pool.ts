@@ -4,6 +4,7 @@ import { confederationOf, LIGUE1, slugify, TUNISIA_TEAM } from "./places.ts";
 import type {
   CuratedHonour,
   Flag,
+  IdNamespace,
   IdRegistry,
   Line,
   Pool,
@@ -74,9 +75,9 @@ export function poolsFor(
  */
 export function assignIds(
   items: { key: string; name: string }[],
-  registry: IdRegistry,
-): { ids: Map<string, string>; registry: IdRegistry } {
-  const next: IdRegistry = { ...registry };
+  registry: IdNamespace,
+): { ids: Map<string, string>; registry: IdNamespace } {
+  const next: IdNamespace = { ...registry };
   const ids = new Map<string, string>();
   const taken = new Set(Object.values(registry));
   for (const item of items) {
@@ -159,7 +160,7 @@ export type BuildInput = MergeContext & {
   curatedHonours: CuratedHonour[];
   ligue1Titles: string[];
   previous: Pool | null;
-  /** data/ids.json, or {} before the first build: every footballer id ever given. */
+  /** data/ids.json, or emptyRegistry() before the first build: every id ever given. */
   ids: IdRegistry;
 };
 
@@ -180,8 +181,52 @@ const honourKey = (h: {
   seasonEnd: number;
 }) => `${h.competition}|${h.seasonStart}|${h.seasonEnd}`;
 
+/** A registry with no ids yet, for the first build (no data/ids.json). */
+export function emptyRegistry(): IdRegistry {
+  return { players: {}, clubs: {} };
+}
+
+/** "id x given to Q1 and Q2" for each id that serves two Wikidata ids. */
+export function sharedIds(namespace: IdNamespace): string[] {
+  const owner = new Map<string, string>();
+  const out: string[] = [];
+  for (const [qid, id] of Object.entries(namespace)) {
+    const first = owner.get(id);
+    if (first) out.push(`id ${id} given to ${first} and ${qid}`);
+    else owner.set(id, qid);
+  }
+  return out;
+}
+
+/**
+ * The registry to assign from: refused when an id serves two Wikidata ids in
+ * a namespace (ids would no longer be permanent), and, when it is empty while
+ * a previous pool exists, seeded from that pool's footballers and clubs.
+ */
+function startingRegistry(ids: IdRegistry, previous: Pool | null): IdRegistry {
+  for (const space of ["players", "clubs"] as const) {
+    const shared = sharedIds(ids[space]);
+    if (shared.length > 0)
+      throw new Error(`id registry: ${space} ${shared.join("; ")}`);
+  }
+  const empty =
+    Object.keys(ids.players).length === 0 &&
+    Object.keys(ids.clubs).length === 0;
+  if (!empty || !previous) return ids;
+  return {
+    players: Object.fromEntries(
+      previous.players.map((p) => [p.wikidataId, p.id]),
+    ),
+    clubs: Object.fromEntries(previous.clubs.map((c) => [c.wikidataId, c.id])),
+  };
+}
+
 /** The pool, and the id registry with tonight's new footballers added (Task 8 writes it to data/ids.json). */
-export function buildPool(input: BuildInput): { pool: Pool; ids: IdRegistry } {
+export function buildPool(input: BuildInput): {
+  pool: Pool;
+  ids: IdRegistry;
+} {
+  const registry = startingRegistry(input.ids, input.previous);
   const flags: Flag[] = [];
   const kept: Kept[] = [];
   const dropped: PoolDropped[] = [];
@@ -295,12 +340,11 @@ export function buildPool(input: BuildInput): { pool: Pool; ids: IdRegistry } {
   }
 
   const clubList = [...wanted.values()].sort(byNumber);
-  const clubIds = assignIds(
+  const clubsAssigned = assignIds(
     clubList.map((c) => ({ key: c.qid, name: c.nameEn ?? c.nameFr ?? c.qid })),
-    Object.fromEntries(
-      (input.previous?.clubs ?? []).map((c) => [c.wikidataId, c.id]),
-    ),
-  ).ids;
+    registry.clubs,
+  );
+  const clubIds = clubsAssigned.ids;
   const clubId = (club: WdClub | null) =>
     club ? (clubIds.get(club.qid) ?? null) : null;
   const clubs: PoolClub[] = clubList
@@ -319,7 +363,7 @@ export function buildPool(input: BuildInput): { pool: Pool; ids: IdRegistry } {
 
   const assigned = assignIds(
     kept.map(({ draft }) => ({ key: draft.wikidataId, name: draft.nameLatin })),
-    input.ids,
+    registry.players,
   );
   const playerIds = assigned.ids;
   const before = new Map(
@@ -434,5 +478,8 @@ export function buildPool(input: BuildInput): { pool: Pool; ids: IdRegistry } {
     ),
     dropped,
   };
-  return { pool, ids: assigned.registry };
+  return {
+    pool,
+    ids: { players: assigned.registry, clubs: clubsAssigned.registry },
+  };
 }

@@ -6,7 +6,7 @@ import { GOALSCORERS_URL, goalsFloors, tunisiaScorers } from "./goalscorers.ts";
 import type { PoliteClient } from "./http.ts";
 import { buildClubIndex } from "./merge.ts";
 import { validateOverrides } from "./overrides.ts";
-import { buildPool } from "./pool.ts";
+import { buildPool, emptyRegistry } from "./pool.ts";
 import { diffPools, guardChange, renderReport } from "./report.ts";
 import type { HonoursReading } from "./report.ts";
 import { RESULTS_URL, tunisiaMatches } from "./results.ts";
@@ -74,13 +74,6 @@ export type RunResult =
 
 /** A first run's budget: more planned requests than this and the run refuses. */
 export const MAX_REQUESTS = 60;
-
-/**
- * data/ids.json before the first build. The registry is passed through
- * opaquely: buildPool owns its format, the run reads it, hands it over and
- * writes back what buildPool returns. Keep this in step with pool.ts.
- */
-const EMPTY_REGISTRY: IdRegistry = {};
 
 /** Four Wikidata queries, then clubs by id, by English and by French title. */
 const WDQS_QUERIES = 4 + 3;
@@ -238,7 +231,9 @@ async function build(deps: RunDeps): Promise<RunResult> {
       throw new Refusal(`data/ids.json has ${errors.length} errors`);
     }
   }
-  const registry = (registryJson ?? EMPTY_REGISTRY) as IdRegistry;
+  // The registry is passed through: buildPool owns its format (pool.ts), the
+  // run reads it, hands it over and writes back what buildPool returns.
+  const registry = (registryJson ?? emptyRegistry()) as IdRegistry;
   const overridesJson = await readJson<unknown>(
     path.join(data, "overrides.json"),
   );
@@ -438,7 +433,7 @@ async function build(deps: RunDeps): Promise<RunResult> {
     players: new Set(players.map((p) => p.qid)),
     clubs: new Set(clubs.map((c) => c.qid)),
     seen: new Set([
-      ...Object.keys(registry),
+      ...Object.keys(registry.players),
       ...(previous?.dropped ?? []).map((d) => d.wikidataId),
     ]),
   });

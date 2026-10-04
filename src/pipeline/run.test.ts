@@ -249,7 +249,8 @@ describe("run", () => {
       },
     ]);
     expect(JSON.parse(await readFile(file(root, "ids.json"), "utf8"))).toEqual({
-      Q1001: "test-footballer",
+      players: { Q1001: "test-footballer" },
+      clubs: { Q2001: "club-africain" },
     });
     const report = await readFile(file(root, "report.md"), "utf8");
     expect(report).toContain("# Nightly pool, 2026-10-04");
@@ -270,17 +271,32 @@ describe("run", () => {
     const root = await setup();
     await writeFile(
       file(root, "ids.json"),
-      JSON.stringify({ Q9: "gone-footballer" }),
+      JSON.stringify({
+        players: { Q9: "gone-footballer" },
+        clubs: { Q9: "gone-club" },
+      }),
     );
     await run(deps(root));
     const text = await readFile(file(root, "ids.json"), "utf8");
     expect(JSON.parse(text)).toEqual({
-      Q9: "gone-footballer",
-      Q1001: "test-footballer",
+      players: { Q9: "gone-footballer", Q1001: "test-footballer" },
+      clubs: { Q9: "gone-club", Q2001: "club-africain" },
     });
     // Stable formatting: keys in Wikidata-number order, two-space indent, final newline.
     expect(text).toBe(
-      '{\n  "Q9": "gone-footballer",\n  "Q1001": "test-footballer"\n}\n',
+      [
+        "{",
+        '  "clubs": {',
+        '    "Q9": "gone-club",',
+        '    "Q2001": "club-africain"',
+        "  },",
+        '  "players": {',
+        '    "Q9": "gone-footballer",',
+        '    "Q1001": "test-footballer"',
+        "  }",
+        "}",
+        "",
+      ].join("\n"),
     );
   });
 

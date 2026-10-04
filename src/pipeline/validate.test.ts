@@ -228,37 +228,60 @@ describe("validatePool", () => {
   });
 });
 
-describe("the id registry (fix round 1, finding 2)", () => {
-  it("requires each footballer's id to be his registered one", () => {
+describe("the id registry (fix round 1 finding 2, fix round 2 item 1)", () => {
+  const registry = (
+    players: Record<string, string>,
+    clubs: Record<string, string> = { Q1: "cs-sfaxien" },
+  ) => ({ players, clubs });
+
+  it("requires each footballer's and each club's id to be the registered one", () => {
     expect(
-      validatePool(pool, governorates, { Q2836275: "ali-maaloul" }),
+      validatePool(pool, governorates, registry({ Q2836275: "ali-maaloul" })),
     ).toEqual([]);
-    expect(validatePool(pool, governorates, { Q2836275: "maaloul" })).toEqual([
-      "player ali-maaloul: id differs from data/ids.json (maaloul)",
-    ]);
-    expect(validatePool(pool, governorates, {})).toEqual([
+    expect(
+      validatePool(pool, governorates, registry({ Q2836275: "maaloul" })),
+    ).toEqual(["player ali-maaloul: id differs from data/ids.json (maaloul)"]);
+    expect(validatePool(pool, governorates, registry({}))).toEqual([
       "player ali-maaloul: no entry in data/ids.json",
     ]);
+    expect(
+      validatePool(
+        pool,
+        governorates,
+        registry({ Q2836275: "ali-maaloul" }, { Q1: "sfaxien" }),
+      ),
+    ).toEqual(["club cs-sfaxien: id differs from data/ids.json (sfaxien)"]);
+    expect(
+      validatePool(
+        pool,
+        governorates,
+        registry({ Q2836275: "ali-maaloul" }, {}),
+      ),
+    ).toEqual(["club cs-sfaxien: no entry in data/ids.json"]);
   });
 
-  it("refuses an id given to two footballers, and a malformed registry", () => {
-    expect(validateIdRegistry({ Q1: "ali-abdi", Q2: "wahbi-khazri" })).toEqual(
-      [],
-    );
+  it("refuses an id given twice within a namespace, and a malformed registry", () => {
+    expect(
+      validateIdRegistry(
+        registry({ Q1: "ali-abdi", Q2: "wahbi-khazri" }, { Q1: "ali-abdi" }),
+      ),
+    ).toEqual([]);
     expect(
       validateIdRegistry({
-        Q1: "ali-abdi",
-        Q2: "ali-abdi",
-        x: "y",
-        Q3: "Not A Slug",
+        players: { Q1: "ali-abdi", Q2: "ali-abdi", x: "y", Q3: "Not A Slug" },
+        clubs: { Q4: "club", Q5: "club" },
       }),
     ).toEqual([
-      "x: not a Wikidata id with an id",
-      "Q3: not a Wikidata id with an id",
-      "id ali-abdi given to Q1 and Q2",
+      "players.x: not a Wikidata id with an id",
+      "players.Q3: not a Wikidata id with an id",
+      "players: id ali-abdi given to Q1 and Q2",
+      "clubs: id club given to Q4 and Q5",
     ]);
     expect(validateIdRegistry([])).toEqual([
-      "must be an object of Wikidata id to id",
+      "must be { players: {}, clubs: {} }",
+    ]);
+    expect(validateIdRegistry({ Q1: "ali-abdi" })).toEqual([
+      "must be { players: {}, clubs: {} }",
     ]);
   });
 });

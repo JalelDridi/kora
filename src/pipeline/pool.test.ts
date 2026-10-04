@@ -5,11 +5,13 @@ import {
   assignIds,
   buildPool,
   carryProvenance,
+  emptyRegistry,
   isCandidate,
   poolsFor,
   type BuildInput,
 } from "./pool.ts";
 import type {
+  IdRegistry,
   Infobox,
   PoolPlayer,
   WdClub,
@@ -408,7 +410,7 @@ describe("buildPool", () => {
       ],
       ligue1Titles: ["Espérance Sportive de Tunis", "Unknown FC"],
       previous: null,
-      ids: {},
+      ids: emptyRegistry(),
     };
   }
 
@@ -467,7 +469,10 @@ describe("buildPool", () => {
       ...input(),
       today: "2026-10-05",
       previous: first.pool,
-      ids: { ...first.ids, Q331918: "jaidi" },
+      ids: {
+        ...first.ids,
+        players: { ...first.ids.players, Q331918: "jaidi" },
+      },
     });
     const jaidi = second.players.find((p) => p.wikidataId === "Q331918");
     expect(jaidi?.id).toBe("jaidi");
@@ -733,7 +738,7 @@ describe("buildPool", () => {
     });
   });
   describe("ids are permanent (fix round 1, finding 2)", () => {
-    const night = (players: WdPlayer[], ids: Record<string, string>) =>
+    const night = (players: WdPlayer[], ids: IdRegistry) =>
       buildPool({ ...input(), players, ids });
     const jaidi = wd("Q331918", "Radhi Jaïdi", "1975-08-30");
     const namesake = wd("Q777", "Radhi Jaïdi", "1976-01-01");
@@ -750,11 +755,11 @@ describe("buildPool", () => {
         ],
       ],
     ]);
-    const nightWith = (players: WdPlayer[], ids: Record<string, string>) =>
+    const nightWith = (players: WdPlayer[], ids: IdRegistry) =>
       buildPool({ ...input(), players, ids, memberships });
 
     it("a namesake arriving after a footballer left does not take his id, and the footballer gets it back", () => {
-      const first = night([jaidi], {});
+      const first = night([jaidi], emptyRegistry());
       expect(first.pool.players.map((p) => p.id)).toEqual(["radhi-jaidi"]);
       const second = nightWith([namesake], first.ids);
       expect(second.pool.players.map((p) => [p.wikidataId, p.id])).toEqual([
@@ -768,13 +773,111 @@ describe("buildPool", () => {
     });
 
     it("the registry only grows, and is not changed in place", () => {
-      const first = night([jaidi], {});
-      const before = { ...first.ids };
+      const first = night([jaidi], emptyRegistry());
+      const before = structuredClone(first.ids);
       const second = nightWith([namesake], first.ids);
       expect(first.ids).toEqual(before);
-      expect(second.ids).toEqual({ ...before, Q777: "radhi-jaidi-q777" });
+      expect(second.ids).toEqual({
+        ...before,
+        players: { ...before.players, Q777: "radhi-jaidi-q777" },
+      });
       const third = nightWith([], second.ids);
       expect(third.ids).toEqual(second.ids);
+    });
+  });
+  describe("club ids are permanent too (fix round 2, items 1 and 2)", () => {
+    // Same name, another club (another article title).
+    const gentTwo = {
+      ...club("Q15", "K.A.A. Gent", "BE"),
+      titleEn: "K.A.A. Gent (1900)",
+    };
+    const both = buildClubIndex(
+      [esperance, sfaxien, gent, noCountry, minor, gentTwo],
+      { en: new Map(), fr: new Map() },
+      {},
+    );
+    const cup = (winnerQid: string) => ({
+      competition: "caf_cc" as const,
+      seasonStart: 2020,
+      seasonEnd: 2020,
+      winnerQid,
+    });
+    const clubNight = (
+      ids: IdRegistry,
+      players: WdPlayer[],
+      honours: ReturnType<typeof cup>[],
+    ) =>
+      buildPool({
+        ...input(),
+        index: both,
+        players,
+        honours,
+        curatedHonours: [],
+        ligue1Titles: [],
+        ids,
+      });
+
+    it("a namesake club arriving after a club left does not take its id, and the club gets it back", () => {
+      const mejbri = input().players[1];
+      const first = clubNight(emptyRegistry(), [mejbri], []);
+      expect(first.pool.clubs.map((c) => [c.wikidataId, c.id])).toEqual([
+        ["Q12", "k-a-a-gent"],
+      ]);
+      expect(first.ids.clubs).toEqual({ Q12: "k-a-a-gent" });
+      const second = clubNight(first.ids, [], [cup("Q15")]);
+      expect(second.pool.clubs.map((c) => [c.wikidataId, c.id])).toEqual([
+        ["Q15", "k-a-a-gent-q15"],
+      ]);
+      const third = clubNight(second.ids, [mejbri], [cup("Q15")]);
+      expect(third.pool.clubs.map((c) => [c.wikidataId, c.id])).toEqual([
+        ["Q12", "k-a-a-gent"],
+        ["Q15", "k-a-a-gent-q15"],
+      ]);
+      expect(third.ids.clubs).toEqual({
+        Q12: "k-a-a-gent",
+        Q15: "k-a-a-gent-q15",
+      });
+    });
+
+    it("refuses a registry in which one id serves two footballers or two clubs", () => {
+      expect(() =>
+        buildPool({
+          ...input(),
+          ids: { players: { Q1: "ali", Q2: "ali" }, clubs: {} },
+        }),
+      ).toThrow("id registry: players id ali given to Q1 and Q2");
+      expect(() =>
+        buildPool({
+          ...input(),
+          ids: { players: {}, clubs: { Q1: "club", Q2: "club" } },
+        }),
+      ).toThrow("id registry: clubs id club given to Q1 and Q2");
+    });
+
+    it("seeds an empty registry from the previous pool", () => {
+      const first = buildPool(input()).pool;
+      const renamed = {
+        ...first,
+        players: first.players.map((p) =>
+          p.wikidataId === "Q331918" ? { ...p, id: "jaidi" } : p,
+        ),
+        clubs: first.clubs.map((c) =>
+          c.wikidataId === "Q12" ? { ...c, id: "gent" } : c,
+        ),
+      };
+      const next = buildPool({
+        ...input(),
+        previous: renamed,
+        ids: emptyRegistry(),
+      });
+      expect(
+        next.pool.players.find((p) => p.wikidataId === "Q331918")?.id,
+      ).toBe("jaidi");
+      expect(next.pool.clubs.find((c) => c.wikidataId === "Q12")?.id).toBe(
+        "gent",
+      );
+      expect(next.ids.players.Q331918).toBe("jaidi");
+      expect(next.ids.clubs.Q12).toBe("gent");
     });
   });
 });

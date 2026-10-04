@@ -214,9 +214,12 @@ describe("data/ids.json (fix round 1, finding 2)", () => {
   it("must hold every pool member's id, and give no id twice", async () => {
     const { root, write } = await copyOfData();
     await write("pool.json", pool);
-    await write("ids.json", { Q1: "ali-maaloul", Q2: "ali-maaloul" });
+    await write("ids.json", {
+      players: { Q1: "ali-maaloul", Q2: "ali-maaloul" },
+      clubs: { Q1024482: "cs-sfaxien" },
+    });
     expect(await checkData(root)).toEqual([
-      "data/ids.json: id ali-maaloul given to Q1 and Q2",
+      "data/ids.json: players: id ali-maaloul given to Q1 and Q2",
       "data/pool.json: player ali-maaloul: no entry in data/ids.json",
     ]);
   });
@@ -240,7 +243,10 @@ describe("stale overrides (fix round 1, finding 4)", () => {
   it("warns about footballers seen before (left-out list, id registry) but not in the pool", async () => {
     const { root, write } = await copyOfData();
     await write("pool.json", leftOut);
-    await write("ids.json", { Q2836275: "ali-maaloul", Q8: "gone-for-good" });
+    await write("ids.json", {
+      players: { Q2836275: "ali-maaloul", Q8: "gone-for-good" },
+      clubs: { Q1024482: "cs-sfaxien" },
+    });
     await write("overrides.json", stale);
     expect(await inspectData(root)).toEqual({
       errors: [],

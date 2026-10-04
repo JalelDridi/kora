@@ -15,6 +15,20 @@ const count = (n: number | null) =>
 const isRecord = (v: unknown): v is Record<string, unknown> =>
   typeof v === "object" && v !== null && !Array.isArray(v);
 
+/** The registry's entry for a Wikidata id must exist and be this id. */
+function registered(
+  space: IdRegistry["players"],
+  qid: unknown,
+  id: string,
+  at: string,
+): string[] {
+  if (typeof qid !== "string") return [];
+  if (!Object.hasOwn(space, qid)) return [`${at}: no entry in data/ids.json`];
+  return space[qid] === id
+    ? []
+    : [`${at}: id differs from data/ids.json (${space[qid]})`];
+}
+
 /** Rows that are objects; each other row is a named error, not a TypeError. */
 function rows<T>(list: unknown[], label: string, errors: string[]): T[] {
   return list.filter((row, i) => {
@@ -23,26 +37,36 @@ function rows<T>(list: unknown[], label: string, errors: string[]): T[] {
   }) as T[];
 }
 
-/** data/ids.json: Wikidata ids to slugs, and no slug given twice. */
+/**
+ * data/ids.json: { players, clubs }, each Wikidata ids to slugs, and within
+ * each namespace no slug given to two Wikidata ids.
+ */
 export function validateIdRegistry(json: unknown): string[] {
-  if (!isRecord(json)) return ["must be an object of Wikidata id to id"];
+  if (!isRecord(json) || !isRecord(json.players) || !isRecord(json.clubs))
+    return ["must be { players: {}, clubs: {} }"];
   const errors: string[] = [];
-  const owner = new Map<string, string>();
-  const twice: string[] = [];
-  for (const [qid, id] of Object.entries(json)) {
-    if (!QID.test(qid) || typeof id !== "string" || !SLUG.test(id)) {
-      errors.push(`${qid}: not a Wikidata id with an id`);
-      continue;
+  for (const space of ["players", "clubs"] as const) {
+    const owner = new Map<string, string>();
+    const twice: string[] = [];
+    for (const [qid, id] of Object.entries(
+      json[space] as Record<string, unknown>,
+    )) {
+      if (!QID.test(qid) || typeof id !== "string" || !SLUG.test(id)) {
+        errors.push(`${space}.${qid}: not a Wikidata id with an id`);
+        continue;
+      }
+      const first = owner.get(id);
+      if (first) twice.push(`${space}: id ${id} given to ${first} and ${qid}`);
+      else owner.set(id, qid);
     }
-    const first = owner.get(id);
-    if (first) twice.push(`id ${id} given to ${first} and ${qid}`);
-    else owner.set(id, qid);
+    errors.push(...twice);
   }
-  return [...errors, ...twice];
+  return errors;
 }
 
 /**
- * With `registry` (data/ids.json, when it exists), each footballer's id must be
+ * With `registry` (data/ids.json, when it exists), each footballer's and each
+ * club's id must be
  * the one registered for his Wikidata id.
  */
 export function validatePool(
@@ -65,6 +89,8 @@ export function validatePool(
   const clubIds = new Set<string>();
   for (const club of rows<Pool["clubs"][number]>(pool.clubs, "club", errors)) {
     const at = `club ${club.id}`;
+    if (registry)
+      errors.push(...registered(registry.clubs, club.wikidataId, club.id, at));
     if (!SLUG.test(club.id) || clubIds.has(club.id))
       errors.push(`${at}: bad or duplicate id`);
     clubIds.add(club.id);
@@ -120,14 +146,8 @@ export function validatePool(
       if (s.from !== null && s.to !== null && s.from > s.to)
         errors.push(`${at}: spell at ${s.clubName} ends before it starts`);
     }
-    if (registry && typeof p.wikidataId === "string") {
-      if (!Object.hasOwn(registry, p.wikidataId))
-        errors.push(`${at}: no entry in data/ids.json`);
-      else if (registry[p.wikidataId] !== p.id)
-        errors.push(
-          `${at}: id differs from data/ids.json (${registry[p.wikidataId]})`,
-        );
-    }
+    if (registry)
+      errors.push(...registered(registry.players, p.wikidataId, p.id, at));
     if (!p.pools.active && !p.pools.legend)
       errors.push(`${at}: in neither pool`);
     // Decision P26: every value says how sure it is, and on whose word.

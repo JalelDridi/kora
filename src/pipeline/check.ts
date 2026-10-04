@@ -50,7 +50,9 @@ export function knownIds(
       ]),
       clubs: new Set(pool.clubs.map((c) => c.wikidataId)),
       seen: new Set([
-        ...(isRecord(registry) ? Object.keys(registry) : []),
+        ...(isRecord(registry) && isRecord(registry.players)
+          ? Object.keys(registry.players)
+          : []),
         ...dropped.map((d) => d.wikidataId),
       ]),
     };
@@ -186,12 +188,14 @@ export async function inspectData(
     registry === undefined ? [] : validateIdRegistry(registry);
   errors.push(...registryErrors.map((e) => `data/ids.json: ${e}`));
   // Its well-formed entries still check the pool, even when others are wrong.
+  const strings = (v: unknown) =>
+    Object.fromEntries(
+      Object.entries(isRecord(v) ? v : {}).filter(
+        (e): e is [string, string] => typeof e[1] === "string",
+      ),
+    );
   const usableRegistry: IdRegistry | undefined = isRecord(registry)
-    ? Object.fromEntries(
-        Object.entries(registry).filter(
-          (e): e is [string, string] => typeof e[1] === "string",
-        ),
-      )
+    ? { players: strings(registry.players), clubs: strings(registry.clubs) }
     : undefined;
 
   if (pool !== undefined)

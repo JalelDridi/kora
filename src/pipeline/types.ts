@@ -357,8 +357,10 @@ export const droppedReasons: readonly PoolDropped["reason"][] = [
   "no-pool",
 ];
 
-/** data/ids.json: Wikidata id → footballer id, every id ever given (append-only). */
-export type IdRegistry = Record<string, string>;
+/** One namespace of the id registry: Wikidata id → id, every id ever given (append-only). */
+export type IdNamespace = Record<string, string>;
+/** data/ids.json: permanent ids for footballers and for clubs, each its own namespace. */
+export type IdRegistry = { players: IdNamespace; clubs: IdNamespace };
 
 export type Pool = {
   version: 1;
