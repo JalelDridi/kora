@@ -312,3 +312,36 @@ describe("the left-out list (fix round 2, items 3 and 6)", () => {
     ]);
   });
 });
+
+describe("not-candidate entries carry no flags (fix round 2, item 4)", () => {
+  it("refuses flags on a not-candidate entry", () => {
+    const flag = { subject: "Q5", kind: "caps-unknown" as const, detail: "x" };
+    expect(
+      validatePool(
+        {
+          ...pool,
+          dropped: [
+            {
+              wikidataId: "Q5",
+              name: "X",
+              reason: "not-candidate",
+              flags: [flag],
+            },
+          ],
+        },
+        governorates,
+      ),
+    ).toEqual(["dropped Q5: a not-candidate entry carries no flags"]);
+    expect(
+      validatePool(
+        {
+          ...pool,
+          dropped: [
+            { wikidataId: "Q5", name: "X", reason: "no-pool", flags: [flag] },
+          ],
+        },
+        governorates,
+      ),
+    ).toEqual([]);
+  });
+});

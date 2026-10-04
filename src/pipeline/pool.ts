@@ -272,7 +272,10 @@ export function buildPool(input: BuildInput): {
         wikidataId: p.qid,
         name,
         reason: candidate ? "no-pool" : "not-candidate",
-        flags: found.map((f) => ({ subject: p.qid, ...f })),
+        // About 1,000 footballers are not candidates on a real build: their
+        // merge flags would bloat pool.json and churn the nightly diff, and
+        // nobody reviews them. Candidates in no pool keep theirs.
+        flags: candidate ? found.map((f) => ({ subject: p.qid, ...f })) : [],
       });
       continue;
     }
@@ -323,8 +326,14 @@ export function buildPool(input: BuildInput): {
     keep(draft.club);
     for (const spell of draft.history) keep(spell.club);
   }
+  // A Wikidata winner replaced by a curated honour (below) brings no club.
+  const curatedSeasons = new Set(
+    input.curatedHonours.map((h) => `${h.competition} ${h.seasonStart}`),
+  );
   for (const qid of [
-    ...input.honours.map((h) => h.winnerQid),
+    ...input.honours
+      .filter((h) => !curatedSeasons.has(`${h.competition} ${h.seasonStart}`))
+      .map((h) => h.winnerQid),
     ...input.curatedHonours.map((h) => h.clubWikidataId),
   ]) {
     keep(input.index.byQid.get(qid));

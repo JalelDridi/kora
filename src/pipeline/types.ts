@@ -345,8 +345,9 @@ export type Flag = { subject: string; kind: FlagKind; detail: string };
  * `not-candidate`: the research rule does not take him. `no-pool`: a
  * candidate in neither pool. `missing-field`: placed in a pool but missing a
  * required field (name, position, birth date); his merge flags end with
- * `dropped-missing-field` naming the fields. `no-pool` and `missing-field`
- * carry his merge flags.
+ * `dropped-missing-field` naming the fields. `no-pool`, `missing-field` and
+ * `excluded` keep their flags (`excluded` has none: no merge ran);
+ * `not-candidate` has none, so a list of about 1,000 stays light.
  */
 export type PoolDropped = {
   wikidataId: string;

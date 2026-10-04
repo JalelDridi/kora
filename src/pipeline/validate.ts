@@ -178,6 +178,9 @@ export function validatePool(
       errors.push(`${at}: reason ${String(d.reason)}`);
     } else if (qids.has(d.wikidataId)) {
       errors.push(`${at}: also in the pool`);
+    } else if (d.reason === "not-candidate" && d.flags.length > 0) {
+      // Kept light on purpose (pool.ts): about 1,000 such entries a night.
+      errors.push(`${at}: a not-candidate entry carries no flags`);
     }
     if (typeof d.wikidataId === "string" && QID.test(d.wikidataId)) {
       const n = Number(d.wikidataId.slice(1));

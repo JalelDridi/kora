@@ -721,7 +721,8 @@ describe("buildPool", () => {
           ?.flags.map((f) => f.kind);
       expect(flagsOf("Q700")).toEqual([]);
       expect(flagsOf("Q900")).toContain("caps-unknown");
-      expect(flagsOf("Q500")).toContain("caps-unknown");
+      // Fix round 2, item 4: a non-candidate keeps no flags (the list stays light).
+      expect(flagsOf("Q500")).toEqual([]);
       expect(
         pool.dropped
           .flatMap((d) => d.flags)
@@ -900,6 +901,54 @@ describe("buildPool", () => {
       );
       expect(next.ids.players.Q331918).toBe("jaidi");
       expect(next.ids.clubs.Q12).toBe("gent");
+    });
+  });
+  describe("a light left-out list, and no club for a replaced winner (fix round 2, items 4 and 6)", () => {
+    it("keeps no flags for footballers who are not candidates", () => {
+      const pool = build({
+        ...input(),
+        players: [wd("Q500", "Old Reserve", "1960-05-05")],
+      });
+      expect(pool.dropped).toEqual([
+        {
+          wikidataId: "Q500",
+          name: "Old Reserve",
+          reason: "not-candidate",
+          flags: [],
+        },
+      ]);
+    });
+
+    it("does not add the winner of a replaced Wikidata honour to the clubs", () => {
+      const pool = build({
+        ...input(),
+        players: [wd("Q331918", "Radhi Jaïdi", "1975-08-30")],
+        honours: [
+          {
+            competition: "tn_cup",
+            seasonStart: 2011,
+            seasonEnd: 2011,
+            winnerQid: "Q12",
+          },
+        ],
+        curatedHonours: [
+          {
+            competition: "tn_cup",
+            seasonStart: 2011,
+            seasonEnd: 2012,
+            clubWikidataId: "Q11",
+            by: "jalel",
+            at: "2026-10-05",
+          },
+        ],
+        ligue1Titles: [],
+      });
+      expect(pool.clubs.map((c) => c.id)).toEqual(["cs-sfaxien"]);
+      expect(
+        pool.flags.find((f) => f.kind === "honour-replaced-by-curated")?.detail,
+      ).toBe(
+        "wikidata 2011–2011 Q12 (no club) replaced by curated 2011–2012 Q11 (cs-sfaxien)",
+      );
     });
   });
 });
