@@ -164,9 +164,16 @@ function nonEmpty<T>(list: T[], what: string): T[] {
   return list;
 }
 
-/** A MediaWiki answer must list the pages it was asked for. */
+/**
+ * A MediaWiki answer must list the pages it was asked for, whole: one cut
+ * short (`continue`, e.g. over the result size limit) leaves pages without
+ * content, so it fails its source like an error body.
+ */
 function pagesOf(json: unknown, asked: number): void {
-  const pages = (json as { query?: { pages?: unknown } } | null)?.query?.pages;
+  const answer = json as { query?: { pages?: unknown }; continue?: unknown };
+  if (answer?.continue)
+    throw new Error(`answer cut short (continue) for ${asked} titles`);
+  const pages = answer?.query?.pages;
   if (!Array.isArray(pages) || pages.length === 0)
     throw new Error(`empty answer: no page for ${asked} titles`);
 }
@@ -469,11 +476,9 @@ async function build(deps: RunDeps): Promise<RunResult> {
       await cached<[string, Infobox][]>(`infobox-${lang}`, async () => {
         const out: [string, Infobox][] = [];
         let pages = 0;
-        let incomplete = 0;
         for (const batch of chunk(titles[lang])) {
           const json = await wikimedia.getJson(revisionsUrl(lang, batch));
           pagesOf(json, batch.length);
-          if ((json as { continue?: unknown } | null)?.continue) incomplete++;
           const read = parseRevisions(json);
           const moved = new Map(read.aliases);
           const target = (title: string) => {
@@ -497,7 +502,7 @@ async function build(deps: RunDeps): Promise<RunResult> {
           }
         }
         deps.log(
-          `infobox-${lang}: ${titles[lang].length} titles, ${pages} pages, ${new Set(out.map(([, b]) => b)).size} infoboxes${incomplete > 0 ? `; ${incomplete} answers were cut short (continue)` : ""}`,
+          `infobox-${lang}: ${titles[lang].length} titles, ${pages} pages, ${new Set(out.map(([, b]) => b)).size} infoboxes`,
         );
         if (titles[lang].length > 0)
           nonEmpty(out, `no infobox in ${titles[lang].length} titles`);

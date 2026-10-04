@@ -765,6 +765,41 @@ describe("the source cache", () => {
     });
   });
 
+  it("takes an answer cut short (continue) for a failure: older copy kept, or no build", async () => {
+    const cutShort = (): PoliteClient => {
+      const inner = wikimedia();
+      return {
+        getJson: async (url) => {
+          const json = (await inner.getJson(url)) as Record<string, unknown>;
+          return url.includes("prop=revisions")
+            ? { ...json, continue: { rvcontinue: "123|456", continue: "||" } }
+            : json;
+        },
+        getText: async () => "",
+      };
+    };
+    const root = await setup();
+    await run(deps(root));
+    const saved = await readFile(cacheFile(root, "infobox-en"), "utf8");
+    expect(
+      await run(deps(root, { today: "2026-10-05", wikimedia: cutShort() })),
+    ).toMatchObject({ ok: true });
+    const report = await readFile(file(root, "report.md"), "utf8");
+    expect(report).toContain(
+      "| infobox-en | cached | 2026-10-04 | answer cut short (continue) for 1 titles |",
+    );
+    expect(await readFile(cacheFile(root, "infobox-en"), "utf8")).toBe(saved);
+
+    const fresh = await setup();
+    expect(await run(deps(fresh, { wikimedia: cutShort() }))).toEqual({
+      ok: false,
+      reason:
+        "infobox-en failed and there is no cached copy (answer cut short (continue) for 1 titles)",
+    });
+    for (const name of ["pool.json", "ids.json", "report.md"])
+      expect(await exists(file(fresh, name))).toBe(false);
+  });
+
   it("takes a MediaWiki error body for a failure and keeps the older copy", async () => {
     const root = await setup();
     await run(deps(root));
