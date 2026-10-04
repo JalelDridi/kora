@@ -20,7 +20,9 @@ afterAll(async () => {
   await db.$disconnect();
 });
 
-function createClub(overrides: { id?: string; country?: string } = {}) {
+function createClub(
+  overrides: { id?: string; wikidataId?: string; country?: string } = {},
+) {
   return db.club.create({
     data: {
       id: "esperance-tunis",
@@ -149,6 +151,14 @@ describe("players and clubs", () => {
 
     await expect(
       createPlayer({ id: "other-player", wikidataId: "Q1" }),
+    ).rejects.toMatchObject({ code: "P2002" });
+  });
+
+  it("keeps a club's Wikidata id unique", async () => {
+    await createClub({ wikidataId: "Q2" });
+
+    await expect(
+      createClub({ id: "club-africain", wikidataId: "Q2" }),
     ).rejects.toMatchObject({ code: "P2002" });
   });
 
