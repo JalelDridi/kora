@@ -40,17 +40,51 @@ for (const locale of locales) {
     expect(results.violations).toEqual([]);
   });
 
-  test(`${prefix} fits a small phone without sideways scrolling`, async ({
+  for (const { width, height, fontSize } of [
+    { width: 320, height: 640, fontSize: 16 },
+    { width: 320, height: 640, fontSize: 21 },
+    { width: 360, height: 740, fontSize: 16 },
+    { width: 360, height: 740, fontSize: 21 },
+  ]) {
+    test(`${prefix} fits ${width} px with a ${fontSize} px default font, no sideways scrolling`, async ({
+      page,
+    }) => {
+      // 21 px ≈ 130 % of the default: the closest headless stand-in for a
+      // large Android font setting (the real WebView is checked by hand).
+      const cdp = await page.context().newCDPSession(page);
+      await cdp.send("Page.setFontSizes", {
+        fontSizes: { standard: fontSize },
+      });
+      await page.setViewportSize({ width, height });
+      await page.goto(prefix);
+      const overflow = await page.evaluate(
+        () =>
+          document.documentElement.scrollWidth -
+          document.documentElement.clientWidth,
+      );
+      expect(overflow).toBe(0);
+    });
+  }
+
+  test(`${prefix} follows the visitor's default font size`, async ({
     page,
   }) => {
-    await page.setViewportSize({ width: 360, height: 740 });
+    const cdp = await page.context().newCDPSession(page);
+    await cdp.send("Page.setFontSizes", { fontSizes: { standard: 20 } });
     await page.goto(prefix);
-    const overflow = await page.evaluate(
-      () =>
-        document.documentElement.scrollWidth -
-        document.documentElement.clientWidth,
-    );
-    expect(overflow).toBe(0);
+    await expect(page.locator("html")).toHaveCSS("font-size", "21.25px");
+  });
+
+  test(`${prefix} does not prefetch the other languages`, async ({ page }) => {
+    const others: string[] = locales
+      .filter((l) => l !== locale)
+      .map((l) => localeInfo[l].prefix);
+    const prefetched: string[] = [];
+    page.on("request", (r) => {
+      if (others.includes(new URL(r.url()).pathname)) prefetched.push(r.url());
+    });
+    await page.goto(prefix, { waitUntil: "networkidle" });
+    expect(prefetched).toEqual([]);
   });
 }
 
@@ -86,7 +120,7 @@ test("the language switcher changes language and direction", async ({
   });
   await expect(
     switcher.getByRole("link", { name: localeInfo["ar-TN"].label }),
-  ).toHaveAttribute("aria-current", "true");
+  ).toHaveAttribute("aria-current", "page");
 
   await switcher.getByRole("link", { name: localeInfo.fr.label }).click();
   await expect(page).toHaveURL(/\/fr$/);

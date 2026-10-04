@@ -21,7 +21,9 @@ html {
   color-scheme: dark;
   background: var(--color-pitch-950);
   color: var(--color-chalk);
-  font-size: 17px;
+  /* 17 px at the browser default, and it grows with the visitor's own
+     font-size setting (WCAG 1.4.4). */
+  font-size: 106.25%;
 }
 
 /* Arabic script leads with the Arabic face; Latin fragments such as names
