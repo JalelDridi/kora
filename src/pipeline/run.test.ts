@@ -687,10 +687,12 @@ describe("run", () => {
   it("asks for the clubs of wanted footballers only, not of everyone Wikidata gave", async () => {
     const root = await setup();
     const players = JSON.parse(JSON.stringify(answers.players));
+    // Final wave, A1: every man is wanted, whatever his age; a woman is not.
     players.results.bindings.push({
       p: uri("Q1002"),
-      enLabel: lit("Old Footballer"),
-      birth: lit("1950-01-01T00:00:00Z"),
+      enLabel: lit("Not Wanted"),
+      gender: uri("Q6581072"),
+      birth: lit("1990-01-01T00:00:00Z"),
     });
     const memberships = result(...answers.memberships.results.bindings, {
       p: uri("Q1002"),
@@ -717,6 +719,70 @@ describe("run", () => {
     const byId = calls.queries.find((q) => q.includes("VALUES ?club"));
     expect(byId).toContain("wd:Q2001");
     expect(byId).not.toContain("wd:Q3003");
+  });
+
+  // Final wave, A1 (D-S1-1): a legend is 20 caps or more, any age, so the
+  // pages of men born before 1965 are read too. B3: a French {{Lien}} club's
+  // English title is asked with the English titles.
+  it("reads every man's pages, and asks a French {{Lien}} club by its English title", async () => {
+    const root = await setup();
+    const players = JSON.parse(JSON.stringify(answers.players));
+    players.results.bindings.push({
+      p: uri("Q958968"),
+      enLabel: lit("Tarak Dhiab"),
+      birth: lit("1954-07-15T00:00:00Z"),
+      positions: lit("midfielder"),
+      enwiki: lit("Tarak Dhiab"),
+      frwiki: lit("Tarak Dhiab"),
+    });
+    const wdCalls: Calls = { urls: [], queries: [] };
+    const base = wdqs(wdCalls);
+    const client: PoliteClient = {
+      async getJson(url, init) {
+        const query =
+          new URLSearchParams(String(init?.body)).get("query") ?? "";
+        const answer = await base.getJson(url, init);
+        if (query.includes("GROUP BY ?p") && !query.includes("skos:altLabel"))
+          return players;
+        return answer;
+      },
+      getText: async () => "",
+    };
+    const wmCalls: Calls = { urls: [], queries: [] };
+    const baseWm = wikimedia(wmCalls);
+    const fr = `{{Infobox Footballeur
+| club actuel = {{TUN-d}} {{Lien|trad=Hetten FC}}
+}}`;
+    const wm: PoliteClient = {
+      async getJson(url, init) {
+        if (url.startsWith("https://fr.") && url.includes("prop=revisions")) {
+          wmCalls.urls.push(url);
+          return {
+            query: {
+              pages: [
+                {
+                  title: "Tarak Dhiab",
+                  revisions: [{ revid: 2, slots: { main: { content: fr } } }],
+                },
+              ],
+            },
+          };
+        }
+        return baseWm.getJson(url, init);
+      },
+      getText: async () => "",
+    };
+    expect(
+      await run(deps(root, { wdqs: client, wikimedia: wm })),
+    ).toMatchObject({ ok: true });
+    const revisions = wmCalls.urls
+      .filter((u) => u.includes("prop=revisions"))
+      .map((u) => new URL(u).searchParams.get("titles"));
+    expect(revisions).toEqual(["Test Footballer|Tarak Dhiab", "Tarak Dhiab"]);
+    const byEnglishTitle = wdCalls.queries.find((q) =>
+      q.includes("en.wikipedia.org/> ; schema:about ?club"),
+    );
+    expect(byEnglishTitle).toContain('"Hetten FC"@en');
   });
 
   it("refuses a malformed data/ids.json before any request", async () => {

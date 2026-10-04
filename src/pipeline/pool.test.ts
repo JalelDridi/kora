@@ -115,80 +115,77 @@ describe("ageOn and poolsFor (D-S1-1)", () => {
 });
 
 describe("isCandidate (research rule, probe §2)", () => {
-  const none = { caps: 0, hasClub: false };
+  // The merged birth date (P37); Wikidata's here, as no page is given.
+  const cand = (
+    p: WdPlayer,
+    ms: WdMembership[],
+    draft: { caps: number; hasClub: boolean } = { caps: 0, hasClub: false },
+  ) => isCandidate(p, ms, index, { ...draft, birthDate: p.birthDate });
   it("takes Tunisia internationals since 2000", () => {
     expect(
-      isCandidate(
-        wd("Q1", "A", "1978-01-01"),
-        [m("Q1", "Q27971", 1998, 2005)],
-        index,
-        none,
-      ),
+      cand(wd("Q1", "A", "1978-01-01"), [m("Q1", "Q27971", 1998, 2005)]),
     ).toBe(true);
     expect(
-      isCandidate(
-        wd("Q1", "A", "1965-01-01"),
-        [m("Q1", "Q27971", 1988, 1996)],
-        index,
-        none,
-      ),
+      cand(wd("Q1", "A", "1965-01-01"), [m("Q1", "Q27971", 1988, 1996)]),
     ).toBe(false);
   });
   it("takes footballers born in 1986 or later with an open Ligue 1 or foreign club", () => {
     expect(
-      isCandidate(
-        wd("Q1", "A", "1996-01-01"),
-        [m("Q1", "Q12", 2020, null)],
-        index,
-        none,
-      ),
+      cand(wd("Q1", "A", "1996-01-01"), [m("Q1", "Q12", 2020, null)]),
     ).toBe(true);
     expect(
-      isCandidate(
-        wd("Q1", "A", "1996-01-01"),
-        [m("Q1", "Q10", 2020, null)],
-        index,
-        none,
-      ),
+      cand(wd("Q1", "A", "1996-01-01"), [m("Q1", "Q10", 2020, null)]),
     ).toBe(true);
     expect(
-      isCandidate(
-        wd("Q1", "A", "1996-01-01"),
-        [m("Q1", "Q14", 2020, null)],
-        index,
-        none,
-      ),
+      cand(wd("Q1", "A", "1996-01-01"), [m("Q1", "Q14", 2020, null)]),
     ).toBe(false);
     expect(
-      isCandidate(
-        wd("Q1", "A", "1980-01-01"),
-        [m("Q1", "Q12", 2020, null)],
-        index,
-        none,
-      ),
+      cand(wd("Q1", "A", "1980-01-01"), [m("Q1", "Q12", 2020, null)]),
     ).toBe(false);
   });
   it("also takes infobox caps or a current club, and never a woman", () => {
     expect(
-      isCandidate(wd("Q1", "A", "1980-01-01"), [], index, {
-        caps: 3,
+      cand(wd("Q1", "A", "1980-01-01"), [], { caps: 3, hasClub: false }),
+    ).toBe(true);
+    expect(
+      cand(wd("Q1", "A", "1999-01-01"), [], { caps: 0, hasClub: true }),
+    ).toBe(true);
+    expect(
+      cand(wd("Q1", "A", "1996-01-01", { male: false }), [
+        m("Q1", "Q12", 2020, null),
+      ]),
+    ).toBe(false);
+  });
+
+  // Final wave, A1 (D-S1-1): "Legend: 20 or more Tunisia caps, any age."
+  // Tarak Dhiab (Q958968), born 1954, Wikidata P1350 101 caps.
+  it("takes 20 caps or more whatever the age: Tarak Dhiab", () => {
+    const dhiab = wd("Q958968", "Tarak Dhiab", "1954-07-15");
+    expect(cand(dhiab, [m("Q958968", "Q27971", 1975, 1990)])).toBe(false);
+    expect(
+      cand(dhiab, [m("Q958968", "Q27971", 1975, 1990)], {
+        caps: 101,
         hasClub: false,
       }),
     ).toBe(true);
+  });
+
+  // Chokri El Ouaer (Q1075865), born 1966, 93 caps on the French page.
+  it("takes 20 caps or more whatever the age: Chokri El Ouaer", () => {
+    const elOuaer = wd("Q1075865", "Chokri El Ouaer", "1966-08-15");
+    expect(cand(elOuaer, [], { caps: 93, hasClub: false })).toBe(true);
+    expect(cand(elOuaer, [], { caps: 19, hasClub: false })).toBe(false);
+  });
+
+  it("reads the merged birth date, not Wikidata's (P37, hand-made)", () => {
+    const p = wd("Q1", "A", "1969-12-31");
+    const draft = { caps: 3, hasClub: false };
     expect(
-      isCandidate(wd("Q1", "A", "1999-01-01"), [], index, {
-        caps: 0,
-        hasClub: true,
-      }),
-    ).toBe(true);
-    expect(
-      isCandidate(
-        wd("Q1", "A", "1996-01-01", { male: false }),
-        [m("Q1", "Q12", 2020, null)],
-        index,
-        none,
-      ),
+      isCandidate(p, [], index, { ...draft, birthDate: p.birthDate }),
     ).toBe(false);
+    expect(
+      isCandidate(p, [], index, { ...draft, birthDate: "1970-01-02" }),
+    ).toBe(true);
   });
 });
 

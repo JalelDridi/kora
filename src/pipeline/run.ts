@@ -504,9 +504,9 @@ async function build(deps: RunDeps): Promise<RunResult> {
     ...p,
     aliases: aliases.get(p.qid) ?? [],
   }));
-  const wanted = players.filter(
-    (p) => p.male && p.birthDate !== null && p.birthDate >= "1965",
-  );
+  // Every man, whatever his age or birth date (D-S1-1: a legend is 20 caps
+  // or more, any age; P37 may take an undated man's date from a page).
+  const wanted = players.filter((p) => p.male);
   const titles = {
     en: [...new Set(wanted.map((p) => p.titles.en).filter(present))],
     fr: [...new Set(wanted.map((p) => p.titles.fr).filter(present))],
@@ -520,7 +520,7 @@ async function build(deps: RunDeps): Promise<RunResult> {
   });
   const budget = deps.maxRequests ?? MAX_REQUESTS;
   deps.log(
-    `${players.length} footballers on Wikidata, ${wanted.length} men born 1965 or later: ${titles.en.length} English and ${titles.fr.length} French articles, ${files.length} photos`,
+    `${players.length} footballers on Wikidata, ${wanted.length} men: ${titles.en.length} English and ${titles.fr.length} French articles, ${files.length} photos`,
   );
   if (!deps.offline) {
     deps.log(
@@ -666,8 +666,20 @@ async function build(deps: RunDeps): Promise<RunResult> {
       ...moved.map(([, to]) => to),
     ]),
   ];
+  // A French {{Lien}} names an English article: its title is asked among
+  // the English ones (final wave, B3; the parser keeps only English ones).
+  const foreignTitles = boxesOf(fr)
+    .flatMap((b) => [
+      b.currentClubForeign,
+      ...b.spells.map((s) => s.clubTitleForeign),
+    ])
+    .filter(present);
   const enTitles = [
-    ...new Set([...titlesOf(boxesOf(en), redirects.en), ...ligue1.clubs]),
+    ...new Set([
+      ...titlesOf(boxesOf(en), redirects.en),
+      ...foreignTitles,
+      ...ligue1.clubs,
+    ]),
   ];
   const frTitles = titlesOf(boxesOf(fr), redirects.fr);
   const asked = clubQids.length + enTitles.length + frTitles.length;
