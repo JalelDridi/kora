@@ -9,6 +9,7 @@ import {
   parseYears,
   plainText,
   splitParams,
+  stripNoise,
 } from "./wikitext.ts";
 
 const TEMPLATE = /^infobox football biography$/i;
@@ -20,19 +21,40 @@ const NATIONAL_ROWS = 20;
 const NO_CLUB =
   /^(?:|retired|free agent|unattached|none|retraité|libre|sans club|-|—)$/i;
 
-/** True for the senior team row: label exactly "Tunisia" (not "Tunisia U23"). */
-export function isSeniorTunisia(
-  text: string,
-  label: string,
-  title: string,
-): boolean {
-  const link = links(text)[0];
-  if (link)
-    return (
-      link.label === label ||
-      (link.label === link.title && link.title === title)
-    );
-  return plainText(text) === label;
+const SENIOR_ARTICLE = "Tunisia national football team";
+/** Names of the senior team, as a cell or a link label may write it. */
+const SENIOR_NAME =
+  /^(?:tunisia|tunisia national football team|tunisia national team|tunisie|tun)$/i;
+/** Youth and olympic teams: "Tunisia U17", "Tunisia U-20", "Tunisia Olympic". */
+const YOUTH_NAME =
+  /^tunisi[ae]\s+(?:national\s+)?(?:u\s?-?\s?\d{2}|under-?\s?\d{2}|olympic|olympique)\b/i;
+/** Text that names Tunisia somehow: "Tunisia B", "Tunisia XI", "TUN A". */
+const MENTIONS_TUNISIA = /tunis|\bTUN\b/;
+
+/**
+ * A team name as text: "senior" for the senior Tunisia team, "other" for a
+ * Tunisian youth team or a team that does not name Tunisia, and null for a
+ * Tunisia team the parser cannot place ("Tunisia B"), to be reported.
+ */
+function teamName(text: string): "senior" | "other" | null {
+  const name = text.trim();
+  if (SENIOR_NAME.test(name)) return "senior";
+  if (YOUTH_NAME.test(name)) return "other";
+  if (/tunis/i.test(name) || MENTIONS_TUNISIA.test(name)) return null;
+  return name === "" ? null : "other";
+}
+
+/**
+ * A nationalteamN cell: "senior", "other", or null for a row to report.
+ * A link to the senior article is read by its label (youth labels are other
+ * teams: en/youssef-msakni links "Tunisia U17" there); a link to any other
+ * article counts as senior only when labelled exactly "Tunisia", as before.
+ */
+export function nationalTeam(cell: string): "senior" | "other" | null {
+  const link = links(cell)[0];
+  if (!link) return unlinkedTeam(cell);
+  if (link.title === SENIOR_ARTICLE) return teamName(link.label);
+  return link.label === "Tunisia" ? "senior" : "other";
 }
 
 /** A leading flag before a team name: {{flagicon|TUN}} or {{TUN}}. */
@@ -48,21 +70,26 @@ const TEAM_TEMPLATE = /^\{\{\s*(fb|nft|fbu|fbw)\s*\|([^{}]*)\}\}$/i;
  * and null for a cell the parser cannot read as a team.
  */
 export function unlinkedTeam(cell: string): "senior" | "other" | null {
-  const rest = cell.trim().replace(FLAG_ICON, "").replace(FLAG_CODE, "");
+  const rest = stripNoise(cell)
+    .trim()
+    .replace(FLAG_ICON, "")
+    .replace(FLAG_CODE, "");
   const template = TEAM_TEMPLATE.exec(rest);
   if (template) {
     const [name, team = ""] = [
       template[1].toLowerCase(),
       template[2].split("|")[0].trim(),
     ];
-    return (name === "fb" || name === "nft") && /^(?:tun|tunisia)$/i.test(team)
-      ? "senior"
-      : "other";
+    if (name === "fb" || name === "nft") {
+      if (/^(?:tun|tunisia)$/i.test(team)) return "senior";
+      return /tunis/i.test(team) || MENTIONS_TUNISIA.test(team)
+        ? null
+        : "other";
+    }
+    return "other"; // {{fbu|23|TUN}}, {{fbw|…}}: youth or women's teams
   }
   if (rest.includes("{{")) return null;
-  const text = plainText(rest);
-  if (text === "") return null;
-  return /^tunisia$/i.test(text) ? "senior" : "other";
+  return teamName(plainText(rest));
 }
 
 export function readCurrentClub(
@@ -140,15 +167,11 @@ export function parseEnInfobox(
   let nationalOpen = false;
   for (let n = 1; n <= NATIONAL_ROWS; n++) {
     const team = get(`nationalteam${n}`);
-    if (team === "") continue;
-    // A linked cell is always a named team; an unlinked one is recognised or
-    // reported, so "no senior row" never hides a row the parser missed.
-    const kind =
-      links(team).length > 0
-        ? isSeniorTunisia(team, "Tunisia", "Tunisia national football team")
-          ? "senior"
-          : "other"
-        : unlinkedTeam(team);
+    // A cell empty but for comments or refs is no row.
+    if (stripNoise(team).trim() === "") continue;
+    // Every row is read as a team or reported, so "no senior row" never
+    // hides a Tunisia row the parser missed.
+    const kind = nationalTeam(team);
     if (kind === null) {
       skipped.push({
         field: `nationalteam${n}`,

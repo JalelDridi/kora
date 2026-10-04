@@ -642,6 +642,74 @@ describe("unlinked English national teams", () => {
       });
     },
   );
+
+  // Fix round 3 (i).1: more names of the senior team.
+  it.each([
+    "Tunisia national football team",
+    "Tunisia national team",
+    "Tunisie",
+    "TUN",
+    "{{flagicon|TUN}} Tunisia<ref>FIFA</ref>",
+  ])("reads %j as the senior team too", (cell) => {
+    expect(national(cell)).toMatchObject({ caps: 5, goals: 1, skipped: [] });
+  });
+
+  // (i).3: any other text naming Tunisia is a row to look at, never dropped.
+  it.each(["Tunisia B", "Tunisia A'", "Tunisia (futsal)", "Tunisia XI"])(
+    "reports %j, a Tunisia team it cannot place",
+    (cell) => {
+      expect(national(cell)).toMatchObject({
+        caps: null,
+        skipped: [{ field: "nationalteam1", raw: cell, reason: "no-club" }],
+      });
+    },
+  );
+
+  // (i).4: a binational's foreign rows are other teams, not doubts.
+  it.each(["France", "France U21", "Qatar"])(
+    "reads %j as another team without a report",
+    (cell) => {
+      expect(national(cell)).toMatchObject({ caps: null, skipped: [] });
+    },
+  );
+
+  // (i).5: a commented-out cell is no row at all.
+  it("ignores a cell that holds only a comment", () => {
+    expect(national("<!-- Tunisia -->")).toMatchObject({
+      caps: null,
+      skipped: [],
+    });
+  });
+
+  // (ii): a link to the senior article, whatever its label says.
+  const senior = (label: string) =>
+    `[[Tunisia national football team|${label}]]`;
+  it.each(["tunisia", "Tunisia national team"])(
+    "reads a link to the senior article labelled %j as the senior team",
+    (label) => {
+      expect(national(senior(label))).toMatchObject({ caps: 5, skipped: [] });
+    },
+  );
+
+  it("reads a link to the senior article labelled as a youth team as another team", () => {
+    expect(national(senior("Tunisia U20"))).toMatchObject({
+      caps: null,
+      skipped: [],
+    });
+  });
+
+  it("reports a link to the senior article with a label it cannot place", () => {
+    expect(national(senior("Tunisia B"))).toMatchObject({
+      caps: null,
+      skipped: [
+        {
+          field: "nationalteam1",
+          raw: "[[Tunisia national football team|Tunisia B]]",
+          reason: "no-club",
+        },
+      ],
+    });
+  });
 });
 
 // Step 6.0 (addendum §3): a second and third vote for the birth date.
