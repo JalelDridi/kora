@@ -679,6 +679,43 @@ describe("mergePlayer", () => {
     expect(merged?.draft.provenance.goals?.source).toBe("enwiki");
   });
 
+  // Fix round 1, finding 2: an override rates only the field it overrides.
+  it("lets a capsAsOf override date the caps without rating them as decided", () => {
+    const merged = mergePlayer(
+      wdPlayer(),
+      context({ Q19956607: { capsAsOf: { value: "2026-10-01", ...by } } }),
+    );
+    expect([merged?.draft.caps, merged?.draft.capsAsOf]).toEqual([
+      90,
+      "2026-10-01",
+    ]);
+    expect(merged?.draft.provenance.caps).toMatchObject({
+      source: "enwiki",
+      asOf: "2026-10-01",
+      by: "jalel",
+      confidence: "medium",
+      agreeing: ["enwiki"],
+    });
+    expect(merged?.flags.map((f) => f.kind)).not.toContain("caps-maybe-stale");
+  });
+
+  it("still checks wiki caps for staleness under a goals-only override", () => {
+    const merged = mergePlayer(
+      wdPlayer(),
+      context({ Q19956607: { goals: { value: 4, ...by } } }),
+    );
+    expect(merged?.draft.goals).toBe(4);
+    expect(merged?.draft.provenance.goals).toMatchObject({
+      source: "override",
+      confidence: "high",
+    });
+    expect(merged?.draft.provenance.caps).toMatchObject({
+      source: "enwiki",
+      confidence: "medium",
+    });
+    expect(merged?.flags.map((f) => f.kind)).toContain("caps-maybe-stale");
+  });
+
   // Fix round 1, finding 1: Wikidata with apps (P1350) but no goals (P1351).
   it("takes no goals vote from a source that has caps but no goals", () => {
     const ctx = context();

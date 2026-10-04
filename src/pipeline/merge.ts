@@ -618,15 +618,19 @@ export function mergePlayer(
       goalsFrom.ref,
     );
   }
-  const capsOverride = o.caps ?? o.goals ?? o.capsAsOf;
-  if (capsOverride) {
-    caps = o.caps?.value ?? caps;
-    goals = o.goals?.value ?? goals;
-    capsAsOf = o.capsAsOf?.value ?? capsAsOf;
-    // A goals-only override does not mark caps as decided by Jalel.
-    if (o.caps || o.capsAsOf) prov.caps = fromOverride((o.caps ?? o.capsAsOf)!);
-    if (o.goals) prov.goals = fromOverride(o.goals);
-  } else if (capsPick.chosen && capsAsOf) {
+  // An override rates only its own field: caps and goals are each "decided by
+  // Jalel" only when overridden; a capsAsOf override only re-dates the caps
+  // (the source and its rating stay), saying who chose the date.
+  caps = o.caps?.value ?? caps;
+  goals = o.goals?.value ?? goals;
+  capsAsOf = o.capsAsOf?.value ?? capsAsOf;
+  if (o.caps) prov.caps = fromOverride(o.caps);
+  else if (o.capsAsOf && prov.caps) {
+    prov.caps = { ...prov.caps, asOf: o.capsAsOf.value, by: o.capsAsOf.by };
+  }
+  if (o.goals) prov.goals = fromOverride(o.goals);
+  // The stale check is skipped only when Jalel confirmed the caps or their date.
+  if (!(o.caps || o.capsAsOf) && capsPick.chosen && capsAsOf) {
     const source =
       capsPick.chosen.source === "enwiki"
         ? en
