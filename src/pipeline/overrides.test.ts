@@ -34,6 +34,24 @@ describe("validateOverrides", () => {
     expect(result.overrides.clubTitles["en:Esperance de Tunis"]).toBe("Q202");
   });
 
+  // Final wave, P37: "a birth date can be corrected by an override".
+  it("accepts a birth date as YYYY-MM-DD and refuses anything else", () => {
+    const check = (value: unknown) =>
+      validateOverrides(
+        { players: { Q1: { birthDate: { value, ...by } } }, clubTitles: {} },
+        governorates,
+        known,
+      );
+    const good = check("1989-07-01");
+    expect(good.ok && good.overrides.players.Q1.birthDate?.value).toBe(
+      "1989-07-01",
+    );
+    expect(check("1 July 1989")).toEqual({
+      ok: false,
+      errors: ['players.Q1.birthDate: invalid value "1 July 1989"'],
+    });
+  });
+
   // Fix round 1, finding 5: any error means nothing may be applied, so the
   // result carries the errors and no overrides at all.
   it("names every problem and gives nothing to apply", () => {
