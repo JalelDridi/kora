@@ -66,19 +66,30 @@ function isRecord(v: unknown): v is Record<string, unknown> {
   return typeof v === "object" && v !== null && !Array.isArray(v);
 }
 
+/**
+ * All or nothing: any error means none of the file may be applied (Task 8
+ * stops the build), so an error result carries no overrides at all.
+ */
+export type OverridesResult =
+  { ok: true; overrides: Overrides } | { ok: false; errors: string[] };
+
+/** What the overrides may name: the pool's footballers and clubs (Wikidata ids). */
+export type KnownIds = { players: Set<string>; clubs: Set<string> };
+
 export function validateOverrides(
   json: unknown,
   governorates: Set<string>,
-): { overrides: Overrides; errors: string[] } {
+  known: KnownIds,
+): OverridesResult {
   const overrides: Overrides = { players: {}, clubTitles: {} };
-  if (json === null || json === undefined) return { overrides, errors: [] };
+  if (json === null || json === undefined) return { ok: true, overrides };
   if (
     !isRecord(json) ||
     !isRecord(json.players) ||
     !isRecord(json.clubTitles)
   ) {
     return {
-      overrides,
+      ok: false,
       errors: ["overrides.json must be { players: {}, clubTitles: {} }"],
     };
   }
@@ -86,6 +97,10 @@ export function validateOverrides(
   for (const [qid, entry] of Object.entries(json.players)) {
     if (!QID.test(qid) || !isRecord(entry)) {
       errors.push(`players.${qid}: not a Wikidata id with an object`);
+      continue;
+    }
+    if (!known.players.has(qid)) {
+      errors.push(`players.${qid}: not a footballer in the pool`);
       continue;
     }
     const clean: Record<string, unknown> = {};
@@ -107,6 +122,12 @@ export function validateOverrides(
         errors.push(`${at}: needs value, by and at (YYYY-MM-DD)`);
       } else if (!check(raw.value, governorates)) {
         errors.push(`${at}: invalid value ${JSON.stringify(raw.value)}`);
+      } else if (
+        field === "club" &&
+        typeof raw.value === "string" &&
+        !known.clubs.has(raw.value)
+      ) {
+        errors.push(`${at}: "${raw.value}" is not a club in the pool`);
       } else {
         clean[field] = raw;
       }
@@ -124,7 +145,11 @@ export function validateOverrides(
       );
       continue;
     }
+    if (!known.clubs.has(qid)) {
+      errors.push(`clubTitles.${key}: "${qid}" is not a club in the pool`);
+      continue;
+    }
     overrides.clubTitles[key] = qid;
   }
-  return { overrides, errors };
+  return errors.length > 0 ? { ok: false, errors } : { ok: true, overrides };
 }

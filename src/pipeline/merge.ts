@@ -470,6 +470,7 @@ export type MergeContext = {
   infoboxes: { en: Map<string, Infobox>; fr: Map<string, Infobox> };
   photos: Map<string, Photo>;
   tunisiaMatches: Match[];
+  /** Only from an `ok` result of validateOverrides: never a partly valid file. */
   overrides: Overrides;
   governorateIds: Set<string>;
   /** Tunisia goals per footballer from martj42, a floor (Task 8). */
