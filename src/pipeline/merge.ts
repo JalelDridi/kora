@@ -34,6 +34,8 @@ export type Found = { kind: FlagKind; detail: string };
 export type ClubIndex = {
   byQid: Map<string, WdClub>;
   resolve(lang: "en" | "fr", title: string): WdClub | null;
+  /** The title is pinned to a club in data/overrides.json (`clubTitles`). */
+  pinned?(lang: "en" | "fr", title: string): boolean;
 };
 
 export function buildClubIndex(
@@ -57,12 +59,17 @@ export function buildClubIndex(
       if (pinned) return byQid.get(pinned) ?? null;
       return byTitle[lang].get(redirects[lang].get(title) ?? title) ?? null;
     },
+    pinned: (lang, title) => Object.hasOwn(clubTitles, `${lang}:${title}`),
   };
 }
 
 /**
- * A club named on a page: its own title first, then, for a French {{Lien}}
- * to an English article, the English title (final wave, A6 and B3).
+ * A club named on a page (final wave, A6 and B3). A French {{Lien}} to an
+ * English article marks a club with no French article: its English title
+ * decides, and the French title counts only when pinned in the overrides.
+ * In the cache of 4 October 2026, of 103 {{Lien}} clubs with an English
+ * title, 59 resolve by it and only Sabri Ameri's by the French one, wrongly
+ * ("Al-Safa" is a Syrian club's French article; his club is Al-Safa Club).
  */
 export function resolveClub(
   index: ClubIndex,
@@ -70,10 +77,9 @@ export function resolveClub(
   title: string,
   foreign?: string,
 ): WdClub | null {
-  return (
-    index.resolve(lang, title) ??
-    (foreign ? index.resolve("en", foreign) : null)
-  );
+  if (!foreign || index.pinned?.(lang, title))
+    return index.resolve(lang, title);
+  return index.resolve("en", foreign);
 }
 
 type Dated = { source: SourceId; asOf: string | null };
@@ -199,7 +205,7 @@ export function pickClub(input: {
     if (!club) {
       flags.push({
         kind: "club-unresolved",
-        detail: `${source}: ${box.currentClub}`,
+        detail: `${source}: ${box.currentClub}${box.currentClubForeign ? ` (English article: ${box.currentClubForeign})` : ""}`,
       });
       continue;
     }

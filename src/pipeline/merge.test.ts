@@ -1859,6 +1859,38 @@ describe("final wave: a French {{Lien}} club resolved by its English title (A6, 
     expect(p.club).toBe(misurata);
   });
 
+  // Sabri Ameri (Q55806802), frwiki dated 29 October 2025:
+  // {{Lien|fr=Al-Safa|trad=Al-Safa Club}}. "Al-Safa" is the French article
+  // of a Syrian club (Q4116532); his club is Al-Safa Club, in Saudi Arabia.
+  it("lets the English title decide a {{Lien}} club, not a French title that names another club: Sabri Ameri", () => {
+    const syria = club("Q4116532", "Al-Safa", "SY", { titleFr: "Al-Safa" });
+    const saudi = club("Q9", "Al-Safa Club", "SA");
+    const fr = box("fr", {
+      currentClub: "Al-Safa",
+      currentClubForeign: "Al-Safa Club",
+      clubsAsOf: "2025-10-29",
+    });
+    const pick = (clubs: WdClub[], pins: Record<string, string> = {}) =>
+      pickClub({
+        en: null,
+        fr,
+        memberships: [],
+        index: buildClubIndex(clubs, { en: new Map(), fr: new Map() }, pins),
+        today,
+      });
+    expect(pick([syria, saudi]).club).toBe(saudi);
+    const unknown = pick([syria]);
+    expect(unknown.club).toBeNull();
+    expect(unknown.flags).toEqual([
+      {
+        kind: "club-unresolved",
+        detail: "frwiki: Al-Safa (English article: Al-Safa Club)",
+      },
+    ]);
+    // A French title pinned in the overrides still counts.
+    expect(pick([syria, saudi], { "fr:Al-Safa": "Q4116532" }).club).toBe(syria);
+  });
+
   // Mossaâb Sassi: a French career spell {{Lien|trad=Hetten FC}}.
   it("resolves a career spell through its English title: Mossaâb Sassi", () => {
     const { spells } = pickHistory({
