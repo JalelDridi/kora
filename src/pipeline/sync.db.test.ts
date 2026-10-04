@@ -576,6 +576,28 @@ describe("runSync", () => {
     expect(await snapshot()).toEqual(before);
   });
 
+  // Final wave, A11: the sync deletes honour rows missing from the file, so
+  // an empty honours list would delete every honour (111 rows today).
+  it("refuses a pool with footballers and no honours, before touching the database", async () => {
+    await syncPool(sql, pool([maaloul]), governorates);
+    const before = await snapshot();
+    const o = opener();
+    const dir = await root({
+      "pool.json": JSON.stringify(pool([maaloul], { honours: [] })),
+      "curated/governorates.json": await realGovernorates(),
+    });
+
+    expect(
+      await runSync({ root: dir, open: o.open, log, host: "localhost" }),
+    ).toBe(1);
+    expect(lines).toEqual([
+      "sync: data/pool.json has no honours; refusing to delete every honour",
+      "sync: refused, nothing written (1 error)",
+    ]);
+    expect(o.calls).toEqual([]);
+    expect(await snapshot()).toEqual(before);
+  });
+
   it("refuses a pool whose ids disagree with data/ids.json", async () => {
     const o = opener();
     const dir = await root({

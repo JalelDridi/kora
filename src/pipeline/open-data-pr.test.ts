@@ -57,8 +57,55 @@ describe("open-data-pr.sh: is there anything to propose", () => {
 
     expect(dryRun(dir)).toMatchObject({
       status: 0,
-      out: "data unchanged: no pull request",
+      out: "data unchanged: no pull request; would close an open one from data/nightly",
     });
+  });
+
+  // Final wave, B5: a nightly pull request left open from an earlier night
+  // is closed when tonight equals main; nothing else is touched.
+  async function withFakeGh(open: string) {
+    const dir = await repo();
+    const bin = await tempDir();
+    const log = path.join(bin, "gh.log");
+    await writeFile(
+      path.join(bin, "gh"),
+      [
+        "#!/usr/bin/env bash",
+        `echo "$*" >> "${log.split(path.sep).join("/")}"`,
+        `if [ "$1 $2" = "pr list" ]; then printf '%s' "${open}"; fi`,
+        "",
+      ].join("\n"),
+      { mode: 0o755 },
+    );
+    const r = spawnSync("bash", [SCRIPT], {
+      cwd: dir,
+      encoding: "utf8",
+      env: {
+        ...process.env,
+        PATH: `${bin}${path.delimiter}${process.env.PATH}`,
+      },
+    });
+    const calls = await readFile(log, "utf8").then(
+      (t) => t.trim().split("\n"),
+      () => [],
+    );
+    return { status: r.status, out: r.stdout.trim(), calls };
+  }
+
+  it("closes a stale open pull request when the data equals main", async () => {
+    const r = await withFakeGh("12");
+    expect(r.status).toBe(0);
+    expect(r.out).toBe("data unchanged: closed the stale pull request #12");
+    expect(r.calls).toEqual([
+      "pr list --head data/nightly --base main --state open --json number --jq .[].number",
+      "pr close data/nightly --comment Closed by the nightly data job: a later night's data equals main, so this proposal is out of date.",
+    ]);
+  });
+
+  it("does nothing more when no nightly pull request is open", async () => {
+    const r = await withFakeGh("");
+    expect(r.out).toBe("data unchanged: no pull request");
+    expect(r.calls).toHaveLength(1);
   });
 
   it("proposes the three files when the ids changed, and the dry run writes nothing", async () => {

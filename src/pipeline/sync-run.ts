@@ -77,6 +77,15 @@ export async function readSyncInput(root: string): Promise<SyncInput> {
       kind: "refused",
       errors: ["data/pool.json has no footballers"],
     };
+  // The sync deletes every honour row the file does not list (final wave,
+  // A11): an empty list beside footballers is a broken build, not a season.
+  if ((pool as Pool).honours.length === 0)
+    return {
+      kind: "refused",
+      errors: [
+        "data/pool.json has no honours; refusing to delete every honour",
+      ],
+    };
   return {
     kind: "ready",
     pool: pool as Pool,

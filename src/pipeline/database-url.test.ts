@@ -57,7 +57,11 @@ describe("databaseTarget", () => {
   });
 
   it("accepts a hosted database on Vercel or when explicitly allowed", () => {
-    for (const flag of [{ VERCEL: "1" }, { KORA_SYNC_ALLOW_REMOTE: "1" }])
+    for (const flag of [
+      { VERCEL: "1", VERCEL_ENV: "production" },
+      { VERCEL: "1", VERCEL_ENV: "preview" },
+      { KORA_SYNC_ALLOW_REMOTE: "1" },
+    ])
       expect(
         databaseTarget({ ...flag, DATABASE_URL_UNPOOLED: HOSTED }),
       ).toEqual({
@@ -69,6 +73,19 @@ describe("databaseTarget", () => {
       databaseTarget({ KORA_SYNC_ALLOW_REMOTE: "yes", DATABASE_URL: HOSTED })
         .ok,
     ).toBe(false);
+  });
+
+  // Final wave, A10: VERCEL=1 alone is set by `vercel dev` and `vercel env
+  // pull` on a laptop too; only a Vercel build (production or preview) counts.
+  it("refuses a hosted database on VERCEL=1 alone, or on a Vercel development run", () => {
+    for (const env of [
+      { VERCEL: "1" },
+      { VERCEL: "1", VERCEL_ENV: "development" },
+      { VERCEL: "true", VERCEL_ENV: "production" },
+    ]) {
+      const target = databaseTarget({ ...env, DATABASE_URL_UNPOOLED: HOSTED });
+      expect(target.ok).toBe(false);
+    }
   });
 
   it("refuses a URL it cannot read, without echoing it", () => {

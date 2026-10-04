@@ -38,13 +38,31 @@ pr_body() {
   printf '%s' "$footer" >>"$out"
 }
 
+# close_stale DRY_RUN: tonight equals main, so an open nightly pull request
+# from an earlier night is stale: close it with a comment. The branch and
+# everything else stay; the next night that changes the data reopens one.
+close_stale() {
+  if [ "$1" = true ]; then
+    echo "data unchanged: no pull request; would close an open one from ${branch}"
+    return 0
+  fi
+  local open
+  open="$(gh pr list --head "$branch" --base main --state open --json number --jq '.[].number')"
+  if [ -z "$open" ]; then
+    echo "data unchanged: no pull request"
+    return 0
+  fi
+  gh pr close "$branch" --comment "Closed by the nightly data job: a later night's data equals main, so this proposal is out of date."
+  echo "data unchanged: closed the stale pull request #${open}"
+}
+
 main() {
   local dry_run=false
   if [ "${1:-}" = "--dry-run" ]; then
     dry_run=true
   fi
   if ! data_changed; then
-    echo "data unchanged: no pull request"
+    close_stale "$dry_run"
     return 0
   fi
 
