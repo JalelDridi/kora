@@ -5,6 +5,12 @@ import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { defaultLocale, isLocale, localeInfo, locales } from "@/i18n/locales";
 import { webAnalyticsEnabled } from "@/analytics/web-analytics";
+import {
+  alternateOpenGraphLocales,
+  openGraphLocale,
+  shareImagePath,
+  shareImageSize,
+} from "@/share";
 import { site } from "@/site";
 import "../globals.css";
 
@@ -25,14 +31,40 @@ export async function generateMetadata({
 }: LayoutProps<"/[locale]">): Promise<Metadata> {
   const { locale } = await params;
   if (!isLocale(locale)) return {};
-  const t = await getTranslations({ locale, namespace: "meta" });
+  const t = await getTranslations({ locale });
+  const { prefix } = localeInfo[locale];
+  const title = t("meta.title");
+  const description = t("meta.description");
+  // Relative URLs become absolute through metadataBase.
+  const image = {
+    url: shareImagePath(prefix),
+    ...shareImageSize,
+    type: "image/png",
+    alt: `${site.name} · ${t("hub.tagline")}`,
+  };
 
   return {
     metadataBase: new URL(site.url),
-    title: t("title"),
-    description: t("description"),
+    title,
+    description,
+    openGraph: {
+      type: "website",
+      siteName: site.name,
+      url: prefix,
+      title,
+      description,
+      locale: openGraphLocale[locale],
+      alternateLocale: alternateOpenGraphLocales(locale),
+      images: [image],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [image],
+    },
     alternates: {
-      canonical: localeInfo[locale].prefix,
+      canonical: prefix,
       languages: {
         ...Object.fromEntries(
           locales.map((other) => [other, localeInfo[other].prefix]),
