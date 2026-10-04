@@ -10,6 +10,7 @@
     "typecheck": "next typegen && tsc --noEmit",
     "test": "vitest run",
     "test:e2e": "playwright test",
+    "data:build": "node src/pipeline/cli.ts build",
     "data:check": "node src/pipeline/cli.ts check",
     "format": "prettier --write .",
     "format:check": "prettier --check .",

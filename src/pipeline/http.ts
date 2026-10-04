@@ -5,7 +5,7 @@
 // in order, so the gap holds however callers overlap their calls.
 
 export const USER_AGENT =
-  "KoraDataBot/0.1 (https://github.com/JalelDridi/kora; nightly data job)";
+  "KoraData/0.1 (https://github.com/JalelDridi/kora; nightly pool build)";
 
 export type FetchLike = (url: string, init?: RequestInit) => Promise<Response>;
 

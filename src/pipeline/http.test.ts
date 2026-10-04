@@ -93,6 +93,9 @@ describe("createPoliteClient", () => {
     );
     expect(starts[1] - starts[0]).toBeGreaterThanOrEqual(5_000);
     expect(agents).toEqual([USER_AGENT, USER_AGENT]);
+    expect(USER_AGENT).toBe(
+      "KoraData/0.1 (https://github.com/JalelDridi/kora; nightly pool build)",
+    );
   });
 
   it("keeps overlapping requests apart too", async () => {
