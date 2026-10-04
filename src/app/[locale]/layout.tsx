@@ -1,8 +1,10 @@
+import { Analytics } from "@vercel/analytics/next";
 import type { Metadata } from "next";
 import { IBM_Plex_Sans_Arabic, Inter } from "next/font/google";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { defaultLocale, isLocale, localeInfo, locales } from "@/i18n/locales";
+import { webAnalyticsEnabled } from "@/analytics/web-analytics";
 import { site } from "@/site";
 import "../globals.css";
 
@@ -55,7 +57,10 @@ export default async function LocaleLayout({
       dir={localeInfo[locale].dir}
       className={`${latin.variable} ${arabic.variable}`}
     >
-      <body className="font-sans antialiased">{children}</body>
+      <body className="font-sans antialiased">
+        {children}
+        {webAnalyticsEnabled(process.env.VERCEL) ? <Analytics /> : null}
+      </body>
     </html>
   );
 }
