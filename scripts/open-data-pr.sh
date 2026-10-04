@@ -58,8 +58,12 @@ close_stale() {
 
 main() {
   local dry_run=false
-  if [ "${1:-}" = "--dry-run" ]; then
+  if [ "${1:-}" = "--dry-run" ] && [ "$#" -eq 1 ]; then
     dry_run=true
+  elif [ "$#" -gt 0 ]; then
+    # Anything else would fall through to the real run: commit, push, gh.
+    echo "open-data-pr.sh: unknown argument: $*" >&2
+    return 2
   fi
   if ! data_changed; then
     close_stale "$dry_run"
@@ -97,6 +101,8 @@ main() {
   echo "pull request ready: ${branch}"
 }
 
-if [ "${BASH_SOURCE[0]}" = "$0" ]; then
+# `return` succeeds only in a sourced file. Comparing BASH_SOURCE with $0
+# is not enough: `bash -c 'source "$0"' open-data-pr.sh` makes them equal.
+if ! (return 0 2>/dev/null); then
   main "$@"
 fi
