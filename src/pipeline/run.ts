@@ -556,12 +556,16 @@ async function build(deps: RunDeps): Promise<RunResult> {
     return out;
   });
 
-  // Clubs: by id (memberships, honours, curated honours, overrides) and by
-  // title (infoboxes, this season's Ligue 1), in up to three queries.
+  // Clubs: by id (the wanted footballers' memberships, honours, curated
+  // honours, overrides) and by title (infoboxes, this season's Ligue 1), in
+  // up to three queries.
   const overrides = shape.overrides;
+  const wantedQids = new Set(wanted.map((p) => p.qid));
   const clubQids = [
     ...new Set([
-      ...wikidata.memberships.filter((m) => !m.national).map((m) => m.teamQid),
+      ...wikidata.memberships
+        .filter((m) => !m.national && wantedQids.has(m.playerQid))
+        .map((m) => m.teamQid),
       ...wikidata.honours.map((h) => h.winnerQid),
       ...curatedHonours.map((h) => h.clubWikidataId),
       ...Object.values(overrides.clubTitles),

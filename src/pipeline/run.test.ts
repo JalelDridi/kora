@@ -657,6 +657,41 @@ describe("run", () => {
       expect(await exists(file(root, name))).toBe(false);
   });
 
+  it("asks for the clubs of wanted footballers only, not of everyone Wikidata gave", async () => {
+    const root = await setup();
+    const players = JSON.parse(JSON.stringify(answers.players));
+    players.results.bindings.push({
+      p: uri("Q1002"),
+      enLabel: lit("Old Footballer"),
+      birth: lit("1950-01-01T00:00:00Z"),
+    });
+    const memberships = result(...answers.memberships.results.bindings, {
+      p: uri("Q1002"),
+      team: uri("Q3003"),
+      start: lit("1970-01-01T00:00:00Z"),
+    });
+    const calls: Calls = { urls: [], queries: [] };
+    const base = wdqs(calls);
+    const client: PoliteClient = {
+      async getJson(url, init) {
+        const query =
+          new URLSearchParams(String(init?.body)).get("query") ?? "";
+        const answer = await base.getJson(url, init);
+        if (query.includes("pq:P580")) return memberships;
+        if (query.includes("GROUP BY ?p") && !query.includes("skos:altLabel"))
+          return players;
+        return answer;
+      },
+      getText: async () => "",
+    };
+    expect(await run(deps(root, { wdqs: client }))).toMatchObject({
+      ok: true,
+    });
+    const byId = calls.queries.find((q) => q.includes("VALUES ?club"));
+    expect(byId).toContain("wd:Q2001");
+    expect(byId).not.toContain("wd:Q3003");
+  });
+
   it("refuses a malformed data/ids.json before any request", async () => {
     const root = await setup();
     await writeFile(file(root, "ids.json"), JSON.stringify({ players: [] }));
