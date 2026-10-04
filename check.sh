@@ -10,4 +10,5 @@ pnpm test:db
 # An empty analytics key keeps test traffic out of PostHog.
 NEXT_PUBLIC_POSTHOG_KEY= CIRCLE_NODE_TOTAL=2 pnpm build
 pnpm test:e2e
+pnpm lighthouse
 echo "all checks passed"

@@ -13,6 +13,7 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "test:db": "vitest run --config vitest.db.config.mts",
+    "lighthouse": "lhci autorun",
     "db:up": "docker compose up -d --wait",
     "postinstall": "prisma generate",
     "vercel-build": "prisma migrate deploy && next build"
@@ -31,6 +32,7 @@
   },
   "devDependencies": {
     "@axe-core/playwright": "4.13.0",
+    "@lhci/cli": "0.15.1",
     "@playwright/test": "1.63.0",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^24.19.0",
