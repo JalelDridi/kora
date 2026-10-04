@@ -28,7 +28,7 @@ A hub of Tunisian football games in Derja. Public portfolio project with real us
 - **Derja copy is his.** No machine translation in the UI, no Modern Standard Arabic. New strings go to him before they ship.
 - **Western digits everywhere.** No letter-spacing or uppercase on translated text. Logical CSS properties only.
 - **Vocabulary:** a player is a footballer; the person playing is a visitor.
-- **No secrets in the repo.** `.env.example` documents variables; real values live in `.env.local` and Vercel. Never print them.
+- **No secrets in the repo.** `.env.example` documents variables; real keys live in `.env.local` and Vercel, and the hosted database values only in Vercel. Never print them.
 - **Free tiers only.** No ads, no prizes (Vercel Hobby terms).
 - Small conventional commits, one concern each. Tests accompany behaviour; database rules are tested against real Postgres, never mocks.
 - Cut features before cutting tests or docs. If something goes wrong mid-task, stop and re-plan.
