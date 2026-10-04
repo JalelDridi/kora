@@ -1,7 +1,12 @@
 import { readdirSync, readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { parseEnInfobox } from "./infobox-en.ts";
-import { parseFrInfobox, parseRows } from "./infobox-fr.ts";
+import {
+  isSeniorTunisie,
+  parseFrInfobox,
+  parseRows,
+  readRows,
+} from "./infobox-fr.ts";
 
 const dir = "src/pipeline/wiki/__fixtures__";
 /** A recorded infobox (Task 1), by "en/<slug>" or "fr/<slug>". */
@@ -13,6 +18,8 @@ const frBox = (slug: string, title = slug) =>
   parseFrInfobox(title, recorded(`fr/${slug}`));
 /** Hand-made English infobox, for shapes the recorded eight lack. */
 const en = (fields: string) => `{{Infobox football biography\n${fields}\n}}`;
+/** Hand-made French infobox. */
+const fr = (fields: string) => `{{Infobox Footballeur\n${fields}\n}}`;
 
 describe("parseEnInfobox", () => {
   it("reads every field of en/ali-maaloul", () => {
@@ -53,6 +60,7 @@ describe("parseEnInfobox", () => {
       nationalOpen: true,
       clubsAsOf: "2026-09-04",
       capsAsOf: "2024-04-01",
+      skipped: [],
     });
   });
 
@@ -200,6 +208,7 @@ describe("parseFrInfobox", () => {
       nationalOpen: false,
       clubsAsOf: "2026-09-27",
       capsAsOf: "2026-09-27",
+      skipped: [],
     });
   });
 
@@ -435,6 +444,162 @@ describe("parseFrInfobox", () => {
         loan: true,
       },
     ]);
+  });
+});
+
+// Fix round 1: no row is dropped without saying so. The hand-made shapes below
+// are ones the recorded eight lack.
+describe("skipped rows", () => {
+  it("reports a French two-digit end year as an unreadable years cell", () => {
+    const box = parseFrInfobox(
+      "X",
+      fr(
+        "| parcours pro = {{trois colonnes\n|[[2009 en football|2009]]-[[2010 en football|2010]]|[[A]]|1 (0)\n|[[2010 en football|2010]]-11|{{TUN-d}} [[B]]|2 (0)\n}}",
+      ),
+    );
+    expect(box?.spells.map((s) => s.clubTitle)).toEqual(["A"]);
+    expect(box?.skipped).toEqual([
+      {
+        field: "parcours pro",
+        raw: "|[[2010 en football|2010]]-11|{{TUN-d}} [[B]]|2 (0)",
+        reason: "years",
+      },
+    ]);
+  });
+
+  it("reports a French years cell with a note as unreadable", () => {
+    const box = parseFrInfobox(
+      "X",
+      fr(
+        "| sélection nationale = {{trois colonnes\n|[[2019 en football|2019]] (janv.)|{{TUN football}}|3 (1)\n}}",
+      ),
+    );
+    expect(box?.caps).toBeNull();
+    expect(box?.skipped).toEqual([
+      {
+        field: "sélection nationale",
+        raw: "|[[2019 en football|2019]] (janv.)|{{TUN football}}|3 (1)",
+        reason: "years",
+      },
+    ]);
+  });
+
+  it("reports a French row whose team cell names no club", () => {
+    const box = parseFrInfobox(
+      "X",
+      fr(
+        "| parcours senior = {{trois colonnes\n|[[2015 en football|2015]]-[[2016 en football|2016]]|{{TUN-d}}|4 (0)\n}}\n| sélection nationale = {{trois colonnes\n|[[2016 en football|2016]]-||5 (1)\n}}",
+      ),
+    );
+    expect(box?.spells).toEqual([]);
+    expect(box?.skipped).toEqual([
+      {
+        field: "parcours senior",
+        raw: "|[[2015 en football|2015]]-[[2016 en football|2016]]|{{TUN-d}}|4 (0)",
+        reason: "no-club",
+      },
+      {
+        field: "sélection nationale",
+        raw: "|[[2016 en football|2016]]-||5 (1)",
+        reason: "no-club",
+      },
+    ]);
+  });
+
+  it("reports a French field without a wrapper template once, cut to 200 characters", () => {
+    const long = `[[Équipe de Tunisie de football|Tunisie]] 2015-2020 (30 sél.) ${"x".repeat(300)}`;
+    const box = parseFrInfobox("X", fr(`| sélection nationale = ${long}`));
+    expect(box?.caps).toBeNull();
+    expect(box?.skipped).toEqual([
+      {
+        field: "sélection nationale",
+        raw: long.slice(0, 200),
+        reason: "no-wrapper",
+      },
+    ]);
+    expect(box?.skipped[0].raw).toHaveLength(200);
+  });
+
+  it("reports nothing for an absent or empty field", () => {
+    expect(
+      parseFrInfobox("X", fr("| parcours pro = \n| nom = X"))?.skipped,
+    ).toEqual([]);
+    expect(parseEnInfobox("X", en("| clubs1 = \n| name = X"))?.skipped).toEqual(
+      [],
+    );
+  });
+
+  it("gives the caller readRows' skips, and parseRows the rows alone", () => {
+    const field =
+      "{{trois colonnes\n|janvier|[[A]]|1 (0)\n|[[2020 en football|2020]]-|[[B]]|2 (0)\n}}";
+    expect(readRows("parcours pro", field)).toEqual({
+      rows: parseRows(field),
+      skipped: [
+        { field: "parcours pro", raw: "|janvier|[[A]]|1 (0)", reason: "years" },
+      ],
+    });
+  });
+
+  it("reports an English club row with no club name", () => {
+    const box = parseEnInfobox(
+      "X",
+      en(
+        "| years1 = 2010–2012\n| clubs1 = {{flagicon|TUN}}\n| caps1 = 4\n| years2 = 2012–\n| clubs2 = [[Club Africain]]",
+      ),
+    );
+    expect(box?.spells.map((s) => s.clubTitle)).toEqual(["Club Africain"]);
+    expect(box?.skipped).toEqual([
+      { field: "clubs1", raw: "{{flagicon|TUN}}", reason: "no-club" },
+    ]);
+  });
+
+  it("reports the first English club and national rows beyond the loop limits", () => {
+    const box = parseEnInfobox(
+      "X",
+      en(
+        "| clubs40 = [[A]]\n| clubs41 = [[B]]\n| clubs42 = [[C]]\n| nationalteam20 = [[Tunisia national football team|Tunisia]]\n| nationalcaps20 = 1\n| nationalteam21 = [[Tunisia national football team|Tunisia]]\n| nationalcaps21 = 2",
+      ),
+    );
+    expect(box?.spells.map((s) => s.clubTitle)).toEqual(["A"]);
+    expect(box?.caps).toBe(1);
+    expect(box?.skipped).toEqual([
+      { field: "clubs41", raw: "[[B]]", reason: "limit" },
+      {
+        field: "nationalteam21",
+        raw: "[[Tunisia national football team|Tunisia]]",
+        reason: "limit",
+      },
+    ]);
+  });
+
+  it("finds no skipped row in any of the 16 recorded articles", () => {
+    const skipped: Record<string, unknown> = {};
+    for (const lang of ["en", "fr"] as const) {
+      for (const file of readdirSync(`${dir}/${lang}`)) {
+        const text = readFileSync(`${dir}/${lang}/${file}`, "utf8");
+        const box =
+          lang === "en"
+            ? parseEnInfobox(file, text)
+            : parseFrInfobox(file, text);
+        skipped[`${lang}/${file}`] = box?.skipped;
+      }
+    }
+    expect(Object.keys(skipped)).toHaveLength(16);
+    expect(skipped).toEqual(
+      Object.fromEntries(Object.keys(skipped).map((key) => [key, []])),
+    );
+  });
+});
+
+describe("isSeniorTunisie", () => {
+  it("counts the senior team, linked or bare, and not the olympic team", () => {
+    expect(
+      isSeniorTunisie("[[Équipe de Tunisie olympique de football|Tunisie]]"),
+    ).toBe(false);
+    expect(isSeniorTunisie("Tunisie")).toBe(true);
+    expect(isSeniorTunisie("[[Équipe de Tunisie de football|Tunisie]]")).toBe(
+      true,
+    );
   });
 });
 

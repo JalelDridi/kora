@@ -5,11 +5,12 @@
 //   |[[2009 en football|2009]]-[[2016 en football|2016]]|{{TUN-d}} [[Club sportif sfaxien (football)|CS Sfaxien]]|191 (40)
 //    years                                              | team                                                    | apps (goals)
 
-import type { Infobox, Spell } from "../types.ts";
+import type { Infobox, SkippedRow, Spell } from "../types.ts";
 import { parseFrDate } from "./dates.ts";
 import { readCurrentClub } from "./infobox-en.ts";
 import {
   cells,
+  clip,
   findTemplate,
   links,
   plainText,
@@ -66,28 +67,57 @@ function readStats(cell: string): Pick<CareerRow, "apps" | "goals"> {
 /**
  * Rows of a French career field: the wrapper template's body, one row per
  * line, three cells per row (several rows on one line are read three cells
- * at a time). A row whose first cell is not a years cell is skipped.
+ * at a time). `name` is the field's name, for the skipped rows: a row whose
+ * first cell is not a years cell ("years") or whose team cell names no team
+ * by `hasName` ("no-club"), and a non-empty field that yields no row at all,
+ * having no wrapper template to split ("no-wrapper", one entry for the field).
  */
-export function parseRows(field: string): CareerRow[] {
+export function readRows(
+  name: string,
+  field: string,
+  hasName: (team: string) => boolean = (team) => team !== "",
+): { rows: CareerRow[]; skipped: SkippedRow[] } {
   const value = field.trim();
-  const body = value.startsWith("{{") ? findTemplate(value, /./) : null;
-  if (body === null) return [];
   const rows: CareerRow[] = [];
-  for (const line of body.split("\n")) {
+  const skipped: SkippedRow[] = [];
+  if (value === "") return { rows, skipped };
+  const body = value.startsWith("{{") ? findTemplate(value, /./) : null;
+  for (const line of (body ?? "").split("\n")) {
     const row = cells(line);
     for (let i = 0; i < row.length; i += 3) {
+      const group = row.slice(i, i + 3);
+      if (group.every((cell) => cell === "")) continue;
+      const raw = clip(`|${group.join("|")}`);
       const years = readYears(row[i]);
       const team = row[i + 1] ?? "";
-      if (years === null || team === "") continue;
-      rows.push({
-        ...years,
-        team,
-        ...readStats(row[i + 2] ?? ""),
-        loan: LOAN.test(team),
-      });
+      if (years === null) {
+        skipped.push({ field: name, raw, reason: "years" });
+      } else if (!hasName(team)) {
+        skipped.push({ field: name, raw, reason: "no-club" });
+      } else {
+        rows.push({
+          ...years,
+          team,
+          ...readStats(row[i + 2] ?? ""),
+          loan: LOAN.test(team),
+        });
+      }
     }
   }
-  return rows;
+  if (rows.length === 0 && skipped.length === 0) {
+    skipped.push({ field: name, raw: clip(value), reason: "no-wrapper" });
+  }
+  return { rows, skipped };
+}
+
+/** The club a career row's team cell names: its first link, or its text. */
+function clubTitle(team: string): string {
+  return links(team)[0]?.title ?? plainText(team);
+}
+
+/** The rows alone; readRows also says which rows it skipped. */
+export function parseRows(field: string): CareerRow[] {
+  return readRows("", field).rows;
 }
 
 /**
@@ -114,24 +144,29 @@ export function parseFrInfobox(
   const get = (key: string) => params.get(key) ?? "";
 
   // "parcours senior" in 5 of the 8 recorded articles, "parcours pro" in 3.
-  const spells: Spell[] = [];
-  for (const row of parseRows(get("parcours senior") || get("parcours pro"))) {
-    const clubTitle = links(row.team)[0]?.title ?? plainText(row.team);
-    if (clubTitle === "") continue;
-    spells.push({
-      clubTitle,
-      from: row.from,
-      to: row.to,
-      apps: row.apps,
-      goals: row.goals,
-      loan: row.loan,
-    });
-  }
+  const careerField = get("parcours senior")
+    ? "parcours senior"
+    : "parcours pro";
+  const career = readRows(
+    careerField,
+    get(careerField),
+    (team) => clubTitle(team) !== "",
+  );
+  const national = readRows("sélection nationale", get("sélection nationale"));
+  const skipped = [...career.skipped, ...national.skipped];
+  const spells: Spell[] = career.rows.map((row) => ({
+    clubTitle: clubTitle(row.team),
+    from: row.from,
+    to: row.to,
+    apps: row.apps,
+    goals: row.goals,
+    loan: row.loan,
+  }));
 
   let caps: number | null = null;
   let goals: number | null = null;
   let nationalOpen = false;
-  for (const row of parseRows(get("sélection nationale"))) {
+  for (const row of national.rows) {
     if (!isSeniorTunisie(row.team)) continue;
     if (row.apps !== null) caps = (caps ?? 0) + row.apps;
     if (row.goals !== null) goals = (goals ?? 0) + row.goals;
@@ -153,5 +188,6 @@ export function parseFrInfobox(
     nationalOpen,
     clubsAsOf: asOf,
     capsAsOf: asOf,
+    skipped,
   };
 }

@@ -130,6 +130,11 @@ export function plainText(text: string): string {
     .trim();
 }
 
+/** A row's wikitext for a report: whitespace collapsed, at most 200 characters. */
+export function clip(text: string): string {
+  return text.replace(/\s+/g, " ").trim().slice(0, 200);
+}
+
 export function intOrNull(text: string): number | null {
   const match = /\d+/.exec(plainText(text));
   return match ? Number(match[0]) : null;

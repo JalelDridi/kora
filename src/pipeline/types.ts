@@ -88,6 +88,25 @@ export type Infobox = {
   nationalOpen: boolean;
   clubsAsOf: string | null;
   capsAsOf: string | null;
+  /** Rows the parser could not read; empty when nothing was skipped. */
+  skipped: SkippedRow[];
+};
+
+/**
+ * An infobox row the parser dropped, so a reviewer can see it.
+ * `field` names the infobox parameter exactly as the page writes it: the
+ * numbered parameter in English (`clubs3`, `nationalteam2`), the career field
+ * in French (`parcours pro`, `parcours senior`, `sélection nationale`).
+ * `raw` is the row's wikitext, whitespace collapsed, cut to 200 characters.
+ * Reasons: `years`, the years cell is unreadable; `no-club`, no team name;
+ * `no-wrapper`, a non-empty French field without a wrapper template to split
+ * (one entry per field); `limit`, the first English numbered parameter beyond
+ * the loop limit.
+ */
+export type SkippedRow = {
+  field: string;
+  raw: string;
+  reason: "years" | "no-club" | "no-wrapper" | "limit";
 };
 
 export type WdPlayer = {
