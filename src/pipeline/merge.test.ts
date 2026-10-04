@@ -794,6 +794,39 @@ describe("mergePlayer", () => {
       expect(merged?.flags.map((f) => f.kind)).toContain("caps-unknown");
     });
 
+    // Fix round 2, I1: a skipped national row on either page means a Tunisia
+    // row may exist, so the other page's silence is not a 0.
+    it.each([
+      ["en", "nationalteam1"],
+      ["fr", "sélection nationale"],
+    ] as const)(
+      "reads no 0 from either infobox when the %s one skipped a national row",
+      (skippedLang, field) => {
+        const skipped = [
+          { field, raw: "{{some-template|x}}", reason: "no-club" as const },
+        ];
+        const en = {
+          capsAsOf: "2026-09-01",
+          ...(skippedLang === "en" ? { skipped } : {}),
+        };
+        const fr = {
+          capsAsOf: "2026-09-01",
+          ...(skippedLang === "fr" ? { skipped } : {}),
+        };
+        const merged = mergePlayer(wdPlayer(), noCaps(en, fr));
+        expect([merged?.draft.caps, merged?.draft.goals]).toEqual([0, 0]);
+        for (const key of ["caps", "goals"] as const) {
+          expect(merged?.draft.provenance[key]).toMatchObject({
+            source: "none",
+            confidence: "low",
+          });
+        }
+        const kinds = merged?.flags.map((f) => f.kind);
+        expect(kinds).toContain("caps-unknown");
+        expect(kinds).toContain("caps-row-skipped");
+      },
+    );
+
     it("flags caps no source gives, rated low on no source", () => {
       const merged = mergePlayer(wdPlayer(), noCaps(null, null));
       expect([

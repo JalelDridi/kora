@@ -629,15 +629,18 @@ export function mergePlayer(
   // never left looking like a known count.
   // An infobox with no senior Tunisia row (and no skipped national row) says 0:
   // the newer such infobox is the source. Otherwise no source has caps.
-  const silent = capsPick.chosen
-    ? undefined
-    : [en, fr]
-        .filter(
-          (b): b is Infobox =>
-            b !== null && !b.skipped.some((r) => NATIONAL_FIELD.test(r.field)),
-        )
-        .map((box) => ({ box, source: sourceOf(box), asOf: box.capsAsOf }))
-        .sort(newestFirst)[0];
+  // Only when NO infobox skipped a national-team row: a skipped row on either
+  // page means a Tunisia row may exist, so the caps are unknown, not 0.
+  const anyNationalSkip = [en, fr].some(
+    (b) => b !== null && b.skipped.some((r) => NATIONAL_FIELD.test(r.field)),
+  );
+  const silent =
+    capsPick.chosen || anyNationalSkip
+      ? undefined
+      : [en, fr]
+          .filter((b): b is Infobox => b !== null)
+          .map((box) => ({ box, source: sourceOf(box), asOf: box.capsAsOf }))
+          .sort(newestFirst)[0];
   if (silent) {
     capsAsOf = silent.asOf;
     prov.caps = provenance(
