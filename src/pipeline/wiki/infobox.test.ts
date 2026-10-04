@@ -1,6 +1,6 @@
 import { readdirSync, readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
-import { parseEnInfobox } from "./infobox-en.ts";
+import { nationalTeam, parseEnInfobox } from "./infobox-en.ts";
 import {
   isSeniorTunisie,
   parseFrInfobox,
@@ -58,6 +58,7 @@ describe("parseEnInfobox", () => {
       caps: 89,
       goals: 3,
       nationalOpen: true,
+      nationalEnd: null,
       clubsAsOf: "2026-09-04",
       capsAsOf: "2024-04-01",
       skipped: [],
@@ -208,6 +209,7 @@ describe("parseFrInfobox", () => {
       caps: 93,
       goals: 5,
       nationalOpen: false,
+      nationalEnd: 2026,
       clubsAsOf: "2026-09-27",
       capsAsOf: "2026-09-27",
       skipped: [],
@@ -1046,4 +1048,234 @@ describe("recorded infoboxes", () => {
       });
     }
   }
+});
+
+// Final wave of Sprint 1: gaps the first real pool showed. Each real row is
+// quoted from data/cache/ (saved 2026-10-04) with its footballer and the
+// page's update date; hand-made inputs say so.
+describe("final wave: parser gaps found by the first pool", () => {
+  const frNational = (row: string) =>
+    parseFrInfobox(
+      "X",
+      fr(`| sélection nationale = {{trois colonnes\n${row}\n}}`),
+    );
+  const frClub = (value: string) =>
+    parseFrInfobox("X", fr(`| club actuel = ${value}`));
+
+  // A4. Anas Haj Mohamed (Q122316400), frwiki dated 19 Sept 2026.
+  it("reads {{TUN football |catégorie=oui}} as the senior team: Anas Haj Mohamed", () => {
+    const box = frNational(
+      "|[[2023 en football|2023]]-|{{TUN football |catégorie=oui}}|{{0}}{{0}}4 {{0}}(0)",
+    );
+    expect(box).toMatchObject({
+      caps: 4,
+      goals: 0,
+      seniorRow: true,
+      nationalOpen: true,
+      nationalEnd: null,
+      skipped: [],
+    });
+  });
+
+  // A4. Hamza Rafia (Q64736331), frwiki dated 13 Sept 2026. The France
+  // juniors row is his (hand-made line around the template he uses); it
+  // stays another team.
+  it("reads {{TUN football |catégorie=oui}} as the senior team: Hamza Rafia", () => {
+    const box = frNational(
+      "|[[2015 en football|2015]]|{{FRA football juniors|âge=17|catégorie=oui}}|{{0}}{{0}}3 {{0}}(1)\n|[[2020 en football|2020]]-|{{TUN football |catégorie=oui}}|{{0}}37 {{0}}(4)",
+    );
+    expect(box).toMatchObject({
+      caps: 37,
+      goals: 4,
+      seniorRow: true,
+      skipped: [],
+    });
+    expect(
+      isSeniorTunisie("{{FRA football juniors|âge=17|catégorie=oui}}"),
+    ).toBe(false);
+  });
+
+  // A4. The youth templates of the cache stay other teams, silently.
+  it("does not read {{TUN football olympique}} or {{TUN football juniors}} as senior", () => {
+    expect(isSeniorTunisie("{{TUN football olympique}}")).toBe(false);
+    expect(isSeniorTunisie("{{TUN football juniors|âge=20}}")).toBe(false);
+    expect(
+      frNational(
+        "|[[2011 en football|2011]]|{{TUN football olympique}}|3 (0)\n|[[2009 en football|2009]]|{{TUN football juniors|âge=20}}|5 (1)",
+      ),
+    ).toMatchObject({ caps: null, seniorRow: false, skipped: [] });
+  });
+
+  // A4, hand-made (0 such rows in the cache): a Tunisia team that is neither
+  // the senior team nor a youth team is reported, never silently "other".
+  it("reports a Tunisia row it cannot place (hand-made)", () => {
+    const box = frNational(
+      "|[[2010 en football|2010]]|[[Équipe de Tunisie A' de football|Tunisie A']]|4 (0)",
+    );
+    expect(box).toMatchObject({ caps: null, seniorRow: false });
+    expect(box?.skipped).toEqual([
+      {
+        field: "sélection nationale",
+        raw: "|[[2010 en football|2010]]|[[Équipe de Tunisie A' de football|Tunisie A']]|4 (0)",
+        reason: "no-club",
+      },
+    ]);
+  });
+
+  // A7. Raouf Bouzaiene (Q2707274), frwiki dated 17 Dec 2012: a closed career.
+  it("gives the end year of a closed senior career: Raouf Bouzaiene", () => {
+    const box = frNational(
+      "|[[Équipe de Tunisie de football en 1992|1992]]-[[Équipe de Tunisie de football en 2003|2003]]| {{TUN football}}| {{0}}57 {{0}}(2)",
+    );
+    expect(box).toMatchObject({
+      caps: 57,
+      nationalOpen: false,
+      nationalEnd: 2003,
+    });
+    // enwiki: nationalyears1 = 1992–2003, nationalcaps1 = 45.
+    expect(
+      parseEnInfobox(
+        "Raouf Bouzaiene",
+        en(
+          "| nationalyears1      = 1992–2003\n| nationalteam1       = [[Tunisia national football team|Tunisia]]\n| nationalcaps1       = 45\n| nationalgoals1      = 2",
+        ),
+      ),
+    ).toMatchObject({ caps: 45, nationalOpen: false, nationalEnd: 2003 });
+  });
+
+  it("gives no end year without a senior row or for an open career", () => {
+    expect(frNational("")?.nationalEnd).toBeNull();
+    expect(enBox("ali-maaloul")?.nationalEnd).toBeNull();
+  });
+
+  // A5. Stéphane Nater (Q2360366), frwiki: an assistant written "(adj.)".
+  it("reads (adj.) as a staff post: Stéphane Nater", () => {
+    const box = frClub("{{LIE-d}} [[FC Balzers]] <small>(adj.)</small>");
+    expect(box).toMatchObject({
+      currentClub: null,
+      currentClubIsStaff: true,
+      staffClub: "FC Balzers",
+    });
+  });
+
+  // A5. Mohamed Ben Othman (Q11784652), frwiki dated 21 Dec 2019.
+  it("reads a sporting director at the national team as a staff post: Mohamed Ben Othman", () => {
+    const box = frClub(
+      "{{TUN-d}} [[Équipe de Tunisie de football|Tunisie]] (directeur sportif chargé des binationaux)",
+    );
+    expect(box).toMatchObject({ currentClub: null, currentClubIsStaff: true });
+  });
+
+  // A5. Tarek Thabet (Q2711081), enwiki: a "general supervisor".
+  it("reads (general supervisor) as a staff post: Tarek Thabet", () => {
+    const box = parseEnInfobox(
+      "Tarek Thabet",
+      en(
+        "| currentclub    = [[Espérance Sportive de Tunis|Espérance de Tunis]] (general supervisor) <ref>https://news-tunisia.tunisienumerique.com/esperance-of-tuniscardooso-new-coach-complete-composition-of-technical-staff/</ref>",
+      ),
+    );
+    expect(box).toMatchObject({
+      currentClub: null,
+      currentClubIsStaff: true,
+      staffClub: "Espérance Sportive de Tunis",
+    });
+  });
+
+  // A5. Mehdi Nafti (Q380173), enwiki: the club of a manager's post.
+  it("keeps the club a staff post names: Mehdi Nafti", () => {
+    const box = parseEnInfobox(
+      "Mehdi Nafti",
+      en("| currentclub = [[SD Ponferradina|Ponferradina]] (manager)"),
+    );
+    expect(box).toMatchObject({
+      currentClub: null,
+      currentClubIsStaff: true,
+      staffClub: "SD Ponferradina",
+    });
+  });
+
+  // A6. Nour Zamen Zammouri (Q110989845), frwiki dated 27 June 2026: a loan
+  // note follows a club named by {{Lien}}.
+  it("reads a {{Lien}} club before a loan note: Nour Zamen Zammouri", () => {
+    const box = frClub(
+      "{{LBA-d}} {{Lien|trad=Al Ittihad Misurata SC}}<br><small>(en prêt de l'[[Union sportive monastirienne (football)|US Monastirienne]])</small>",
+    );
+    expect(box).toMatchObject({
+      currentClub: "Al Ittihad Misurata SC",
+      currentClubForeign: "Al Ittihad Misurata SC",
+      currentClubIsStaff: false,
+    });
+  });
+
+  // A6. Habib Oueslati (Q64605664), frwiki dated 18 Sept 2026.
+  it("reads a club named by {{Lien|trad}} alone: Habib Oueslati", () => {
+    expect(frClub("{{IRQ-d}} {{Lien|trad=Newroz SC}}")).toMatchObject({
+      currentClub: "Newroz SC",
+      currentClubForeign: "Newroz SC",
+    });
+  });
+
+  // A6. Rami Jridi (Q652795), frwiki dated 27 May 2026.
+  it("reads a club named by {{Lien|trad|fr|texte}}: Rami Jridi", () => {
+    expect(
+      frClub(
+        "{{PHI-d}} {{Lien|trad=Cebu F.C.|fr=Cebu Football Club|texte=Cebu FC}}",
+      ),
+    ).toMatchObject({
+      currentClub: "Cebu Football Club",
+      currentClubForeign: "Cebu F.C.",
+    });
+  });
+
+  // A6. Ali Youssef (Q71806775), frwiki dated 20 Sept 2026: the loan club stays.
+  it("keeps the club before a loan note: Ali Youssef", () => {
+    const box = frClub(
+      "{{SWE-d}} [[Mjällby AIF]]<br><small>(en prêt de l'[[Apollon Limassol Football Club|Apollon Limassol]])</small>",
+    );
+    expect(box?.currentClub).toBe("Mjällby AIF");
+    expect(box?.currentClubForeign).toBeUndefined();
+  });
+
+  // A6/B3, hand-made: a {{Lien}} to another wiki than English gives no
+  // English title to resolve (langue=de in 7 of 139 cached uses).
+  it("keeps the foreign title only for an English article (hand-made)", () => {
+    expect(frClub("{{Lien|langue=de|trad=SV Musterstadt}}")).toMatchObject({
+      currentClub: "SV Musterstadt",
+    });
+    expect(
+      frClub("{{Lien|langue=de|trad=SV Musterstadt}}")?.currentClubForeign,
+    ).toBeUndefined();
+    expect(
+      frClub("{{Lien|langue=en|trad=Newroz SC}}")?.currentClubForeign,
+    ).toBe("Newroz SC");
+  });
+
+  // A8. Najeh Braham (cached): a redirect to the senior article stays senior.
+  it("reads [[Tunisian national football team|Tunisia]] as the senior team: Najeh Braham", () => {
+    expect(nationalTeam("[[Tunisian national football team|Tunisia]]")).toBe(
+      "senior",
+    );
+  });
+
+  // A8, hand-made from Haythem Jouini's cached row
+  // "[[Tunisia national under-23 football team|Tunisia U23]]", relabelled.
+  it("reads a youth or olympic article labelled Tunisia as another team (hand-made)", () => {
+    expect(
+      nationalTeam("[[Tunisia national under-23 football team|Tunisia]]"),
+    ).toBe("other");
+    expect(nationalTeam("[[Tunisia Olympic football team|Tunisia]]")).toBe(
+      "other",
+    );
+    expect(
+      nationalTeam("[[Tunisia national under-23 football team|Tunisia U23]]"),
+    ).toBe("other");
+  });
+
+  // A8, hand-made: a national-team article it does not know, labelled
+  // Tunisia, is reported rather than guessed.
+  it("reports another national-team article labelled Tunisia (hand-made)", () => {
+    expect(
+      nationalTeam("[[Tunisia national beach soccer team|Tunisia]]"),
+    ).toBeNull();
+  });
 });

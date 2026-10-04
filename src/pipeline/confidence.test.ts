@@ -281,3 +281,47 @@ describe("rateFields on a history with no known club", () => {
     });
   });
 });
+
+// Final wave, A7: when both pages show a closed national career, a count
+// that differs is explained only by a source dated before the career ended.
+describe("rateCount on a closed national career", () => {
+  // Raouf Bouzaiene (Q2707274): enwiki 45, undated, 1992-2003; frwiki 57,
+  // dated 2012-12-17, 1992-2003.
+  it("rates an undated lower count a conflict: Raouf Bouzaiene", () => {
+    const r = rateCount({
+      chosen: v("frwiki", 57, "2012-12-17"),
+      votes: [v("enwiki", 45), v("frwiki", 57, "2012-12-17")],
+      today,
+      closedEnd: 2003,
+    });
+    expect(r).toEqual({
+      confidence: "low",
+      agreeing: ["frwiki"],
+      confidenceNote:
+        "enwiki 45 (undated): his national career ended in 2003; the dates cannot explain it",
+    });
+  });
+
+  // Naïm Sliti (Q20641502): enwiki 84 as of 2025-12-19, frwiki 85 as of
+  // 2026-08-03, both 2016-2026: the lower count predates the end of 2026.
+  it("still explains a lower count dated before the end of the career: Naïm Sliti", () => {
+    const r = rateCount({
+      chosen: v("frwiki", 85, "2026-08-03"),
+      votes: [v("enwiki", 84, "2025-12-19"), v("frwiki", 85, "2026-08-03")],
+      today,
+      closedEnd: 2026,
+    });
+    expect(r.confidence).toBe("medium");
+  });
+
+  it("rates a lower count dated after the end a conflict (hand-made)", () => {
+    const r = rateCount({
+      chosen: v("frwiki", 57, "2012-12-17"),
+      votes: [v("enwiki", 45, "2010-05-01"), v("frwiki", 57, "2012-12-17")],
+      today,
+      closedEnd: 2003,
+    });
+    expect(r.confidence).toBe("low");
+    expect(r.confidenceNote).toMatch(/ended in 2003/);
+  });
+});

@@ -57,8 +57,99 @@ describe("open-data-pr.sh: is there anything to propose", () => {
 
     expect(dryRun(dir)).toMatchObject({
       status: 0,
-      out: "data unchanged: no pull request",
+      out: "data unchanged: no pull request; would close an open one from data/nightly",
     });
+  });
+
+  // Final wave, B5: a nightly pull request left open from an earlier night
+  // is closed when tonight equals main; nothing else is touched.
+  // A `gh` that only writes down how it was called; `open` is what it
+  // answers to `gh pr list`.
+  async function fakeGh(open: string) {
+    const bin = await tempDir();
+    const log = path.join(bin, "gh.log");
+    await writeFile(
+      path.join(bin, "gh"),
+      [
+        "#!/usr/bin/env bash",
+        `echo "$*" >> "${log.split(path.sep).join("/")}"`,
+        `if [ "$1 $2" = "pr list" ]; then printf '%s' "${open}"; fi`,
+        "",
+      ].join("\n"),
+      { mode: 0o755 },
+    );
+    return {
+      env: {
+        ...process.env,
+        PATH: `${bin}${path.delimiter}${process.env.PATH}`,
+      },
+      calls: () =>
+        readFile(log, "utf8").then(
+          (t) => t.trim().split("\n"),
+          () => [] as string[],
+        ),
+    };
+  }
+
+  async function withFakeGh(open: string) {
+    const dir = await repo();
+    const gh = await fakeGh(open);
+    const r = spawnSync("bash", [SCRIPT], {
+      cwd: dir,
+      encoding: "utf8",
+      env: gh.env,
+    });
+    return { status: r.status, out: r.stdout.trim(), calls: await gh.calls() };
+  }
+
+  it("closes a stale open pull request when the data equals main", async () => {
+    const r = await withFakeGh("12");
+    expect(r.status).toBe(0);
+    expect(r.out).toBe("data unchanged: closed the stale pull request #12");
+    expect(r.calls).toEqual([
+      "pr list --head data/nightly --base main --state open --json number --jq .[].number",
+      "pr close data/nightly --comment Closed by the nightly data job: a later night's data equals main, so this proposal is out of date.",
+    ]);
+  });
+
+  it("does nothing more when no nightly pull request is open", async () => {
+    const r = await withFakeGh("");
+    expect(r.out).toBe("data unchanged: no pull request");
+    expect(r.calls).toHaveLength(1);
+  });
+
+  // The description tests once sourced the script as
+  // `bash -c 'source "$0"; …' SCRIPT in out`. Bash then puts the script's
+  // path in $0, the old "am I sourced" check answered no, and the real run
+  // started in the caller's repository: with a rebuilt pool waiting to be
+  // committed, it pushed data/nightly and opened a pull request.
+  it("runs nothing when it is sourced, even with its own path in $0", async () => {
+    const dir = await repo();
+    await writeFile(path.join(dir, "data", "pool.json"), "pool.json 2\n");
+    const gh = await fakeGh("");
+    const r = spawnSync("bash", ["-c", 'source "$0"', SCRIPT, "in", "out"], {
+      cwd: dir,
+      encoding: "utf8",
+      env: gh.env,
+    });
+    expect(r.status).toBe(0);
+    expect(await gh.calls()).toEqual([]);
+    expect(git(dir, "branch", "--list", "data/nightly")).toBe("");
+  });
+
+  it("refuses an argument it does not know before it touches anything", async () => {
+    const dir = await repo();
+    await writeFile(path.join(dir, "data", "pool.json"), "pool.json 2\n");
+    const gh = await fakeGh("");
+    const r = spawnSync("bash", [SCRIPT, "report.md"], {
+      cwd: dir,
+      encoding: "utf8",
+      env: gh.env,
+    });
+    expect(r.status).toBe(2);
+    expect(r.stderr).toMatch(/unknown argument/);
+    expect(await gh.calls()).toEqual([]);
+    expect(git(dir, "branch", "--list", "data/nightly")).toBe("");
   });
 
   it("proposes the three files when the ids changed, and the dry run writes nothing", async () => {
@@ -88,10 +179,11 @@ describe("open-data-pr.sh: the pull request description", () => {
     const input = path.join(dir, "report.md");
     const output = path.join(dir, "body.md");
     await writeFile(input, report);
+    // The script is $1, never $0, and the folder is not a repository.
     execFileSync(
       "bash",
-      ["-c", 'source "$0"; pr_body "$1" "$2"', SCRIPT, input, output],
-      { encoding: "utf8" },
+      ["-c", 'source "$1"; pr_body "$2" "$3"', "bash", SCRIPT, input, output],
+      { cwd: dir, encoding: "utf8" },
     );
     const bytes = await readFile(output);
     // Throws on a character cut in half.

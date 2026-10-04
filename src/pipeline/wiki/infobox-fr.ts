@@ -20,11 +20,24 @@ import {
 
 const TEMPLATE = /^infobox (?:footballeur|football biographie)$/i;
 const STAFF =
-  /\((?=[^)]*\b(?:entraîneur|entraineur|adjoint|analyste|directeur|recruteur|sélectionneur|consultant|président)\b)[^)]*\)/i;
+  /\((?=[^)]*\b(?:(?:entraîneur|entraineur|adjoint|analyste|directeur|recruteur|sélectionneur|consultant|président|superviseur)\b|adj\.))[^)]*\)/i;
 const NATIONAL_TEAM = /^équipe d(?:e|u|es|')\s?.*\bde football\b/i;
 const SENIOR_TEAM = "Équipe de Tunisie de football";
-/** Renders the senior team, flag and link; used in 7 of the 8 recorded articles. */
-const SENIOR_TEMPLATE = /\{\{\s*TUN football\s*\}\}/i;
+/**
+ * Renders the senior team, flag and link; used in 7 of the 8 recorded
+ * articles, with parameters in the cache ({{TUN football |catégorie=oui}}).
+ * {{TUN football olympique}} and {{TUN football juniors…}} are other teams.
+ */
+const SENIOR_TEMPLATE = /\{\{\s*TUN football\s*(?:\|[^{}]*)?\}\}/i;
+/** A team cell that names Tunisia: its text, a link to it, or a TUN template. */
+const NAMES_TUNISIA = /tunisi|\{\{\s*TUN\b/i;
+/** Tunisian youth and olympic teams, as their cells, links or templates write them. */
+const YOUTH_TEAM =
+  /-\s?\d{2}\s?ans|moins de \d{2} ans|\bU-?\d{2}\b|olympique|juniors?|espoirs?/i;
+/** A loan note after the current club: "(en prêt de l'…)", with its <br> and <small>. */
+const LOAN_NOTE = /(?:<br\s*\/?>\s*)?(?:<small>\s*)?\(\s*en prêt\b[\s\S]*$/i;
+/** {{Lien}}'s wiki: absent means English. */
+const ENGLISH = /^(?:|en)$/i;
 const LOAN = /\{\{\s*prêt\s*\}\}/i;
 /** "2009-2016", "2025-", "2018", "?-2013", "-2015"; hyphen, en or em dash. */
 const YEARS = /^(\?|\d{4})?\s*(?:([-–—])\s*(\?|\d{4})?)?$/;
@@ -145,8 +158,11 @@ function readClub(team: string): { title: string; foreign?: string } {
   if (lien !== null) {
     const p = splitParams(lien);
     const pick = (key: string) => plainText(p.get(key) ?? "");
-    const foreign = pick("trad");
-    const title = pick("fr") || pick("1") || pick("texte") || foreign;
+    const trad = pick("trad");
+    const title = pick("fr") || pick("1") || pick("texte") || trad;
+    // The foreign title is kept only for an English article: it is resolved
+    // against English Wikipedia's titles.
+    const foreign = ENGLISH.test(pick("langue")) ? trad : "";
     if (title !== "") return foreign ? { title, foreign } : { title };
   }
   const abbreviation = findTemplate(team, ABBREVIATION);
@@ -168,9 +184,10 @@ export function parseRows(field: string): CareerRow[] {
 }
 
 /**
- * The senior team: {{TUN football}}, or a cell reading exactly "Tunisie" that
- * links to the senior team's article or to nothing. Youth rows read
- * "Tunisie -20 ans", "Tunisie olympique", "Tunisie -23 ans" and so on.
+ * The senior team: {{TUN football}} with or without parameters, or a cell
+ * reading exactly "Tunisie" that links to the senior team's article or to
+ * nothing. Youth rows read "Tunisie -20 ans", "Tunisie olympique",
+ * "Tunisie -23 ans" and so on.
  */
 export function isSeniorTunisie(team: string): boolean {
   if (SENIOR_TEMPLATE.test(team)) return true;
@@ -178,6 +195,17 @@ export function isSeniorTunisie(team: string): boolean {
   return (
     plainText(team) === "Tunisie" &&
     (link === undefined || link.title === SENIOR_TEAM)
+  );
+}
+
+/**
+ * A national row naming Tunisia that is neither the senior team nor a youth
+ * or olympic team ("Tunisie A'"): reported as skipped, never silently read
+ * as another country's team (the English parser's rule, fix round 3).
+ */
+function unplacedTunisie(team: string): boolean {
+  return (
+    NAMES_TUNISIA.test(team) && !isSeniorTunisie(team) && !YOUTH_TEAM.test(team)
   );
 }
 
@@ -202,8 +230,8 @@ export function parseFrInfobox(
   const national = readRows(
     "sélection nationale",
     get("sélection nationale"),
-    undefined,
-    isSeniorTunisie,
+    (team) => team !== "" && !unplacedTunisie(team),
+    (team) => isSeniorTunisie(team) || unplacedTunisie(team),
   );
   const skipped = [...career.skipped, ...national.skipped];
   const spells: Spell[] = career.rows.map((row) => {
@@ -223,27 +251,47 @@ export function parseFrInfobox(
   let goals: number | null = null;
   let nationalOpen = false;
   let seniorRow = false;
+  /** The latest end year of the senior rows; null once one is open or unknown. */
+  let nationalEnd: number | null | undefined;
   for (const row of national.rows) {
     if (!isSeniorTunisie(row.team)) continue;
     seniorRow = true;
     if (row.apps !== null) caps = (caps ?? 0) + row.apps;
     if (row.goals !== null) goals = (goals ?? 0) + row.goals;
     nationalOpen ||= row.open;
+    nationalEnd =
+      nationalEnd === null || row.to === null
+        ? null
+        : Math.max(nationalEnd ?? row.to, row.to);
   }
   if (caps !== null && goals === null) goals = 0;
 
   const asOf = parseFrDate(get("date de mise à jour"));
-  const current = readCurrentClub(get("club actuel"), STAFF, NATIONAL_TEAM);
+  // A loan note names the parent club after the club itself: cut it, then
+  // read the club as a career cell ({{Lien}} included).
+  const current = readCurrentClub(
+    get("club actuel").replace(LOAN_NOTE, ""),
+    STAFF,
+    NATIONAL_TEAM,
+    readClub,
+  );
   return {
     lang: "fr",
     title,
     currentClub: current.title,
+    ...(current.foreign === undefined
+      ? {}
+      : { currentClubForeign: current.foreign }),
     currentClubIsStaff: current.staff,
+    ...(current.staffClub === undefined
+      ? {}
+      : { staffClub: current.staffClub }),
     positionText: plainText(get("position")) || null,
     spells,
     caps,
     goals,
     nationalOpen,
+    nationalEnd: nationalEnd ?? null,
     clubsAsOf: asOf,
     capsAsOf: asOf,
     skipped,

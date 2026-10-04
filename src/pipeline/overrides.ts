@@ -20,6 +20,8 @@ export type PlayerOverride = {
   caps?: OverrideValue<number>;
   goals?: OverrideValue<number>;
   capsAsOf?: OverrideValue<string>;
+  /** Decision P37: a birth date can be corrected by an override (YYYY-MM-DD). */
+  birthDate?: OverrideValue<string>;
   governorate?: OverrideValue<string | null>;
   birthCountry?: OverrideValue<string>;
   nameArabic?: OverrideValue<string>;
@@ -49,6 +51,7 @@ const CHECKS: Record<keyof PlayerOverride, Check> = {
   caps: isCount,
   goals: isCount,
   capsAsOf: (v) => typeof v === "string" && ISO_DATE.test(v),
+  birthDate: (v) => typeof v === "string" && ISO_DATE.test(v),
   governorate: (v, g) => v === null || (typeof v === "string" && g.has(v)),
   birthCountry: (v) => typeof v === "string" && /^[A-Z]{2}$/.test(v),
   nameArabic: (v) => typeof v === "string" && /\p{Script=Arabic}/u.test(v),

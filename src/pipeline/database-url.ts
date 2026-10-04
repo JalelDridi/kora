@@ -27,12 +27,25 @@ export function maskHost(hostname: string): string {
   return dot === -1 ? hostname : `***${hostname.slice(dot)}`;
 }
 
+/**
+ * A Vercel build or deployment, production or preview. VERCEL=1 alone is
+ * not enough: `vercel dev` and `vercel env pull` set it on a laptop too
+ * (final wave, A10). prisma.config.ts applies the same test.
+ */
+export function isVercelBuild(env: Record<string, string | undefined>) {
+  return (
+    env.VERCEL === "1" &&
+    (env.VERCEL_ENV === "production" || env.VERCEL_ENV === "preview")
+  );
+}
+
 export type DatabaseTarget =
   { ok: true; url: string; host: string } | { ok: false; reason: string };
 
 /**
  * The database the build steps use: DATABASE_URL_UNPOOLED, else DATABASE_URL,
- * as prisma.config.ts chooses for the migrations. Outside Vercel only a local
+ * as prisma.config.ts chooses for the migrations. Outside a Vercel build
+ * (production or preview, isVercelBuild) only a local
  * database is accepted, unless KORA_SYNC_ALLOW_REMOTE=1 says otherwise, so
  * nobody writes to a hosted database from a laptop by accident. Reasons never
  * contain the URL.
@@ -54,14 +67,14 @@ export function databaseTarget(
   }
   const host = maskHost(hostname);
   const remoteAllowed =
-    env.VERCEL === "1" || env.KORA_SYNC_ALLOW_REMOTE === "1";
+    isVercelBuild(env) || env.KORA_SYNC_ALLOW_REMOTE === "1";
   if (!remoteAllowed) {
     try {
       assertLocalDatabase(url);
     } catch {
       return {
         ok: false,
-        reason: `refusing ${host}: outside Vercel only a local database without a query string is used (set KORA_SYNC_ALLOW_REMOTE=1 to override)`,
+        reason: `refusing ${host}: outside a Vercel build only a local database without a query string is used (set KORA_SYNC_ALLOW_REMOTE=1 to override)`,
       };
     }
   }

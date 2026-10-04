@@ -349,6 +349,19 @@ describe("run", () => {
       caps: 30,
       clubId: "club-africain",
     });
+    // Final wave, B8: the cache keeps the answer's redirect list as sent, and
+    // an offline rebuild reads the move from it again.
+    const cached = JSON.parse(
+      await readFile(file(root, "cache/infobox-en.json"), "utf8"),
+    ) as { value: { batches: { redirects?: unknown }[] } };
+    expect(cached.value.batches[0].redirects).toEqual([
+      { from: moved, to: "Test Footballer" },
+    ]);
+    const pool = await readFile(file(root, "pool.json"), "utf8");
+    expect(
+      await run({ root, today: "2026-10-04", offline: true, log: () => {} }),
+    ).toEqual({ ok: true, changed: false });
+    expect(await readFile(file(root, "pool.json"), "utf8")).toBe(pool);
   });
 
   it("falls back to the cache for every source behind a stopped client, and says so", async () => {
@@ -687,10 +700,12 @@ describe("run", () => {
   it("asks for the clubs of wanted footballers only, not of everyone Wikidata gave", async () => {
     const root = await setup();
     const players = JSON.parse(JSON.stringify(answers.players));
+    // Final wave, A1: every man is wanted, whatever his age; a woman is not.
     players.results.bindings.push({
       p: uri("Q1002"),
-      enLabel: lit("Old Footballer"),
-      birth: lit("1950-01-01T00:00:00Z"),
+      enLabel: lit("Not Wanted"),
+      gender: uri("Q6581072"),
+      birth: lit("1990-01-01T00:00:00Z"),
     });
     const memberships = result(...answers.memberships.results.bindings, {
       p: uri("Q1002"),
@@ -717,6 +732,135 @@ describe("run", () => {
     const byId = calls.queries.find((q) => q.includes("VALUES ?club"));
     expect(byId).toContain("wd:Q2001");
     expect(byId).not.toContain("wd:Q3003");
+  });
+
+  // Final wave, A1 (D-S1-1): a legend is 20 caps or more, any age, so the
+  // pages of men born before 1965 are read too. B3: a French {{Lien}} club's
+  // English title is asked with the English titles.
+  it("reads every man's pages, and asks a French {{Lien}} club by its English title", async () => {
+    const root = await setup();
+    const players = JSON.parse(JSON.stringify(answers.players));
+    players.results.bindings.push({
+      p: uri("Q958968"),
+      enLabel: lit("Tarak Dhiab"),
+      birth: lit("1954-07-15T00:00:00Z"),
+      positions: lit("midfielder"),
+      enwiki: lit("Tarak Dhiab"),
+      frwiki: lit("Tarak Dhiab"),
+    });
+    const wdCalls: Calls = { urls: [], queries: [] };
+    const base = wdqs(wdCalls);
+    const client: PoliteClient = {
+      async getJson(url, init) {
+        const query =
+          new URLSearchParams(String(init?.body)).get("query") ?? "";
+        const answer = await base.getJson(url, init);
+        if (query.includes("GROUP BY ?p") && !query.includes("skos:altLabel"))
+          return players;
+        return answer;
+      },
+      getText: async () => "",
+    };
+    const wmCalls: Calls = { urls: [], queries: [] };
+    const baseWm = wikimedia(wmCalls);
+    const fr = `{{Infobox Footballeur
+| club actuel = {{TUN-d}} {{Lien|trad=Hetten FC}}
+}}`;
+    const wm: PoliteClient = {
+      async getJson(url, init) {
+        if (url.startsWith("https://fr.") && url.includes("prop=revisions")) {
+          wmCalls.urls.push(url);
+          return {
+            query: {
+              pages: [
+                {
+                  title: "Tarak Dhiab",
+                  revisions: [{ revid: 2, slots: { main: { content: fr } } }],
+                },
+              ],
+            },
+          };
+        }
+        const answer = (await baseWm.getJson(url, init)) as {
+          query: { pages: object[] };
+        };
+        // No English page for him: a missing mark, as the API sends it.
+        if (url.includes("prop=revisions"))
+          answer.query.pages.push({ title: "Tarak Dhiab", missing: true });
+        return answer;
+      },
+      getText: async () => "",
+    };
+    expect(
+      await run(deps(root, { wdqs: client, wikimedia: wm })),
+    ).toMatchObject({ ok: true });
+    const revisions = wmCalls.urls
+      .filter((u) => u.includes("prop=revisions"))
+      .map((u) => new URL(u).searchParams.get("titles"));
+    expect(revisions).toEqual(["Test Footballer|Tarak Dhiab", "Tarak Dhiab"]);
+    const byEnglishTitle = wdCalls.queries.find((q) =>
+      q.includes("en.wikipedia.org/> ; schema:about ?club"),
+    );
+    expect(byEnglishTitle).toContain('"Hetten FC"@en');
+  });
+
+  // Final wave, B4: an error while building the pool is a refusal with its
+  // reason, not a stack trace.
+  it("refuses, writing nothing, when the pool cannot be built", async () => {
+    const root = await setup();
+    await writeFile(file(root, "pool.json"), JSON.stringify({ version: 1 }));
+    const lines: string[] = [];
+    const result = await run(deps(root, { log: (l) => lines.push(l) }));
+    expect(result.ok).toBe(false);
+    expect(result.ok ? "" : result.reason).toMatch(
+      /^the pool could not be built: /,
+    );
+    expect(lines.at(-1)).toMatch(/^refused: the pool could not be built: /);
+    expect(await exists(file(root, "report.md"))).toBe(false);
+  });
+
+  // Final wave, B6: a page listed without content, and no `continue`, fails
+  // its source instead of being cached as fresh.
+  it("fails a source whose answer lists a page without content", async () => {
+    const root = await setup();
+    const players = JSON.parse(JSON.stringify(answers.players));
+    players.results.bindings.push({
+      p: uri("Q1002"),
+      enLabel: lit("Second Footballer"),
+      birth: lit("1996-01-01T00:00:00Z"),
+      enwiki: lit("Second Footballer"),
+    });
+    const base = wdqs();
+    const client: PoliteClient = {
+      async getJson(url, init) {
+        const query =
+          new URLSearchParams(String(init?.body)).get("query") ?? "";
+        const answer = await base.getJson(url, init);
+        if (query.includes("GROUP BY ?p") && !query.includes("skos:altLabel"))
+          return players;
+        return answer;
+      },
+      getText: async () => "",
+    };
+    const wm = wikimedia();
+    const cut: PoliteClient = {
+      async getJson(url, init) {
+        const answer = (await wm.getJson(url, init)) as {
+          query: { pages: object[] };
+        };
+        if (url.includes("prop=revisions"))
+          answer.query.pages.push({ title: "Second Footballer" });
+        return answer;
+      },
+      getText: async () => "",
+    };
+    const result = await run(deps(root, { wdqs: client, wikimedia: cut }));
+    expect(result).toEqual({
+      ok: false,
+      reason:
+        "infobox-en failed and there is no cached copy (1 of 2 titles came back without content or a missing mark (Second Footballer))",
+    });
+    expect(await exists(file(root, "cache/infobox-en.json"))).toBe(false);
   });
 
   it("refuses a malformed data/ids.json before any request", async () => {
@@ -1064,14 +1208,33 @@ describe("the raw cache and offline builds", () => {
     await run(deps(root));
     const en = await entry(root, "infobox-en");
     expect(en.version).toBe(CACHE_VERSION);
-    expect(en.value.pages).toEqual([
+    // Final wave, B8: each batch's pages, normalized titles and redirects as
+    // sent (only the content is cut to section 0), parsed on every read.
+    expect(en.value.batches).toEqual([
       {
-        title: "Test Footballer",
-        revid: 1,
-        timestamp: null,
-        wikitext: expect.stringContaining("{{Infobox football biography"),
+        pages: [
+          {
+            title: "Test Footballer",
+            revisions: [
+              {
+                revid: 1,
+                slots: {
+                  main: {
+                    content: expect.stringContaining(
+                      "{{Infobox football biography",
+                    ),
+                  },
+                },
+              },
+            ],
+          },
+        ],
       },
     ]);
+    expect((await entry(root, "redirects")).value).toEqual({
+      en: [{ pages: [{ title: "Club Africain" }] }],
+      fr: [],
+    });
     // No parsed infobox in the cache: the parser runs again on every build.
     expect(await readFile(cachePath(root, "infobox-en"), "utf8")).not.toContain(
       '"spells"',
@@ -1132,13 +1295,44 @@ describe("the raw cache and offline builds", () => {
     expect(lines.join("\n")).not.toContain("plan:");
   });
 
+  // Final wave, B1 and B2: an offline rebuild is the pool of its cache's
+  // date, whatever day it runs, and its report says no source was read.
+  it("dates an offline rebuild by its newest cached copy, and says it read no source", async () => {
+    const root = await setup();
+    await run(deps(root));
+    const pool = await readFile(file(root, "pool.json"), "utf8");
+    const lines: string[] = [];
+    expect(
+      await run({
+        root,
+        today: "2027-01-15",
+        offline: true,
+        ...recording(),
+        log: (l) => lines.push(l),
+      }),
+    ).toEqual({ ok: true, changed: false });
+    expect(await readFile(file(root, "pool.json"), "utf8")).toBe(pool);
+    const report = await readFile(file(root, "report.md"), "utf8");
+    expect(report.split("\n").slice(0, 3)).toEqual([
+      "# Nightly pool, 2026-10-04",
+      "",
+      "> Offline rebuild from the cache saved on 2026-10-04; no source was read.",
+    ]);
+    expect(lines).toContain(
+      "offline build dated 2026-10-04, its newest cached copy",
+    );
+  });
+
   it("parses the cached answer again, so a parser change shows without a request", async () => {
     const root = await setup();
     await run(deps(root));
     // As if the parser now read 31 where it read 30: change what it reads.
     const en = await entry(root, "infobox-en");
-    const page = (en.value.pages as { wikitext: string }[])[0];
-    page.wikitext = page.wikitext.replace(
+    const batches = en.value.batches as {
+      pages: { revisions: { slots: { main: { content: string } } }[] }[];
+    }[];
+    const main = batches[0].pages[0].revisions[0].slots.main;
+    main.content = main.content.replace(
       "nationalcaps1 = 30",
       "nationalcaps1 = 31",
     );

@@ -6,6 +6,7 @@ import {
 } from "./confidence.ts";
 import type { Chosen, Evidence, Vote } from "./confidence.ts";
 import { governorateSlug, TUNISIA_TEAM } from "./places.ts";
+import type { BirthPlaceKind } from "./confidence.ts";
 import { firstPosition, lineFromLabel } from "./positions.ts";
 import { playedAfter } from "./results.ts";
 import type { OverrideValue, Overrides, PlayerOverride } from "./overrides.ts";
@@ -33,6 +34,8 @@ export type Found = { kind: FlagKind; detail: string };
 export type ClubIndex = {
   byQid: Map<string, WdClub>;
   resolve(lang: "en" | "fr", title: string): WdClub | null;
+  /** The title is pinned to a club in data/overrides.json (`clubTitles`). */
+  pinned?(lang: "en" | "fr", title: string): boolean;
 };
 
 export function buildClubIndex(
@@ -56,7 +59,27 @@ export function buildClubIndex(
       if (pinned) return byQid.get(pinned) ?? null;
       return byTitle[lang].get(redirects[lang].get(title) ?? title) ?? null;
     },
+    pinned: (lang, title) => Object.hasOwn(clubTitles, `${lang}:${title}`),
   };
+}
+
+/**
+ * A club named on a page (final wave, A6 and B3). A French {{Lien}} to an
+ * English article marks a club with no French article: its English title
+ * decides, and the French title counts only when pinned in the overrides.
+ * In the cache of 4 October 2026, of 103 {{Lien}} clubs with an English
+ * title, 59 resolve by it and only Sabri Ameri's by the French one, wrongly
+ * ("Al-Safa" is a Syrian club's French article; his club is Al-Safa Club).
+ */
+export function resolveClub(
+  index: ClubIndex,
+  lang: "en" | "fr",
+  title: string,
+  foreign?: string,
+): WdClub | null {
+  if (!foreign || index.pinned?.(lang, title))
+    return index.resolve(lang, title);
+  return index.resolve("en", foreign);
 }
 
 type Dated = { source: SourceId; asOf: string | null };
@@ -75,6 +98,11 @@ export function newestFirst(a: Dated, b: Dated): number {
 function sourceOf(box: Infobox): SourceId {
   return box.lang === "en" ? "enwiki" : "frwiki";
 }
+
+const dated = (box: Infobox): Dated => ({
+  source: sourceOf(box),
+  asOf: box.clubsAsOf,
+});
 
 function provenance(
   source: SourceId,
@@ -132,7 +160,13 @@ export type ClubPick = {
   flags: Found[];
 };
 
-/** Decision D-S1-2: override, newest infobox, then one recent open Wikidata club. */
+/**
+ * Decision D-S1-2: override, newest infobox, then one recent open Wikidata
+ * club. A staff post (final wave, A5) is no playing club: a page naming as
+ * its current club the club where the other page says he works on the staff
+ * proposes nothing, and a dated staff post newer than the other page's club
+ * means no club.
+ */
 export function pickClub(input: {
   en: Infobox | null;
   fr: Infobox | null;
@@ -143,8 +177,18 @@ export function pickClub(input: {
 }): ClubPick {
   const flags: Found[] = [];
   const proposals: (Dated & { club: WdClub; ref: string })[] = [];
-  for (const box of [input.en, input.fr]) {
-    if (!box) continue;
+  const boxes = [input.en, input.fr].filter((b): b is Infobox => b !== null);
+  const staffPosts = boxes.filter((b) => b.currentClubIsStaff);
+  const staffClubs = new Set(
+    staffPosts
+      .map((b) =>
+        b.staffClub === undefined
+          ? undefined
+          : input.index.resolve(b.lang, b.staffClub)?.qid,
+      )
+      .filter((q): q is string => q !== undefined),
+  );
+  for (const box of boxes) {
     const source = sourceOf(box);
     if (box.currentClubIsStaff)
       flags.push({
@@ -152,17 +196,48 @@ export function pickClub(input: {
         detail: `${source}: ${box.title}`,
       });
     if (box.currentClub === null) continue;
-    const club = input.index.resolve(box.lang, box.currentClub);
+    const club = resolveClub(
+      input.index,
+      box.lang,
+      box.currentClub,
+      box.currentClubForeign,
+    );
     if (!club) {
       flags.push({
         kind: "club-unresolved",
-        detail: `${source}: ${box.currentClub}`,
+        detail: `${source}: ${box.currentClub}${box.currentClubForeign ? ` (English article: ${box.currentClubForeign})` : ""}`,
+      });
+      continue;
+    }
+    if (staffClubs.has(club.qid)) {
+      // Mehdi Nafti, Maher Kanzari: one page has him coaching the club the
+      // other page gives as his current club.
+      flags.push({
+        kind: "club-staff-role",
+        detail: `${source}: ${box.currentClub} is where the other page has him on the staff`,
       });
       continue;
     }
     proposals.push({ source, asOf: box.clubsAsOf, club, ref: box.title });
   }
   proposals.sort(newestFirst);
+  // Mohamed Ben Othman: a staff post dated after the other page's club.
+  const newerStaff = staffPosts
+    .filter((b) => b.clubsAsOf !== null)
+    .sort((a, b) => newestFirst(dated(a), dated(b)))[0];
+  const best = proposals[0];
+  if (
+    !input.override &&
+    newerStaff?.clubsAsOf &&
+    best &&
+    (best.asOf === null || newerStaff.clubsAsOf > best.asOf)
+  ) {
+    flags.push({
+      kind: "club-staff-role",
+      detail: `${sourceOf(newerStaff)} staff post (${newerStaff.clubsAsOf}) is newer than ${best.source} ${best.club.nameEn ?? best.club.qid} (${best.asOf ?? "undated"})`,
+    });
+    return { club: null, provenance: null, flags };
+  }
   if (
     proposals.length === 2 &&
     proposals[0].club.qid !== proposals[1].club.qid
@@ -194,7 +269,6 @@ export function pickClub(input: {
     return { club, provenance: fromOverride(input.override), flags };
   }
 
-  const best = proposals[0];
   if (best)
     return {
       club: best.club,
@@ -288,7 +362,12 @@ export function pickHistory(input: {
   if (best) {
     return {
       spells: best.box.spells.map((s) => {
-        const club = input.index.resolve(best.box.lang, s.clubTitle);
+        const club = resolveClub(
+          input.index,
+          best.box.lang,
+          s.clubTitle,
+          s.clubTitleForeign,
+        );
         return {
           club,
           clubName: club?.nameEn ?? s.clubTitle,
@@ -459,6 +538,89 @@ export function pickPosition(input: {
   return { line, detail, provenance: prov, flags };
 }
 
+/**
+ * Decisions P37-P39: the birth date two or three of the English page, the
+ * French page and Wikidata give. One page against Wikidata: the page (rated
+ * low). Three different dates: Wikidata. An override beats everything. Any
+ * source that differs is flagged.
+ */
+export function pickBirthDate(input: {
+  qid: string;
+  wikidata: string | null;
+  en: Infobox | null;
+  fr: Infobox | null;
+  override?: OverrideValue<string>;
+  today: string;
+}): { date: string | null; provenance?: Provenance; flags: Found[] } {
+  if (input.override)
+    return {
+      date: input.override.value,
+      provenance: fromOverride(input.override),
+      flags: [],
+    };
+  // Votes in a fixed order: the English page, the French page, Wikidata.
+  const votes = (
+    [
+      ["enwiki", input.en?.birthDate, input.en?.title],
+      ["frwiki", input.fr?.birthDate, input.fr?.title],
+      ["wikidata", input.wikidata, `P569 ${input.qid}`],
+    ] as const
+  ).flatMap(([source, date, ref]) =>
+    date ? [{ source, date, ref: ref ?? "" }] : [],
+  );
+  if (votes.length === 0) return { date: null, flags: [] };
+  const wd = votes.find((v) => v.source === "wikidata");
+  const agreeing = (date: string) => votes.filter((v) => v.date === date);
+  const majority = votes.find((v) => agreeing(v.date).length >= 2);
+  const chosenDate =
+    majority?.date ??
+    (votes.length === 3
+      ? wd!.date
+      : (votes.find((v) => v.source !== "wikidata") ?? votes[0]).date);
+  const agree = agreeing(chosenDate);
+  // Wikidata stays the source of a date it gives, as before the final wave.
+  const chosen = agree.find((v) => v.source === "wikidata") ?? agree[0];
+  const dissent = votes.filter((v) => v.date !== chosenDate);
+  const say = (vs: typeof votes) =>
+    vs.map((v) => `${v.source} ${v.date}`).join(", ");
+  const flags: Found[] =
+    dissent.length === 0
+      ? []
+      : [
+          {
+            kind: "birthdate-sources-disagree",
+            detail:
+              agree.length >= 2 || votes.length === 2
+                ? `${say(dissent)} against ${agree.map((v) => v.source).join(", ")} ${chosenDate}`
+                : `no majority: ${say(votes)}`,
+          },
+        ];
+  return {
+    date: chosenDate,
+    provenance: provenance(chosen.source, input.today, null, chosen.ref),
+    flags,
+  };
+}
+
+/**
+ * What the birthplace says, for decision P36: a Tunisian place resolved to a
+ * governorate, a place abroad with its country, Tunisia only, a place with
+ * no country and no governorate (final wave, A9), or a Tunisian place with
+ * no governorate.
+ */
+function placeKind(
+  p: WdPlayer,
+  birthCountry: string | null,
+  governorate: string | null,
+): BirthPlaceKind {
+  if (p.birthPlaceQid === TUNISIA) return "country-only";
+  if (governorate !== null) return "governorate";
+  if (birthCountry !== null && birthCountry !== "TN")
+    return p.birthPlaceName ? "abroad" : "no-place";
+  if (birthCountry === null) return "no-country";
+  return "unresolved";
+}
+
 /** Decision D-S1-4: governorate from the birthplace; born abroad keeps the country. */
 export function pickBirth(
   p: WdPlayer,
@@ -469,6 +631,8 @@ export function pickBirth(
   birthPlace: string | null;
   birthCountry: string | null;
   governorate: string | null;
+  /** What the birthplace says, for its rating (P36). */
+  place: BirthPlaceKind;
   provenance: { birthPlace?: Provenance; governorate?: Provenance };
   flags: Found[];
 } {
@@ -510,6 +674,7 @@ export function pickBirth(
     birthPlace: p.birthPlaceName,
     birthCountry,
     governorate,
+    place: placeKind(p, birthCountry, governorate),
     provenance: prov,
     flags,
   };
@@ -572,14 +737,21 @@ export function mergePlayer(
   if (o.nameArabic) prov.nameArabic = fromOverride(o.nameArabic);
   else if (p.nameAr) prov.nameArabic = wd(`label ${p.qid}`);
 
-  if (p.birthDate) {
-    prov.birthDate = wd(`P569 ${p.qid}`);
-    if (p.birthDate.endsWith("-01-01")) {
-      flags.push({
-        kind: "birthdate-january-first",
-        detail: `${p.birthDate} may stand for a year only`,
-      });
-    }
+  const birthDate = pickBirthDate({
+    qid: p.qid,
+    wikidata: p.birthDate,
+    en,
+    fr,
+    override: o.birthDate,
+    today: ctx.today,
+  });
+  flags.push(...birthDate.flags);
+  if (birthDate.provenance) prov.birthDate = birthDate.provenance;
+  if (birthDate.date?.endsWith("-01-01") && !o.birthDate) {
+    flags.push({
+      kind: "birthdate-january-first",
+      detail: `${birthDate.date} may stand for a year only`,
+    });
   }
 
   const position = pickPosition({
@@ -817,6 +989,17 @@ export function mergePlayer(
     })),
     goals: candidates.flatMap((c) => some(c.source, c.goals, c.asOf)),
     goalsFloor: ctx.goalsFloor?.get(p.qid) ?? null,
+    // A7: both pages show a closed senior career; the later end year.
+    capsClosedEnd:
+      en?.seniorRow &&
+      fr?.seniorRow &&
+      !en.nationalOpen &&
+      !fr.nationalOpen &&
+      en.nationalEnd !== null &&
+      fr.nationalEnd !== null
+        ? Math.max(en.nationalEnd, fr.nationalEnd)
+        : null,
+    birthPlace: birth.place,
     capsCeiling: tunisia
       ? capsCeiling(ctx.tunisiaMatches, tunisia.start, tunisia.end, capsAsOf)
       : null,
@@ -827,7 +1010,12 @@ export function mergePlayer(
           ? [{ source: sourceOf(b), value: null, asOf: b.clubsAsOf }]
           : some(
               sourceOf(b),
-              ctx.index.resolve(b.lang, b.currentClub)?.qid,
+              resolveClub(
+                ctx.index,
+                b.lang,
+                b.currentClub,
+                b.currentClubForeign,
+              )?.qid,
               b.clubsAsOf,
             ),
       ),
@@ -841,7 +1029,11 @@ export function mergePlayer(
         .map((b) => ({
           source: sourceOf(b),
           value: ids(
-            b.spells.map((s) => ctx.index.resolve(b.lang, s.clubTitle)?.qid),
+            b.spells.map(
+              (s) =>
+                resolveClub(ctx.index, b.lang, s.clubTitle, s.clubTitleForeign)
+                  ?.qid,
+            ),
           ),
           asOf: b.clubsAsOf,
         })),
@@ -892,7 +1084,7 @@ export function mergePlayer(
     goals,
     clubQid: club.club?.qid ?? null,
     history: ids(history.spells.map((s) => s.club?.qid)),
-    birthDate: p.birthDate,
+    birthDate: birthDate.date,
     position: position.line,
     positionDetailLine: position.detail ? lineFromLabel(position.detail) : null,
     nameLatin,
@@ -924,7 +1116,7 @@ export function mergePlayer(
       aliases,
       position: position.line,
       positionDetail: position.detail,
-      birthDate: p.birthDate,
+      birthDate: birthDate.date,
       birthPlace: birth.birthPlace,
       birthCountry: birth.birthCountry,
       governorate: birth.governorate,

@@ -49,7 +49,12 @@ type Revision = {
   timestamp?: string;
   slots?: { main?: { content?: string } };
 };
-type ApiPage = { title?: string; missing?: boolean; revisions?: Revision[] };
+type ApiPage = {
+  title?: string;
+  missing?: boolean;
+  invalid?: boolean;
+  revisions?: Revision[];
+};
 type Move = { from?: string; to?: string };
 type ApiResponse = {
   error?: { code?: string; info?: string };
@@ -86,4 +91,77 @@ export function parseRevisions(json: unknown): {
     });
   }
   return { pages, aliases };
+}
+
+/**
+ * The asked titles the answer leaves without an account (final wave, B6):
+ * each title, followed through `normalized` and `redirects`, must reach a
+ * page with content, or one marked missing or invalid. A page listed with
+ * neither (content cut without `continue`) must not be cached as fresh.
+ */
+export function unanswered(json: unknown, titles: string[]): string[] {
+  const query = (json as ApiResponse)?.query ?? {};
+  const moves = new Map(
+    [...(query.normalized ?? []), ...(query.redirects ?? [])]
+      .filter((m): m is { from: string; to: string } => Boolean(m.from && m.to))
+      .map((m) => [m.from, m.to]),
+  );
+  const accounted = new Set(
+    (query.pages ?? [])
+      .filter(
+        (p) =>
+          p.title &&
+          (p.missing ||
+            p.invalid ||
+            p.revisions?.[0]?.slots?.main?.content !== undefined),
+      )
+      .map((p) => p.title as string),
+  );
+  return titles.filter((title) => {
+    let to = title;
+    for (let i = 0; i < 4 && moves.has(to); i++) to = moves.get(to)!;
+    return !accounted.has(to);
+  });
+}
+
+/**
+ * One answer's `normalized`, `redirects` and `pages`, as sent, for the cache
+ * (final wave, B8): parseRevisions reads it again on every build, so a
+ * change in how moves or pages are read needs no new request. `content` may
+ * shorten each page's wikitext (the run keeps section 0 only).
+ */
+export type RawBatch = {
+  normalized?: Move[];
+  redirects?: Move[];
+  pages: ApiPage[];
+};
+
+export function rawBatch(
+  json: unknown,
+  content: (wikitext: string) => string = (w) => w,
+): RawBatch {
+  const query = (json as ApiResponse)?.query ?? {};
+  const pages = (query.pages ?? []).map((page) => {
+    if (!page.revisions) return page;
+    return {
+      ...page,
+      revisions: page.revisions.map((r) => {
+        const text = r.slots?.main?.content;
+        return text === undefined
+          ? r
+          : {
+              ...r,
+              slots: {
+                ...r.slots,
+                main: { ...r.slots!.main, content: content(text) },
+              },
+            };
+      }),
+    };
+  });
+  return {
+    ...(query.normalized ? { normalized: query.normalized } : {}),
+    ...(query.redirects ? { redirects: query.redirects } : {}),
+    pages,
+  };
 }

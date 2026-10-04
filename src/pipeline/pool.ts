@@ -28,15 +28,22 @@ export function ageOn(birthDate: string, today: string): number {
   return today.slice(5) < birthDate.slice(5) ? years - 1 : years;
 }
 
-/** The research rule (probe §2), plus anyone an infobox gives caps or a club. */
+/**
+ * The research rule (probe §2), plus anyone an infobox gives caps or a club,
+ * plus every man with 20 Tunisia caps or more, whatever his age (D-S1-1:
+ * "Legend: 20 or more Tunisia caps, any age"). The birth date is the merged
+ * one (P37), not Wikidata's alone.
+ */
 export function isCandidate(
   p: WdPlayer,
   memberships: WdMembership[],
   index: ClubIndex,
-  draft: { caps: number; hasClub: boolean },
+  draft: { caps: number; hasClub: boolean; birthDate: string | null },
 ): boolean {
-  if (!p.male || p.birthDate === null) return false;
-  const born = Number(p.birthDate.slice(0, 4));
+  if (!p.male) return false;
+  if (draft.caps >= 20) return true;
+  if (draft.birthDate === null) return false;
+  const born = Number(draft.birthDate.slice(0, 4));
   for (const m of memberships) {
     if (m.teamQid === TUNISIA_TEAM) {
       if (m.end !== null ? m.end >= 2000 && born >= 1970 : born >= 1975)
@@ -271,6 +278,7 @@ export function buildPool(input: BuildInput): {
       isCandidate(p, input.memberships.get(p.qid) ?? [], input.index, {
         caps: draft.caps,
         hasClub: draft.club !== null,
+        birthDate: draft.birthDate,
       })
     ) {
       pools = poolsFor(

@@ -1,4 +1,21 @@
 {
-  "players": {},
+  "players": {
+    "Q2409513": {
+      "governorate": {
+        "value": "tunis",
+        "by": "jalel",
+        "at": "2026-10-04",
+        "note": "Youssef Msakni: the English and French pages both say Tunis; Wikidata says only Tunisia (P46)"
+      }
+    },
+    "Q724024": {
+      "club": {
+        "value": null,
+        "by": "jalel",
+        "at": "2026-10-04",
+        "note": "Selim Benachour: the French page's ES Sahel entry (dated 10 Dec 2016) is a staff post; he stopped playing in 2015 (P46)"
+      }
+    }
+  },
   "clubTitles": {}
 }

@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { chunk, parseRevisions, redirectsUrl, revisionsUrl } from "./fetch.ts";
+import {
+  chunk,
+  parseRevisions,
+  redirectsUrl,
+  revisionsUrl,
+  unanswered,
+} from "./fetch.ts";
 
 describe("revisionsUrl and redirectsUrl", () => {
   it("asks for the full content of up to 50 titles, following redirects, with maxlag", () => {
@@ -79,5 +85,29 @@ describe("parseRevisions", () => {
     expect(() =>
       parseRevisions({ error: { code: "badvalue", info: "x" } }),
     ).toThrow(/badvalue/);
+  });
+});
+
+// Final wave, B6: a batch whose pages come back without content, and with no
+// `continue` to say so, must fail its source instead of being cached.
+describe("unanswered", () => {
+  it("names the titles with no content and no missing mark, after moves", () => {
+    const json = {
+      query: {
+        normalized: [{ from: "ali maaloul", to: "Ali Maaloul" }],
+        redirects: [{ from: "Ali Maaloul", to: "Ali Maâloul" }],
+        pages: [
+          {
+            title: "Ali Maâloul",
+            revisions: [{ revid: 1, slots: { main: { content: "{{x}}" } } }],
+          },
+          { title: "Nobody", missing: true },
+          { title: "Cut Short" },
+        ],
+      },
+    };
+    expect(
+      unanswered(json, ["ali maaloul", "Nobody", "Cut Short", "Not Listed"]),
+    ).toEqual(["Cut Short", "Not Listed"]);
   });
 });

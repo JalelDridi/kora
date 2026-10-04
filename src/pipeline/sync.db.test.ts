@@ -8,7 +8,7 @@ import {
   resetDatabase,
   TEST_DATABASE_URL,
 } from "@/db/testing";
-import { ANSWER_READY_SQL } from "./confidence.ts";
+import { ANSWER_READY_SQL, isAnswerReady } from "./confidence.ts";
 import { syncPool } from "./sync.ts";
 import type { SyncCounts } from "./sync.ts";
 import { runSync } from "./sync-run.ts";
@@ -485,6 +485,13 @@ describe("ANSWER_READY_SQL against synced rows (P27, for Sprint 2)", () => {
 
     const { rows } = await client.query<{ id: string }>(ANSWER_READY_SQL);
     expect(rows.map((r) => r.id)).toEqual(["abroad", "ali-maaloul"]);
+    // Final wave, B9: the TypeScript twin the report and the stop rule use.
+    expect(
+      [sure, doubtful, unrated, abroad, abroadLow, missingCaps, legendOnly]
+        .filter(isAnswerReady)
+        .map((p) => p.id)
+        .sort(),
+    ).toEqual(rows.map((r) => r.id));
   });
 });
 
@@ -563,6 +570,28 @@ describe("runSync", () => {
     ).toBe(1);
     expect(lines.slice(2)).toEqual([
       "sync: player ali-maaloul: unknown governorate atlantis",
+      "sync: refused, nothing written (1 error)",
+    ]);
+    expect(o.calls).toEqual([]);
+    expect(await snapshot()).toEqual(before);
+  });
+
+  // Final wave, A11: the sync deletes honour rows missing from the file, so
+  // an empty honours list would delete every honour (111 rows today).
+  it("refuses a pool with footballers and no honours, before touching the database", async () => {
+    await syncPool(sql, pool([maaloul]), governorates);
+    const before = await snapshot();
+    const o = opener();
+    const dir = await root({
+      "pool.json": JSON.stringify(pool([maaloul], { honours: [] })),
+      "curated/governorates.json": await realGovernorates(),
+    });
+
+    expect(
+      await runSync({ root: dir, open: o.open, log, host: "localhost" }),
+    ).toBe(1);
+    expect(lines).toEqual([
+      "sync: data/pool.json has no honours; refusing to delete every honour",
       "sync: refused, nothing written (1 error)",
     ]);
     expect(o.calls).toEqual([]);

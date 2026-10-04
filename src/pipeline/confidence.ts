@@ -2,6 +2,7 @@ import { plainLatin } from "./places.ts";
 import { latestPlayed } from "./results.ts";
 import type {
   Confidence,
+  PoolPlayer,
   FlagKind,
   Line,
   Match,
@@ -40,7 +41,11 @@ export const NONE_RATING: Rating = {
   confidenceNote: "no source gives a value",
 };
 
-/** Fields two sources can confirm in Sprint 1; the rest have one source. */
+/**
+ * Fields two sources can confirm in Sprint 1; the rest have one source. Of
+ * those, the governorate and the birthplace are medium when precise (P36);
+ * the Arabic name and the photo stay low until an override confirms them.
+ */
 export const CROSS_CHECKED: readonly ProvenancedField[] = [
   "caps",
   "goals",
@@ -112,13 +117,54 @@ function levels(
   };
 }
 
-/** Caps and goals: a count only grows, so an older, lower count is explained. */
+/** The two pages: a closed career is read from their national rows (A7). */
+const PAGES: readonly SourceId[] = ["enwiki", "frwiki"];
+
+/** A lower count that its date explains: older than the chosen one, or undated. */
+function explainedLower(c: Vote<number>, v: Vote<number>): boolean {
+  return (
+    v.value < c.value &&
+    v.asOf !== c.asOf &&
+    !(v.asOf !== null && (c.asOf === null || v.asOf > c.asOf))
+  );
+}
+
+/**
+ * Final wave, A7: when both pages show a closed national career, a page's
+ * lower count is explained only by a date before the end of that career.
+ * The notes, one per page whose count no date explains.
+ */
+export function closedCareerConflicts(
+  chosen: Vote<number>,
+  votes: Vote<number>[],
+  closedEnd: number | null | undefined,
+): string[] {
+  if (closedEnd == null) return [];
+  const end = `${closedEnd}-12-31`;
+  return votes
+    .filter(
+      (v) =>
+        PAGES.includes(v.source) &&
+        explainedLower(chosen, v) &&
+        (v.asOf === null || v.asOf >= end),
+    )
+    .map(
+      (v) =>
+        `${say(v)}: his national career ended in ${closedEnd}; the dates cannot explain it`,
+    );
+}
+
+/**
+ * Caps and goals: a count only grows, so an older, lower count is explained,
+ * except after the end of a closed national career (`closedEnd`, caps only).
+ */
 export function rateCount(input: {
   chosen: Vote<number>;
   votes: Vote<number>[];
   today: string;
   floor?: number | null;
   ceiling?: number | null;
+  closedEnd?: number | null;
 }): Rating {
   const c = input.chosen;
   const all = withChosen(c, input.votes);
@@ -131,6 +177,7 @@ export function rateCount(input: {
     else if (v.asOf !== null && (c.asOf === null || v.asOf > c.asOf))
       conflicts.push(`${say(v)} is newer and lower`);
   }
+  conflicts.push(...closedCareerConflicts(c, all, input.closedEnd));
   if (input.floor != null && c.value < input.floor)
     conflicts.push(`martj42 lists ${input.floor} goals by him`);
   if (input.ceiling != null && c.value > input.ceiling)
@@ -252,11 +299,39 @@ export const sameSet = (a: string[], b: string[]) =>
 export const subset = (older: string[], newer: string[]) =>
   older.every((q) => newer.includes(q));
 
+/**
+ * What a birthplace says (decision P36): a Tunisian place resolved to a
+ * governorate; a place abroad with its country; "Tunisia" only; a place with
+ * no country and no governorate; a Tunisian place with no governorate; a
+ * country with no place.
+ */
+export type BirthPlaceKind =
+  | "governorate"
+  | "abroad"
+  | "country-only"
+  | "no-country"
+  | "unresolved"
+  | "no-place";
+
+const PRECISE = "one source, precise (P36)";
+const PLACE_NOTES: Record<BirthPlaceKind, string> = {
+  governorate: PRECISE,
+  abroad: PRECISE,
+  "country-only": "born in Tunisia, town unknown",
+  "no-country": "no country for this birthplace",
+  unresolved: "a Tunisian place with no governorate",
+  "no-place": "a country with no birthplace",
+};
+
 export type Evidence = {
   caps: Vote<number>[];
   goals: Vote<number>[];
   goalsFloor: number | null;
   capsCeiling: number | null;
+  /** A7: the end year when both pages show a closed national career, else null. */
+  capsClosedEnd?: number | null;
+  /** P36: what the birthplace says; absent means one source, low. */
+  birthPlace?: BirthPlaceKind;
   clubId: Vote<string | null>[];
   history: Vote<string[]>[];
   birthDate: Vote<string>[];
@@ -311,9 +386,16 @@ export function rateFields(
             votes: ev.caps,
             today,
             ceiling: ev.capsCeiling,
+            closedEnd: ev.capsClosedEnd,
           }),
           ev.skipped.national,
         );
+        for (const note of closedCareerConflicts(
+          vote(chosen.caps),
+          ev.caps,
+          ev.capsClosedEnd,
+        ))
+          flags.push({ kind: "caps-closed-career-disagree", detail: note });
         if (ev.capsCeiling !== null && chosen.caps > ev.capsCeiling)
           flags.push({
             kind: "caps-above-ceiling",
@@ -391,6 +473,32 @@ export function rateFields(
           same: sameName,
         });
         break;
+      // P36: one source, but precise. Only a value Wikidata resolved gets here.
+      case "governorate":
+        r = {
+          confidence: "medium",
+          agreeing: [p.source],
+          confidenceNote: PRECISE,
+        };
+        break;
+      case "birthPlace": {
+        const kind = ev.birthPlace;
+        r =
+          kind === "governorate" || kind === "abroad"
+            ? {
+                confidence: "medium",
+                agreeing: [p.source],
+                confidenceNote: PRECISE,
+              }
+            : kind
+              ? {
+                  confidence: "low",
+                  agreeing: [p.source],
+                  confidenceNote: PLACE_NOTES[kind],
+                }
+              : rateUndated({ chosen: vote(null), votes: [] });
+        break;
+      }
       default:
         r = rateUndated({ chosen: vote(null), votes: [] }); // one source: low
     }
@@ -432,3 +540,20 @@ WHERE p.pool_active
     WHERE (e.field IN (${CHKOUN_LIST}) OR e.field = ${PLACE_FIELD})
       AND COALESCE(e.entry->>'confidence', '') NOT IN ('high', 'medium'))
 ORDER BY p.id`;
+
+/**
+ * ANSWER_READY_SQL's rule on a pool entry (final wave, B9), for the report
+ * and the stop rule (P40): active, and an entry rated high or medium for
+ * every field in CHKOUN_FIELDS and for the governorate (when it is null, the
+ * birthplace). The database test checks that both agree.
+ */
+export function isAnswerReady(
+  player: Pick<PoolPlayer, "pools" | "governorate" | "provenance">,
+): boolean {
+  if (!player.pools.active) return false;
+  const place = player.governorate === null ? "birthPlace" : "governorate";
+  return [...CHKOUN_FIELDS, place].every((field) => {
+    const confidence = player.provenance[field as ProvenancedField]?.confidence;
+    return confidence === "high" || confidence === "medium";
+  });
+}

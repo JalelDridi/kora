@@ -30,9 +30,11 @@ import {
   chunk,
   parseRevisions,
   redirectsUrl,
+  rawBatch,
   revisionsUrl,
+  unanswered,
 } from "./wiki/fetch.ts";
-import type { Page } from "./wiki/fetch.ts";
+import type { Page, RawBatch } from "./wiki/fetch.ts";
 import { parseEnInfobox } from "./wiki/infobox-en.ts";
 import { parseFrInfobox } from "./wiki/infobox-fr.ts";
 import {
@@ -62,6 +64,11 @@ import {
 
 export type RunDeps = {
   root: string;
+  /**
+   * The build's date. Offline, the newest cached copy dates the build instead
+   * (final wave, B1): a rebuild from the cache of 4 October is the pool of 4
+   * October, whatever day it runs.
+   */
   today: string;
   /** The three clients; an offline build has none and makes no request. */
   wdqs?: PoliteClient;
@@ -94,10 +101,19 @@ export function createClients(
     wikimedia: 0,
     github: 0,
   };
-  const make = (name: ClientName, minGapMs: number, maxRetries: number) =>
+  const make = (
+    name: ClientName,
+    minGapMs: number,
+    maxRetries: number,
+    maxAttempts: number,
+  ) =>
     createPoliteClient({
       minGapMs,
       maxRetries,
+      // Final wave, B7: twice the most a run may plan for this client, and
+      // half an hour in all, retries and Retry-After waits included.
+      maxAttempts,
+      maxWallMs: MAX_RUN_MS,
       sleep: options.sleep,
       fetch: (url, init) => {
         counts[name]++;
@@ -105,12 +121,17 @@ export function createClients(
       },
     });
   return {
-    wdqs: make("wdqs", 2_000, 3),
+    wdqs: make("wdqs", 2_000, 3, 2 * WDQS_QUERIES),
     // English and French Wikipedia and Commons share one client: one queue,
     // at least 5 s between request starts, and a 429 or 403 from any of them
     // stops all three for the rest of the run.
-    wikimedia: make("wikimedia", 5_000, 3),
-    github: make("github", 1_000, 2),
+    wikimedia: make(
+      "wikimedia",
+      5_000,
+      3,
+      2 * (MAX_REQUESTS - WDQS_QUERIES - GITHUB_DOWNLOADS),
+    ),
+    github: make("github", 1_000, 2, 2 * GITHUB_DOWNLOADS),
     attempts: () => ({ ...counts }),
   };
 }
@@ -120,6 +141,9 @@ export type RunResult =
 
 /** A first run's budget: more planned requests than this and the run refuses. */
 export const MAX_REQUESTS = 60;
+
+/** The longest a real run's client may keep sending requests (B7). */
+export const MAX_RUN_MS = 30 * 60_000;
 
 /** Four Wikidata queries, then clubs by id, by English and by French title. */
 const WDQS_QUERIES = 4 + 3;
@@ -132,8 +156,11 @@ const GITHUB_DOWNLOADS = 2;
  * cache. Version 2: the cache keeps what the servers sent (wikitext, SPARQL
  * results, Commons pages, CSV rows) and every run parses it again, so a
  * parser change needs no new request. Version 1 kept parsed values.
+ * Version 3 (final wave, B8): the Wikipedia answers keep their `normalized`
+ * and `redirects` lists as sent, beside their pages, instead of the moves
+ * read from them; only each page's content is cut to section 0.
  */
-export const CACHE_VERSION = 2;
+export const CACHE_VERSION = 3;
 
 type CacheEntry<T> = {
   version: number;
@@ -145,8 +172,9 @@ type CacheEntry<T> = {
 const isObject = (v: unknown): v is Record<string, unknown> =>
   typeof v === "object" && v !== null && !Array.isArray(v);
 const listOf = (v: unknown) => Array.isArray(v);
-const pairs = (v: unknown) =>
-  Array.isArray(v) && v.every((e) => Array.isArray(e) && e.length === 2);
+/** MediaWiki answers as cached (B8): each with its list of pages. */
+const batches = (v: unknown) =>
+  Array.isArray(v) && v.every((b) => isObject(b) && listOf(b.pages));
 
 const sparqlResult = (v: unknown) =>
   isObject(v) && isObject(v.results) && listOf(v.results.bindings);
@@ -158,9 +186,9 @@ const SHAPES: Record<string, (v: unknown) => boolean> = {
     ["players", "aliases", "memberships", "honours"].every((q) =>
       sparqlResult(v[q]),
     ),
-  "infobox-en": (v) => isObject(v) && listOf(v.pages) && pairs(v.moved),
-  "infobox-fr": (v) => isObject(v) && listOf(v.pages) && pairs(v.moved),
-  redirects: (v) => isObject(v) && pairs(v.en) && pairs(v.fr),
+  "infobox-en": (v) => isObject(v) && batches(v.batches),
+  "infobox-fr": (v) => isObject(v) && batches(v.batches),
+  redirects: (v) => isObject(v) && batches(v.en) && batches(v.fr),
   clubs: (v) =>
     Array.isArray(v) &&
     v.every((e) => Array.isArray(e) && e.length === 2 && sparqlResult(e[1])),
@@ -504,9 +532,9 @@ async function build(deps: RunDeps): Promise<RunResult> {
     ...p,
     aliases: aliases.get(p.qid) ?? [],
   }));
-  const wanted = players.filter(
-    (p) => p.male && p.birthDate !== null && p.birthDate >= "1965",
-  );
+  // Every man, whatever his age or birth date (D-S1-1: a legend is 20 caps
+  // or more, any age; P37 may take an undated man's date from a page).
+  const wanted = players.filter((p) => p.male);
   const titles = {
     en: [...new Set(wanted.map((p) => p.titles.en).filter(present))],
     fr: [...new Set(wanted.map((p) => p.titles.fr).filter(present))],
@@ -520,7 +548,7 @@ async function build(deps: RunDeps): Promise<RunResult> {
   });
   const budget = deps.maxRequests ?? MAX_REQUESTS;
   deps.log(
-    `${players.length} footballers on Wikidata, ${wanted.length} men born 1965 or later: ${titles.en.length} English and ${titles.fr.length} French articles, ${files.length} photos`,
+    `${players.length} footballers on Wikidata, ${wanted.length} men: ${titles.en.length} English and ${titles.fr.length} French articles, ${files.length} photos`,
   );
   if (!deps.offline) {
     deps.log(
@@ -536,30 +564,37 @@ async function build(deps: RunDeps): Promise<RunResult> {
   // (with its revision id and timestamp) and how requested titles moved; the
   // infobox parser runs on it every time. Infoboxes are keyed by the page's
   // title and by each title that moved to it (a sitelink may be a redirect).
-  type PagesRaw = { pages: Page[]; moved: [string, string][] };
+  type PagesRaw = { batches: RawBatch[] };
   const infoboxes = async (lang: "en" | "fr") =>
     source<PagesRaw, Map<string, Infobox>>(
       `infobox-${lang}`,
       async () => {
-        const raw: PagesRaw = { pages: [], moved: [] };
+        const raw: PagesRaw = { batches: [] };
         for (const batch of chunk(titles[lang])) {
           const json = await wikimedia.getJson(revisionsUrl(lang, batch));
           pagesOf(json, batch.length);
-          const read = parseRevisions(json);
-          raw.pages.push(
-            ...read.pages.map((p) => ({
-              ...p,
-              wikitext: sectionZero(p.wikitext),
-            })),
-          );
-          raw.moved.push(...read.aliases);
+          // B6: a page listed without content or a missing mark, and no
+          // `continue` to say so, would be cached as fresh but empty.
+          const lost = unanswered(json, batch);
+          if (lost.length > 0)
+            throw new Error(
+              `${lost.length} of ${batch.length} titles came back without content or a missing mark (${lost.slice(0, 3).join(", ")})`,
+            );
+          parseRevisions(json); // throws on an error body
+          raw.batches.push(rawBatch(json, sectionZero));
         }
         return raw;
       },
       (raw) => {
-        const moved = new Map(raw.moved);
+        const pages: Page[] = [];
+        const moved = new Map<string, string>();
+        for (const batch of raw.batches) {
+          const read = parseRevisions({ query: batch });
+          pages.push(...read.pages);
+          for (const [from, to] of read.aliases) moved.set(from, to);
+        }
         const boxes = new Map<string, Infobox>();
-        for (const page of raw.pages) {
+        for (const page of pages) {
           const box =
             lang === "en"
               ? parseEnInfobox(page.title, page.wikitext)
@@ -574,7 +609,7 @@ async function build(deps: RunDeps): Promise<RunResult> {
           if (box && !out.has(from)) out.set(from, box);
         }
         deps.log(
-          `infobox-${lang}: ${raw.pages.length} pages, ${boxes.size} infoboxes`,
+          `infobox-${lang}: ${pages.length} pages, ${boxes.size} infoboxes`,
         );
         if (titles[lang].length > 0)
           nonEmpty(
@@ -623,21 +658,27 @@ async function build(deps: RunDeps): Promise<RunResult> {
       );
   }
   // The answer's `normalized` and `redirects` lists, as from → to pairs.
+  // B8: each answer kept as sent; the moves are read from it on every build.
   type Moves = { en: [string, string][]; fr: [string, string][] };
-  const redirects = await source<Moves, Moves>(
+  type MovesRaw = { en: RawBatch[]; fr: RawBatch[] };
+  const redirects = await source<MovesRaw, Moves>(
     "redirects",
     async () => {
-      const out: Moves = { en: [], fr: [] };
+      const out: MovesRaw = { en: [], fr: [] };
       for (const lang of ["en", "fr"] as const) {
         for (const batch of chunk(currentClubs[lang])) {
           const json = await wikimedia.getJson(redirectsUrl(lang, batch));
           pagesOf(json, batch.length);
-          out[lang].push(...parseRevisions(json).aliases);
+          parseRevisions(json); // throws on an error body
+          out[lang].push(rawBatch(json));
         }
       }
       return out;
     },
-    (raw) => raw,
+    (raw) => ({
+      en: raw.en.flatMap((b) => parseRevisions({ query: b }).aliases),
+      fr: raw.fr.flatMap((b) => parseRevisions({ query: b }).aliases),
+    }),
   );
 
   // Clubs: by id (the wanted footballers' memberships, honours, curated
@@ -666,8 +707,20 @@ async function build(deps: RunDeps): Promise<RunResult> {
       ...moved.map(([, to]) => to),
     ]),
   ];
+  // A French {{Lien}} names an English article: its title is asked among
+  // the English ones (final wave, B3; the parser keeps only English ones).
+  const foreignTitles = boxesOf(fr)
+    .flatMap((b) => [
+      b.currentClubForeign,
+      ...b.spells.map((s) => s.clubTitleForeign),
+    ])
+    .filter(present);
   const enTitles = [
-    ...new Set([...titlesOf(boxesOf(en), redirects.en), ...ligue1.clubs]),
+    ...new Set([
+      ...titlesOf(boxesOf(en), redirects.en),
+      ...foreignTitles,
+      ...ligue1.clubs,
+    ]),
   ];
   const frTitles = titlesOf(boxesOf(fr), redirects.fr);
   const asked = clubQids.length + enTitles.length + frTitles.length;
@@ -738,27 +791,46 @@ async function build(deps: RunDeps): Promise<RunResult> {
     (raw) => nonEmpty(tunisiaScorers(raw), "no Tunisia scorer"),
   );
 
-  const { pool, ids } = buildPool({
-    today: deps.today,
-    players,
-    memberships: groupBy(wikidata.memberships, (m) => m.playerQid),
-    index: buildClubIndex(
-      clubs,
-      { en: new Map(redirects.en), fr: new Map(redirects.fr) },
-      checked.overrides.clubTitles,
-    ),
-    infoboxes: { en, fr },
-    photos: new Map(photos.map((p) => [p.file, p])),
-    tunisiaMatches: matches,
-    goalsFloor: goalsFloors(scorers, players),
-    overrides: checked.overrides,
-    governorateIds,
-    honours: wikidata.honours,
-    curatedHonours,
-    ligue1Titles: ligue1.clubs,
-    previous,
-    ids: registry,
-  });
+  // B1: offline, the build is dated by the newest cached copy it read.
+  const today = deps.offline
+    ? (Object.values(statuses)
+        .map((s) => s.retrievedAt)
+        .filter((d): d is string => d != null)
+        .sort()
+        .at(-1) ?? deps.today)
+    : deps.today;
+  if (deps.offline)
+    deps.log(`offline build dated ${today}, its newest cached copy`);
+  // B4: a pool that cannot be built is a refusal with a reason, not a crash.
+  let built: ReturnType<typeof buildPool>;
+  try {
+    built = buildPool({
+      today,
+      players,
+      memberships: groupBy(wikidata.memberships, (m) => m.playerQid),
+      index: buildClubIndex(
+        clubs,
+        { en: new Map(redirects.en), fr: new Map(redirects.fr) },
+        checked.overrides.clubTitles,
+      ),
+      infoboxes: { en, fr },
+      photos: new Map(photos.map((p) => [p.file, p])),
+      tunisiaMatches: matches,
+      goalsFloor: goalsFloors(scorers, players),
+      overrides: checked.overrides,
+      governorateIds,
+      honours: wikidata.honours,
+      curatedHonours,
+      ligue1Titles: ligue1.clubs,
+      previous,
+      ids: registry,
+    });
+  } catch (error) {
+    throw new Refusal(
+      `the pool could not be built: ${error instanceof Error ? error.message : String(error)}`,
+    );
+  }
+  const { pool, ids } = built;
   const attempts = deps.attempts?.() ?? null;
   deps.log(
     attempts
@@ -787,9 +859,10 @@ async function build(deps: RunDeps): Promise<RunResult> {
         pool,
         diff,
         statuses,
-        today: deps.today,
+        today,
         honoursReading: wikidata.honoursReading,
         overrideWarnings: checked.warnings,
+        offline: deps.offline === true,
       }),
     ],
   ]);

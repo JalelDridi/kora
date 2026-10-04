@@ -10,7 +10,7 @@ const BASE = `{ ?p wdt:P106 wd:Q937857 ; wdt:P27 wd:Q948 . }
 export const PLAYERS_QUERY = `SELECT ?p (SAMPLE(?en) AS ?enLabel) (SAMPLE(?fr) AS ?frLabel) (SAMPLE(?ar) AS ?arLabel)
   (SAMPLE(?sex) AS ?gender) (MIN(?dob) AS ?birth)
   (GROUP_CONCAT(DISTINCT CONCAT(STRAFTER(STR(?pos), "entity/"), "=", ?posLabel); separator="|") AS ?positions)
-  (SAMPLE(?pob) AS ?birthPlace) (SAMPLE(?pobName) AS ?birthPlaceName) (SAMPLE(?pobIso) AS ?birthCountry)
+  (SAMPLE(?pob) AS ?birthPlace) (SAMPLE(?pobName) AS ?birthPlaceName) (SAMPLE(COALESCE(?selfIso, ?countryIso)) AS ?birthCountry)
   (GROUP_CONCAT(DISTINCT ?govLabel; separator="|") AS ?governorates)
   (SAMPLE(?img) AS ?image)
   (SAMPLE(?enTitle) AS ?enwiki) (SAMPLE(?frTitle) AS ?frwiki) (SAMPLE(?arTitle) AS ?arwiki)
@@ -24,7 +24,9 @@ WHERE {
   OPTIONAL { ?p wdt:P413 ?pos . ?pos rdfs:label ?posLabel FILTER(LANG(?posLabel) = "en") }
   OPTIONAL { ?p wdt:P19 ?pob .
     OPTIONAL { ?pob rdfs:label ?pobName FILTER(LANG(?pobName) = "en") }
-    OPTIONAL { ?pob wdt:P17 ?pobCountry . ?pobCountry wdt:P297 ?pobIso }
+    # The birthplace may itself be a country ("Sweden"): its own code first.
+    OPTIONAL { ?pob wdt:P297 ?selfIso }
+    OPTIONAL { ?pob wdt:P17/wdt:P297 ?countryIso }
     OPTIONAL { ?pob wdt:P131* ?gov . ?gov wdt:P31 wd:Q690084 ; rdfs:label ?govLabel FILTER(LANG(?govLabel) = "en") } }
   OPTIONAL { ?p wdt:P18 ?img }
   OPTIONAL { ?enwiki schema:about ?p ; schema:isPartOf <https://en.wikipedia.org/> ; schema:name ?enTitle }
