@@ -1,0 +1,170 @@
+[
+  {
+    "id": "tunis",
+    "nameLatin": "Tunis",
+    "nameArabic": "تونس",
+    "nameFrench": "Tunis",
+    "region": "grand_tunis"
+  },
+  {
+    "id": "ariana",
+    "nameLatin": "Ariana",
+    "nameArabic": "أريانة",
+    "nameFrench": "Ariana",
+    "region": "grand_tunis"
+  },
+  {
+    "id": "ben-arous",
+    "nameLatin": "Ben Arous",
+    "nameArabic": "بن عروس",
+    "nameFrench": "Ben Arous",
+    "region": "grand_tunis"
+  },
+  {
+    "id": "manouba",
+    "nameLatin": "Manouba",
+    "nameArabic": "منوبة",
+    "nameFrench": "La Manouba",
+    "region": "grand_tunis"
+  },
+  {
+    "id": "nabeul",
+    "nameLatin": "Nabeul",
+    "nameArabic": "نابل",
+    "nameFrench": "Nabeul",
+    "region": "north_east"
+  },
+  {
+    "id": "zaghouan",
+    "nameLatin": "Zaghouan",
+    "nameArabic": "زغوان",
+    "nameFrench": "Zaghouan",
+    "region": "north_east"
+  },
+  {
+    "id": "bizerte",
+    "nameLatin": "Bizerte",
+    "nameArabic": "بنزرت",
+    "nameFrench": "Bizerte",
+    "region": "north_east"
+  },
+  {
+    "id": "beja",
+    "nameLatin": "Béja",
+    "nameArabic": "باجة",
+    "nameFrench": "Béja",
+    "region": "north_west"
+  },
+  {
+    "id": "jendouba",
+    "nameLatin": "Jendouba",
+    "nameArabic": "جندوبة",
+    "nameFrench": "Jendouba",
+    "region": "north_west"
+  },
+  {
+    "id": "kef",
+    "nameLatin": "Kef",
+    "nameArabic": "الكاف",
+    "nameFrench": "Le Kef",
+    "region": "north_west"
+  },
+  {
+    "id": "siliana",
+    "nameLatin": "Siliana",
+    "nameArabic": "سليانة",
+    "nameFrench": "Siliana",
+    "region": "north_west"
+  },
+  {
+    "id": "sousse",
+    "nameLatin": "Sousse",
+    "nameArabic": "سوسة",
+    "nameFrench": "Sousse",
+    "region": "centre_east"
+  },
+  {
+    "id": "monastir",
+    "nameLatin": "Monastir",
+    "nameArabic": "المنستير",
+    "nameFrench": "Monastir",
+    "region": "centre_east"
+  },
+  {
+    "id": "mahdia",
+    "nameLatin": "Mahdia",
+    "nameArabic": "المهدية",
+    "nameFrench": "Mahdia",
+    "region": "centre_east"
+  },
+  {
+    "id": "sfax",
+    "nameLatin": "Sfax",
+    "nameArabic": "صفاقس",
+    "nameFrench": "Sfax",
+    "region": "centre_east"
+  },
+  {
+    "id": "kairouan",
+    "nameLatin": "Kairouan",
+    "nameArabic": "القيروان",
+    "nameFrench": "Kairouan",
+    "region": "centre_west"
+  },
+  {
+    "id": "kasserine",
+    "nameLatin": "Kasserine",
+    "nameArabic": "القصرين",
+    "nameFrench": "Kasserine",
+    "region": "centre_west"
+  },
+  {
+    "id": "sidi-bouzid",
+    "nameLatin": "Sidi Bouzid",
+    "nameArabic": "سيدي بوزيد",
+    "nameFrench": "Sidi Bouzid",
+    "region": "centre_west"
+  },
+  {
+    "id": "gabes",
+    "nameLatin": "Gabès",
+    "nameArabic": "قابس",
+    "nameFrench": "Gabès",
+    "region": "south_east"
+  },
+  {
+    "id": "medenine",
+    "nameLatin": "Medenine",
+    "nameArabic": "مدنين",
+    "nameFrench": "Médenine",
+    "region": "south_east"
+  },
+  {
+    "id": "tataouine",
+    "nameLatin": "Tataouine",
+    "nameArabic": "تطاوين",
+    "nameFrench": "Tataouine",
+    "region": "south_east"
+  },
+  {
+    "id": "gafsa",
+    "nameLatin": "Gafsa",
+    "nameArabic": "قفصة",
+    "nameFrench": "Gafsa",
+    "region": "south_west"
+  },
+  {
+    "id": "tozeur",
+    "nameLatin": "Tozeur",
+    "nameArabic": "توزر",
+    "nameFrench": "Tozeur",
+    "region": "south_west"
+  },
+  {
+    "id": "kebili",
+    "nameLatin": "Kebili",
+    "nameArabic": "قبلي",
+    "nameFrench": "Kébili",
+    "region": "south_west"
+  }
+]
