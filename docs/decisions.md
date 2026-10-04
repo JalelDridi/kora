@@ -38,3 +38,27 @@ What Jalel decided, and when. The options behind D1–D10 are in the design, §1
 | P13 | Hub wording           | The hub goes live with draft strings; Jalel rewrites them before the public launch                                                                                                          |
 | P14 | Sprint 1 data sources | Wikidata (identity), English and French Wikipedia infoboxes (caps, clubs), Commons (photos), a CC0 results dataset, and overrides Jalel reviews. No scraping of sites whose terms forbid it |
 | P15 | Favicon               | A simple "K" mark for now; replaceable at any time                                                                                                                                          |
+
+## Sprint 1
+
+All confirmed by Jalel on 4 October 2026, as recommended.
+
+| #      | Decision                 | Outcome                                                                                                                                                                       |
+| ------ | ------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| D-S1-1 | Pool definition and size | Two pools, one table. Active: current club known and aged 38 or less. Legend: 20 or more Tunisia caps, any age. A footballer can be in both                                   |
+| D-S1-2 | Current club             | Override, else the infobox (English or French) with the newer "as of" date, else Wikidata only when a single open statement started in the last 8 years, else none            |
+| D-S1-3 | Caps and goals           | The infobox with the newer "as of" date wins; Wikidata only when no infobox has caps. "Newer but lower" and same-date disagreements are flagged for review                    |
+| D-S1-4 | Governorate              | Wikidata birthplace to governorate; born abroad stores the birth country. Manual birthplaces only for puzzle answers, in Sprint 2                                             |
+| D-S1-5 | No photo                 | Silhouette; footballers without a photo stay in both pools                                                                                                                    |
+| D-S1-6 | Honours                  | Club-season winners from Wikidata plus a curated file for the gaps; no honours in the first rating                                                                            |
+| D-S1-7 | Positions                | Wikidata's first mappable position gives the line; overrides fix the wrong ones; the English infobox flags disagreements without overruling                                   |
+| P16    | Hiding `/admin/pool`     | HTTP Basic auth against `ADMIN_PASSWORD`, set by Jalel in Vercel only; 404 when it is unset or short. English text, not indexed, not linked                                   |
+| P17    | Where the pipeline runs  | Fetch, merge and the pull request in GitHub Actions every night, with no database access; the database sync runs in the Vercel build, against that environment's own database |
+| P18    | Ratings                  | Moved to Sprint 3 with 30–0; every input is stored now                                                                                                                        |
+| P19    | Pool size                | Target 250–450 footballers; the first build stops and reports if it falls outside 200–500                                                                                     |
+| P20    | Regions                  | The seven official economic regions; one JSON file, easy to change                                                                                                            |
+| P21    | Jalel's hand review      | About 2 hours once, then about 10 minutes per nightly pull request                                                                                                            |
+| P22    | Attribution              | Everything a credit needs is stored now; the visible Sources page and per-card credit ship in Sprint 2 with the first player card                                             |
+| P23    | Nightly commits          | By `github-actions[bot]` on branch `data/nightly`, force-pushed each night; overrides are edited on `main`                                                                    |
+| P24    | Scripts runtime          | `node file.ts` (Node 24 type stripping); nothing that loads `@swc/core`                                                                                                       |
+| P25    | Source cache             | Last good parsed responses in `data/cache/` (gitignored), kept by `actions/cache`; a failed source falls back to the cache and the report says so                             |
