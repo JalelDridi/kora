@@ -1,0 +1,14 @@
+.next
+node_modules
+pnpm-lock.yaml
+next-env.d.ts
+AGENTS.md
+HANDOVER.md
+src/generated
+.claude
+test-results
+playwright-report
+.lighthouseci
+docs/report
+docs/superpowers
+prisma/migrations
