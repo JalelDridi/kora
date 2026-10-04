@@ -39,5 +39,10 @@ export function scrubEvent(event: ErrorEvent): ErrorEvent {
     const userAgent = request.headers?.["user-agent"];
     request.headers = userAgent ? { "user-agent": userAgent } : {};
   }
+  // captureRequestError stores Next's request path here, query included.
+  const next = event.contexts?.nextjs;
+  if (typeof next?.request_path === "string") {
+    next.request_path = next.request_path.split("?")[0];
+  }
   return event;
 }

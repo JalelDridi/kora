@@ -64,6 +64,21 @@ describe("scrubEvent", () => {
     });
   });
 
+  // captureRequestError copies Next's request path, query included, into
+  // contexts.nextjs.request_path: a second copy of ?fbclid=… and the like.
+  it("cuts the query off the request path Next reports", () => {
+    const event = {
+      type: undefined,
+      contexts: {
+        nextjs: { request_path: "/ar?fbclid=abc123", router_kind: "App" },
+      },
+    } as ErrorEvent;
+    expect(scrubEvent(event).contexts?.nextjs).toEqual({
+      request_path: "/ar",
+      router_kind: "App",
+    });
+  });
+
   it("leaves an event without a request alone", () => {
     const event = { type: undefined, message: "boom" } as ErrorEvent;
     expect(scrubEvent(event)).toEqual({ type: undefined, message: "boom" });
