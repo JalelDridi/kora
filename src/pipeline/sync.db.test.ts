@@ -8,7 +8,7 @@ import {
   resetDatabase,
   TEST_DATABASE_URL,
 } from "@/db/testing";
-import { ANSWER_READY_SQL } from "./confidence.ts";
+import { ANSWER_READY_SQL, isAnswerReady } from "./confidence.ts";
 import { syncPool } from "./sync.ts";
 import type { SyncCounts } from "./sync.ts";
 import { runSync } from "./sync-run.ts";
@@ -485,6 +485,13 @@ describe("ANSWER_READY_SQL against synced rows (P27, for Sprint 2)", () => {
 
     const { rows } = await client.query<{ id: string }>(ANSWER_READY_SQL);
     expect(rows.map((r) => r.id)).toEqual(["abroad", "ali-maaloul"]);
+    // Final wave, B9: the TypeScript twin the report and the stop rule use.
+    expect(
+      [sure, doubtful, unrated, abroad, abroadLow, missingCaps, legendOnly]
+        .filter(isAnswerReady)
+        .map((p) => p.id)
+        .sort(),
+    ).toEqual(rows.map((r) => r.id));
   });
 });
 

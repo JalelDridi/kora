@@ -4,12 +4,14 @@ import {
   buildClubIndex,
   mergePlayer,
   pickBirth,
+  pickBirthDate,
   pickCaps,
   pickClub,
   pickHistory,
   pickPosition,
   type MergeContext,
 } from "./merge.ts";
+import type { OverrideValue } from "./overrides.ts";
 import type {
   Infobox,
   Line,
@@ -849,7 +851,7 @@ describe("mergePlayer", () => {
       prov.clubId?.confidence,
       prov.birthDate?.confidence,
       prov.governorate?.confidence,
-    ]).toEqual(["medium", "low", "low"]);
+    ]).toEqual(["medium", "low", "medium"]); // P36: a governorate Wikidata resolves is medium
     expect(
       Object.values(prov).every(
         (e) => e.confidence !== undefined && (e.agreeing?.length ?? 0) > 0,
@@ -1474,5 +1476,410 @@ describe("skipped infobox rows (Task 4 review)", () => {
       confidenceNote: "one fresh source",
     });
     expect(merged?.flags.filter((f) => f.kind.startsWith("caps"))).toEqual([]);
+  });
+});
+
+// Final wave, decisions P36-P39. Real rows from data/cache/ (saved
+// 2026-10-04); Wikidata values from the cached players answer.
+describe("final wave: birth dates by majority (P37, P38, P39)", () => {
+  const enBirth = (line: string) =>
+    parseEnInfobox(
+      "X",
+      `{{Infobox football biography\n| birth_date = ${line}\n}}`,
+    );
+  const frBirth = (line: string) =>
+    parseFrInfobox(
+      "X (football)",
+      `{{Infobox Footballeur\n| date de naissance = ${line}\n}}`,
+    );
+  const date = (
+    wikidata: string | null,
+    en: Infobox | null,
+    fr: Infobox | null,
+    override?: OverrideValue<string>,
+  ) => pickBirthDate({ qid: "Q1", wikidata, en, fr, override, today });
+
+  // Farouk Ben Mustapha (Q2759083): Wikidata 1989-06-03.
+  it("takes the two pages' date over Wikidata, flagged: Farouk Ben Mustapha", () => {
+    const pick = date(
+      "1989-06-03",
+      enBirth("{{birth date and age|1989|7|1|df=y}}"),
+      frBirth("{{date|1|7|1989|en football|âge=oui}}"),
+    );
+    expect(pick.date).toBe("1989-07-01");
+    expect(pick.provenance?.source).toBe("enwiki");
+    expect(pick.flags).toEqual([
+      {
+        kind: "birthdate-sources-disagree",
+        detail: "wikidata 1989-06-03 against enwiki, frwiki 1989-07-01",
+      },
+    ]);
+  });
+
+  // Oussama Darragi (Q967841): Wikidata 1987-03-14.
+  it("takes the two pages' date over Wikidata: Oussama Darragi", () => {
+    const pick = date(
+      "1987-03-14",
+      enBirth("{{birth date and age|df=yes|1987|4|3}}"),
+      frBirth("{{date de naissance|3|4|1987|âge=oui}}"),
+    );
+    expect(pick.date).toBe("1987-04-03");
+  });
+
+  // P39. Haythem Ayouni (Q108631476): enwiki 1991-05-16, Wikidata 1991-04-19,
+  // no French page.
+  it("takes one page over Wikidata, flagged (P39): Haythem Ayouni", () => {
+    const pick = date(
+      "1991-04-19",
+      enBirth("{{Birth date and age|1991|5|16|df=yes}}"),
+      null,
+    );
+    expect(pick.date).toBe("1991-05-16");
+    expect(pick.provenance?.source).toBe("enwiki");
+    expect(pick.flags.map((f) => f.kind)).toEqual([
+      "birthdate-sources-disagree",
+    ]);
+  });
+
+  it("keeps Wikidata's source when Wikidata is in the majority, and flags nothing when all agree (hand-made)", () => {
+    const en = enBirth("{{birth date and age|1993|7|2}}");
+    expect(date("1993-07-02", en, null)).toMatchObject({
+      date: "1993-07-02",
+      provenance: { source: "wikidata" },
+      flags: [],
+    });
+    expect(date(null, null, null)).toEqual({ date: null, flags: [] });
+  });
+
+  it("lets Wikidata decide three different dates, flagged (hand-made)", () => {
+    const pick = date(
+      "1990-01-02",
+      enBirth("{{birth date and age|1990|1|3}}"),
+      frBirth("{{date de naissance|4|1|1990}}"),
+    );
+    expect(pick.date).toBe("1990-01-02");
+    expect(pick.flags[0].detail).toMatch(/^no majority: /);
+  });
+
+  // P37: "a birth date can be corrected by an override".
+  it("lets an override set the date (hand-made)", () => {
+    const pick = date(
+      "1989-06-03",
+      enBirth("{{birth date and age|1989|7|1|df=y}}"),
+      null,
+      { value: "1989-07-01", ...by },
+    );
+    expect(pick.date).toBe("1989-07-01");
+    expect(pick.provenance?.source).toBe("override");
+  });
+});
+
+describe("final wave: a merged birth date and birthplace (P36, P37)", () => {
+  function ctx(en: Infobox | null, fr: Infobox | null): MergeContext {
+    return {
+      today,
+      memberships: new Map(),
+      index,
+      infoboxes: {
+        en: new Map(en ? [["Yassine Meriah", en]] : []),
+        fr: new Map(fr ? [["Yassine Meriah (football)", fr]] : []),
+      },
+      photos: new Map(),
+      tunisiaMatches: [],
+      overrides: { players: {}, clubTitles: {} },
+      governorateIds,
+    };
+  }
+
+  // Farouk Ben Mustapha: pages 1989-07-01, Wikidata 1989-06-03 (P38: medium).
+  it("stores the pages' date, rated medium and flagged: Farouk Ben Mustapha", () => {
+    const merged = mergePlayer(
+      wdPlayer({ birthDate: "1989-06-03" }),
+      ctx(
+        box("en", { birthDate: "1989-07-01" }),
+        box("fr", { birthDate: "1989-07-01" }),
+      ),
+    );
+    expect(merged?.draft.birthDate).toBe("1989-07-01");
+    expect(merged?.draft.provenance.birthDate).toMatchObject({
+      source: "enwiki",
+      confidence: "medium",
+      agreeing: ["enwiki", "frwiki"],
+    });
+    expect(merged?.flags.map((f) => f.kind)).toContain(
+      "birthdate-sources-disagree",
+    );
+  });
+
+  // Afif Jebali (Q65127449): pages 2000-01-10, Wikidata 2000-01-01.
+  it("checks 1 January on the chosen date: Afif Jebali", () => {
+    const merged = mergePlayer(
+      wdPlayer({ birthDate: "2000-01-01" }),
+      ctx(
+        box("en", { birthDate: "2000-01-10" }),
+        box("fr", { birthDate: "2000-01-10" }),
+      ),
+    );
+    expect(merged?.draft.birthDate).toBe("2000-01-10");
+    expect(merged?.flags.map((f) => f.kind)).not.toContain(
+      "birthdate-january-first",
+    );
+  });
+
+  // P39, Haythem Ayouni: one page against Wikidata, low.
+  it("rates one page against Wikidata low: Haythem Ayouni", () => {
+    const merged = mergePlayer(
+      wdPlayer({ birthDate: "1991-04-19" }),
+      ctx(box("en", { birthDate: "1991-05-16" }), null),
+    );
+    expect(merged?.draft.birthDate).toBe("1991-05-16");
+    expect(merged?.draft.provenance.birthDate?.confidence).toBe("low");
+  });
+
+  // P36. Abdallah Amri (Q128545284): Sfax, resolved to the Sfax governorate.
+  it("rates a Tunisian town resolved to a governorate medium: Abdallah Amri", () => {
+    const merged = mergePlayer(
+      wdPlayer({
+        birthPlaceName: "Sfax",
+        birthCountry: "TN",
+        governorates: ["Sfax Governorate"],
+      }),
+      ctx(null, null),
+    );
+    expect(merged?.draft.governorate).toBe("sfax");
+    expect(merged?.draft.provenance.governorate).toMatchObject({
+      confidence: "medium",
+      confidenceNote: "one source, precise (P36)",
+    });
+    expect(merged?.draft.provenance.birthPlace?.confidence).toBe("medium");
+  });
+
+  // P36. Aïssa Laïdouni (Q26838702): Livry-Gargan, France.
+  it("rates a birthplace abroad with its country medium: Aïssa Laïdouni", () => {
+    const merged = mergePlayer(
+      wdPlayer({
+        birthPlaceName: "Livry-Gargan",
+        birthCountry: "FR",
+        governorates: [],
+      }),
+      ctx(null, null),
+    );
+    expect(merged?.draft.governorate).toBeNull();
+    expect(merged?.draft.provenance.birthPlace).toMatchObject({
+      confidence: "medium",
+      confidenceNote: "one source, precise (P36)",
+    });
+  });
+
+  // P36. Youssef Msakni (Q2409513): "Tunisia" only.
+  it("keeps a birthplace that is only 'Tunisia' low, with no governorate: Youssef Msakni", () => {
+    const merged = mergePlayer(
+      wdPlayer({
+        birthPlaceQid: "Q948",
+        birthPlaceName: "Tunisia",
+        birthCountry: "TN",
+        governorates: [],
+      }),
+      ctx(null, null),
+    );
+    expect(merged?.draft.governorate).toBeNull();
+    expect(merged?.draft.provenance.governorate).toBeUndefined();
+    expect(merged?.draft.provenance.birthPlace).toMatchObject({
+      confidence: "low",
+      confidenceNote: "born in Tunisia, town unknown",
+    });
+  });
+
+  // A9. Omar Rekik (Q96678415): Helmond, no country and no governorate.
+  it("keeps a birthplace with no country low: Omar Rekik", () => {
+    const merged = mergePlayer(
+      wdPlayer({
+        birthPlaceName: "Helmond",
+        birthCountry: null,
+        governorates: [],
+      }),
+      ctx(null, null),
+    );
+    expect(merged?.draft.provenance.birthPlace).toMatchObject({
+      confidence: "low",
+      confidenceNote: "no country for this birthplace",
+    });
+  });
+});
+
+describe("final wave: caps of a closed national career (A7)", () => {
+  // Raouf Bouzaiene (Q2707274): enwiki nationalyears1 = 1992–2003,
+  // nationalcaps1 = 45, undated; frwiki 1992-2003 {{TUN football}} 57 (2),
+  // dated 17 Dec 2012.
+  it("flags a count no date explains and rates it low: Raouf Bouzaiene", () => {
+    const closed = { seniorRow: true, nationalOpen: false, nationalEnd: 2003 };
+    const merged = mergePlayer(wdPlayer(), {
+      today,
+      memberships: new Map(),
+      index,
+      infoboxes: {
+        en: new Map([
+          ["Yassine Meriah", box("en", { ...closed, caps: 45, goals: 2 })],
+        ]),
+        fr: new Map([
+          [
+            "Yassine Meriah (football)",
+            box("fr", {
+              ...closed,
+              caps: 57,
+              goals: 2,
+              capsAsOf: "2012-12-17",
+            }),
+          ],
+        ]),
+      },
+      photos: new Map(),
+      tunisiaMatches: [],
+      overrides: { players: {}, clubTitles: {} },
+      governorateIds,
+    });
+    expect(merged?.draft.caps).toBe(57);
+    expect(merged?.draft.provenance.caps?.confidence).toBe("low");
+    expect(merged?.flags).toContainEqual({
+      kind: "caps-closed-career-disagree",
+      detail:
+        "enwiki 45 (undated): his national career ended in 2003; the dates cannot explain it",
+    });
+  });
+});
+
+describe("final wave: staff posts and the current club (A5)", () => {
+  const ponferradina = club("Q11", "SD Ponferradina", "ES", {
+    titleFr: "Sociedad Deportiva Ponferradina",
+  });
+  const africain = club("Q12", "Club Africain", "TN", {
+    titleFr: "Club africain (football)",
+  });
+  const staffIndex = buildClubIndex(
+    [ponferradina, africain],
+    { en: new Map(), fr: new Map() },
+    {},
+  );
+  const en = (line: string) =>
+    parseEnInfobox(
+      "X",
+      `{{Infobox football biography\n| currentclub = ${line}\n}}`,
+    )!;
+  const fr = (line: string, date: string) =>
+    parseFrInfobox(
+      "X (football)",
+      `{{Infobox Footballeur\n| club actuel = ${line}\n| date de mise à jour = ${date}\n}}`,
+    );
+  const pick = (e: Infobox | null, f: Infobox | null) =>
+    pickClub({ en: e, fr: f, memberships: [], index: staffIndex, today });
+
+  // Mehdi Nafti (Q380173), frwiki dated 14 December 2025.
+  it("drops the club a staff post names on the other page: Mehdi Nafti", () => {
+    const p = pick(
+      en("[[SD Ponferradina|Ponferradina]] (manager)"),
+      fr(
+        "{{ESP-d}} [[Sociedad Deportiva Ponferradina|SD Ponferradina]]",
+        "{{date|14|décembre|2025}}",
+      ),
+    );
+    expect(p.club).toBeNull();
+    expect(p.flags.map((f) => f.kind)).toEqual([
+      "club-staff-role",
+      "club-staff-role",
+    ]);
+  });
+
+  // Maher Kanzari (Q3277692), frwiki dated 24 September 2026.
+  it("drops the club a staff post names on the other page: Maher Kanzari", () => {
+    const p = pick(
+      en("[[Club Africain]] (manager)"),
+      fr(
+        "{{TUN-d}} [[Club africain (football)|Club africain]]",
+        "{{date|24|septembre|2026}}",
+      ),
+    );
+    expect(p.club).toBeNull();
+  });
+
+  // Mohamed Ben Othman (Q11784652): en Club Africain (2017-06-21); fr a staff
+  // post at the national team (2019-12-21).
+  it("takes a dated staff post newer than the other page's club as no club: Mohamed Ben Othman", () => {
+    const p = pick(
+      { ...en("[[Club Africain]]"), clubsAsOf: "2017-06-21" },
+      fr(
+        "{{TUN-d}} [[Équipe de Tunisie de football|Tunisie]] (directeur sportif chargé des binationaux)",
+        "{{date|21|décembre|2019}}",
+      ),
+    );
+    expect(p.club).toBeNull();
+    expect(p.flags.at(-1)).toEqual({
+      kind: "club-staff-role",
+      detail:
+        "frwiki staff post (2019-12-21) is newer than enwiki Club Africain (2017-06-21)",
+    });
+  });
+
+  it("keeps the other page's club when it is newer than the staff post (hand-made)", () => {
+    const p = pick(
+      { ...en("[[Club Africain]]"), clubsAsOf: "2020-06-21" },
+      fr(
+        "{{TUN-d}} [[Équipe de Tunisie de football|Tunisie]] (directeur sportif)",
+        "{{date|21|décembre|2019}}",
+      ),
+    );
+    expect(p.club).toBe(africain);
+  });
+});
+
+describe("final wave: a French {{Lien}} club resolved by its English title (A6, B3)", () => {
+  const misurata = club("Q21", "Al Ittihad Misurata SC", "LY");
+  const monastir = club("Q22", "US Monastir", "TN", {
+    titleFr: "Union sportive monastirienne (football)",
+  });
+  const hetten = club("Q649944", "Hetten FC", "AE");
+  const lienIndex = buildClubIndex(
+    [misurata, monastir, hetten],
+    { en: new Map(), fr: new Map() },
+    {},
+  );
+
+  // Nour Zamen Zammouri (Q110989845), frwiki dated 27 June 2026.
+  it("resolves the current club through its English title: Nour Zamen Zammouri", () => {
+    const fr = parseFrInfobox(
+      "Nour Zamen Zammouri",
+      "{{Infobox Footballeur\n| club actuel = {{LBA-d}} {{Lien|trad=Al Ittihad Misurata SC}}<br><small>(en prêt de l'[[Union sportive monastirienne (football)|US Monastirienne]])</small>\n| date de mise à jour = 27 juin 2026\n}}",
+    );
+    const p = pickClub({
+      en: null,
+      fr,
+      memberships: [],
+      index: lienIndex,
+      today,
+    });
+    expect(p.club).toBe(misurata);
+  });
+
+  // Mossaâb Sassi: a French career spell {{Lien|trad=Hetten FC}}.
+  it("resolves a career spell through its English title: Mossaâb Sassi", () => {
+    const { spells } = pickHistory({
+      en: null,
+      fr: box("fr", {
+        spells: [
+          {
+            clubTitle: "Hetten FC",
+            clubTitleForeign: "Hetten FC",
+            from: 2019,
+            to: 2020,
+            apps: null,
+            goals: null,
+            loan: false,
+          },
+        ],
+      }),
+      memberships: [],
+      index: lienIndex,
+      today,
+    });
+    expect(spells[0].club).toBe(hetten);
   });
 });
