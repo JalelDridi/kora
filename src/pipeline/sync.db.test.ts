@@ -602,7 +602,9 @@ describe("runSync", () => {
         host: "localhost",
       }),
     ).toBe(0);
-    expect(file.players).toHaveLength(310);
+    // Counts come from the file (310 footballers at 63f48ea), so the nightly
+    // pull request's CI still passes when the pool grows or shrinks.
+    expect(file.players.length).toBeGreaterThan(0);
     expect([
       await db.governorate.count(),
       await db.club.count(),

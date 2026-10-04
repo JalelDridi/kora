@@ -4,6 +4,9 @@ on:
   push:
     branches: [main]
   pull_request:
+  # The nightly data job dispatches CI on its branch: a pull request opened
+  # with the workflow's token starts no workflow by itself.
+  workflow_dispatch:
 
 concurrency:
   group: ci-${{ github.ref }}
