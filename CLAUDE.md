@@ -7,7 +7,8 @@ A hub of Tunisian football games in Derja. Public portfolio project with real us
 - `pnpm dev`: run locally (uses the Docker database via `.env.development`)
 - `pnpm db:up`: start local Postgres (Docker, port 5434)
 - `bash check.sh`: every CI check, in order, stopping at the first failure. Run it before every commit.
-- New migration: `DATABASE_URL_UNPOOLED=postgresql://postgres:postgres@localhost:5434/kora_test pnpm exec prisma migrate dev --name <name>`. Without the override, Prisma targets the Neon database from `.env.local`.
+- Local runs never use the hosted database. Next gives `.env.local` priority over `.env.development`, so hosted database values must not be put in `.env.local`: `pnpm dev`, the tests and Lighthouse all use the Docker database, and the hosted values live only in Vercel.
+- New migration: `DATABASE_URL_UNPOOLED=postgresql://postgres:postgres@localhost:5434/kora_test pnpm exec prisma migrate dev --name <name>`. The override on the command line targets the local database explicitly, whatever the `.env` files hold.
 - `pnpm format`: apply Prettier
 - `pnpm deck`: re-render `docs/report/kora-plan.pdf` from its HTML
 
