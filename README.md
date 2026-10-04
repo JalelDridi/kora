@@ -24,4 +24,4 @@ The footballers come from Wikidata, English and French Wikipedia, Wikimedia Comm
 
 ## Licence
 
-The code is MIT. The data in `data/` (and the hints and cropped photos to come) is CC BY-SA 4.0, because part of it comes from Wikipedia and CC BY-SA photos; Wikidata and the results dataset are CC0, and Commons photos keep their own licences: [data/LICENSE](data/LICENSE).
+The code is MIT. The data in `data/` and the hints to come are CC BY-SA 4.0, because part of the data comes from Wikipedia; Wikidata and the results dataset are CC0. Photos, cropped or not, keep each Commons file's own licence and are credited per file: [data/LICENSE](data/LICENSE).

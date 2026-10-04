@@ -36,10 +36,9 @@ Every field in `pool.json` carries `confidence` (high, medium or low), `agreeing
 
 ## Sources and licences
 
-The pool data, the hints written from it and the cropped photos are under [CC BY-SA 4.0](LICENSE) (decision P29); the code stays under the repository's MIT licence.
+The pool data and the hints written from it are under [CC BY-SA 4.0](LICENSE) (decision P29). Photos, cropped or not, stay under each Commons file's own licence and are credited per file. The code keeps the repository's MIT licence.
 
 - **Wikidata**: identity, names, birth, position, clubs. CC0.
 - **English and French Wikipedia**: current club, career and caps, read from infoboxes. Wikipedia's text is CC BY-SA 4.0; the pool records which article each value came from, so the site can credit it.
 - **Wikimedia Commons**: photos, each under its own file's licence. Each keeps its author, licence, licence link and file page, shown wherever the photo appears. Sprint 1 stores the thumbnail address as Commons gives it and downloads no image; photos are copied into the repository in Sprint 2 (decision P30).
 - **martj42/international_results**: Tunisia's results and goalscorers, to tell when caps are out of date and to catch impossible caps or goals. CC0. The scorer list covers about a third of Tunisia's goals, so it is only a lower bound.
-- **RSSSF** (later, by hand): credited where used.
