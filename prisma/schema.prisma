@@ -1,0 +1,124 @@
+// A player is a footballer. The person playing a game is a visitor.
+// Constraints Prisma cannot express live in the migration SQL and are
+// described in docs/schema.md.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Game {
+  chkoun
+  season
+  aktar
+}
+
+enum Position {
+  goalkeeper
+  defender
+  midfielder
+  forward
+}
+
+enum ReportStatus {
+  open
+  accepted
+  rejected
+}
+
+model Club {
+  /// Slug, for example "esperance-tunis".
+  id         String   @id
+  wikidataId String?  @unique @map("wikidata_id")
+  nameLatin  String   @map("name_latin")
+  nameArabic String?  @map("name_arabic")
+  /// ISO 3166-1 alpha-2, upper case.
+  country    String   @db.Char(2)
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  players Player[]
+
+  @@map("clubs")
+}
+
+model Player {
+  /// Slug, for example "youssef-msakni".
+  id          String   @id
+  wikidataId  String?  @unique @map("wikidata_id")
+  nameLatin   String   @map("name_latin")
+  nameArabic  String?  @map("name_arabic")
+  position    Position
+  birthDate   DateTime @map("birth_date") @db.Date
+  governorate String?
+  caps        Int      @default(0)
+  goals       Int      @default(0)
+  clubId      String?  @map("club_id")
+  photoUrl    String?  @map("photo_url")
+  photoCredit String?  @map("photo_credit")
+  /// Where each field came from: { field: { source, retrievedAt } }.
+  provenance  Json     @default("{}")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  club    Club?    @relation(fields: [clubId], references: [id])
+  puzzles Puzzle[]
+  reports Report[]
+
+  @@index([clubId])
+  @@map("players")
+}
+
+model Puzzle {
+  id        String   @id @default(uuid()) @db.Uuid
+  game      Game
+  /// The day in Africa/Tunis.
+  day       DateTime @db.Date
+  /// The answer, for games whose puzzle is one player.
+  playerId  String?  @map("player_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  player  Player?  @relation(fields: [playerId], references: [id])
+  results Result[]
+
+  @@unique([game, day])
+  @@map("puzzles")
+}
+
+model Result {
+  id        String   @id @default(uuid()) @db.Uuid
+  game      Game
+  /// The day in Africa/Tunis.
+  day       DateTime @db.Date
+  /// Anonymous id kept in the visitor's browser.
+  visitorId String   @map("visitor_id") @db.Uuid
+  puzzleId  String?  @map("puzzle_id") @db.Uuid
+  solved    Boolean
+  score     Int
+  detail    Json     @default("{}")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  puzzle Puzzle? @relation(fields: [puzzleId], references: [id])
+
+  @@unique([game, day, visitorId])
+  @@index([game, day, score])
+  @@map("results")
+}
+
+model Report {
+  id        String       @id @default(uuid()) @db.Uuid
+  playerId  String       @map("player_id")
+  visitorId String       @map("visitor_id") @db.Uuid
+  message   String
+  status    ReportStatus @default(open)
+  createdAt DateTime     @default(now()) @map("created_at")
+
+  player Player @relation(fields: [playerId], references: [id])
+
+  @@index([status, createdAt])
+  @@map("reports")
+}

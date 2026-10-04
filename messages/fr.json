@@ -1,0 +1,31 @@
+{
+  "meta": {
+    "title": "Kora · Les jeux du foot tunisien",
+    "description": "Des jeux quotidiens sur le foot tunisien : trouve le joueur, monte ton équipe, garde ta série."
+  },
+  "hub": {
+    "tagline": "Les jeux du foot tunisien, chaque jour",
+    "games": "Les jeux",
+    "soon": "Bientôt",
+    "language": "Langue"
+  },
+  "badges": {
+    "daily": "Quotidien",
+    "simulator": "Simulateur",
+    "endless": "Sans fin"
+  },
+  "games": {
+    "chkoun": {
+      "name": "C'est qui ?",
+      "pitch": "Trouve le joueur en 8 essais"
+    },
+    "season": {
+      "name": "30–0",
+      "pitch": "Monte ton équipe et joue une saison entière"
+    },
+    "aktar": {
+      "name": "Plus ou moins",
+      "pitch": "Qui en a le plus ? Garde ta série"
+    }
+  }
+}
