@@ -76,6 +76,11 @@ export type Provenance = {
 export type Spell = {
   /** Link target title, or plain text when the club is not linked. */
   clubTitle: string;
+  /**
+   * French only: the foreign article's title (`trad`) when the club is named
+   * by {{Lien}}, a link to an article that exists only on another wiki.
+   */
+  clubTitleForeign?: string;
   from: number | null;
   /** Null for a spell still open. */
   to: number | null;

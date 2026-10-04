@@ -30,6 +30,12 @@ const LOAN = /\{\{\s*prêt\s*\}\}/i;
 const YEARS = /^(\?|\d{4})?\s*(?:([-–—])\s*(\?|\d{4})?)?$/;
 /** "191 (40)", "120(17)", "? (?)" once {{0}} padding is gone. */
 const STATS = /^(\d+|\?)?\s*(?:\(\s*(\d+|\?)\s*\))?$/;
+/** A totals row's first cell, once bold marks are gone: not a spell. */
+const TOTAL = /^(?:total|totaux)$/i;
+/** Wrapper templates a career field holds; empty, they are an empty field. */
+const WRAPPER = /^\{\{\s*(?:trois colonnes|parcours [^|{}]*?)\s*\}\}$/i;
+const LIEN = /^lien$/i;
+const ABBREVIATION = /^abréviation(?: discrète)?$/i;
 
 export type CareerRow = {
   /** Null when unknown ("?-2013"). */
@@ -72,25 +78,40 @@ function readStats(cell: string): Pick<CareerRow, "apps" | "goals"> {
  * first cell is not a years cell ("years") or whose team cell names no team
  * by `hasName` ("no-club"), and a non-empty field that yields no row at all,
  * having no wrapper template to split ("no-wrapper", one entry for the field).
+ * Not rows, so neither read nor skipped: a totals row ("Total", "Totaux"), a
+ * row whose years cell is only layout ({{clr}}) or empty and whose team does
+ * not `matter` to the caller, and an empty wrapper ({{trois colonnes }}).
  */
 export function readRows(
   name: string,
   field: string,
   hasName: (team: string) => boolean = (team) => team !== "",
+  matters: (team: string) => boolean = () => true,
 ): { rows: CareerRow[]; skipped: SkippedRow[] } {
   const value = field.trim();
   const rows: CareerRow[] = [];
   const skipped: SkippedRow[] = [];
-  if (value === "") return { rows, skipped };
+  if (value === "" || WRAPPER.test(value.replace(/\s+/g, " "))) {
+    return { rows, skipped };
+  }
   const body = value.startsWith("{{") ? findTemplate(value, /./) : null;
+  /** Some row had content, even one ignored (a total, another team). */
+  let seen = false;
   for (const line of (body ?? "").split("\n")) {
     const row = cells(line);
     for (let i = 0; i < row.length; i += 3) {
       const group = row.slice(i, i + 3);
       if (group.every((cell) => cell === "")) continue;
+      seen = true;
       const raw = clip(`|${group.join("|")}`);
       const years = readYears(row[i]);
       const team = row[i + 1] ?? "";
+      if (TOTAL.test(plainText(row[i]))) continue;
+      // A years cell holding only layout ({{clr}}) or nothing, on a row that
+      // does not matter to the caller (another national team): not a spell.
+      if (years === null && plainText(row[i]) === "" && !matters(team)) {
+        continue;
+      }
       if (years === null) {
         skipped.push({ field: name, raw, reason: "years" });
       } else if (!hasName(team)) {
@@ -105,15 +126,40 @@ export function readRows(
       }
     }
   }
-  if (rows.length === 0 && skipped.length === 0) {
+  if (!seen) {
     skipped.push({ field: name, raw: clip(value), reason: "no-wrapper" });
   }
   return { rows, skipped };
 }
 
-/** The club a career row's team cell names: its first link, or its text. */
+/**
+ * The club a career row's team cell names: its first link; else a {{Lien}}
+ * (an article on another wiki: `fr`, the first positional, `texte`, then
+ * `trad`, keeping `trad` as the foreign title); else the long form of
+ * {{abréviation}} or {{abréviation discrète}}; else the cell's plain text.
+ */
+function readClub(team: string): { title: string; foreign?: string } {
+  const link = links(team)[0];
+  if (link) return { title: link.title };
+  const lien = findTemplate(team, LIEN);
+  if (lien !== null) {
+    const p = splitParams(lien);
+    const pick = (key: string) => plainText(p.get(key) ?? "");
+    const foreign = pick("trad");
+    const title = pick("fr") || pick("1") || pick("texte") || foreign;
+    if (title !== "") return foreign ? { title, foreign } : { title };
+  }
+  const abbreviation = findTemplate(team, ABBREVIATION);
+  if (abbreviation !== null) {
+    const p = splitParams(abbreviation);
+    const title = plainText(p.get("2") ?? "") || plainText(p.get("1") ?? "");
+    if (title !== "") return { title };
+  }
+  return { title: plainText(team) };
+}
+
 function clubTitle(team: string): string {
-  return links(team)[0]?.title ?? plainText(team);
+  return readClub(team).title;
 }
 
 /** The rows alone; readRows also says which rows it skipped. */
@@ -153,16 +199,25 @@ export function parseFrInfobox(
     get(careerField),
     (team) => clubTitle(team) !== "",
   );
-  const national = readRows("sélection nationale", get("sélection nationale"));
+  const national = readRows(
+    "sélection nationale",
+    get("sélection nationale"),
+    undefined,
+    isSeniorTunisie,
+  );
   const skipped = [...career.skipped, ...national.skipped];
-  const spells: Spell[] = career.rows.map((row) => ({
-    clubTitle: clubTitle(row.team),
-    from: row.from,
-    to: row.to,
-    apps: row.apps,
-    goals: row.goals,
-    loan: row.loan,
-  }));
+  const spells: Spell[] = career.rows.map((row) => {
+    const club = readClub(row.team);
+    return {
+      clubTitle: club.title,
+      ...(club.foreign === undefined ? {} : { clubTitleForeign: club.foreign }),
+      from: row.from,
+      to: row.to,
+      apps: row.apps,
+      goals: row.goals,
+      loan: row.loan,
+    };
+  });
 
   let caps: number | null = null;
   let goals: number | null = null;

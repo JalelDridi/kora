@@ -593,6 +593,165 @@ describe("skipped rows", () => {
   });
 });
 
+// Task 4 fix round 2: row shapes the first real build met that the recorded
+// eight lack. Each `raw` row below is copied verbatim from the build's flags.
+describe("French rows from the first real build", () => {
+  const career = (row: string) =>
+    parseFrInfobox("X", fr(`| parcours pro = {{trois colonnes\n${row}\n}}`));
+  const national = (field: string) =>
+    parseFrInfobox("X", fr(`| sélection nationale = ${field}`));
+
+  it("reads a club named by {{Lien|trad|texte}} (first real build)", () => {
+    const box = career(
+      "|[[2023 en football|2023]]-[[2024 en football|2024]]|{{ITA-d}} {{Lien|trad=FC Sangiuliano City|texte=Sangiuliano City}}|{{0}}21 {{0}}(6)",
+    );
+    expect(box?.spells).toEqual([
+      {
+        clubTitle: "Sangiuliano City",
+        clubTitleForeign: "FC Sangiuliano City",
+        from: 2023,
+        to: 2024,
+        apps: 21,
+        goals: 6,
+        loan: false,
+      },
+    ]);
+    expect(box?.skipped).toEqual([]);
+  });
+
+  it("reads a club named by {{Lien|trad}} alone (first real build)", () => {
+    const box = career(
+      "|[[2025 en football|2025]]|{{IRQ-d}} {{Lien|trad=Amanat Baghdad SC}}|{{0}}{{0}}8 {{0}}(0)",
+    );
+    expect(box?.spells).toEqual([
+      {
+        clubTitle: "Amanat Baghdad SC",
+        clubTitleForeign: "Amanat Baghdad SC",
+        from: 2025,
+        to: 2025,
+        apps: 8,
+        goals: 0,
+        loan: false,
+      },
+    ]);
+    expect(box?.skipped).toEqual([]);
+  });
+
+  it("reads an open spell at a club named by {{Lien}} (first real build)", () => {
+    const box = career(
+      "|[[2025 en football|2025]]-|{{KSA-d}} {{Lien|trad=Al-Taraji Club}}|{{0}}{{0}}25 {{0}}(2)",
+    );
+    expect(box?.spells).toEqual([
+      {
+        clubTitle: "Al-Taraji Club",
+        clubTitleForeign: "Al-Taraji Club",
+        from: 2025,
+        to: null,
+        apps: 25,
+        goals: 2,
+        loan: false,
+      },
+    ]);
+    expect(box?.skipped).toEqual([]);
+  });
+
+  it("reads the long form of {{abréviation}} (first real build)", () => {
+    const box = career(
+      "|[[2024 en football|2024]]-[[2025 en football|2025]]|{{UAE-d}} {{abréviation|Dibba Al-Hisn|Dibba Al-Hisn Sports Club}}|{{0}}23 {{0}}(7)",
+    );
+    expect(box?.spells).toEqual([
+      {
+        clubTitle: "Dibba Al-Hisn Sports Club",
+        from: 2024,
+        to: 2025,
+        apps: 23,
+        goals: 7,
+        loan: false,
+      },
+    ]);
+    expect(box?.spells[0]).not.toHaveProperty("clubTitleForeign");
+    expect(box?.skipped).toEqual([]);
+  });
+
+  it("reads the long form of {{abréviation discrète}}, stats empty (first real build)", () => {
+    const box = career(
+      "|[[2016 en football|2016]]-[[2020 en football|2020]]|{{TUN-d}} {{abréviation discrète|AS Degache|Astre sportif de Degache}}|",
+    );
+    expect(box?.spells).toEqual([
+      {
+        clubTitle: "Astre sportif de Degache",
+        from: 2016,
+        to: 2020,
+        apps: null,
+        goals: null,
+        loan: false,
+      },
+    ]);
+    expect(box?.skipped).toEqual([]);
+  });
+
+  // Hand-made: the other {{Lien}} and {{abréviation}} forms, and plain text.
+  it("orders {{Lien}} parameters fr, positional, texte, trad, and reads plain text", () => {
+    const club = (cell: string) =>
+      career(`|[[2020 en football|2020]]|{{TUN-d}} ${cell}|1 (0)`)?.spells[0];
+    expect(
+      club("{{lien|langue=en|trad=X FC|fr=X (club)|texte=X}}"),
+    ).toMatchObject({ clubTitle: "X (club)", clubTitleForeign: "X FC" });
+    expect(club("{{Lien|Club Y|trad=Y FC|texte=Y}}")).toMatchObject({
+      clubTitle: "Club Y",
+      clubTitleForeign: "Y FC",
+    });
+    expect(club("{{abréviation|EST|Espérance de Tunis|fr}}")).toMatchObject({
+      clubTitle: "Espérance de Tunis",
+    });
+    expect(club("{{abréviation|EST}}")).toMatchObject({ clubTitle: "EST" });
+    expect(club("AS Degache")).toMatchObject({ clubTitle: "AS Degache" });
+    expect(club("AS Degache")).not.toHaveProperty("clubTitleForeign");
+  });
+
+  it("ignores a totals row (first real build)", () => {
+    const box = career(
+      "|[[2019 en football|2019]]|[[A]]|1 (0)\n|'''Total'''||'''{{0}}56 {{0}}(3)'''\n|Totaux||57 (3)\n|total||57 (3)",
+    );
+    expect(box?.spells.map((s) => s.clubTitle)).toEqual(["A"]);
+    expect(box?.skipped).toEqual([]);
+  });
+
+  it("ignores a national row of another team under a layout template (first real build)", () => {
+    const box = national(
+      "{{trois colonnes\n|{{clr}}|{{FRA-d}} [[Équipe de France des moins de 16 ans de football|France -16 ans]]|\n|[[2020 en football|2020]]-|{{TUN football}}|10 (1)\n}}",
+    );
+    expect(box).toMatchObject({ caps: 10, goals: 1, skipped: [] });
+    // Alone in its field, the ignored row does not make the field unreadable.
+    expect(
+      national(
+        "{{trois colonnes\n|{{clr}}|{{FRA-d}} [[Équipe de France des moins de 16 ans de football|France -16 ans]]|\n}}",
+      ),
+    ).toMatchObject({ caps: null, skipped: [] });
+    expect(career("|'''Total'''||'''{{0}}56 {{0}}(3)'''")?.skipped).toEqual([]);
+  });
+
+  it("still reports a senior Tunisia row whose years cell is a layout template", () => {
+    const box = national(
+      "{{trois colonnes\n|{{clr}}|{{TUN football}}|10 (1)\n}}",
+    );
+    expect(box?.caps).toBeNull();
+    expect(box?.skipped).toEqual([
+      {
+        field: "sélection nationale",
+        raw: "|{{clr}}|{{TUN football}}|10 (1)",
+        reason: "years",
+      },
+    ]);
+  });
+
+  it("reads an empty wrapper as an empty field (first real build)", () => {
+    expect(national("{{trois colonnes }}")?.skipped).toEqual([]);
+    expect(national("{{trois colonnes\n \n}}")?.skipped).toEqual([]);
+    expect(national("{{trois colonnes}}")?.skipped).toEqual([]);
+  });
+});
+
 // Fix round 2, I2: an English national-team cell without a link is either
 // recognised as a named team or reported, never silently dropped. Hand-made:
 // every recorded nationalteamN cell is a link.
