@@ -7,7 +7,7 @@ import { promisify } from "node:util";
 import { describe, expect, it } from "vitest";
 import { createPoliteClient, StoppedError } from "./http.ts";
 import type { PoliteClient } from "./http.ts";
-import { planRequests, run } from "./run.ts";
+import { createClients, MAX_REQUESTS, planRequests, run } from "./run.ts";
 import type { RunDeps } from "./run.ts";
 import type { Pool } from "./types.ts";
 
@@ -476,20 +476,86 @@ describe("run", () => {
     expect(await exists(file(root, "pool.json"))).toBe(false);
   });
 
-  it("refuses before any Wikimedia request when the plan is over the budget", async () => {
+  it("refuses before any Wikimedia request when the plan is truly over 60", async () => {
     const root = await setup();
+    // 2,700 wanted footballers with an English article: 54 batches of 50.
+    const many = result(
+      ...Array.from({ length: 2700 }, (_, i) => ({
+        p: uri(`Q${5000 + i}`),
+        enLabel: lit(`Footballer ${i}`),
+        birth: lit("1995-05-05T00:00:00Z"),
+        enwiki: lit(`Footballer ${i}`),
+      })),
+    );
+    const base = wdqs();
+    const client: PoliteClient = {
+      async getJson(url, init) {
+        const query =
+          new URLSearchParams(String(init?.body)).get("query") ?? "";
+        return query.includes("GROUP BY ?p") && !query.includes("skos:altLabel")
+          ? many
+          : base.getJson(url, init);
+      },
+      getText: async () => "",
+    };
     const calls: Calls = { urls: [], queries: [] };
     const lines: string[] = [];
     const outcome = await run(
       deps(root, {
+        wdqs: client,
         wikimedia: wikimedia(calls),
-        maxRequests: 5,
         log: (l) => lines.push(l),
       }),
     );
-    expect(outcome).toMatchObject({ ok: false });
+    expect(outcome).toEqual({
+      ok: false,
+      reason:
+        "the run would make at least 63 requests before redirects, over the budget of 60",
+    });
     expect(calls.urls).toEqual([]);
-    expect(lines.join("\n")).toMatch(/plan: wdqs \d+, wikimedia \d+, github 2/);
+    expect(lines).toContain(
+      "plan: wdqs 7, wikimedia 54 (+ redirects, counted before they are asked), github 2: at most 63 requests before redirects, plus retries after a 503 (budget 60)",
+    );
+  });
+
+  it("checks again, exactly, before the redirects, and refuses there when they push the total over", async () => {
+    const root = await setup();
+    const calls: Calls = { urls: [], queries: [] };
+    const lines: string[] = [];
+    // 7 + (1 English batch + 1 Commons batch) + 2 = 11 before redirects; 1 redirect batch makes 12.
+    const outcome = await run(
+      deps(root, {
+        wikimedia: wikimedia(calls),
+        maxRequests: 11,
+        log: (l) => lines.push(l),
+      }),
+    );
+    expect(outcome).toEqual({
+      ok: false,
+      reason:
+        "with 1 redirect lookups the run would make up to 12 requests, over the budget of 11",
+    });
+    expect(calls.urls).toHaveLength(1);
+    expect(calls.urls[0]).toContain("prop=revisions");
+    expect(lines).toContain(
+      "plan with redirects: wdqs 7, wikimedia 3, github 2: at most 12 requests, plus retries after a 503 (budget 11)",
+    );
+  });
+
+  it("passes a healthy plan and logs the clients' HTTP attempts, not calls", async () => {
+    const root = await setup();
+    const lines: string[] = [];
+    expect(
+      await run(
+        deps(root, {
+          attempts: () => ({ wdqs: 7, wikimedia: 5, github: 2 }),
+          log: (l) => lines.push(l),
+        }),
+      ),
+    ).toMatchObject({ ok: true });
+    expect(lines).toContain(
+      "requests (HTTP attempts): wdqs 7, wikimedia 5, github 2",
+    );
   });
 
   it("refuses a pool that shrinks by more than a tenth, leaving the old one", async () => {
@@ -518,14 +584,39 @@ describe("run", () => {
 });
 
 describe("planRequests", () => {
-  it("counts batches of 50 per site and an upper bound for redirects", () => {
-    // en 3 + fr 2 + Commons 1, then redirects at most 3 + 2.
+  it("counts batches of 50 per site, and redirects once they are known", () => {
+    // en 3 + fr 2 + Commons 1.
     expect(planRequests({ en: 120, fr: 51, files: 50 })).toEqual({
       wdqs: 7,
-      wikimedia: 11,
+      wikimedia: 6,
       github: 2,
-      total: 20,
+      total: 15,
     });
+  });
+
+  it("passes the probe's likely sizes, with a handful of redirect lookups", () => {
+    const before = planRequests({ en: 550, fr: 650, files: 350 });
+    expect(before).toEqual({ wdqs: 7, wikimedia: 31, github: 2, total: 40 });
+    const after = planRequests({
+      en: 550,
+      fr: 650,
+      files: 350,
+      redirects: { en: 120, fr: 140 },
+    });
+    expect(after).toEqual({ wdqs: 7, wikimedia: 37, github: 2, total: 46 });
+    expect(after.total).toBeLessThanOrEqual(MAX_REQUESTS);
+  });
+});
+
+describe("createClients", () => {
+  it("counts every HTTP attempt, a retry after a 503 included", async () => {
+    let n = 0;
+    const clients = createClients({
+      fetch: async () => new Response("{}", { status: n++ === 0 ? 503 : 200 }),
+      sleep: async () => {},
+    });
+    await clients.wikimedia.getJson("https://en.wikipedia.org/w/api.php");
+    expect(clients.attempts()).toEqual({ wdqs: 0, wikimedia: 2, github: 0 });
   });
 });
 

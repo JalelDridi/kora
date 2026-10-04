@@ -3,7 +3,8 @@ import path from "node:path";
 import { knownIds } from "./check.ts";
 import { commonsUrl, parseCommons } from "./commons.ts";
 import { GOALSCORERS_URL, goalsFloors, tunisiaScorers } from "./goalscorers.ts";
-import type { PoliteClient } from "./http.ts";
+import { createPoliteClient } from "./http.ts";
+import type { FetchLike, PoliteClient } from "./http.ts";
 import { buildClubIndex } from "./merge.ts";
 import { validateOverrides } from "./overrides.ts";
 import { buildPool, emptyRegistry } from "./pool.ts";
@@ -67,7 +68,44 @@ export type RunDeps = {
   log: (line: string) => void;
   /** The most requests a run may plan, all clients together (default MAX_REQUESTS). */
   maxRequests?: number;
+  /** HTTP attempts per client so far, retries included (createClients gives it); without it the run counts calls. */
+  attempts?: () => Record<ClientName, number>;
 };
+
+export type ClientName = "wdqs" | "wikimedia" | "github";
+
+/**
+ * The three polite clients of a real run (ruling R2), each counting its HTTP
+ * attempts: a retry after a 503 is one more. `fetch` and `sleep` are for tests.
+ */
+export function createClients(
+  options: { fetch?: FetchLike; sleep?: (ms: number) => Promise<void> } = {},
+): Pick<RunDeps, ClientName> & { attempts: () => Record<ClientName, number> } {
+  const counts: Record<ClientName, number> = {
+    wdqs: 0,
+    wikimedia: 0,
+    github: 0,
+  };
+  const make = (name: ClientName, minGapMs: number, maxRetries: number) =>
+    createPoliteClient({
+      minGapMs,
+      maxRetries,
+      sleep: options.sleep,
+      fetch: (url, init) => {
+        counts[name]++;
+        return (options.fetch ?? globalThis.fetch)(url, init);
+      },
+    });
+  return {
+    wdqs: make("wdqs", 2_000, 3),
+    // English and French Wikipedia and Commons share one client: one queue,
+    // at least 5 s between request starts, and a 429 or 403 from any of them
+    // stops all three for the rest of the run.
+    wikimedia: make("wikimedia", 5_000, 3),
+    github: make("github", 1_000, 2),
+    attempts: () => ({ ...counts }),
+  };
+}
 
 export type RunResult =
   { ok: true; changed: boolean } | { ok: false; reason: string };
@@ -81,14 +119,16 @@ const WDQS_QUERIES = 4 + 3;
 const GITHUB_DOWNLOADS = 2;
 
 /**
- * Requests per client for a run, from the titles and files Wikidata gave.
- * Redirects are asked for the infoboxes' current clubs, at most one title per
- * infobox, so their bound is the infobox batches again.
+ * Requests per client, retries aside: 50 titles or files per Wikimedia
+ * request. `en`, `fr` and `files` are the wanted footballers' distinct
+ * article titles and photo files; `redirects` the distinct current-club
+ * titles to look up, known only once the infoboxes are read (0 before).
  */
 export function planRequests(input: {
   en: number;
   fr: number;
   files: number;
+  redirects?: { en: number; fr: number };
 }): {
   wdqs: number;
   wikimedia: number;
@@ -96,8 +136,12 @@ export function planRequests(input: {
   total: number;
 } {
   const batches = (n: number) => Math.ceil(n / 50);
-  const boxes = batches(input.en) + batches(input.fr);
-  const wikimedia = boxes + batches(input.files) + boxes;
+  const wikimedia =
+    batches(input.en) +
+    batches(input.fr) +
+    batches(input.files) +
+    batches(input.redirects?.en ?? 0) +
+    batches(input.redirects?.fr ?? 0);
   return {
     wdqs: WDQS_QUERIES,
     wikimedia,
@@ -307,11 +351,11 @@ async function build(deps: RunDeps): Promise<RunResult> {
     `${players.length} footballers on Wikidata, ${wanted.length} men born 1965 or later: ${titles.en.length} English and ${titles.fr.length} French articles, ${files.length} photos`,
   );
   deps.log(
-    `plan: wdqs ${plan.wdqs}, wikimedia ${plan.wikimedia}, github ${plan.github} (at most ${plan.total} requests; budget ${budget})`,
+    `plan: wdqs ${plan.wdqs}, wikimedia ${plan.wikimedia} (+ redirects, counted before they are asked), github ${plan.github}: at most ${plan.total} requests before redirects, plus retries after a 503 (budget ${budget})`,
   );
   if (plan.total > budget)
     throw new Refusal(
-      `the run would make up to ${plan.total} requests, over the budget of ${budget}`,
+      `the run would make at least ${plan.total} requests before redirects, over the budget of ${budget}`,
     );
 
   // English and French infoboxes, keyed by the title Wikidata gives and by
@@ -358,7 +402,37 @@ async function build(deps: RunDeps): Promise<RunResult> {
   const boxesOf = (m: Map<string, Infobox>) => [...new Set(m.values())];
 
   // Current-club links often go through a redirect; resolve them before
-  // asking Wikidata which club each title is.
+  // asking Wikidata which club each title is. The exact count is known now:
+  // check the budget again before the first redirect request.
+  const currentClubs = {
+    en: [
+      ...new Set(
+        boxesOf(en)
+          .map((b) => b.currentClub)
+          .filter(present),
+      ),
+    ],
+    fr: [
+      ...new Set(
+        boxesOf(fr)
+          .map((b) => b.currentClub)
+          .filter(present),
+      ),
+    ],
+  };
+  const exact = planRequests({
+    en: titles.en.length,
+    fr: titles.fr.length,
+    files: files.length,
+    redirects: { en: currentClubs.en.length, fr: currentClubs.fr.length },
+  });
+  deps.log(
+    `plan with redirects: wdqs ${exact.wdqs}, wikimedia ${exact.wikimedia}, github ${exact.github}: at most ${exact.total} requests, plus retries after a 503 (budget ${budget})`,
+  );
+  if (exact.total > budget)
+    throw new Refusal(
+      `with ${exact.wikimedia - plan.wikimedia} redirect lookups the run would make up to ${exact.total} requests, over the budget of ${budget}`,
+    );
   const redirects = await cached<{
     en: [string, string][];
     fr: [string, string][];
@@ -367,14 +441,8 @@ async function build(deps: RunDeps): Promise<RunResult> {
       en: [],
       fr: [],
     };
-    for (const [lang, boxes] of [
-      ["en", boxesOf(en)],
-      ["fr", boxesOf(fr)],
-    ] as const) {
-      const clubTitles = [
-        ...new Set(boxes.map((b) => b.currentClub).filter(present)),
-      ];
-      for (const batch of chunk(clubTitles)) {
+    for (const lang of ["en", "fr"] as const) {
+      for (const batch of chunk(currentClubs[lang])) {
         out[lang].push(
           ...parseRevisions(await wikimedia.getJson(redirectsUrl(lang, batch)))
             .aliases,
@@ -476,8 +544,11 @@ async function build(deps: RunDeps): Promise<RunResult> {
     previous,
     ids: registry,
   });
+  const attempts = deps.attempts?.() ?? null;
   deps.log(
-    `requests: wdqs ${sent.wdqs}, wikimedia ${sent.wikimedia}, github ${sent.github}`,
+    attempts
+      ? `requests (HTTP attempts): wdqs ${attempts.wdqs}, wikimedia ${attempts.wikimedia}, github ${attempts.github}`
+      : `requests (calls; no attempt counter given): wdqs ${sent.wdqs}, wikimedia ${sent.wikimedia}, github ${sent.github}`,
   );
 
   const invalid = validatePool(pool, governorateIds, ids);

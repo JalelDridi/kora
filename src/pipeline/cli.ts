@@ -1,8 +1,7 @@
 import { access } from "node:fs/promises";
 import path from "node:path";
 import { inspectData } from "./check.ts";
-import { createPoliteClient } from "./http.ts";
-import { run } from "./run.ts";
+import { createClients, run } from "./run.ts";
 
 // Run with Node directly:
 //   node src/pipeline/cli.ts build   fetch, merge, write data/pool.json, data/ids.json, data/report.md
@@ -15,12 +14,9 @@ if (command === "build") {
   const result = await run({
     root: process.cwd(),
     today: new Date().toISOString().slice(0, 10),
-    wdqs: createPoliteClient({ minGapMs: 2_000, maxRetries: 3 }),
-    // English and French Wikipedia and Commons share one client (ruling R2):
-    // one queue, at least 5 s between request starts, and a 429 or 403 from
-    // any of them stops all three for the rest of the run.
-    wikimedia: createPoliteClient({ minGapMs: 5_000, maxRetries: 3 }),
-    github: createPoliteClient({ minGapMs: 1_000, maxRetries: 2 }),
+    // wdqs, wikimedia (en, fr and Commons share it) and github, each counting
+    // its HTTP attempts (ruling R2; see createClients in run.ts).
+    ...createClients(),
     log: (line) => console.log(line),
   });
   console.log(`data:build: ${((Date.now() - started) / 1000).toFixed(0)} s`);
