@@ -44,6 +44,7 @@ jobs:
       - run: pnpm format:check
       - run: pnpm typecheck
       - run: pnpm test
+      - run: pnpm data:check
       - run: pnpm test:db
       - run: pnpm build
       - run: pnpm exec playwright install --with-deps chromium
