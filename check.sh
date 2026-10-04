@@ -3,6 +3,10 @@
 set -euo pipefail
 pnpm lint
 pnpm format:check
-pnpm exec tsc --noEmit
+pnpm typecheck
 pnpm test
+# CIRCLE_NODE_TOTAL keeps the build to two workers on a low-memory machine.
+# An empty analytics key keeps test traffic out of PostHog.
+NEXT_PUBLIC_POSTHOG_KEY= CIRCLE_NODE_TOTAL=2 pnpm build
+pnpm test:e2e
 echo "all checks passed"

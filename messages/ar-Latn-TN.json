@@ -1,0 +1,31 @@
+{
+  "meta": {
+    "title": "Kora · Al3ab el koura ettounsia",
+    "description": "Al3ab kol youm 3al koura ettounsia: a3ref el la3eb, kawwen far9tek, w 7afedh 3al série mte3ek."
+  },
+  "hub": {
+    "tagline": "Al3ab el koura ettounsia, kol youm",
+    "games": "El al3ab",
+    "soon": "9rib",
+    "language": "Logha"
+  },
+  "badges": {
+    "daily": "Kol youm",
+    "simulator": "Simulation",
+    "endless": "Bla nheya"
+  },
+  "games": {
+    "chkoun": {
+      "name": "Chkoun?",
+      "pitch": "A3ref el la3eb fi 8 mou7awlet"
+    },
+    "season": {
+      "name": "30–0",
+      "pitch": "Kawwen far9tek w el3ab mawsem kemel"
+    },
+    "aktar": {
+      "name": "Aktar wala a9all",
+      "pitch": "Chkoun 3andou akther? 7afedh 3al série"
+    }
+  }
+}
