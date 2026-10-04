@@ -383,27 +383,85 @@ describe("undated French spells (ruling R1)", () => {
     }
   });
 
+  // Fix round 1, finding 4: every club resolves as on the real pages, through
+  // the exact link targets of en/ and fr/yassine-meriah.wikitext.
+  const meriahClubs: [qid: string, titleEn: string | null, titleFr: string][] =
+    [
+      ["Q101", null, ariana],
+      ["Q102", "ES Métlaoui", "Étoile sportive de Métlaoui"],
+      ["Q103", "CS Sfaxien", "Club sportif sfaxien (football)"],
+      ["Q104", "Olympiacos F.C.", "Olympiakós (football)"],
+      ["Q105", "Kasımpaşa S.K.", "Kasımpaşa SK"],
+      ["Q106", "Çaykur Rizespor", "Çaykur Rizespor"],
+      ["Q107", "Al Ain FC", "Al-Aïn Football Club"],
+      [
+        "Q108",
+        "Espérance Sportive de Tunis",
+        "Espérance sportive de Tunis (football)",
+      ],
+      ["Q109", "Club Africain", "Club africain (football)"],
+    ];
+  const meriahIndex = buildClubIndex(
+    meriahClubs.map(([qid, titleEn, titleFr]) =>
+      club(qid, titleEn ?? titleFr, "TN", { titleEn, titleFr }),
+    ),
+    { en: new Map(), fr: new Map() },
+    {},
+  );
+  const meriahContext = (english: Infobox): MergeContext => ({
+    today,
+    memberships: new Map(),
+    index: meriahIndex,
+    infoboxes: {
+      en: new Map([["Yassine Meriah", english]]),
+      fr: new Map([["Yassine Meriah (football)", fr]]),
+    },
+    photos: new Map(),
+    tunisiaMatches: [],
+    overrides: { players: {}, clubTitles: {} },
+    governorateIds,
+  });
+
   it("drops them from the merged history and its rating too", () => {
-    const merged = mergePlayer(wdPlayer(), {
-      today,
-      memberships: new Map(),
-      index,
-      infoboxes: {
-        en: new Map([["Yassine Meriah", en]]),
-        fr: new Map([["Yassine Meriah (football)", fr]]),
-      },
-      photos: new Map(),
-      tunisiaMatches: [],
-      overrides: { players: {}, clubTitles: {} },
-      governorateIds,
-    });
-    expect(merged?.draft.history.map((s) => s.clubName)).not.toContain(ariana);
+    const merged = mergePlayer(wdPlayer(), meriahContext(en));
+    expect(
+      merged?.draft.history.map((s) => [s.club?.qid, s.from, s.to]),
+    ).toEqual([
+      ["Q102", 2013, 2015],
+      ["Q103", 2015, 2018],
+      ["Q104", 2018, 2021],
+      ["Q105", 2020, 2020],
+      ["Q106", 2020, 2021],
+      ["Q107", 2021, 2022],
+      ["Q108", 2022, 2026],
+      ["Q109", 2026, 2026],
+    ]);
     expect(
       merged?.flags.filter((f) => f.kind === "fr-undated-spell"),
     ).toHaveLength(1);
+    // French chosen (dated); the undated English career gives the same eight
+    // clubs once AS Ariana is dropped, so both sources agree.
     expect(merged?.draft.provenance.history).toMatchObject({
       source: "frwiki",
+      asOf: "2026-09-27",
+      confidence: "high",
+      agreeing: ["enwiki", "frwiki"],
+    });
+  });
+
+  it("rates the French career alone when the English one is empty", () => {
+    const merged = mergePlayer(
+      wdPlayer(),
+      meriahContext({ ...en, spells: [] }),
+    );
+    expect(merged?.draft.history[0].club?.qid).toBe("Q101");
+    expect(merged?.draft.history).toHaveLength(9);
+    expect(merged?.flags.map((f) => f.kind)).not.toContain("fr-undated-spell");
+    expect(merged?.draft.provenance.history).toMatchObject({
+      source: "frwiki",
+      confidence: "medium",
       agreeing: ["frwiki"],
+      confidenceNote: "one fresh source",
     });
   });
 });

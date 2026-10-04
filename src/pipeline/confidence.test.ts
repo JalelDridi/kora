@@ -6,7 +6,10 @@ import {
   CHKOUN_FIELDS,
   rateCount,
   rateDated,
+  rateFields,
   rateUndated,
+  type Chosen,
+  type Evidence,
   type Rating,
   type Vote,
 } from "./confidence.ts";
@@ -226,5 +229,51 @@ describe("ANSWER_READY_SQL", () => {
     expect(ANSWER_READY_SQL).toContain("p.provenance ?& ARRAY[");
     expect(ANSWER_READY_SQL).toContain("e.entry->>'confidence' = 'low'");
     expect(ANSWER_READY_SQL).not.toContain("$1");
+  });
+});
+
+// Fix round 1, finding 4 (round 0, choice 2): sameSet never matches an empty
+// set, so a history with no known club would name no agreeing source at all.
+describe("rateFields on a history with no known club", () => {
+  const chosen: Chosen = {
+    caps: 0,
+    goals: 0,
+    clubQid: null,
+    history: [],
+    birthDate: null,
+    position: null,
+    positionDetailLine: null,
+    nameLatin: null,
+  };
+  const evidence: Evidence = {
+    caps: [],
+    goals: [],
+    goalsFloor: null,
+    capsCeiling: null,
+    clubId: [],
+    birthDate: [],
+    position: [],
+    nameLatin: [],
+    history: [
+      v("enwiki", [] as string[], "2026-09-01"),
+      v("frwiki", [] as string[], "2026-09-01"),
+    ],
+    skipped: { national: [], career: [] },
+  };
+  it("rates it low on its own source, however fresh and however many sources", () => {
+    const { provenance } = rateFields(
+      { history: { source: "enwiki", retrievedAt: today, asOf: "2026-09-01" } },
+      chosen,
+      evidence,
+      today,
+    );
+    expect(provenance.history).toEqual({
+      source: "enwiki",
+      retrievedAt: today,
+      asOf: "2026-09-01",
+      confidence: "low",
+      agreeing: ["enwiki"],
+      confidenceNote: "no club in this history matches a known club",
+    });
   });
 });
