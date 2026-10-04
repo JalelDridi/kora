@@ -247,9 +247,21 @@ export function renderReport(input: {
       d.flags.some((f) => LEFT_OUT_DOUBT.includes(f.kind)),
   );
 
+  // A source read from the cache is said before anything else.
+  const fromCache = Object.entries(statuses)
+    .filter(([, s]) => s.status === "cached")
+    .map(
+      ([name, s]) => `${name} (read on ${s.retrievedAt ?? "an unknown date"})`,
+    );
   const out = [
     `# Nightly pool, ${today}`,
     "",
+    ...(fromCache.length > 0
+      ? [
+          `> **Not every source was read tonight.** From the cache: ${fromCache.join(", ")}. Their values may be out of date.`,
+          "",
+        ]
+      : []),
     "| Source | Status | Read on | Note |",
     "| --- | --- | --- | --- |",
   ];

@@ -164,6 +164,40 @@ describe("renderReport", () => {
     );
   });
 
+  it("warns at the top when a source came from the cache, naming it and its date", () => {
+    const p = pool([player("x")]);
+    const render = (statuses: Parameters<typeof renderReport>[0]["statuses"]) =>
+      renderReport({
+        pool: p,
+        diff: diffPools(null, p),
+        statuses,
+        today: "2026-10-05",
+      });
+    const notice =
+      "> **Not every source was read tonight.** From the cache: infobox-en (read on 2026-10-02), commons (read on 2026-10-04). Their values may be out of date.";
+    const report = render({
+      wikidata: { status: "fresh", retrievedAt: "2026-10-05" },
+      "infobox-en": {
+        status: "cached",
+        retrievedAt: "2026-10-02",
+        note: "HTTP 429",
+      },
+      commons: {
+        status: "cached",
+        retrievedAt: "2026-10-04",
+        note: "HTTP 429",
+      },
+    });
+    expect(report.split("\n").slice(0, 3)).toEqual([
+      "# Nightly pool, 2026-10-05",
+      "",
+      notice,
+    ]);
+    expect(
+      render({ wikidata: { status: "fresh", retrievedAt: "2026-10-05" } }),
+    ).not.toContain("Not every source was read tonight");
+  });
+
   it("lists the seasons without a winner", () => {
     expect(
       missingSeasons(
