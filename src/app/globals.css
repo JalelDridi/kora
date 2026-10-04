@@ -1,1 +1,36 @@
 @import "tailwindcss";
+
+/* Dark pitch green with a shirt-red accent (design §9). Red is for large
+   text and non-text accents only: it is 4.49:1 on the background. */
+@theme {
+  --color-pitch-950: #0b1510;
+  --color-pitch-900: #101d16;
+  --color-pitch-800: #1b2f24;
+  --color-pitch-700: #284334;
+  --color-mint: #9ad4b4;
+  --color-shirt: #e63946;
+  --color-chalk: #eef3ef;
+  --color-chalk-dim: #cfd8d2;
+}
+
+@theme inline {
+  --font-sans: var(--font-latin), var(--font-arabic), system-ui, sans-serif;
+}
+
+html {
+  color-scheme: dark;
+  background: var(--color-pitch-950);
+  color: var(--color-chalk);
+  font-size: 17px;
+}
+
+/* Arabic script leads with the Arabic face; Latin fragments such as names
+   and scores fall through to Inter. */
+html[dir="rtl"] body {
+  font-family: var(--font-arabic), var(--font-latin), system-ui, sans-serif;
+}
+
+:focus-visible {
+  outline: 3px solid var(--color-mint);
+  outline-offset: 3px;
+}

@@ -1,9 +1,18 @@
 import type { Metadata } from "next";
+import { IBM_Plex_Sans_Arabic, Inter } from "next/font/google";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { isLocale, localeInfo, locales } from "@/i18n/locales";
 import { site } from "@/site";
 import "../globals.css";
+
+const latin = Inter({ subsets: ["latin"], variable: "--font-latin" });
+
+const arabic = IBM_Plex_Sans_Arabic({
+  subsets: ["arabic"],
+  weight: ["400", "600", "700"],
+  variable: "--font-arabic",
+});
 
 export function generateStaticParams() {
   return locales.map((locale) => ({ locale }));
@@ -38,8 +47,12 @@ export default async function LocaleLayout({
   setRequestLocale(locale);
 
   return (
-    <html lang={locale} dir={localeInfo[locale].dir}>
-      <body>{children}</body>
+    <html
+      lang={locale}
+      dir={localeInfo[locale].dir}
+      className={`${latin.variable} ${arabic.variable}`}
+    >
+      <body className="font-sans antialiased">{children}</body>
     </html>
   );
 }
