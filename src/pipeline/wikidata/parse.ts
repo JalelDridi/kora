@@ -186,29 +186,58 @@ function singleYearLabel(label: string): boolean {
   return /^\d{4}(?!\d|\s*[–—/-]\s*\d)/.test(label);
 }
 
+/** "Q900" → 900, to order winners by id. */
+function qNumber(qid: string): number {
+  return Number(qid.slice(1));
+}
+
 /**
  * Winners by competition and edition, with every correction and drop the
- * parser makes, so the reviewer sees them.
+ * parser makes, so the reviewer sees them. Issues are sorted, and the winner
+ * kept for an edition is the lowest Q-id, so the result does not depend on
+ * the order SPARQL returns rows in.
  */
 export function parseHonoursReport(json: unknown): {
   honours: WdHonour[];
   issues: HonourIssue[];
+  skipped: { unlabelled: number; noStart: number };
 } {
-  const out = new Map<string, WdHonour>();
+  const editions = new Map<
+    string,
+    {
+      competition: Competition;
+      seasonStart: number;
+      seasonEnd: number;
+      winners: Set<string>;
+      seasons: Set<string>;
+    }
+  >();
   const issues = new Map<string, HonourIssue>();
   const report = (issue: HonourIssue) =>
     issues.set(JSON.stringify(issue), issue);
-  for (const row of bindings(json)) {
+  // Dropped seasons, counted by season item (the row's ?season id), so rows
+  // that SPARQL multiplies count once; a row without an id counts on its own.
+  const unlabelled = new Set<string>();
+  const noStart = new Set<string>();
+  bindings(json).forEach((row, index) => {
     const competition = COMPETITIONS[text(row.compName) ?? ""];
-    const label = text(row.seasonLabel);
     const winnerQid = entity(row.winner);
-    // Recent bulk imports have seasons with no real label (probe §3, Q4).
-    if (!competition || !label || /^Q\d+$/.test(label) || !winnerQid) continue;
+    if (!competition || !winnerQid) return;
+    const id = entity(row.season);
+    const label = text(row.seasonLabel);
+    // Recent bulk imports have seasons with no English label, or whose label
+    // is just their id (probe §3, Q4).
+    if (!label || /^Q\d+$/.test(label)) {
+      unlabelled.add(id ?? label ?? `row ${index}`);
+      return;
+    }
     const fromLabel = /^(\d{4})/.exec(label);
     const seasonStart =
       year(row.start) ?? (fromLabel ? Number(fromLabel[1]) : null);
-    if (seasonStart === null) continue;
-    const id = entity(row.season);
+    if (seasonStart === null) {
+      noStart.add(id ?? label);
+      return;
+    }
     const season = `"${label}"${id ? ` (${id})` : ""}`;
     // An edition ends the year it starts or the next one (the database checks
     // it): the end date first, then the label, then the start year.
@@ -216,60 +245,87 @@ export function parseHonoursReport(json: unknown): {
       end !== null && end >= seasonStart && end <= seasonStart + 1;
     const endDate = year(row.end);
     const endLabel = endFromLabel(label);
-    let seasonEnd: number;
-    if (within(endDate)) {
-      seasonEnd = endDate;
-    } else {
-      if (endDate !== null) {
-        report({
-          kind: "end-out-of-range",
-          competition,
-          seasonStart,
-          detail: `${season}: end date year ${endDate} is neither ${seasonStart} nor ${seasonStart + 1}`,
-        });
-      }
-      if (within(endLabel)) {
-        seasonEnd = endLabel;
-      } else {
-        seasonEnd = seasonStart;
-        // Silent when the label is a plain single year ("2018 CAF Champions
-        // League"): ending the year it starts is what the label says, not a
-        // guess. A row with no label never gets here (skipped above), so the
-        // start-year fallback is only reported when a label was there to read.
-        if (!singleYearLabel(label)) {
-          report({
-            kind: "label-unreadable",
-            competition,
-            seasonStart,
-            detail:
-              endLabel === null
-                ? `${season}: no end year in the label, so the end is the start year ${seasonStart}`
-                : `${season}: the label's end year ${endLabel} is neither ${seasonStart} nor ${seasonStart + 1}, so the end is the start year ${seasonStart}`,
-          });
-        }
-      }
+    const seasonEnd = within(endDate)
+      ? endDate
+      : within(endLabel)
+        ? endLabel
+        : seasonStart;
+    if (endDate !== null && !within(endDate)) {
+      report({
+        kind: "end-out-of-range",
+        competition,
+        seasonStart,
+        detail: `${season}: end date year ${endDate} is neither ${seasonStart} nor ${seasonStart + 1}; stored end ${seasonEnd}, ${within(endLabel) ? "from the label" : "the start year"}`,
+      });
+    }
+    // Silent when the label is a plain single year ("2018 CAF Champions
+    // League"): ending the year it starts is what the label says, not a guess.
+    // A row with no label never gets here (counted as unlabelled above), so
+    // the start-year fallback is only reported when a label was there to read.
+    if (!within(endDate) && !within(endLabel) && !singleYearLabel(label)) {
+      report({
+        kind: "label-unreadable",
+        competition,
+        seasonStart,
+        detail:
+          endLabel === null
+            ? `${season}: no end year in the label, so the end is the start year ${seasonStart}`
+            : `${season}: the label's end year ${endLabel} is neither ${seasonStart} nor ${seasonStart + 1}, so the end is the start year ${seasonStart}`,
+      });
     }
     const key = `${competition}|${seasonStart}|${seasonEnd}`;
-    const kept = out.get(key);
-    if (!kept) {
-      out.set(key, { competition, seasonStart, seasonEnd, winnerQid });
-    } else if (kept.winnerQid !== winnerQid) {
-      // The same winner again is SPARQL row multiplication, not news.
+    const edition = editions.get(key) ?? {
+      competition,
+      seasonStart,
+      seasonEnd,
+      winners: new Set<string>(),
+      seasons: new Set<string>(),
+    };
+    edition.winners.add(winnerQid);
+    edition.seasons.add(season);
+    editions.set(key, edition);
+  });
+
+  const honours: WdHonour[] = [];
+  for (const edition of editions.values()) {
+    const { competition, seasonStart, seasonEnd } = edition;
+    const winners = [...edition.winners].sort(
+      (a, b) => qNumber(a) - qNumber(b),
+    );
+    honours.push({
+      competition,
+      seasonStart,
+      seasonEnd,
+      winnerQid: winners[0],
+    });
+    // The same winner again is SPARQL row multiplication, not news.
+    if (winners.length > 1) {
       report({
         kind: "duplicate-edition",
         competition,
         seasonStart,
-        detail: `${season}: edition ${seasonStart}–${seasonEnd} won by ${kept.winnerQid} and by ${winnerQid}; kept ${kept.winnerQid}`,
+        detail: `${[...edition.seasons].sort().join(" / ")}: edition ${seasonStart}–${seasonEnd} has winners ${winners.join(", ")}; kept ${winners[0]}`,
       });
     }
   }
-  const honours = [...out.values()].sort(
+  honours.sort(
     (a, b) =>
       a.competition.localeCompare(b.competition) ||
       a.seasonStart - b.seasonStart ||
       a.seasonEnd - b.seasonEnd,
   );
-  return { honours, issues: [...issues.values()] };
+  const sortedIssues = [...issues.values()].sort(
+    (a, b) =>
+      a.competition.localeCompare(b.competition) ||
+      a.seasonStart - b.seasonStart ||
+      a.kind.localeCompare(b.kind) ||
+      a.detail.localeCompare(b.detail),
+  );
+  return {
+    honours,
+    issues: sortedIssues,
+    skipped: { unlabelled: unlabelled.size, noStart: noStart.size },
+  };
 }
 
 export function parseHonours(json: unknown): WdHonour[] {

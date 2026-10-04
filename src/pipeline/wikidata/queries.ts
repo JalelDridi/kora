@@ -51,13 +51,14 @@ export const MEMBERSHIPS_QUERY = `SELECT ?p ?team ?start ?end ?apps ?goals ?isNa
 }`;
 
 // An edition is a start year and an end year (P580, P582): the CAF Champions
-// League had both a "2018" and a "2018–19" edition.
+// League had both a "2018" and a "2018–19" edition. The label is optional so
+// that seasons without one are counted as dropped, not silently missing.
 export const HONOURS_QUERY = `SELECT DISTINCT ?compName ?season ?seasonLabel ?start ?end ?winner WHERE {
   VALUES ?compName { "Tunisian Ligue Professionnelle 1"@en "Tunisian Cup"@en
                      "CAF Champions League"@en "CAF Confederation Cup"@en }
   ?comp rdfs:label ?compName .
   ?season wdt:P3450 ?comp ; wdt:P1346 ?winner .
-  ?season rdfs:label ?seasonLabel FILTER(LANG(?seasonLabel) = "en")
+  OPTIONAL { ?season rdfs:label ?seasonLabel FILTER(LANG(?seasonLabel) = "en") }
   OPTIONAL { ?season wdt:P580 ?start }
   OPTIONAL { ?season wdt:P582 ?end }
 }`;

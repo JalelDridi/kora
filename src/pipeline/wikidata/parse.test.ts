@@ -267,6 +267,7 @@ describe("parseClubs, parseAliases, parseHonours", () => {
         },
       ],
       issues: [],
+      skipped: { unlabelled: 0, noStart: 0 },
     });
   });
 
@@ -302,6 +303,7 @@ describe("parseClubs, parseAliases, parseHonours", () => {
         },
       ],
       issues: [],
+      skipped: { unlabelled: 0, noStart: 0 },
     });
   });
 
@@ -329,7 +331,7 @@ describe("parseClubs, parseAliases, parseHonours", () => {
         competition: "tn_cup",
         seasonStart: 2013,
         detail:
-          '"2013-14 Tunisian Cup" (Q4000): end date year 2025 is neither 2013 nor 2014',
+          '"2013-14 Tunisian Cup" (Q4000): end date year 2025 is neither 2013 nor 2014; stored end 2014, from the label',
       },
     ]);
   });
@@ -376,15 +378,20 @@ describe("parseClubs, parseAliases, parseHonours", () => {
     ]);
   });
 
-  it("reports a second winner for the same edition and keeps the first", () => {
+  it("keeps the lowest Q-id among an edition's winners, whatever the row order", () => {
     const row = {
       compName: lit("Tunisian Ligue Professionnelle 1"),
       seasonLabel: lit("2012–13 Tunisian Ligue Professionnelle 1"),
     };
-    const report = parseHonoursReport(
-      result({ ...row, winner: uri("Q100") }, { ...row, winner: uri("Q101") }),
-    );
-    expect(report.honours).toEqual([
+    const rows = [
+      { ...row, winner: uri("Q900") },
+      { ...row, winner: uri("Q100") },
+      { ...row, winner: uri("Q2000") },
+      { ...row, winner: uri("Q100") },
+    ];
+    const forward = parseHonoursReport(result(...rows));
+    const backward = parseHonoursReport(result(...[...rows].reverse()));
+    expect(forward.honours).toEqual([
       {
         competition: "tn_ligue1",
         seasonStart: 2012,
@@ -392,15 +399,74 @@ describe("parseClubs, parseAliases, parseHonours", () => {
         winnerQid: "Q100",
       },
     ]);
-    expect(report.issues).toEqual([
+    expect(forward.issues).toEqual([
       {
         kind: "duplicate-edition",
         competition: "tn_ligue1",
         seasonStart: 2012,
         detail:
-          '"2012–13 Tunisian Ligue Professionnelle 1": edition 2012–2013 won by Q100 and by Q101; kept Q100',
+          '"2012–13 Tunisian Ligue Professionnelle 1": edition 2012–2013 has winners Q100, Q900, Q2000; kept Q100',
       },
     ]);
+    expect(backward).toEqual(forward);
+  });
+
+  it("states the start year as the stored end when neither date nor label gives one", () => {
+    const report = parseHonoursReport(
+      result({
+        compName: lit("CAF Confederation Cup"),
+        season: uri("Q4002"),
+        seasonLabel: lit("2007 CAF Confederation Cup"),
+        end: lit("2010-01-01T00:00:00Z"),
+        winner: uri("Q201"),
+      }),
+    );
+    expect(report.issues).toEqual([
+      {
+        kind: "end-out-of-range",
+        competition: "caf_cc",
+        seasonStart: 2007,
+        detail:
+          '"2007 CAF Confederation Cup" (Q4002): end date year 2010 is neither 2007 nor 2008; stored end 2007, the start year',
+      },
+    ]);
+  });
+
+  it("counts the seasons it drops for a missing label or a missing start", () => {
+    const report = parseHonoursReport(
+      result(
+        // No English label: counted once per season, not per row.
+        {
+          compName: lit("Tunisian Cup"),
+          season: uri("Q5001"),
+          winner: uri("Q300"),
+        },
+        {
+          compName: lit("Tunisian Cup"),
+          season: uri("Q5001"),
+          winner: uri("Q301"),
+        },
+        // The label is only the season's id.
+        {
+          compName: lit("Tunisian Cup"),
+          season: uri("Q5002"),
+          seasonLabel: lit("Q5002"),
+          winner: uri("Q300"),
+        },
+        // No start date and no year at the start of the label.
+        {
+          compName: lit("CAF Champions League"),
+          season: uri("Q5003"),
+          seasonLabel: lit("CAF Champions League final"),
+          winner: uri("Q200"),
+        },
+      ),
+    );
+    expect(report).toEqual({
+      honours: [],
+      issues: [],
+      skipped: { unlabelled: 2, noStart: 1 },
+    });
   });
 
   it("says nothing about rows that SPARQL merely repeats", () => {
@@ -419,6 +485,7 @@ describe("parseClubs, parseAliases, parseHonours", () => {
         },
       ],
       issues: [],
+      skipped: { unlabelled: 0, noStart: 0 },
     });
     expect(parseHonours(result(row, row))).toHaveLength(1);
   });
