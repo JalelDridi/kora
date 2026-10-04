@@ -587,6 +587,49 @@ describe("run", () => {
       previous,
     );
     expect(await exists(file(root, "ids.json"))).toBe(false);
+    expect(await exists(file(root, "report.md"))).toBe(false);
+  });
+
+  it("refuses an invalid pool and writes nothing", async () => {
+    const root = await setup();
+    const players = JSON.parse(JSON.stringify(answers.players));
+    // Not a two-letter country code: validatePool rejects the footballer.
+    players.results.bindings[0].birthCountry = lit("XYZ");
+    const base = wdqs();
+    const client: PoliteClient = {
+      async getJson(url, init) {
+        const query =
+          new URLSearchParams(String(init?.body)).get("query") ?? "";
+        return query.includes("GROUP BY ?p") && !query.includes("skos:altLabel")
+          ? players
+          : base.getJson(url, init);
+      },
+      getText: async () => "",
+    };
+    const lines: string[] = [];
+    const outcome = await run(
+      deps(root, { wdqs: client, log: (l) => lines.push(l) }),
+    );
+    expect(outcome).toMatchObject({
+      ok: false,
+      reason: expect.stringContaining("the new pool is invalid"),
+    });
+    expect(lines.join(" ")).toContain("birth country XYZ");
+    for (const name of ["pool.json", "ids.json", "report.md"])
+      expect(await exists(file(root, name))).toBe(false);
+  });
+
+  it("refuses a malformed data/ids.json before any request", async () => {
+    const root = await setup();
+    await writeFile(file(root, "ids.json"), JSON.stringify({ players: [] }));
+    const calls: Calls = { urls: [], queries: [] };
+    const outcome = await run(deps(root, { wdqs: wdqs(calls) }));
+    expect(outcome).toEqual({
+      ok: false,
+      reason: "data/ids.json has 1 errors",
+    });
+    expect(calls.urls).toEqual([]);
+    expect(await exists(file(root, "pool.json"))).toBe(false);
   });
 });
 
