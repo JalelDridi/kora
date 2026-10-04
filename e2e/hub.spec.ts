@@ -54,6 +54,29 @@ for (const locale of locales) {
   });
 }
 
+test("/ar keeps 30–0 left to right and Arabic names right to left (P7)", async ({
+  page,
+}) => {
+  await page.goto("/ar");
+  const cards = page.getByRole("article");
+
+  const season = cards.filter({
+    has: page.getByRole("heading", { name: arTN.games.season.name }),
+  });
+  await expect(season.getByRole("heading").locator("bdi")).toHaveCSS(
+    "direction",
+    "ltr",
+  );
+
+  const chkoun = cards.filter({
+    has: page.getByRole("heading", { name: arTN.games.chkoun.name }),
+  });
+  await expect(chkoun.getByRole("heading").locator("bdi")).toHaveCSS(
+    "direction",
+    "rtl",
+  );
+});
+
 test("the language switcher changes language and direction", async ({
   page,
 }) => {
