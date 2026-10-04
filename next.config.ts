@@ -10,6 +10,9 @@ const nextConfig: NextConfig = {
     // (`next build --webpack`) would need the same alias under `webpack`.
     resolveAlias: { "next-intl/config": "./src/i18n/request.ts" },
   },
+  // The admin pages read data/pool.json at request time (src/admin/load-pool.ts);
+  // this puts the file in their serverless bundle on Vercel.
+  outputFileTracingIncludes: { "/admin/**": ["./data/pool.json"] },
 };
 
 export default nextConfig;
