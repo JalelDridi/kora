@@ -1,4 +1,6 @@
 import type { NextConfig } from "next";
+import { posthogEuHost } from "./src/analytics/hosts.ts";
+import { securityHeaders } from "./src/security-headers.ts";
 
 const nextConfig: NextConfig = {
   turbopack: {
@@ -13,6 +15,18 @@ const nextConfig: NextConfig = {
   // The admin pages read data/pool.json at request time (src/admin/load-pool.ts);
   // this puts the file in their serverless bundle on Vercel.
   outputFileTracingIncludes: { "/admin/**": ["./data/pool.json"] },
+  // Every response, the admin pages included (src/security-headers.ts).
+  async headers() {
+    return [
+      {
+        source: "/:path*",
+        headers: securityHeaders({
+          analyticsHost: process.env.NEXT_PUBLIC_POSTHOG_HOST || posthogEuHost,
+          dev: process.env.NODE_ENV === "development",
+        }),
+      },
+    ];
+  },
 };
 
 export default nextConfig;
