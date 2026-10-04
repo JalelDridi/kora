@@ -328,7 +328,11 @@ export type FlagKind =
   /** The caps source gives no goals and no other source does; the 0 is a placeholder. */
   | "goals-unknown"
   /** Decision D-S1-2 ignored Wikidata's one open club: it started over 8 years ago. */
-  | "wd-club-too-old";
+  | "wd-club-too-old"
+  /** A spell's years the database cannot hold (outside 1900–2100, or ending before it starts). */
+  | "spell-years-unusable"
+  /** An honour's winner has no club row with a country, so the honour is left out. */
+  | "honour-winner-unresolved";
 
 /** Something for Jalel to look at. `subject` is a Wikidata id or a title. */
 export type Flag = { subject: string; kind: FlagKind; detail: string };
