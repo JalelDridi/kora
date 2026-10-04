@@ -34,6 +34,18 @@ export function createTestClient(): PrismaClient {
   return db;
 }
 
+/** Every table, in an order TRUNCATE ... CASCADE accepts. */
+export const resetTables = [
+  "results",
+  "reports",
+  "puzzles",
+  "player_clubs",
+  "honours",
+  "players",
+  "clubs",
+  "governorates",
+] as const;
+
 /** Empties every table. Only accepts a client from createTestClient. */
 export async function resetDatabase(db: PrismaClient): Promise<void> {
   if (!testClients.has(db)) {
@@ -41,8 +53,6 @@ export async function resetDatabase(db: PrismaClient): Promise<void> {
       "resetDatabase only accepts a client made by createTestClient",
     );
   }
-  await db.$executeRawUnsafe(
-    `TRUNCATE "results", "reports", "puzzles", "players", "clubs"
-     RESTART IDENTITY CASCADE`,
-  );
+  const tables = resetTables.map((table) => `"${table}"`).join(", ");
+  await db.$executeRawUnsafe(`TRUNCATE ${tables} RESTART IDENTITY CASCADE`);
 }

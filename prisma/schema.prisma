@@ -30,47 +30,161 @@ enum ReportStatus {
   rejected
 }
 
+/// The seven INS economic regions; "same region" in the governorate tile.
+enum Region {
+  grand_tunis
+  north_east
+  north_west
+  centre_east
+  centre_west
+  south_east
+  south_west
+}
+
+enum Confederation {
+  CAF
+  UEFA
+  AFC
+  CONCACAF
+  CONMEBOL
+  OFC
+}
+
+enum Competition {
+  tn_ligue1
+  tn_cup
+  caf_cl
+  caf_cc
+}
+
 model Club {
-  /// Slug, for example "esperance-tunis".
-  id         String   @id
-  wikidataId String?  @unique @map("wikidata_id")
-  nameLatin  String   @map("name_latin")
-  nameArabic String?  @map("name_arabic")
+  /// Slug, for example "esperance-sportive-de-tunis".
+  id               String         @id
+  wikidataId       String?        @unique @map("wikidata_id")
+  nameLatin        String         @map("name_latin")
+  nameArabic       String?        @map("name_arabic")
+  nameFrench       String?        @map("name_french")
   /// ISO 3166-1 alpha-2, upper case.
-  country    String   @db.Char(2)
-  createdAt  DateTime @default(now()) @map("created_at")
-  updatedAt  DateTime @updatedAt @map("updated_at")
+  country          String         @db.Char(2)
+  confederation    Confederation?
+  /// The league on Wikidata (P118), as it is today, not per season.
+  leagueWikidataId String?        @map("league_wikidata_id")
+  /// In the current Tunisian Ligue 1 season (curated list).
+  ligue1           Boolean        @default(false)
+  createdAt        DateTime       @default(now()) @map("created_at")
+  updatedAt        DateTime       @updatedAt @map("updated_at")
 
   players Player[]
+  spells  PlayerClub[]
+  honours Honour[]
 
   @@map("clubs")
 }
 
+model Governorate {
+  /// Slug, for example "sidi-bouzid".
+  id         String @id
+  nameLatin  String @map("name_latin")
+  nameArabic String @map("name_arabic")
+  nameFrench String @map("name_french")
+  region     Region
+
+  players Player[]
+
+  @@map("governorates")
+}
+
 model Player {
   /// Slug, for example "youssef-msakni".
-  id          String   @id
-  wikidataId  String?  @unique @map("wikidata_id")
-  nameLatin   String   @map("name_latin")
-  nameArabic  String?  @map("name_arabic")
-  position    Position
-  birthDate   DateTime @map("birth_date") @db.Date
-  governorate String?
-  caps        Int      @default(0)
-  goals       Int      @default(0)
-  clubId      String?  @map("club_id")
-  photoUrl    String?  @map("photo_url")
-  photoCredit String?  @map("photo_credit")
-  /// Where each field came from: { field: { source, retrievedAt } }.
-  provenance  Json     @default("{}")
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
+  id               String    @id
+  wikidataId       String?   @unique @map("wikidata_id")
+  nameLatin        String    @map("name_latin")
+  nameArabic       String?   @map("name_arabic")
+  nameFrench       String?   @map("name_french")
+  /// Other spellings people type: Arabizi, French, Arabic.
+  aliases          String[]  @default([])
+  position         Position
+  /// The source's own words, for example "Centre-back".
+  positionDetail   String?   @map("position_detail")
+  birthDate        DateTime  @map("birth_date") @db.Date
+  birthPlace       String?   @map("birth_place")
+  /// ISO 3166-1 alpha-2; "TN" when born in Tunisia.
+  birthCountry     String?   @map("birth_country") @db.Char(2)
+  governorateId    String?   @map("governorate")
+  caps             Int       @default(0)
+  goals            Int       @default(0)
+  /// The source's "as of" date for caps and goals.
+  capsAsOf         DateTime? @map("caps_as_of") @db.Date
+  /// Current club; null when retired, free or unknown.
+  clubId           String?   @map("club_id")
+  /// Commons file name, for example "File:Wahbi Khazri 2018.jpg".
+  photoFile        String?   @map("photo_file")
+  /// A 400 px thumbnail.
+  photoUrl         String?   @map("photo_url")
+  photoAuthor      String?   @map("photo_author")
+  photoLicence     String?   @map("photo_licence")
+  photoLicenceUrl  String?   @map("photo_licence_url")
+  /// The file's page on Commons, which credits the author.
+  photoSourceUrl   String?   @map("photo_source_url")
+  wikiEn           String?   @map("wiki_en")
+  wikiFr           String?   @map("wiki_fr")
+  wikiAr           String?   @map("wiki_ar")
+  /// Chkoun? answers.
+  poolActive       Boolean   @default(false) @map("pool_active")
+  /// 30–0 and Masira.
+  poolLegend       Boolean   @default(false) @map("pool_legend")
+  /// Where each field came from: { field: { source, retrievedAt, asOf?, ref?, by? } }.
+  provenance       Json      @default("{}")
+  createdAt        DateTime  @default(now()) @map("created_at")
+  updatedAt        DateTime  @updatedAt @map("updated_at")
 
-  club    Club?    @relation(fields: [clubId], references: [id])
-  puzzles Puzzle[]
-  reports Report[]
+  club        Club?        @relation(fields: [clubId], references: [id])
+  governorate Governorate? @relation(fields: [governorateId], references: [id])
+  career      PlayerClub[]
+  puzzles     Puzzle[]
+  reports     Report[]
 
   @@index([clubId])
   @@map("players")
+}
+
+/// One senior spell in a career, in order.
+model PlayerClub {
+  playerId String  @map("player_id")
+  /// Position in the career, from 0.
+  seq      Int
+  /// Null when the club could not be matched to a club with a country.
+  clubId   String? @map("club_id")
+  /// The club as the source names it, kept even when clubId is null.
+  clubName String  @map("club_name")
+  fromYear Int?    @map("from_year")
+  toYear   Int?    @map("to_year")
+  apps     Int?
+  goals    Int?
+  loan     Boolean @default(false)
+
+  player Player @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  club   Club?  @relation(fields: [clubId], references: [id])
+
+  @@id([playerId, seq])
+  @@index([clubId])
+  @@map("player_clubs")
+}
+
+/// A club's title in a season. Players' honours are derived from careers.
+model Honour {
+  id          String      @id @default(uuid()) @db.Uuid
+  competition Competition
+  /// The year the season started: 2018 for 2018–19.
+  seasonStart Int         @map("season_start")
+  clubId      String      @map("club_id")
+  /// "wikidata" or "curated".
+  source      String
+
+  club Club @relation(fields: [clubId], references: [id])
+
+  @@unique([competition, seasonStart])
+  @@map("honours")
 }
 
 model Puzzle {
