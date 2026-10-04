@@ -649,7 +649,16 @@ export function mergePlayer(
       silent.asOf,
       silent.box.title,
     );
-    prov.goals = { ...prov.caps };
+    if (o.caps && o.caps.value > 0 && !o.goals) {
+      // Jalel says he played: the page's silence says nothing about goals.
+      prov.goals = { source: "none", retrievedAt: ctx.today };
+      flags.push({
+        kind: "goals-unknown",
+        detail: `caps ${o.caps.value} from an override; ${silent.source} has no senior row and no source gives his goals`,
+      });
+    } else {
+      prov.goals = { ...prov.caps };
+    }
   } else if (!capsPick.chosen) {
     prov.caps = { source: "none", retrievedAt: ctx.today };
     prov.goals = { source: "none", retrievedAt: ctx.today };

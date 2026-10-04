@@ -869,6 +869,33 @@ describe("mergePlayer", () => {
       ).toEqual(["goals-unknown"]);
     });
 
+    // Fix round 3 (iii): Jalel says he played, so the page's silence says
+    // nothing about his goals.
+    it("does not read 0 goals from a silent infobox beside overridden caps", () => {
+      const merged = mergePlayer(wdPlayer(), {
+        ...noCaps({ capsAsOf: "2026-09-01" }, null),
+        overrides: {
+          players: { Q19956607: { caps: { value: 7, ...by } } },
+          clubTitles: {},
+        },
+      });
+      expect([merged?.draft.caps, merged?.draft.goals]).toEqual([7, 0]);
+      expect(merged?.draft.provenance.caps).toMatchObject({
+        source: "override",
+        confidence: "high",
+      });
+      expect(merged?.draft.provenance.goals).toMatchObject({
+        source: "none",
+        confidence: "low",
+        agreeing: ["none"],
+      });
+      expect(
+        merged?.flags
+          .filter((f) => f.kind.endsWith("-unknown"))
+          .map((f) => f.kind),
+      ).toEqual(["goals-unknown"]);
+    });
+
     it("flags caps no source gives, rated low on no source", () => {
       const merged = mergePlayer(wdPlayer(), noCaps(null, null));
       expect([
