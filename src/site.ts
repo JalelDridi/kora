@@ -5,4 +5,6 @@ export const site = {
   url: process.env.VERCEL_PROJECT_PRODUCTION_URL
     ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
     : "http://localhost:3000",
+  // Same as --color-pitch-950 in src/app/globals.css (checked by a test).
+  themeColor: "#0b1510",
 };

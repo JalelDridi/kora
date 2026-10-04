@@ -1,5 +1,5 @@
 import { Analytics } from "@vercel/analytics/next";
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { IBM_Plex_Sans_Arabic, Inter } from "next/font/google";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
@@ -29,6 +29,8 @@ const arabic = IBM_Plex_Sans_Arabic({
 export function generateStaticParams() {
   return locales.map((locale) => ({ locale }));
 }
+
+export const viewport: Viewport = { themeColor: site.themeColor };
 
 export async function generateMetadata({
   params,

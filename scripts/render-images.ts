@@ -4,7 +4,7 @@
 // after changing a tagline, the mark or this design: `pnpm images`, then bump
 // shareImageVersion in src/share.ts if an existing image changed. Locally it
 // uses the installed Chrome, like scripts/render-deck.mjs.
-import { mkdirSync, readFileSync, statSync } from "node:fs";
+import { mkdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { chromium, type Page } from "@playwright/test";
 import { localeInfo, locales } from "../src/i18n/locales.ts";
@@ -82,12 +82,68 @@ async function renderShareImages(page: Page) {
   }
 }
 
+const glyph = mark.match(/<path[\s\S]*?\/>/)?.[0];
+if (!glyph) throw new Error("no <path> in src/app/icon.svg");
+
+// Full-bleed square for launchers that cut their own shape (Android
+// maskable, iOS); the glyph is scaled into the maskable safe zone.
+const fullBleed = (scale: number) =>
+  `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" fill="#101d16" />
+   <g transform="translate(16 16) scale(${scale}) translate(-16 -16)">${glyph}</g></svg>`;
+
+async function png(page: Page, svg: string, size: number): Promise<Buffer> {
+  await page.setViewportSize({ width: size, height: size });
+  await page.setContent(
+    `<!doctype html><html><head><style>* { margin: 0; } html, body { background: transparent; }
+     svg { display: block; inline-size: ${size}px; block-size: ${size}px; }</style></head><body>${svg}</body></html>`,
+  );
+  return page.screenshot({ type: "png", omitBackground: true });
+}
+
+// An ICO file wrapping PNG images (read by every current browser).
+function ico(images: { size: number; png: Buffer }[]): Buffer {
+  const header = Buffer.alloc(6);
+  header.writeUInt16LE(1, 2);
+  header.writeUInt16LE(images.length, 4);
+  let offset = 6 + 16 * images.length;
+  const entries = images.map(({ size, png }) => {
+    const entry = Buffer.alloc(16);
+    entry.writeUInt8(size, 0);
+    entry.writeUInt8(size, 1);
+    entry.writeUInt16LE(1, 4);
+    entry.writeUInt16LE(32, 6);
+    entry.writeUInt32LE(png.length, 8);
+    entry.writeUInt32LE(offset, 12);
+    offset += png.length;
+    return entry;
+  });
+  return Buffer.concat([header, ...entries, ...images.map((i) => i.png)]);
+}
+
+async function renderIcons(page: Page) {
+  mkdirSync(out("public/icons"), { recursive: true });
+  const write = (path: string, data: Buffer) => {
+    writeFileSync(out(path), data);
+    console.log(`${out(path)} (${data.length} bytes)`);
+  };
+  write("public/icons/icon-192.png", await png(page, mark, 192));
+  write("public/icons/icon-512.png", await png(page, mark, 512));
+  write("public/icons/maskable-512.png", await png(page, fullBleed(0.8), 512));
+  write("src/app/apple-icon.png", await png(page, fullBleed(0.9), 180));
+  const small = [];
+  for (const size of [16, 32, 48]) {
+    small.push({ size, png: await png(page, mark, size) });
+  }
+  write("src/app/favicon.ico", ico(small));
+}
+
 const browser = await chromium.launch({
   channel: process.env.CI ? undefined : "chrome",
 });
 const page = await browser.newPage({ deviceScaleFactor: 1 });
 try {
   await renderShareImages(page);
+  await renderIcons(page);
 } finally {
   await browser.close();
 }
