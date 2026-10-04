@@ -27,5 +27,10 @@
       "name": "Plus ou moins",
       "pitch": "Qui en a le plus ? Garde ta série"
     }
+  },
+  "notFound": {
+    "title": "Cette page n'existe pas",
+    "body": "Le lien est peut-être faux, ou la page a été retirée.",
+    "home": "Retour aux jeux"
   }
 }
