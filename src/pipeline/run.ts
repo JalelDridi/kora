@@ -30,10 +30,11 @@ import {
   chunk,
   parseRevisions,
   redirectsUrl,
+  rawBatch,
   revisionsUrl,
   unanswered,
 } from "./wiki/fetch.ts";
-import type { Page } from "./wiki/fetch.ts";
+import type { Page, RawBatch } from "./wiki/fetch.ts";
 import { parseEnInfobox } from "./wiki/infobox-en.ts";
 import { parseFrInfobox } from "./wiki/infobox-fr.ts";
 import {
@@ -155,8 +156,11 @@ const GITHUB_DOWNLOADS = 2;
  * cache. Version 2: the cache keeps what the servers sent (wikitext, SPARQL
  * results, Commons pages, CSV rows) and every run parses it again, so a
  * parser change needs no new request. Version 1 kept parsed values.
+ * Version 3 (final wave, B8): the Wikipedia answers keep their `normalized`
+ * and `redirects` lists as sent, beside their pages, instead of the moves
+ * read from them; only each page's content is cut to section 0.
  */
-export const CACHE_VERSION = 2;
+export const CACHE_VERSION = 3;
 
 type CacheEntry<T> = {
   version: number;
@@ -168,8 +172,9 @@ type CacheEntry<T> = {
 const isObject = (v: unknown): v is Record<string, unknown> =>
   typeof v === "object" && v !== null && !Array.isArray(v);
 const listOf = (v: unknown) => Array.isArray(v);
-const pairs = (v: unknown) =>
-  Array.isArray(v) && v.every((e) => Array.isArray(e) && e.length === 2);
+/** MediaWiki answers as cached (B8): each with its list of pages. */
+const batches = (v: unknown) =>
+  Array.isArray(v) && v.every((b) => isObject(b) && listOf(b.pages));
 
 const sparqlResult = (v: unknown) =>
   isObject(v) && isObject(v.results) && listOf(v.results.bindings);
@@ -181,9 +186,9 @@ const SHAPES: Record<string, (v: unknown) => boolean> = {
     ["players", "aliases", "memberships", "honours"].every((q) =>
       sparqlResult(v[q]),
     ),
-  "infobox-en": (v) => isObject(v) && listOf(v.pages) && pairs(v.moved),
-  "infobox-fr": (v) => isObject(v) && listOf(v.pages) && pairs(v.moved),
-  redirects: (v) => isObject(v) && pairs(v.en) && pairs(v.fr),
+  "infobox-en": (v) => isObject(v) && batches(v.batches),
+  "infobox-fr": (v) => isObject(v) && batches(v.batches),
+  redirects: (v) => isObject(v) && batches(v.en) && batches(v.fr),
   clubs: (v) =>
     Array.isArray(v) &&
     v.every((e) => Array.isArray(e) && e.length === 2 && sparqlResult(e[1])),
@@ -559,12 +564,12 @@ async function build(deps: RunDeps): Promise<RunResult> {
   // (with its revision id and timestamp) and how requested titles moved; the
   // infobox parser runs on it every time. Infoboxes are keyed by the page's
   // title and by each title that moved to it (a sitelink may be a redirect).
-  type PagesRaw = { pages: Page[]; moved: [string, string][] };
+  type PagesRaw = { batches: RawBatch[] };
   const infoboxes = async (lang: "en" | "fr") =>
     source<PagesRaw, Map<string, Infobox>>(
       `infobox-${lang}`,
       async () => {
-        const raw: PagesRaw = { pages: [], moved: [] };
+        const raw: PagesRaw = { batches: [] };
         for (const batch of chunk(titles[lang])) {
           const json = await wikimedia.getJson(revisionsUrl(lang, batch));
           pagesOf(json, batch.length);
@@ -575,21 +580,21 @@ async function build(deps: RunDeps): Promise<RunResult> {
             throw new Error(
               `${lost.length} of ${batch.length} titles came back without content or a missing mark (${lost.slice(0, 3).join(", ")})`,
             );
-          const read = parseRevisions(json);
-          raw.pages.push(
-            ...read.pages.map((p) => ({
-              ...p,
-              wikitext: sectionZero(p.wikitext),
-            })),
-          );
-          raw.moved.push(...read.aliases);
+          parseRevisions(json); // throws on an error body
+          raw.batches.push(rawBatch(json, sectionZero));
         }
         return raw;
       },
       (raw) => {
-        const moved = new Map(raw.moved);
+        const pages: Page[] = [];
+        const moved = new Map<string, string>();
+        for (const batch of raw.batches) {
+          const read = parseRevisions({ query: batch });
+          pages.push(...read.pages);
+          for (const [from, to] of read.aliases) moved.set(from, to);
+        }
         const boxes = new Map<string, Infobox>();
-        for (const page of raw.pages) {
+        for (const page of pages) {
           const box =
             lang === "en"
               ? parseEnInfobox(page.title, page.wikitext)
@@ -604,7 +609,7 @@ async function build(deps: RunDeps): Promise<RunResult> {
           if (box && !out.has(from)) out.set(from, box);
         }
         deps.log(
-          `infobox-${lang}: ${raw.pages.length} pages, ${boxes.size} infoboxes`,
+          `infobox-${lang}: ${pages.length} pages, ${boxes.size} infoboxes`,
         );
         if (titles[lang].length > 0)
           nonEmpty(
@@ -653,21 +658,27 @@ async function build(deps: RunDeps): Promise<RunResult> {
       );
   }
   // The answer's `normalized` and `redirects` lists, as from → to pairs.
+  // B8: each answer kept as sent; the moves are read from it on every build.
   type Moves = { en: [string, string][]; fr: [string, string][] };
-  const redirects = await source<Moves, Moves>(
+  type MovesRaw = { en: RawBatch[]; fr: RawBatch[] };
+  const redirects = await source<MovesRaw, Moves>(
     "redirects",
     async () => {
-      const out: Moves = { en: [], fr: [] };
+      const out: MovesRaw = { en: [], fr: [] };
       for (const lang of ["en", "fr"] as const) {
         for (const batch of chunk(currentClubs[lang])) {
           const json = await wikimedia.getJson(redirectsUrl(lang, batch));
           pagesOf(json, batch.length);
-          out[lang].push(...parseRevisions(json).aliases);
+          parseRevisions(json); // throws on an error body
+          out[lang].push(rawBatch(json));
         }
       }
       return out;
     },
-    (raw) => raw,
+    (raw) => ({
+      en: raw.en.flatMap((b) => parseRevisions({ query: b }).aliases),
+      fr: raw.fr.flatMap((b) => parseRevisions({ query: b }).aliases),
+    }),
   );
 
   // Clubs: by id (the wanted footballers' memberships, honours, curated

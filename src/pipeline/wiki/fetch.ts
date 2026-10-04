@@ -123,3 +123,45 @@ export function unanswered(json: unknown, titles: string[]): string[] {
     return !accounted.has(to);
   });
 }
+
+/**
+ * One answer's `normalized`, `redirects` and `pages`, as sent, for the cache
+ * (final wave, B8): parseRevisions reads it again on every build, so a
+ * change in how moves or pages are read needs no new request. `content` may
+ * shorten each page's wikitext (the run keeps section 0 only).
+ */
+export type RawBatch = {
+  normalized?: Move[];
+  redirects?: Move[];
+  pages: ApiPage[];
+};
+
+export function rawBatch(
+  json: unknown,
+  content: (wikitext: string) => string = (w) => w,
+): RawBatch {
+  const query = (json as ApiResponse)?.query ?? {};
+  const pages = (query.pages ?? []).map((page) => {
+    if (!page.revisions) return page;
+    return {
+      ...page,
+      revisions: page.revisions.map((r) => {
+        const text = r.slots?.main?.content;
+        return text === undefined
+          ? r
+          : {
+              ...r,
+              slots: {
+                ...r.slots,
+                main: { ...r.slots!.main, content: content(text) },
+              },
+            };
+      }),
+    };
+  });
+  return {
+    ...(query.normalized ? { normalized: query.normalized } : {}),
+    ...(query.redirects ? { redirects: query.redirects } : {}),
+    pages,
+  };
+}

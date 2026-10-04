@@ -349,6 +349,19 @@ describe("run", () => {
       caps: 30,
       clubId: "club-africain",
     });
+    // Final wave, B8: the cache keeps the answer's redirect list as sent, and
+    // an offline rebuild reads the move from it again.
+    const cached = JSON.parse(
+      await readFile(file(root, "cache/infobox-en.json"), "utf8"),
+    ) as { value: { batches: { redirects?: unknown }[] } };
+    expect(cached.value.batches[0].redirects).toEqual([
+      { from: moved, to: "Test Footballer" },
+    ]);
+    const pool = await readFile(file(root, "pool.json"), "utf8");
+    expect(
+      await run({ root, today: "2026-10-04", offline: true, log: () => {} }),
+    ).toEqual({ ok: true, changed: false });
+    expect(await readFile(file(root, "pool.json"), "utf8")).toBe(pool);
   });
 
   it("falls back to the cache for every source behind a stopped client, and says so", async () => {
@@ -1195,14 +1208,33 @@ describe("the raw cache and offline builds", () => {
     await run(deps(root));
     const en = await entry(root, "infobox-en");
     expect(en.version).toBe(CACHE_VERSION);
-    expect(en.value.pages).toEqual([
+    // Final wave, B8: each batch's pages, normalized titles and redirects as
+    // sent (only the content is cut to section 0), parsed on every read.
+    expect(en.value.batches).toEqual([
       {
-        title: "Test Footballer",
-        revid: 1,
-        timestamp: null,
-        wikitext: expect.stringContaining("{{Infobox football biography"),
+        pages: [
+          {
+            title: "Test Footballer",
+            revisions: [
+              {
+                revid: 1,
+                slots: {
+                  main: {
+                    content: expect.stringContaining(
+                      "{{Infobox football biography",
+                    ),
+                  },
+                },
+              },
+            ],
+          },
+        ],
       },
     ]);
+    expect((await entry(root, "redirects")).value).toEqual({
+      en: [{ pages: [{ title: "Club Africain" }] }],
+      fr: [],
+    });
     // No parsed infobox in the cache: the parser runs again on every build.
     expect(await readFile(cachePath(root, "infobox-en"), "utf8")).not.toContain(
       '"spells"',
@@ -1296,8 +1328,11 @@ describe("the raw cache and offline builds", () => {
     await run(deps(root));
     // As if the parser now read 31 where it read 30: change what it reads.
     const en = await entry(root, "infobox-en");
-    const page = (en.value.pages as { wikitext: string }[])[0];
-    page.wikitext = page.wikitext.replace(
+    const batches = en.value.batches as {
+      pages: { revisions: { slots: { main: { content: string } } }[] }[];
+    }[];
+    const main = batches[0].pages[0].revisions[0].slots.main;
+    main.content = main.content.replace(
       "nationalcaps1 = 30",
       "nationalcaps1 = 31",
     );
