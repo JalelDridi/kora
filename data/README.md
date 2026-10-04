@@ -51,11 +51,11 @@ Keyed by the footballer's Wikidata id. Every value says who decided and when:
       "clubTitles": { "en:Esperance de Tunis": "Q44897" }
     }
 
-Fields: `club` (a club's Wikidata id, or `null` for none), `position`, `positionDetail`, `caps`, `goals`, `capsAsOf`, `governorate`, `birthCountry`, `nameArabic`, `aliases`, `pools` (`{ "active": true, "legend": false }`), `exclude`. `clubTitles` pins a Wikipedia link title to a club. Edit overrides on `main`, never on the `data/nightly` branch, which is rebuilt every night.
+Fields: `club` (a club's Wikidata id, or `null` for none), `position`, `positionDetail`, `caps`, `goals`, `capsAsOf`, `birthDate` (`YYYY-MM-DD`, decision P37), `governorate`, `birthCountry`, `nameArabic`, `aliases`, `pools` (`{ "active": true, "legend": false }`), `exclude`. `clubTitles` pins a Wikipedia link title to a club. Edit overrides on `main`, never on the `data/nightly` branch, which is rebuilt every night.
 
 ## Confidence
 
-Every field in `pool.json` carries `confidence` (high, medium or low), `agreeing` (the sources that give the chosen value) and a short `confidenceNote` (decision P26). High: two sources agree and none newer says otherwise. Medium: one source under 12 months old, or older sources whose lower numbers their dates explain. Low: one undated or old source, or a conflict. An override is always high. The governorate, birthplace, Arabic name and photo have one source, so they stay low until an override confirms them. The report lists low fields first.
+Every field in `pool.json` carries `confidence` (high, medium or low), `agreeing` (the sources that give the chosen value) and a short `confidenceNote` (decision P26). High: two sources agree and none newer says otherwise. Medium: one source under 12 months old, or older sources whose lower numbers their dates explain. Low: one undated or old source, or a conflict. An override is always high. When two sources agree and the third differs, the agreed value wins, rated medium and flagged; only unanimous sources give high (P38). The birth date is the one two or three of the English page, the French page and Wikidata give (P37); one page against Wikidata, the page wins, rated low and flagged (P39). The governorate, birthplace, Arabic name and photo have one source: a birthplace Wikidata resolves to a Tunisian town (and so to one governorate), or to a place abroad with its country, is medium (P36); "Tunisia" with no town, or a place with no country, stays low; the Arabic name and the photo stay low until an override confirms them. The report lists low fields first, and counts the active footballers ready to be a daily answer (P27).
 
 ## Sources and licences
 
