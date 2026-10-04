@@ -62,6 +62,7 @@ describe("parseEnInfobox", () => {
       capsAsOf: "2024-04-01",
       skipped: [],
       birthDate: "1990-01-01",
+      seniorRow: true,
     });
   });
 
@@ -211,6 +212,7 @@ describe("parseFrInfobox", () => {
       capsAsOf: "2026-09-27",
       skipped: [],
       birthDate: "1993-07-02",
+      seniorRow: true,
     });
   });
 
@@ -931,6 +933,65 @@ describe("birth dates", () => {
         ?.birthDate,
     ).toBeNull();
   });
+});
+
+// Fix round 5: whether a senior Tunisia row exists at all, whatever its caps,
+// so an unreadable count is never read as "not an international".
+describe("seniorRow", () => {
+  const tunisiaRow = (caps: string) =>
+    parseEnInfobox(
+      "X",
+      en(
+        `| nationalteam1 = [[Tunisia national football team|Tunisia]]\n| nationalcaps1 = ${caps}`,
+      ),
+    );
+
+  it.each(["", "?"])(
+    "finds an English senior row whose caps read %j",
+    (caps) => {
+      expect(tunisiaRow(caps)).toMatchObject({
+        seniorRow: true,
+        caps: null,
+        skipped: [],
+      });
+    },
+  );
+
+  it("finds a French senior row whose count is ?", () => {
+    const box = parseFrInfobox(
+      "X",
+      fr(
+        "| sélection nationale = {{trois colonnes\n|[[2015 en football|2015]]-|{{TUN football}}|? (?)\n}}",
+      ),
+    );
+    expect(box).toMatchObject({ seniorRow: true, caps: null, skipped: [] });
+  });
+
+  it("finds no senior row on a page without one, nor in a youth row", () => {
+    expect(parseEnInfobox("X", en("| name = X"))?.seniorRow).toBe(false);
+    expect(parseFrInfobox("X", fr("| nom = X"))?.seniorRow).toBe(false);
+    expect(
+      parseEnInfobox(
+        "X",
+        en(
+          "| nationalteam1 = [[Tunisia national under-23 football team|Tunisia U23]]\n| nationalcaps1 = 4",
+        ),
+      )?.seniorRow,
+    ).toBe(false);
+  });
+
+  // All eight recorded footballers are internationals; each page shows a
+  // senior Tunisia row (en: [[Tunisia national football team|Tunisia]];
+  // fr: {{TUN football}} or a link labelled Tunisie).
+  for (const lang of ["en", "fr"] as const) {
+    for (const file of readdirSync(`${dir}/${lang}`)) {
+      const slug = file.replace(/\.wikitext$/, "");
+      it(`finds the senior row of ${lang}/${slug}`, () => {
+        const box = lang === "en" ? enBox(slug) : frBox(slug);
+        expect(box?.seniorRow).toBe(true);
+      });
+    }
+  }
 });
 
 describe("isSeniorTunisie", () => {

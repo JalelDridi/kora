@@ -165,6 +165,7 @@ export function parseEnInfobox(
   let caps: number | null = null;
   let goals: number | null = null;
   let nationalOpen = false;
+  let seniorRow = false;
   for (let n = 1; n <= NATIONAL_ROWS; n++) {
     const team = get(`nationalteam${n}`);
     // A cell empty but for comments or refs is no row.
@@ -181,6 +182,7 @@ export function parseEnInfobox(
       continue;
     }
     if (kind === "other") continue;
+    seniorRow = true;
     const rowCaps = intOrNull(get(`nationalcaps${n}`));
     if (rowCaps !== null) caps = (caps ?? 0) + rowCaps;
     const rowGoals = intOrNull(get(`nationalgoals${n}`));
@@ -212,5 +214,6 @@ export function parseEnInfobox(
     skipped,
     // splitParams writes "birth_date" as "birth date".
     birthDate: parseEnBirth(get("birth date")),
+    seniorRow,
   };
 }

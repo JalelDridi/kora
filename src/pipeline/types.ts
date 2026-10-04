@@ -109,6 +109,11 @@ export type Infobox = {
   skipped: SkippedRow[];
   /** ISO birth date; absent when the parser does not read it. */
   birthDate?: string | null;
+  /**
+   * A row or numbered parameter reads as the senior Tunisia team, whatever its
+   * caps: true with caps null means an international whose count is unreadable.
+   */
+  seniorRow: boolean;
 };
 
 /**

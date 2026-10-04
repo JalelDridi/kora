@@ -57,6 +57,7 @@ function box(lang: "en" | "fr", fields: Partial<Infobox> = {}): Infobox {
     clubsAsOf: null,
     capsAsOf: null,
     skipped: [],
+    seniorRow: false,
     ...fields,
   };
 }
@@ -623,6 +624,8 @@ describe("pickPosition (P35)", () => {
   it("takes Wikidata when all three disagree", () => {
     const p = pick("Forward", "Défenseur central", ["midfielder"]);
     expect(p.line).toBe("midfielder");
+    // Fix round 5, item 3: no page wording contradicting the chosen line.
+    expect(p.detail).toBeNull();
     expect(p.flags).toEqual([
       {
         kind: "position-disagrees",
@@ -1000,6 +1003,76 @@ describe("mergePlayer", () => {
       });
       expect(merged?.flags.map((f) => f.kind)).toContain("caps-unknown");
     });
+
+    // Fix round 5, item 1: a senior Tunisia row with no readable caps proves
+    // he is an international, so it is no witness of absence.
+    const unknownCaps = (merged: ReturnType<typeof mergePlayer>) => {
+      expect([merged?.draft.caps, merged?.draft.goals]).toEqual([0, 0]);
+      expect(merged?.draft.provenance.caps).toMatchObject({
+        source: "none",
+        confidence: "low",
+        agreeing: ["none"],
+      });
+      expect(merged?.flags.map((f) => f.kind)).toContain("caps-unknown");
+    };
+    it.each(["", "?"])(
+      "reads an English senior row with caps %j beside a silent French page as unknown caps",
+      (count) => {
+        const english = parseEnInfobox(
+          "Yassine Meriah",
+          `{{Infobox football biography\n| nationalteam1 = [[Tunisia national football team|Tunisia]]\n| nationalcaps1 = ${count}\n}}`,
+        )!;
+        expect([english.seniorRow, english.caps]).toEqual([true, null]);
+        unknownCaps(mergePlayer(wdPlayer(), noCaps(english, {}, [club2020])));
+      },
+    );
+    it("reads a French senior row counted ? beside a silent English page as unknown caps", () => {
+      const french = parseFrInfobox(
+        "Yassine Meriah (football)",
+        "{{Infobox Footballeur\n| sélection nationale = {{trois colonnes\n|[[2015 en football|2015]]-|{{TUN football}}|? (?)\n}}\n}}",
+      )!;
+      expect([french.seniorRow, french.caps]).toEqual([true, null]);
+      unknownCaps(mergePlayer(wdPlayer(), noCaps({}, french, [club2020])));
+    });
+
+    // Fix round 5, item 2: Wikidata testifies only when it lists no national
+    // team at all, of any country or age.
+    it("takes no Wikidata testimony from a record listing a Tunisian youth team", () =>
+      absence(
+        mergePlayer(
+          wdPlayer(),
+          noCaps({}, null, [
+            club2020,
+            membership("Q1062377", 2012, 2014, { national: true }),
+          ]),
+        ),
+        "enwiki",
+        "low",
+        ["enwiki"],
+      ));
+    it("takes no Wikidata testimony from a record listing a foreign youth team", () =>
+      absence(
+        mergePlayer(
+          wdPlayer(),
+          noCaps({}, null, [
+            club2020,
+            membership("Q2329434", 2010, 2011, { national: true }),
+          ]),
+        ),
+        "enwiki",
+        "low",
+        ["enwiki"],
+      ));
+    it("takes Wikidata's testimony from a record listing clubs only", () =>
+      absence(
+        mergePlayer(
+          wdPlayer(),
+          noCaps({}, null, [club2020, membership("Q2", 2015, 2019)]),
+        ),
+        "enwiki",
+        "medium",
+        ["enwiki", "wikidata"],
+      ));
 
     it("keeps caps unknown after a skipped national row, whatever Wikidata says (P34)", () => {
       const skipped = [

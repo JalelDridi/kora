@@ -222,8 +222,10 @@ export function parseFrInfobox(
   let caps: number | null = null;
   let goals: number | null = null;
   let nationalOpen = false;
+  let seniorRow = false;
   for (const row of national.rows) {
     if (!isSeniorTunisie(row.team)) continue;
+    seniorRow = true;
     if (row.apps !== null) caps = (caps ?? 0) + row.apps;
     if (row.goals !== null) goals = (goals ?? 0) + row.goals;
     nationalOpen ||= row.open;
@@ -246,5 +248,6 @@ export function parseFrInfobox(
     capsAsOf: asOf,
     skipped,
     birthDate: parseFrBirth(get("date de naissance")),
+    seniorRow,
   };
 }

@@ -377,6 +377,8 @@ export function pickPosition(input: {
     vs.map((v) => `${v.source} ${v.line}`).join(", ");
 
   let line: Line | null = null;
+  /** Three different lines, Wikidata deciding: no page wording fits it. */
+  let threeWay = false;
   if (input.override) {
     line = input.override.value;
     prov.position = fromOverride(input.override);
@@ -393,6 +395,7 @@ export function pickPosition(input: {
         ? votes[2]
         : (votes.find((v) => v.source !== "wikidata") ?? votes[0]));
     line = chosen.line;
+    threeWay = !majority && votes.length === 3;
     prov.position = provenance(chosen.source, input.today, null, chosen.ref);
     const dissent = votes.filter((v) => v.line !== chosen.line);
     if (dissent.length > 0) {
@@ -434,6 +437,8 @@ export function pickPosition(input: {
       null,
       wording.title,
     );
+  } else if (threeWay) {
+    // Both pages give another line than the chosen one: no wording.
   } else if (enText) {
     detail = enText;
     prov.positionDetail = provenance(
@@ -678,13 +683,20 @@ export function mergePlayer(
     (b) => b !== null && b.skipped.some((r) => NATIONAL_FIELD.test(r.field)),
   );
   const wdListsSenior = memberships.some((m) => m.teamQid === TUNISIA_TEAM);
+  // A page with a senior Tunisia row but no readable caps proves he is an
+  // international: his caps are unknown, not 0 (fix round 5).
+  const pageSeniorRow = [en, fr].find((b) => b !== null && b.seniorRow);
+  // Wikidata testifies only when it lists memberships and no national team
+  // of any country or age group.
+  const wdNoNationalTeam =
+    memberships.length > 0 && !memberships.some((m) => m.national);
   const witnesses: { source: SourceId; ref: string }[] =
-    capsPick.chosen || anyNationalSkip || wdListsSenior
+    capsPick.chosen || anyNationalSkip || wdListsSenior || pageSeniorRow
       ? []
       : [
           ...(en ? [{ source: "enwiki" as const, ref: en.title }] : []),
           ...(fr ? [{ source: "frwiki" as const, ref: fr.title }] : []),
-          ...(memberships.length > 0
+          ...(wdNoNationalTeam
             ? [{ source: "wikidata" as const, ref: `P54 ${p.qid}` }]
             : []),
         ];
@@ -707,9 +719,11 @@ export function mergePlayer(
     if (!o.caps) {
       flags.push({
         kind: "caps-unknown",
-        detail: wdListsSenior
-          ? "Wikidata lists him in the senior team, but no source gives his caps or goals"
-          : "no source gives his Tunisia caps or goals",
+        detail: pageSeniorRow
+          ? `${sourceOf(pageSeniorRow)} has a senior Tunisia row with no readable caps`
+          : wdListsSenior
+            ? "Wikidata lists him in the senior team, but no source gives his caps or goals"
+            : "no source gives his Tunisia caps or goals",
       });
     } else if (!o.goals) {
       // Jalel gave the caps, not the goals: the goals are still unknown.

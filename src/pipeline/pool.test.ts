@@ -318,6 +318,7 @@ describe("buildPool", () => {
     clubsAsOf: null,
     capsAsOf: null,
     skipped: [],
+    seniorRow: false,
     ...fields,
   });
 
