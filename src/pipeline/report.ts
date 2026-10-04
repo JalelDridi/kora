@@ -325,6 +325,17 @@ export function renderReport(input: {
       `Seasons left out: ${reading.skipped.unlabelled} without an English label, ${reading.skipped.noStart} without a start year.`,
     );
   }
+  const replaced = pool.flags.filter(
+    (f) => f.kind === "honour-replaced-by-curated",
+  );
+  out.push(
+    "",
+    `### Replaced by a curated honour (${replaced.length})`,
+    "",
+    ...(replaced.length === 0
+      ? ["None."]
+      : replaced.map((f) => `- ${f.subject}: ${f.detail}`)),
+  );
 
   out.push(
     "",

@@ -501,35 +501,165 @@ describe("buildPool", () => {
     ]);
   });
 
-  it("keeps a Wikidata honour and a curated one for different editions of the same start year", () => {
-    const pool = build({
-      ...input(),
-      honours: [
+  describe("a curated honour replaces Wikidata for its season (fix round 1, finding 3)", () => {
+    const by = { by: "jalel", at: "2026-10-05" };
+    const replaced = (pool: ReturnType<typeof build>) =>
+      pool.flags.filter((f) => f.kind === "honour-replaced-by-curated");
+
+    it("replaces a Wikidata edition with another end year, with a flag naming both", () => {
+      const pool = build({
+        ...input(),
+        honours: [
+          {
+            competition: "tn_cup",
+            seasonStart: 2011,
+            seasonEnd: 2011,
+            winnerQid: "Q10",
+          },
+        ],
+        curatedHonours: [
+          {
+            competition: "tn_cup",
+            seasonStart: 2011,
+            seasonEnd: 2012,
+            clubWikidataId: "Q11",
+            ...by,
+          },
+        ],
+      });
+      expect(
+        pool.honours.map((h) => [
+          h.competition,
+          h.seasonStart,
+          h.seasonEnd,
+          h.clubId,
+          h.source,
+        ]),
+      ).toEqual([["tn_cup", 2011, 2012, "cs-sfaxien", "curated"]]);
+      expect(replaced(pool)).toEqual([
         {
-          competition: "tn_cup",
-          seasonStart: 2011,
-          seasonEnd: 2011,
-          winnerQid: "Q10",
+          subject: "tn_cup 2011",
+          kind: "honour-replaced-by-curated",
+          detail:
+            "wikidata 2011–2011 Q10 (esperance-sportive-de-tunis) replaced by curated 2011–2012 Q11 (cs-sfaxien)",
         },
-      ],
-      curatedHonours: [
-        {
-          competition: "tn_cup",
-          seasonStart: 2011,
-          seasonEnd: 2012,
-          clubWikidataId: "Q11",
-          by: "jalel",
-          at: "2026-10-05",
-        },
-      ],
+      ]);
     });
-    expect(
-      pool.honours.map((h) => [h.seasonStart, h.seasonEnd, h.clubId, h.source]),
-    ).toEqual([
-      [2011, 2011, "esperance-sportive-de-tunis", "wikidata"],
-      [2011, 2012, "cs-sfaxien", "curated"],
-    ]);
+
+    it("flags the replacement of the same edition too, even with no club for the Wikidata winner", () => {
+      const pool = build({
+        ...input(),
+        honours: [
+          {
+            competition: "tn_ligue1",
+            seasonStart: 2011,
+            seasonEnd: 2012,
+            winnerQid: "Q10",
+          },
+          {
+            competition: "caf_cl",
+            seasonStart: 2011,
+            seasonEnd: 2011,
+            winnerQid: "Q999",
+          },
+        ],
+        curatedHonours: [
+          {
+            competition: "tn_ligue1",
+            seasonStart: 2011,
+            seasonEnd: 2012,
+            clubWikidataId: "Q11",
+            ...by,
+          },
+          {
+            competition: "caf_cl",
+            seasonStart: 2011,
+            seasonEnd: 2011,
+            clubWikidataId: "Q10",
+            ...by,
+          },
+        ],
+      });
+      expect(replaced(pool).map((f) => f.detail)).toEqual([
+        "wikidata 2011–2011 Q999 (no club) replaced by curated 2011–2011 Q10 (esperance-sportive-de-tunis)",
+        "wikidata 2011–2012 Q10 (esperance-sportive-de-tunis) replaced by curated 2011–2012 Q11 (cs-sfaxien)",
+      ]);
+      expect(
+        pool.flags.some((f) => f.kind === "honour-winner-unresolved"),
+      ).toBe(false);
+    });
+
+    it("keeps two curated editions that start the same year (the two CAF editions of 2018)", () => {
+      const pool = build({
+        ...input(),
+        honours: [
+          {
+            competition: "caf_cc",
+            seasonStart: 2018,
+            seasonEnd: 2018,
+            winnerQid: "Q12",
+          },
+        ],
+        curatedHonours: [
+          {
+            competition: "caf_cc",
+            seasonStart: 2018,
+            seasonEnd: 2018,
+            clubWikidataId: "Q10",
+            ...by,
+          },
+          {
+            competition: "caf_cc",
+            seasonStart: 2018,
+            seasonEnd: 2019,
+            clubWikidataId: "Q11",
+            ...by,
+          },
+        ],
+      });
+      expect(
+        pool.honours.map((h) => [
+          h.seasonStart,
+          h.seasonEnd,
+          h.clubId,
+          h.source,
+        ]),
+      ).toEqual([
+        [2018, 2018, "esperance-sportive-de-tunis", "curated"],
+        [2018, 2019, "cs-sfaxien", "curated"],
+      ]);
+      expect(replaced(pool)).toHaveLength(1);
+    });
+
+    it("keeps Wikidata's editions of seasons nobody curated", () => {
+      const pool = build({
+        ...input(),
+        honours: [
+          {
+            competition: "tn_cup",
+            seasonStart: 2012,
+            seasonEnd: 2012,
+            winnerQid: "Q10",
+          },
+        ],
+        curatedHonours: [
+          {
+            competition: "tn_cup",
+            seasonStart: 2011,
+            seasonEnd: 2012,
+            clubWikidataId: "Q11",
+            ...by,
+          },
+        ],
+      });
+      expect(pool.honours.map((h) => [h.seasonStart, h.source])).toEqual([
+        [2011, "curated"],
+        [2012, "wikidata"],
+      ]);
+      expect(replaced(pool)).toEqual([]);
+    });
   });
+
   describe("who was left out (fix round 1, finding 1)", () => {
     function withLeftOut(): BuildInput {
       const base = input();

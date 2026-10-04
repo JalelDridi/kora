@@ -361,7 +361,21 @@ export function buildPool(input: BuildInput): { pool: Pool; ids: IdRegistry } {
     .sort((a, b) => a.id.localeCompare(b.id));
 
   // One winner per edition (competition, start, end); a curated row replaces Wikidata's.
-  // A winner with no club row (no country on Wikidata) is left out, with a flag.
+  // Ruling (fix round 1): a curated honour replaces every Wikidata edition of
+  // its competition and start year, whatever its end year, with a flag for
+  // each replaced row. Curated editions with different end years all stay
+  // (the two CAF editions that start in 2018). A winner with no club row (no
+  // country on Wikidata) is left out, with a flag.
+  const season = (h: { competition: string; seasonStart: number }) =>
+    `${h.competition} ${h.seasonStart}`;
+  const winner = (qid: string) => `${qid} (${clubIds.get(qid) ?? "no club"})`;
+  const curatedBySeason = new Map<string, CuratedHonour[]>();
+  for (const h of input.curatedHonours) {
+    curatedBySeason.set(season(h), [
+      ...(curatedBySeason.get(season(h)) ?? []),
+      h,
+    ]);
+  }
   const honours = new Map<string, PoolHonour>();
   const winners = [
     ...input.honours.map((h) => ({ ...h, source: "wikidata" as const })),
@@ -372,6 +386,20 @@ export function buildPool(input: BuildInput): { pool: Pool; ids: IdRegistry } {
     })),
   ];
   for (const h of winners) {
+    const curated = curatedBySeason.get(season(h));
+    if (h.source === "wikidata" && curated) {
+      flags.push({
+        subject: season(h),
+        kind: "honour-replaced-by-curated",
+        detail: `wikidata ${h.seasonStart}–${h.seasonEnd} ${winner(h.winnerQid)} replaced by curated ${curated
+          .map(
+            (c) =>
+              `${c.seasonStart}–${c.seasonEnd} ${winner(c.clubWikidataId)}`,
+          )
+          .join(" and ")}`,
+      });
+      continue;
+    }
     const id = clubIds.get(h.winnerQid);
     if (id) {
       honours.set(honourKey(h), {

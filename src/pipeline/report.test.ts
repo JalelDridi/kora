@@ -530,3 +530,49 @@ describe("who was left out, in the report (fix round 1, finding 1)", () => {
     expect(diffPools(before, after).removed).toEqual(["y"]);
   });
 });
+
+describe("honours replaced by curated rows, in the report (fix round 1, finding 3)", () => {
+  it("lists each replacement in the honours section", () => {
+    const p = pool([player("x")]);
+    p.flags.push({
+      subject: "tn_cup 2011",
+      kind: "honour-replaced-by-curated",
+      detail:
+        "wikidata 2011–2011 Q10 (a) replaced by curated 2011–2012 Q11 (b)",
+    });
+    const report = renderReport({
+      pool: p,
+      diff: diffPools(null, p),
+      statuses: {},
+      today: "2026-10-04",
+    });
+    const section = report.slice(
+      report.indexOf("## Honours read from Wikidata"),
+      report.indexOf("## Coverage"),
+    );
+    expect(section).toContain("### Replaced by a curated honour (1)");
+    expect(section).toContain(
+      "- tn_cup 2011: wikidata 2011–2011 Q10 (a) replaced by curated 2011–2012 Q11 (b)",
+    );
+  });
+
+  it("counts a season with two editions once when looking for gaps", () => {
+    const two = [
+      {
+        competition: "caf_cc" as const,
+        seasonStart: 2018,
+        seasonEnd: 2018,
+        clubId: "a",
+        source: "curated" as const,
+      },
+      {
+        competition: "caf_cc" as const,
+        seasonStart: 2018,
+        seasonEnd: 2019,
+        clubId: "b",
+        source: "curated" as const,
+      },
+    ];
+    expect(missingSeasons(two, "caf_cc", 2017, 2019)).toEqual([2017, 2019]);
+  });
+});

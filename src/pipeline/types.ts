@@ -332,7 +332,9 @@ export type FlagKind =
   /** A spell's years the database cannot hold (outside 1900–2100, or ending before it starts). */
   | "spell-years-unusable"
   /** An honour's winner has no club row with a country, so the honour is left out. */
-  | "honour-winner-unresolved";
+  | "honour-winner-unresolved"
+  /** A curated honour replaced a Wikidata edition of the same competition and start year. */
+  | "honour-replaced-by-curated";
 
 /** Something for Jalel to look at. `subject` is a Wikidata id or a title. */
 export type Flag = { subject: string; kind: FlagKind; detail: string };
