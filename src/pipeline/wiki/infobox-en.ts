@@ -35,6 +35,36 @@ export function isSeniorTunisia(
   return plainText(text) === label;
 }
 
+/** A leading flag before a team name: {{flagicon|TUN}} or {{TUN}}. */
+const FLAG_ICON = /^\{\{\s*flag ?icon\s*\|[^{}]*\}\}\s*/i;
+const FLAG_CODE = /^\{\{\s*[A-Z]{3}\s*\}\}\s*/;
+/** Team templates: {{fb|TUN}}, {{nft|Tunisia}} (senior), {{fbu|23|TUN}} (youth). */
+const TEAM_TEMPLATE = /^\{\{\s*(fb|nft|fbu|fbw)\s*\|([^{}]*)\}\}$/i;
+
+/**
+ * A nationalteamN cell without a link: "senior" for the senior Tunisia team
+ * ({{fb|TUN}}, {{fb|Tunisia}}, {{nft|Tunisia}}, an optional flag then the text
+ * "Tunisia"), "other" for another named team ("Tunisia U20", {{fbu|23|TUN}}),
+ * and null for a cell the parser cannot read as a team.
+ */
+export function unlinkedTeam(cell: string): "senior" | "other" | null {
+  const rest = cell.trim().replace(FLAG_ICON, "").replace(FLAG_CODE, "");
+  const template = TEAM_TEMPLATE.exec(rest);
+  if (template) {
+    const [name, team = ""] = [
+      template[1].toLowerCase(),
+      template[2].split("|")[0].trim(),
+    ];
+    return (name === "fb" || name === "nft") && /^(?:tun|tunisia)$/i.test(team)
+      ? "senior"
+      : "other";
+  }
+  if (rest.includes("{{")) return null;
+  const text = plainText(rest);
+  if (text === "") return null;
+  return /^tunisia$/i.test(text) ? "senior" : "other";
+}
+
 export function readCurrentClub(
   text: string,
   staff: RegExp,
@@ -110,12 +140,24 @@ export function parseEnInfobox(
   let nationalOpen = false;
   for (let n = 1; n <= NATIONAL_ROWS; n++) {
     const team = get(`nationalteam${n}`);
-    if (
-      team === "" ||
-      !isSeniorTunisia(team, "Tunisia", "Tunisia national football team")
-    ) {
+    if (team === "") continue;
+    // A linked cell is always a named team; an unlinked one is recognised or
+    // reported, so "no senior row" never hides a row the parser missed.
+    const kind =
+      links(team).length > 0
+        ? isSeniorTunisia(team, "Tunisia", "Tunisia national football team")
+          ? "senior"
+          : "other"
+        : unlinkedTeam(team);
+    if (kind === null) {
+      skipped.push({
+        field: `nationalteam${n}`,
+        raw: clip(team),
+        reason: "no-club",
+      });
       continue;
     }
+    if (kind === "other") continue;
     const rowCaps = intOrNull(get(`nationalcaps${n}`));
     if (rowCaps !== null) caps = (caps ?? 0) + rowCaps;
     const rowGoals = intOrNull(get(`nationalgoals${n}`));

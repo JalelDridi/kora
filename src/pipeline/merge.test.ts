@@ -827,6 +827,28 @@ describe("mergePlayer", () => {
       },
     );
 
+    // Fix round 2, I1 and I2: an unlinked English cell the parser cannot read
+    // is reported, so a silent French page cannot turn it into 0 caps.
+    it("reads an unreadable English national cell beside a silent French page as unknown caps", () => {
+      const parsed = parseEnInfobox(
+        "Yassine Meriah",
+        "{{Infobox football biography\n| nationalteam1 = {{some-template|x}}\n| nationalcaps1 = 5\n| nationalgoals1 = 1\n}}",
+      )!;
+      const merged = mergePlayer(
+        wdPlayer(),
+        noCaps(parsed, { capsAsOf: "2026-09-01" }),
+      );
+      expect(merged?.draft.provenance.caps).toMatchObject({
+        source: "none",
+        confidence: "low",
+      });
+      expect(merged?.flags).toContainEqual({
+        kind: "caps-row-skipped",
+        detail: "enwiki nationalteam1 (no-club): {{some-template|x}}",
+      });
+      expect(merged?.flags.map((f) => f.kind)).toContain("caps-unknown");
+    });
+
     it("flags caps no source gives, rated low on no source", () => {
       const merged = mergePlayer(wdPlayer(), noCaps(null, null));
       expect([

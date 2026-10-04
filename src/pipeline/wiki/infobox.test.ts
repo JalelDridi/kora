@@ -593,6 +593,57 @@ describe("skipped rows", () => {
   });
 });
 
+// Fix round 2, I2: an English national-team cell without a link is either
+// recognised as a named team or reported, never silently dropped. Hand-made:
+// every recorded nationalteamN cell is a link.
+describe("unlinked English national teams", () => {
+  const national = (cell: string) =>
+    parseEnInfobox(
+      "X",
+      en(
+        `| nationalyears1 = 2015–\n| nationalteam1 = ${cell}\n| nationalcaps1 = 5\n| nationalgoals1 = 1`,
+      ),
+    );
+
+  it.each([
+    "{{fb|TUN}}",
+    "{{fb|Tunisia}}",
+    "{{nft|Tunisia}}",
+    "{{TUN}} Tunisia",
+    "Tunisia",
+    "  {{flagicon|TUN}} tunisia  ",
+  ])("reads %j as the senior team", (cell) => {
+    expect(national(cell)).toMatchObject({
+      caps: 5,
+      goals: 1,
+      nationalOpen: true,
+      skipped: [],
+    });
+  });
+
+  it.each([
+    "Tunisia U17",
+    "Tunisia U-20",
+    "Tunisia U23",
+    "Tunisia Olympic",
+    "{{fbu|23|TUN}}",
+    "{{flagicon|TUN}} Tunisia U20",
+    "[[France national under-21 football team|France U21]]",
+  ])("reads %j as another team, neither senior nor skipped", (cell) => {
+    expect(national(cell)).toMatchObject({ caps: null, skipped: [] });
+  });
+
+  it.each(["{{some-template|x}}", "{{flagicon|TUN}}"])(
+    "reports %j as a row it cannot classify",
+    (cell) => {
+      expect(national(cell)).toMatchObject({
+        caps: null,
+        skipped: [{ field: "nationalteam1", raw: cell, reason: "no-club" }],
+      });
+    },
+  );
+});
+
 // Step 6.0 (addendum §3): a second and third vote for the birth date.
 // expected.json has no birth dates, so the truth is the recorded line cited.
 describe("birth dates", () => {
