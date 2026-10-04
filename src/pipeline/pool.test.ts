@@ -315,6 +315,7 @@ describe("buildPool", () => {
     caps: null,
     goals: null,
     nationalOpen: false,
+    nationalEnd: null,
     clubsAsOf: null,
     capsAsOf: null,
     skipped: [],

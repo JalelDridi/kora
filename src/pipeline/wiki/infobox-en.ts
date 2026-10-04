@@ -14,7 +14,7 @@ import {
 
 const TEMPLATE = /^infobox football biography$/i;
 const STAFF =
-  /\((?=[^)]*\b(?:analyst|coach|manager|assistant|director|scout|staff|ambassador|technical|president|chairman)\b)[^)]*\)/i;
+  /\((?=[^)]*\b(?:analyst|coach|manager|assistant|director|scout|staff|ambassador|technical|president|chairman|supervisor|adviser|advisor)\b)[^)]*\)/i;
 const NATIONAL_TEAM = /national (?:under-\d+ )?(?:football|soccer) team/i;
 const CLUB_ROWS = 40;
 const NATIONAL_ROWS = 20;
@@ -44,17 +44,31 @@ function teamName(text: string): "senior" | "other" | null {
   return name === "" ? null : "other";
 }
 
+/** Redirects to the senior article met in the cache (en/najeh-braham). */
+const SENIOR_REDIRECTS = new Set(["Tunisian national football team"]);
+/** An article about a youth or olympic team, whatever its label says. */
+const YOUTH_ARTICLE = /\b(?:under-?\s?\d+|u-?\d+|olympic|youth)\b/i;
+/** An article about some national team ("… national football team"). */
+const NATIONAL_ARTICLE = /\bnational\b.*\bteam\b|\bolympic\b/i;
+
 /**
  * A nationalteamN cell: "senior", "other", or null for a row to report.
  * A link to the senior article is read by its label (youth labels are other
- * teams: en/youssef-msakni links "Tunisia U17" there); a link to any other
- * article counts as senior only when labelled exactly "Tunisia", as before.
+ * teams: en/youssef-msakni links "Tunisia U17" there). A link to a youth or
+ * olympic article is another team whatever its label. A link to any other
+ * article counts as senior only when labelled exactly "Tunisia" and the
+ * article is a known redirect to the senior one or no national-team article
+ * at all; another national-team article labelled "Tunisia" is reported.
  */
 export function nationalTeam(cell: string): "senior" | "other" | null {
   const link = links(cell)[0];
   if (!link) return unlinkedTeam(cell);
   if (link.title === SENIOR_ARTICLE) return teamName(link.label);
-  return link.label === "Tunisia" ? "senior" : "other";
+  if (YOUTH_ARTICLE.test(link.title)) return "other";
+  if (link.label !== "Tunisia") return "other";
+  if (SENIOR_REDIRECTS.has(link.title) || !NATIONAL_ARTICLE.test(link.title))
+    return "senior";
+  return null;
 }
 
 /** A leading flag before a team name: {{flagicon|TUN}} or {{TUN}}. */
@@ -92,21 +106,43 @@ export function unlinkedTeam(cell: string): "senior" | "other" | null {
   return teamName(plainText(rest));
 }
 
+export type CurrentClub = {
+  title: string | null;
+  staff: boolean;
+  /** The English title of a club named by a French {{Lien}}. */
+  foreign?: string;
+  /** The club a staff post names, when it names one (not a national team). */
+  staffClub?: string;
+};
+
+/**
+ * The current-club field: none, a staff post (with the club it names), or a
+ * club. `read` reads the club from the text; by default the first link, else
+ * the plain text (English). The French parser passes its career-cell reader.
+ */
 export function readCurrentClub(
   text: string,
   staff: RegExp,
   nationalTeam: RegExp,
-): { title: string | null; staff: boolean } {
+  read: (text: string) => { title: string; foreign?: string } = (t) => ({
+    title: links(t)[0]?.title ?? plainText(t),
+  }),
+): CurrentClub {
   const plain = plainText(text);
-  if (NO_CLUB.test(plain)) return { title: null, staff: false };
+  const club = read(text);
+  if (NO_CLUB.test(plain) && NO_CLUB.test(club.title.trim()))
+    return { title: null, staff: false };
   const link = links(text)[0];
-  if (
-    staff.test(plain) ||
-    (link !== undefined && nationalTeam.test(link.title))
-  ) {
+  if (link !== undefined && nationalTeam.test(link.title))
     return { title: null, staff: true };
+  if (staff.test(plain)) {
+    return link === undefined
+      ? { title: null, staff: true }
+      : { title: null, staff: true, staffClub: link.title };
   }
-  return { title: link?.title ?? plain, staff: false };
+  return club.foreign === undefined
+    ? { title: club.title, staff: false }
+    : { title: club.title, staff: false, foreign: club.foreign };
 }
 
 /** The lowest-numbered non-empty `family<n>` with n above the limit. */
@@ -166,6 +202,8 @@ export function parseEnInfobox(
   let goals: number | null = null;
   let nationalOpen = false;
   let seniorRow = false;
+  /** The latest end year of the senior rows; null once one is open or unreadable. */
+  let nationalEnd: number | null | undefined;
   for (let n = 1; n <= NATIONAL_ROWS; n++) {
     const team = get(`nationalteam${n}`);
     // A cell empty but for comments or refs is no row.
@@ -187,7 +225,12 @@ export function parseEnInfobox(
     if (rowCaps !== null) caps = (caps ?? 0) + rowCaps;
     const rowGoals = intOrNull(get(`nationalgoals${n}`));
     if (rowGoals !== null) goals = (goals ?? 0) + rowGoals;
-    nationalOpen ||= parseYears(get(`nationalyears${n}`)).open;
+    const years = parseYears(get(`nationalyears${n}`));
+    nationalOpen ||= years.open;
+    nationalEnd =
+      nationalEnd === null || years.to === null
+        ? null
+        : Math.max(nationalEnd ?? years.to, years.to);
   }
   if (caps !== null && goals === null) goals = 0;
   for (const [family, limit] of [
@@ -204,11 +247,15 @@ export function parseEnInfobox(
     title,
     currentClub: current.title,
     currentClubIsStaff: current.staff,
+    ...(current.staffClub === undefined
+      ? {}
+      : { staffClub: current.staffClub }),
     positionText: plainText(get("position")) || null,
     spells,
     caps,
     goals,
     nationalOpen,
+    nationalEnd: nationalEnd ?? null,
     clubsAsOf: parseEnDate(get("pcupdate") || get("club-update")),
     capsAsOf: parseEnDate(get("ntupdate") || get("nationalteam-update")),
     skipped,

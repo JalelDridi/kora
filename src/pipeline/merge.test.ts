@@ -54,6 +54,7 @@ function box(lang: "en" | "fr", fields: Partial<Infobox> = {}): Infobox {
     caps: null,
     goals: null,
     nationalOpen: false,
+    nationalEnd: null,
     clubsAsOf: null,
     capsAsOf: null,
     skipped: [],

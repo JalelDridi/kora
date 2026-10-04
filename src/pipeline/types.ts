@@ -78,8 +78,9 @@ export type Spell = {
   /** Link target title, or plain text when the club is not linked. */
   clubTitle: string;
   /**
-   * French only: the foreign article's title (`trad`) when the club is named
-   * by {{Lien}}, a link to an article that exists only on another wiki.
+   * French only: the English article's title (`trad`) when the club is named
+   * by {{Lien}}, a link to an article that exists only on another wiki, and
+   * that wiki is English (no `langue`, or `langue=en`).
    */
   clubTitleForeign?: string;
   from: number | null;
@@ -96,7 +97,11 @@ export type Infobox = {
   title: string;
   /** Link target title of the current club; null when none or a staff role. */
   currentClub: string | null;
+  /** French only: the English title of a current club named by {{Lien}}, as for a spell. */
+  currentClubForeign?: string;
   currentClubIsStaff: boolean;
+  /** The club a staff post names ("[[Club Africain]] (manager)"), when it names one. */
+  staffClub?: string;
   positionText: string | null;
   spells: Spell[];
   /** Senior Tunisia caps and goals; null when the infobox has no such row. */
@@ -104,6 +109,11 @@ export type Infobox = {
   goals: number | null;
   /** The senior Tunisia spell has no end year. */
   nationalOpen: boolean;
+  /**
+   * The latest end year of the senior Tunisia rows; null when there is no
+   * senior row, or one of them is open or has no readable end.
+   */
+  nationalEnd: number | null;
   clubsAsOf: string | null;
   capsAsOf: string | null;
   /** Rows the parser could not read; empty when nothing was skipped. */
@@ -327,11 +337,15 @@ export type FlagKind =
   | "birthplace-country-only"
   | "governorate-unresolved"
   | "birthdate-january-first"
+  /** Decisions P37-P39: the birth-date sources do not all agree; the detail names who differs. */
+  | "birthdate-sources-disagree"
   | "photo-small"
   | "dropped-missing-field"
   | "ligue1-club-unresolved"
   | "caps-above-ceiling"
   | "goals-below-floor"
+  /** Both pages show a closed national career, and a caps count differs that no date explains. */
+  | "caps-closed-career-disagree"
   | "caps-row-skipped"
   | "career-row-skipped"
   /** Ruling R1: a French spell without a start year, dropped beside an English career. */

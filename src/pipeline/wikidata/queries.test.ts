@@ -7,6 +7,21 @@ describe("queries", () => {
     expect(PLAYERS_QUERY).toContain("schema:name ?frTitle");
   });
 
+  // A9: Ali Youssef (Q71806775) and Rami Kaib (Q26710608) have "Sweden" as
+  // their birthplace, a country, and came back with no birth country; Omar
+  // Rekik (Q96678415), born in Helmond, too. The country of a place, or the
+  // place itself when it is a country.
+  it("read the birth country from the birthplace itself when it is a country (A9)", () => {
+    expect(PLAYERS_QUERY).toContain("OPTIONAL { ?pob wdt:P297 ?selfIso }");
+    expect(PLAYERS_QUERY).toContain(
+      "OPTIONAL { ?pob wdt:P17/wdt:P297 ?countryIso }",
+    );
+    expect(PLAYERS_QUERY).toContain(
+      "(SAMPLE(COALESCE(?selfIso, ?countryIso)) AS ?birthCountry)",
+    );
+    expect(PLAYERS_QUERY).not.toContain("?pobCountry");
+  });
+
   it("look clubs up by id and by English and French title, escaping quotes", () => {
     const query = clubsQuery(["Q1", "Q2"], ['Club "A"'], ["Club B"]);
     expect(query).toContain("VALUES ?club { wd:Q1 wd:Q2 }");
