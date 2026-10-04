@@ -27,5 +27,10 @@
       "name": "Aktar wala a9all",
       "pitch": "Chkoun 3andou akther? 7afedh 3al série"
     }
+  },
+  "notFound": {
+    "title": "El page hedhi mouch mawjouda",
+    "body": "Ymken el lien ghalet wala el page tna77at.",
+    "home": "Arja3 lel al3ab"
   }
 }

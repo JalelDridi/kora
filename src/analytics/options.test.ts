@@ -7,27 +7,33 @@ describe("analyticsOptions", () => {
     expect(analyticsOptions({ key: "" })).toBeNull();
   });
 
-  it("never sets a cookie or uses browser storage (decision D6)", () => {
-    const analytics = analyticsOptions({ key: "phc_test" });
-
-    expect(analytics?.key).toBe("phc_test");
-    expect(analytics?.options.cookieless_mode).toBe("always");
+  // One exact object on purpose: adding or changing an option is a privacy
+  // decision and must show up as a diff here (launch-readiness C3).
+  it("sends exactly these options", () => {
+    expect(analyticsOptions({ key: "phc_test" })).toEqual({
+      key: "phc_test",
+      options: {
+        api_host: "https://eu.i.posthog.com",
+        defaults: "2025-05-24",
+        cookieless_mode: "always",
+        person_profiles: "never",
+        mask_personal_data_properties: true,
+        autocapture: false,
+        capture_dead_clicks: false,
+        capture_heatmaps: false,
+        capture_exceptions: false,
+        disable_session_recording: true,
+        disable_surveys: true,
+        disable_external_dependency_loading: true,
+      },
+    });
   });
 
-  it("sends to PostHog's EU cloud unless told otherwise", () => {
-    expect(analyticsOptions({ key: "phc_test" })?.options.api_host).toBe(
-      "https://eu.i.posthog.com",
-    );
-    expect(
-      analyticsOptions({ key: "phc_test", host: "https://ph.example" })?.options
-        .api_host,
-    ).toBe("https://ph.example");
-  });
-
-  it("records no sessions and no typed text", () => {
-    const options = analyticsOptions({ key: "phc_test" })?.options;
-
-    expect(options?.disable_session_recording).toBe(true);
-    expect(options?.autocapture).toBe(false);
+  it("sends to another host only when told to", () => {
+    const options = analyticsOptions({
+      key: "phc_test",
+      host: "https://ph.example",
+    })?.options;
+    expect(options?.api_host).toBe("https://ph.example");
   });
 });

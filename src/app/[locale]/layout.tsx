@@ -1,38 +1,76 @@
 import { Analytics } from "@vercel/analytics/next";
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { IBM_Plex_Sans_Arabic, Inter } from "next/font/google";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { defaultLocale, isLocale, localeInfo, locales } from "@/i18n/locales";
 import { webAnalyticsEnabled } from "@/analytics/web-analytics";
+import {
+  alternateOpenGraphLocales,
+  openGraphLocale,
+  shareImagePath,
+  shareImageSize,
+} from "@/share";
 import { site } from "@/site";
 import "../globals.css";
 
 const latin = Inter({ subsets: ["latin"], variable: "--font-latin" });
 
+// Not preloaded: one layout serves all three locales, and /tn and /fr only
+// need the 600 weight for "تونسي". The browser fetches the Arabic files that
+// the page's characters need (unicode-range) as soon as the CSS is parsed.
 const arabic = IBM_Plex_Sans_Arabic({
   subsets: ["arabic"],
   weight: ["400", "600", "700"],
   variable: "--font-arabic",
+  preload: false,
 });
 
 export function generateStaticParams() {
   return locales.map((locale) => ({ locale }));
 }
 
+export const viewport: Viewport = { themeColor: site.themeColor };
+
 export async function generateMetadata({
   params,
 }: LayoutProps<"/[locale]">): Promise<Metadata> {
   const { locale } = await params;
   if (!isLocale(locale)) return {};
-  const t = await getTranslations({ locale, namespace: "meta" });
+  const t = await getTranslations({ locale });
+  const { prefix } = localeInfo[locale];
+  const title = t("meta.title");
+  const description = t("meta.description");
+  // Relative URLs become absolute through metadataBase.
+  const image = {
+    url: shareImagePath(prefix),
+    ...shareImageSize,
+    type: "image/png",
+    alt: `${site.name} · ${t("hub.tagline")}`,
+  };
 
   return {
     metadataBase: new URL(site.url),
-    title: t("title"),
-    description: t("description"),
+    title,
+    description,
+    openGraph: {
+      type: "website",
+      siteName: site.name,
+      url: prefix,
+      title,
+      description,
+      locale: openGraphLocale[locale],
+      alternateLocale: alternateOpenGraphLocales(locale),
+      images: [image],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [image],
+    },
     alternates: {
-      canonical: localeInfo[locale].prefix,
+      canonical: prefix,
       languages: {
         ...Object.fromEntries(
           locales.map((other) => [other, localeInfo[other].prefix]),

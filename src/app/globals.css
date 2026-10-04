@@ -13,21 +13,23 @@
   --color-chalk-dim: #cfd8d2;
 }
 
+/* One stack for both directions. Inter has no Arabic letters, so Arabic falls
+   through to IBM Plex Sans Arabic while names, scores and digits stay in
+   Inter, even on /ar (hub-audit 2.4). "Inter" is named here rather than
+   through var(--font-latin): that variable also carries next/font's
+   "Inter Fallback", a local Arial covering every character, which would
+   catch the Arabic before Plex (e2e/fonts.spec.ts fails if the name drifts). */
 @theme inline {
-  --font-sans: var(--font-latin), var(--font-arabic), system-ui, sans-serif;
+  --font-sans: "Inter", var(--font-arabic), system-ui, sans-serif;
 }
 
 html {
   color-scheme: dark;
   background: var(--color-pitch-950);
   color: var(--color-chalk);
-  font-size: 17px;
-}
-
-/* Arabic script leads with the Arabic face; Latin fragments such as names
-   and scores fall through to Inter. */
-html[dir="rtl"] body {
-  font-family: var(--font-arabic), var(--font-latin), system-ui, sans-serif;
+  /* 17 px at the browser default, and it grows with the visitor's own
+     font-size setting (WCAG 1.4.4). */
+  font-size: 106.25%;
 }
 
 :focus-visible {
