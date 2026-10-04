@@ -327,7 +327,7 @@ export function pickHistory(input: {
   };
 }
 
-/** Decision D-S1-7: Wikidata's line, fixed by overrides, checked against the English infobox. */
+/** Decision P35 (replaces D-S1-7): the majority of the two pages and Wikidata; overrides beat everything. */
 export function pickPosition(input: {
   qid: string;
   wikidata: string[];
@@ -363,36 +363,77 @@ export function pickPosition(input: {
   const enLine = enText ? lineFromLabel(enText) : null;
   const frLine = frText ? lineFromLabel(frText) : null;
 
+  // Votes in a fixed order: the English page, the French page, Wikidata.
+  const votes = (
+    [
+      ["enwiki", enLine, input.en?.title],
+      ["frwiki", frLine, input.fr?.title],
+      ["wikidata", wdLine, `P413 ${input.qid}`],
+    ] as const
+  ).flatMap(([source, l, ref]) =>
+    l === null ? [] : [{ source, line: l, ref }],
+  );
+  const say = (vs: typeof votes) =>
+    vs.map((v) => `${v.source} ${v.line}`).join(", ");
+
   let line: Line | null = null;
   if (input.override) {
     line = input.override.value;
     prov.position = fromOverride(input.override);
-  } else if (wdLine) {
-    line = wdLine;
-    prov.position = provenance(
-      "wikidata",
-      input.today,
-      null,
-      `P413 ${input.qid}`,
+  } else if (votes.length > 0) {
+    // A line two or three sources give wins. Without a majority: of the two
+    // pages, the English one; of one page and Wikidata, the page; of three
+    // different lines, Wikidata (P35: it decides when the pages disagree).
+    const majority = votes.find(
+      (v) => votes.filter((w) => w.line === v.line).length >= 2,
     );
-    if (enLine && enLine !== wdLine) {
+    const chosen =
+      majority ??
+      (votes.length === 3
+        ? votes[2]
+        : (votes.find((v) => v.source !== "wikidata") ?? votes[0]));
+    line = chosen.line;
+    prov.position = provenance(chosen.source, input.today, null, chosen.ref);
+    const dissent = votes.filter((v) => v.line !== chosen.line);
+    if (dissent.length > 0) {
+      const agree = votes.filter((v) => v.line === chosen.line);
       flags.push({
         kind: "position-disagrees",
-        detail: `wikidata ${wdLine}, enwiki ${enLine} (${enText})`,
+        detail: majority
+          ? `${say(dissent)} against ${agree.map((v) => v.source).join(", ")} ${chosen.line}`
+          : `no majority: ${say(votes)}`,
       });
     }
-  } else if (enLine) {
-    line = enLine;
-    prov.position = provenance("enwiki", input.today, null, input.en?.title);
-  } else if (frLine) {
-    line = frLine;
-    prov.position = provenance("frwiki", input.today, null, input.fr?.title);
   }
 
+  // The wording comes from a page that gives the chosen line, if one does.
+  const pages = [
+    {
+      source: "enwiki" as const,
+      text: enText,
+      line: enLine,
+      title: input.en?.title,
+    },
+    {
+      source: "frwiki" as const,
+      text: frText,
+      line: frLine,
+      title: input.fr?.title,
+    },
+  ];
+  const wording = pages.find((pg) => pg.text !== null && pg.line === line);
   let detail: string | null = null;
   if (input.detailOverride) {
     detail = input.detailOverride.value;
     prov.positionDetail = fromOverride(input.detailOverride);
+  } else if (wording) {
+    detail = wording.text;
+    prov.positionDetail = provenance(
+      wording.source,
+      input.today,
+      null,
+      wording.title,
+    );
   } else if (enText) {
     detail = enText;
     prov.positionDetail = provenance(
@@ -627,28 +668,29 @@ export function mergePlayer(
   }
   // Caps and goals always carry provenance; the 0 the database needs is
   // never left looking like a known count.
-  // An infobox with no senior Tunisia row (and no skipped national row) says 0:
-  // the newer such infobox is the source. Otherwise no source has caps.
-  // Only when NO infobox skipped a national-team row: a skipped row on either
-  // page means a Tunisia row may exist, so the caps are unknown, not 0.
+  // Decision P34: with no source of caps, a 0 inferred from absence. The
+  // witnesses, in this order: the English page and the French page (each
+  // with no senior Tunisia row), and Wikidata (memberships listed, none of
+  // them the senior team). Absence has no as-of date. There is no absence
+  // when a page skipped a national-team row (a Tunisia row may exist) or
+  // Wikidata lists the senior team: the caps are then unknown, not 0.
   const anyNationalSkip = [en, fr].some(
     (b) => b !== null && b.skipped.some((r) => NATIONAL_FIELD.test(r.field)),
   );
-  const silent =
-    capsPick.chosen || anyNationalSkip
-      ? undefined
-      : [en, fr]
-          .filter((b): b is Infobox => b !== null)
-          .map((box) => ({ box, source: sourceOf(box), asOf: box.capsAsOf }))
-          .sort(newestFirst)[0];
+  const wdListsSenior = memberships.some((m) => m.teamQid === TUNISIA_TEAM);
+  const witnesses: { source: SourceId; ref: string }[] =
+    capsPick.chosen || anyNationalSkip || wdListsSenior
+      ? []
+      : [
+          ...(en ? [{ source: "enwiki" as const, ref: en.title }] : []),
+          ...(fr ? [{ source: "frwiki" as const, ref: fr.title }] : []),
+          ...(memberships.length > 0
+            ? [{ source: "wikidata" as const, ref: `P54 ${p.qid}` }]
+            : []),
+        ];
+  const silent = witnesses[0];
   if (silent) {
-    capsAsOf = silent.asOf;
-    prov.caps = provenance(
-      silent.source,
-      ctx.today,
-      silent.asOf,
-      silent.box.title,
-    );
+    prov.caps = provenance(silent.source, ctx.today, null, silent.ref);
     if (o.caps && o.caps.value > 0 && !o.goals) {
       // Jalel says he played: the page's silence says nothing about goals.
       prov.goals = { source: "none", retrievedAt: ctx.today };
@@ -665,7 +707,9 @@ export function mergePlayer(
     if (!o.caps) {
       flags.push({
         kind: "caps-unknown",
-        detail: "no source gives his Tunisia caps or goals",
+        detail: wdListsSenior
+          ? "Wikidata lists him in the senior team, but no source gives his caps or goals"
+          : "no source gives his Tunisia caps or goals",
       });
     } else if (!o.goals) {
       // Jalel gave the caps, not the goals: the goals are still unknown.
@@ -799,10 +843,11 @@ export function mergePlayer(
       ...some("enwiki", en?.birthDate),
       ...some("frwiki", fr?.birthDate),
     ],
+    // P35 order: the English page, the French page, Wikidata.
     position: [
-      ...some("wikidata", wdLine),
       ...(en ? some("enwiki", lineOf(en)) : []),
       ...(fr ? some("frwiki", lineOf(fr)) : []),
+      ...some("wikidata", wdLine),
     ],
     nameLatin: [
       ...some("wikidata", nameLatin),
@@ -841,11 +886,18 @@ export function mergePlayer(
   const rated = rateFields(prov, chosen, evidence, ctx.today);
   flags.push(...rated.flags);
   if (silent) {
+    // P34: medium on two or more witnesses, low on one, never high. A
+    // martj42 goal by him still makes 0 goals low.
+    const floor = evidence.goalsFloor ?? 0;
     for (const field of ["caps", "goals"] as const) {
       const entry = rated.provenance[field];
-      if (entry && entry.source === silent.source) {
-        entry.confidenceNote = "no senior national row";
-      }
+      if (!entry || entry.source !== silent.source) continue;
+      const scored = field === "goals" && floor > 0;
+      entry.confidence = witnesses.length >= 2 && !scored ? "medium" : "low";
+      entry.agreeing = witnesses.map((w) => w.source);
+      entry.confidenceNote = scored
+        ? `no senior national row; martj42 lists ${floor} goals by him`
+        : "no senior national row";
     }
   }
 

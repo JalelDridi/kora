@@ -12,6 +12,7 @@ import {
 } from "./merge.ts";
 import type {
   Infobox,
+  Line,
   Match,
   WdClub,
   WdMembership,
@@ -470,45 +471,188 @@ describe("undated French spells (ruling R1)", () => {
   });
 });
 
-describe("pickPosition (D-S1-7)", () => {
-  it("maps Wikidata and flags an English infobox that disagrees", () => {
-    const pick = pickPosition({
+// Decision P35 (replaces D-S1-7): the majority of the English page, the
+// French page and Wikidata gives the line; overrides beat everything.
+describe("pickPosition (P35)", () => {
+  const pick = (
+    en: string | null,
+    fr: string | null,
+    wikidata: string[],
+    override?: Line,
+  ) =>
+    pickPosition({
       qid: "Q19956607",
-      wikidata: ["midfielder"],
-      en: box("en", { positionText: "Centre-back" }),
-      fr: null,
+      wikidata,
+      en: en === null ? null : box("en", { positionText: en }),
+      fr: fr === null ? null : box("fr", { positionText: fr }),
+      override: override && { value: override, ...by },
       today,
     });
-    expect(pick.line).toBe("midfielder");
-    expect(pick.detail).toBe("Centre-back");
-    expect(pick.flags.map((f) => f.kind)).toEqual(["position-disagrees"]);
+  /** The rated position, through the merge. */
+  const rated = (en: string | null, fr: string | null, wikidata: string[]) =>
+    mergePlayer(wdPlayer({ positions: wikidata }), {
+      today,
+      memberships: new Map(),
+      index,
+      infoboxes: {
+        en: new Map(
+          en === null
+            ? []
+            : [["Yassine Meriah", box("en", { positionText: en })]],
+        ),
+        fr: new Map(
+          fr === null
+            ? []
+            : [["Yassine Meriah (football)", box("fr", { positionText: fr })]],
+        ),
+      },
+      photos: new Map(),
+      tunisiaMatches: [],
+      overrides: { players: {}, clubTitles: {} },
+      governorateIds,
+    });
+
+  it("takes the two pages over Wikidata on the recorded Meriah pages, and names Wikidata", () => {
+    const fixture = (lang: "en" | "fr") =>
+      readFileSync(
+        `src/pipeline/wiki/__fixtures__/${lang}/yassine-meriah.wikitext`,
+        "utf8",
+      );
+    const en = parseEnInfobox("Yassine Meriah", fixture("en"))!;
+    const fr = parseFrInfobox("Yassine Meriah (football)", fixture("fr"))!;
+    expect([en.positionText, fr.positionText]).toEqual([
+      "Centre-back",
+      "Défenseur central",
+    ]);
+    const merged = mergePlayer(wdPlayer({ positions: ["midfielder"] }), {
+      today,
+      memberships: new Map(),
+      index,
+      infoboxes: {
+        en: new Map([["Yassine Meriah", en]]),
+        fr: new Map([["Yassine Meriah (football)", fr]]),
+      },
+      photos: new Map(),
+      tunisiaMatches: [],
+      overrides: { players: {}, clubTitles: {} },
+      governorateIds,
+    });
+    expect(merged?.draft.position).toBe("defender");
+    // Two of three agree: the addendum's undated rule (§1.4) gives medium,
+    // not high, while Wikidata dissents.
+    expect(merged?.draft.provenance.position).toMatchObject({
+      source: "enwiki",
+      confidence: "medium",
+      agreeing: ["enwiki", "frwiki"],
+    });
+    expect(
+      merged?.flags.filter((f) => f.kind === "position-disagrees"),
+    ).toEqual([
+      {
+        kind: "position-disagrees",
+        detail: "wikidata midfielder against enwiki, frwiki defender",
+      },
+    ]);
+  });
+
+  it("rates two agreeing pages high when Wikidata has no position", () => {
+    expect(pick("Centre-back", "Défenseur central", []).line).toBe("defender");
+    expect(
+      rated("Centre-back", "Défenseur central", [])?.draft.provenance.position,
+    ).toMatchObject({
+      source: "enwiki",
+      confidence: "high",
+      agreeing: ["enwiki", "frwiki"],
+    });
+  });
+
+  it("follows Wikidata's side when the pages disagree", () => {
+    const p = pick("Forward", "Milieu offensif", ["midfielder"]);
+    expect(p.line).toBe("midfielder");
+    expect(p.provenance.position?.source).toBe("frwiki");
+    expect(p.flags).toEqual([
+      {
+        kind: "position-disagrees",
+        detail: "enwiki forward against frwiki, wikidata midfielder",
+      },
+    ]);
+    expect(
+      rated("Forward", "Milieu offensif", ["midfielder"])?.draft.provenance
+        .position,
+    ).toMatchObject({
+      confidence: "medium",
+      agreeing: ["frwiki", "wikidata"],
+    });
+  });
+
+  it("takes the English page when the two pages disagree and Wikidata has no position", () => {
+    const p = pick("Forward", "Milieu offensif", []);
+    expect(p.line).toBe("forward");
+    expect(p.provenance.position?.source).toBe("enwiki");
+    expect(p.flags).toEqual([
+      {
+        kind: "position-disagrees",
+        detail: "no majority: enwiki forward, frwiki midfielder",
+      },
+    ]);
+    expect(
+      rated("Forward", "Milieu offensif", [])?.draft.provenance.position,
+    ).toMatchObject({ confidence: "low", agreeing: ["enwiki"] });
+  });
+
+  it("takes the page over Wikidata when they are the only two", () => {
+    const p = pick("Centre-back", null, ["midfielder"]);
+    expect(p.line).toBe("defender");
+    expect(p.detail).toBe("Centre-back");
+    expect(p.flags).toEqual([
+      {
+        kind: "position-disagrees",
+        detail: "no majority: enwiki defender, wikidata midfielder",
+      },
+    ]);
+    expect(
+      rated("Centre-back", null, ["midfielder"])?.draft.provenance.position,
+    ).toMatchObject({ confidence: "low", agreeing: ["enwiki"] });
+    expect(pick(null, "Défenseur central", ["midfielder"]).line).toBe(
+      "defender",
+    );
+  });
+
+  // Not in the dispatch: three different lines. P35 lets Wikidata decide when
+  // the pages disagree with each other; the level is low.
+  it("takes Wikidata when all three disagree", () => {
+    const p = pick("Forward", "Défenseur central", ["midfielder"]);
+    expect(p.line).toBe("midfielder");
+    expect(p.flags).toEqual([
+      {
+        kind: "position-disagrees",
+        detail:
+          "no majority: enwiki forward, frwiki defender, wikidata midfielder",
+      },
+    ]);
+    expect(
+      rated("Forward", "Défenseur central", ["midfielder"])?.draft.provenance
+        .position,
+    ).toMatchObject({ confidence: "low", agreeing: ["wikidata"] });
   });
 
   it("lets an override fix the line without a flag", () => {
-    const pick = pickPosition({
-      qid: "Q19956607",
-      wikidata: ["midfielder"],
-      en: box("en", { positionText: "Centre-back" }),
-      fr: null,
-      override: { value: "defender", ...by },
-      today,
-    });
-    expect(pick.line).toBe("defender");
-    expect(pick.provenance.position?.source).toBe("override");
-    expect(pick.flags).toEqual([]);
+    const p = pick(
+      "Centre-back",
+      "Défenseur central",
+      ["midfielder"],
+      "forward",
+    );
+    expect(p.line).toBe("forward");
+    expect(p.provenance.position?.source).toBe("override");
+    expect(p.flags).toEqual([]);
   });
 
   it("flags an unmappable Wikidata position and falls back to the infobox", () => {
-    const pick = pickPosition({
-      qid: "Q1",
-      wikidata: ["association football manager"],
-      en: box("en", { positionText: "Forward, winger" }),
-      fr: null,
-      today,
-    });
-    expect(pick.line).toBe("forward");
-    expect(pick.provenance.position?.source).toBe("enwiki");
-    expect(pick.flags.map((f) => f.kind)).toEqual(["position-unmapped"]);
+    const p = pick("Forward, winger", null, ["association football manager"]);
+    expect(p.line).toBe("forward");
+    expect(p.provenance.position?.source).toBe("enwiki");
+    expect(p.flags.map((f) => f.kind)).toEqual(["position-unmapped"]);
   });
 });
 
@@ -661,7 +805,7 @@ describe("mergePlayer", () => {
       nameLatin: "Yassine Meriah",
       nameArabic: "ياسين مرياح",
       aliases: ["Meriah", "مرياح"],
-      position: "midfielder",
+      position: "defender", // P35: the one page against Wikidata
       positionDetail: "Centre-back",
       governorate: "tunis",
       caps: 90,
@@ -693,9 +837,10 @@ describe("mergePlayer", () => {
       agreeing: ["enwiki"],
     }); // en 90 fresh; Wikidata 80 older and lower
     expect(prov.position).toMatchObject({
+      source: "enwiki",
       confidence: "low",
-      agreeing: ["wikidata"],
-    }); // Wikidata midfielder, en Centre-back
+      agreeing: ["enwiki"],
+    }); // P35: en Centre-back chosen over Wikidata midfielder, one against one
     expect([
       prov.clubId?.confidence,
       prov.birthDate?.confidence,
@@ -757,22 +902,122 @@ describe("mergePlayer", () => {
       },
     });
 
-    it("reads an infobox with no senior Tunisia row as 0, from the newer infobox", () => {
-      const merged = mergePlayer(
-        wdPlayer(),
-        noCaps({ capsAsOf: "2026-01-01" }, { capsAsOf: "2026-09-01" }),
-      );
-      expect([merged?.draft.caps, merged?.draft.goals]).toEqual([0, 0]);
+    // Decision P34: a 0 inferred from absence. Witnesses, in this order:
+    // enwiki and frwiki (a page with no senior row), wikidata (club
+    // memberships listed, none of them the senior team Q27971). Two or more:
+    // medium; one: low; never high; page dates play no part.
+    const club2020 = membership("Q3", 2020, null);
+    const absence = (
+      merged: ReturnType<typeof mergePlayer>,
+      source: string,
+      confidence: string,
+      agreeing: string[],
+    ) => {
+      expect([
+        merged?.draft.caps,
+        merged?.draft.goals,
+        merged?.draft.capsAsOf,
+      ]).toEqual([0, 0, null]);
       for (const field of ["caps", "goals"] as const) {
-        expect(merged?.draft.provenance[field]).toMatchObject({
-          source: "frwiki",
-          asOf: "2026-09-01",
-          confidence: "medium",
-          agreeing: ["frwiki"],
+        const entry = merged?.draft.provenance[field];
+        expect(entry).toMatchObject({
+          source,
+          confidence,
+          agreeing,
           confidenceNote: "no senior national row",
         });
+        expect(entry?.asOf).toBeUndefined();
       }
       expect(merged?.flags.map((f) => f.kind)).not.toContain("caps-unknown");
+    };
+
+    it("rates 0 caps medium when both pages are silent (P34)", () =>
+      absence(
+        mergePlayer(
+          wdPlayer(),
+          noCaps({ capsAsOf: "2026-01-01" }, { capsAsOf: "2026-09-01" }),
+        ),
+        "enwiki",
+        "medium",
+        ["enwiki", "frwiki"],
+      ));
+
+    it("rates 0 caps medium when one page and Wikidata agree on the absence (P34)", () =>
+      absence(
+        mergePlayer(
+          wdPlayer(),
+          noCaps({ capsAsOf: "2020-01-01" }, null, [club2020]),
+        ),
+        "enwiki",
+        "medium",
+        ["enwiki", "wikidata"],
+      ));
+
+    it("rates 0 caps low on one silent page alone, however fresh (P34)", () =>
+      absence(
+        mergePlayer(wdPlayer(), noCaps({ capsAsOf: "2026-09-30" }, null)),
+        "enwiki",
+        "low",
+        ["enwiki"],
+      ));
+
+    it("never rates 0 caps high, even on three witnesses (P34)", () =>
+      absence(
+        mergePlayer(wdPlayer(), noCaps({}, {}, [club2020])),
+        "enwiki",
+        "medium",
+        ["enwiki", "frwiki", "wikidata"],
+      ));
+
+    // Not in the dispatch: martj42 naming him as a Tunisia scorer contradicts
+    // the absence, so his 0 goals stay low and the floor flag stays.
+    it("keeps 0 goals low when martj42 lists goals by him (P34)", () => {
+      const merged = mergePlayer(wdPlayer(), {
+        ...noCaps({}, {}),
+        goalsFloor: new Map([["Q19956607", 2]]),
+      });
+      expect(merged?.draft.provenance.caps).toMatchObject({
+        confidence: "medium",
+      });
+      expect(merged?.draft.provenance.goals).toMatchObject({
+        confidence: "low",
+        confidenceNote: "no senior national row; martj42 lists 2 goals by him",
+      });
+      expect(merged?.flags.map((f) => f.kind)).toContain("goals-below-floor");
+    });
+
+    it("treats a footballer Wikidata lists in the senior team as unknown caps, not absent (P34)", () => {
+      const merged = mergePlayer(
+        wdPlayer(),
+        noCaps({}, {}, [
+          club2020,
+          membership("Q27971", 2015, null, { national: true }),
+        ]),
+      );
+      expect(merged?.draft.provenance.caps).toMatchObject({
+        source: "none",
+        confidence: "low",
+      });
+      expect(merged?.flags.map((f) => f.kind)).toContain("caps-unknown");
+    });
+
+    it("keeps caps unknown after a skipped national row, whatever Wikidata says (P34)", () => {
+      const skipped = [
+        {
+          field: "nationalteam2",
+          raw: "Tunisia B",
+          reason: "no-club" as const,
+        },
+      ];
+      const merged = mergePlayer(
+        wdPlayer(),
+        noCaps({ skipped }, {}, [club2020]),
+      );
+      expect(merged?.draft.provenance.caps).toMatchObject({
+        source: "none",
+        confidence: "low",
+      });
+      expect(merged?.flags.map((f) => f.kind)).toContain("caps-unknown");
     });
 
     it("does not read 0 from an infobox that skipped a national row", () => {
