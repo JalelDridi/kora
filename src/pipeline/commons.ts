@@ -57,8 +57,15 @@ function metaText(entry: { value?: unknown } | undefined): string | null {
   return typeof value === "string" && value.trim() !== "" ? value.trim() : null;
 }
 
-/** Photos keyed by file title ("File:Name.jpg"). Files without a licence are dropped. */
+/**
+ * Photos keyed by file title ("File:Name.jpg"). Files without a licence are
+ * dropped. An error body (HTTP 200 with a top-level `error`, maxlag included)
+ * throws, so it is never taken for "no photos".
+ */
 export function parseCommons(json: unknown): Map<string, Photo> {
+  const error = (json as { error?: { code?: string; info?: string } } | null)
+    ?.error;
+  if (error) throw new Error(`MediaWiki error ${error.code}: ${error.info}`);
   const pages =
     (json as { query?: { pages?: CommonsPage[] } } | null)?.query?.pages ?? [];
   const photos = new Map<string, Photo>();

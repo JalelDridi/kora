@@ -63,6 +63,14 @@ describe("parseCommons", () => {
     expect(photos.size).toBe(0);
   });
 
+  it("treats an error body as a failure, not as no photos", () => {
+    expect(() =>
+      parseCommons({
+        error: { code: "maxlag", info: "Waiting for a database server" },
+      }),
+    ).toThrow("MediaWiki error maxlag: Waiting for a database server");
+  });
+
   it("marks public-domain files as needing no attribution", () => {
     const photos = parseCommons({
       query: {

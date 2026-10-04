@@ -119,6 +119,57 @@ const WDQS_QUERIES = 4 + 3;
 const GITHUB_DOWNLOADS = 2;
 
 /**
+ * The format of data/cache/<source>.json. Bump it whenever a cached shape
+ * changes (a parser's output, Infobox, Photo, WdClub…): a copy of another
+ * version is then ignored, as if there were no cache.
+ */
+export const CACHE_VERSION = 1;
+
+type CacheEntry<T> = {
+  version: number;
+  savedAt: string;
+  source: string;
+  value: T;
+};
+
+const isObject = (v: unknown): v is Record<string, unknown> =>
+  typeof v === "object" && v !== null && !Array.isArray(v);
+const listOf = (v: unknown) => Array.isArray(v);
+const pairs = (v: unknown) =>
+  Array.isArray(v) && v.every((e) => Array.isArray(e) && e.length === 2);
+
+/** The least a cached payload must look like before the run uses it. */
+const SHAPES: Record<string, (v: unknown) => boolean> = {
+  wikidata: (v) =>
+    isObject(v) &&
+    listOf(v.players) &&
+    pairs(v.aliases) &&
+    listOf(v.memberships) &&
+    listOf(v.honours) &&
+    isObject(v.honoursReading),
+  "infobox-en": pairs,
+  "infobox-fr": pairs,
+  redirects: (v) => isObject(v) && pairs(v.en) && pairs(v.fr),
+  clubs: listOf,
+  commons: listOf,
+  martj42: listOf,
+  "martj42-goals": pairs,
+};
+
+/** An answer that should hold something but holds nothing is a failure. */
+function nonEmpty<T>(list: T[], what: string): T[] {
+  if (list.length === 0) throw new Error(`empty answer: ${what}`);
+  return list;
+}
+
+/** A MediaWiki answer must list the pages it was asked for. */
+function pagesOf(json: unknown, asked: number): void {
+  const pages = (json as { query?: { pages?: unknown } } | null)?.query?.pages;
+  if (!Array.isArray(pages) || pages.length === 0)
+    throw new Error(`empty answer: no page for ${asked} titles`);
+}
+
+/**
  * Requests per client, retries aside: 50 titles or files per Wikimedia
  * request. `en`, `fr` and `files` are the wanted footballers' distinct
  * article titles and photo files; `redirects` the distinct current-club
@@ -229,7 +280,41 @@ async function build(deps: RunDeps): Promise<RunResult> {
   const wikimedia = count("wikimedia");
   const github = count("github");
 
-  /** Fetch, or fall back to the last good answer, recording which; no answer at all stops the run. */
+  /** The cached copy of a source, or null when there is none worth using (the log says why). */
+  async function readCache<T>(name: string): Promise<CacheEntry<T> | null> {
+    let text: string;
+    try {
+      text = await readFile(path.join(data, "cache", `${name}.json`), "utf8");
+    } catch {
+      return null;
+    }
+    const ignore = (why: string) => {
+      deps.log(`${name}: cached copy ignored: ${why}`);
+      return null;
+    };
+    let entry: unknown;
+    try {
+      entry = JSON.parse(text);
+    } catch {
+      return ignore("not JSON");
+    }
+    if (!isObject(entry)) return ignore("not an object");
+    if (entry.version !== CACHE_VERSION)
+      return ignore(
+        `version ${String(entry.version)}, this build reads ${CACHE_VERSION}`,
+      );
+    if (entry.source !== name || typeof entry.savedAt !== "string")
+      return ignore("no source or date");
+    if (!(SHAPES[name] ?? (() => true))(entry.value))
+      return ignore("the answer has the wrong shape");
+    return entry as CacheEntry<T>;
+  }
+
+  /**
+   * Fetch, or fall back to the last good answer, recording which; no answer
+   * at all stops the run. A fetcher throws on an error body or an empty
+   * answer, so only answers worth keeping replace the cached copy.
+   */
   async function cached<T>(
     name: string,
     fetcher: () => Promise<T>,
@@ -238,14 +323,21 @@ async function build(deps: RunDeps): Promise<RunResult> {
     try {
       const value = await fetcher();
       await mkdir(path.dirname(file), { recursive: true });
-      await writeFile(file, JSON.stringify({ retrievedAt: deps.today, value }));
+      const entry: CacheEntry<T> = {
+        version: CACHE_VERSION,
+        savedAt: deps.today,
+        source: name,
+        value,
+      };
+      await writeFile(file, JSON.stringify(entry));
       statuses[name] = { status: "fresh", retrievedAt: deps.today };
       return value;
     } catch (error) {
+      if (error instanceof Refusal) throw error;
       const note = error instanceof Error ? error.message : String(error);
-      const last = await readJson<{ retrievedAt: string; value: T }>(file);
+      const last = await readCache<T>(name);
       deps.log(
-        `${name}: ${note}; ${last ? `using the copy from ${last.retrievedAt}` : "no cached copy"}`,
+        `${name}: ${note}; ${last ? `using the copy from ${last.savedAt}` : "no cached copy"}`,
       );
       if (!last)
         throw new Refusal(
@@ -253,7 +345,7 @@ async function build(deps: RunDeps): Promise<RunResult> {
         );
       statuses[name] = {
         status: "cached",
-        retrievedAt: last.retrievedAt,
+        retrievedAt: last.savedAt,
         note,
       };
       return last.value;
@@ -313,12 +405,20 @@ async function build(deps: RunDeps): Promise<RunResult> {
     return json;
   };
   const wikidata = await cached<Wikidata>("wikidata", async () => {
-    const players = parsePlayers(await sparql("players", PLAYERS_QUERY));
-    const aliases = parseAliases(await sparql("aliases", ALIASES_QUERY));
-    const memberships = parseMemberships(
-      await sparql("memberships", MEMBERSHIPS_QUERY),
+    const players = nonEmpty(
+      parsePlayers(await sparql("players", PLAYERS_QUERY)),
+      "no footballers",
+    );
+    const aliases = nonEmpty(
+      parseAliases(await sparql("aliases", ALIASES_QUERY)),
+      "no aliases",
+    );
+    const memberships = nonEmpty(
+      parseMemberships(await sparql("memberships", MEMBERSHIPS_QUERY)),
+      "no memberships",
     );
     const report = parseHonoursReport(await sparql("honours", HONOURS_QUERY));
+    nonEmpty(report.honours, "no honours");
     return {
       players,
       aliases,
@@ -368,6 +468,7 @@ async function build(deps: RunDeps): Promise<RunResult> {
         let incomplete = 0;
         for (const batch of chunk(titles[lang])) {
           const json = await wikimedia.getJson(revisionsUrl(lang, batch));
+          pagesOf(json, batch.length);
           if ((json as { continue?: unknown } | null)?.continue) incomplete++;
           const read = parseRevisions(json);
           const moved = new Map(read.aliases);
@@ -394,6 +495,8 @@ async function build(deps: RunDeps): Promise<RunResult> {
         deps.log(
           `infobox-${lang}: ${titles[lang].length} titles, ${pages} pages, ${new Set(out.map(([, b]) => b)).size} infoboxes${incomplete > 0 ? `; ${incomplete} answers were cut short (continue)` : ""}`,
         );
+        if (titles[lang].length > 0)
+          nonEmpty(out, `no infobox in ${titles[lang].length} titles`);
         return out;
       }),
     );
@@ -443,10 +546,9 @@ async function build(deps: RunDeps): Promise<RunResult> {
     };
     for (const lang of ["en", "fr"] as const) {
       for (const batch of chunk(currentClubs[lang])) {
-        out[lang].push(
-          ...parseRevisions(await wikimedia.getJson(redirectsUrl(lang, batch)))
-            .aliases,
-        );
+        const json = await wikimedia.getJson(redirectsUrl(lang, batch));
+        pagesOf(json, batch.length);
+        out[lang].push(...parseRevisions(json).aliases);
       }
     }
     return out;
@@ -492,6 +594,10 @@ async function build(deps: RunDeps): Promise<RunResult> {
       ))
         if (!found.has(club.qid)) found.set(club.qid, club);
     }
+    // One title part may rightly match nothing; all of them together may not.
+    const asked = clubQids.length + enTitles.length + frTitles.length;
+    if (asked > 0)
+      nonEmpty([...found.values()], `no club for ${asked} ids and titles`);
     return [...found.values()];
   });
 
@@ -509,18 +615,26 @@ async function build(deps: RunDeps): Promise<RunResult> {
 
   const photos = await cached<Photo[]>("commons", async () => {
     const out: Photo[] = [];
-    for (const batch of chunk(files))
-      out.push(
-        ...parseCommons(await wikimedia.getJson(commonsUrl(batch))).values(),
-      );
+    for (const batch of chunk(files)) {
+      const json = await wikimedia.getJson(commonsUrl(batch));
+      const found = parseCommons(json); // throws on an error body
+      pagesOf(json, batch.length);
+      out.push(...found.values());
+    }
     return out;
   });
   const matches = await cached<Match[]>("martj42", async () =>
-    tunisiaMatches(await github.getText(RESULTS_URL)),
+    nonEmpty(
+      tunisiaMatches(await github.getText(RESULTS_URL)),
+      "no Tunisia match",
+    ),
   );
   // A floor for goals, never a confirmation (addendum §5).
   const scorers = await cached<[string, number][]>("martj42-goals", async () =>
-    tunisiaScorers(await github.getText(GOALSCORERS_URL)),
+    nonEmpty(
+      tunisiaScorers(await github.getText(GOALSCORERS_URL)),
+      "no Tunisia scorer",
+    ),
   );
 
   const { pool, ids } = buildPool({

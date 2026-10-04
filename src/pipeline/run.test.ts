@@ -7,7 +7,13 @@ import { promisify } from "node:util";
 import { describe, expect, it } from "vitest";
 import { createPoliteClient, StoppedError } from "./http.ts";
 import type { PoliteClient } from "./http.ts";
-import { createClients, MAX_REQUESTS, planRequests, run } from "./run.ts";
+import {
+  CACHE_VERSION,
+  createClients,
+  MAX_REQUESTS,
+  planRequests,
+  run,
+} from "./run.ts";
 import type { RunDeps } from "./run.ts";
 import type { Pool } from "./types.ts";
 
@@ -149,7 +155,8 @@ function wikimedia(calls: Calls = { urls: [], queries: [] }) {
           },
         };
       }
-      return { query: {} };
+      // Redirect lookups: the pages asked for, no redirect.
+      return { query: { pages: [{ title: "Club Africain" }] } };
     },
     getText: async () => "",
   };
@@ -580,6 +587,160 @@ describe("run", () => {
       previous,
     );
     expect(await exists(file(root, "ids.json"))).toBe(false);
+  });
+});
+
+describe("the source cache", () => {
+  const cacheFile = (root: string, name: string) =>
+    path.join(root, "data", "cache", `${name}.json`);
+  const readCache = async (root: string, name: string) =>
+    JSON.parse(await readFile(cacheFile(root, name), "utf8")) as {
+      version: number;
+      savedAt: string;
+      source: string;
+      value: unknown;
+    };
+
+  it("wraps each answer with its version, date and source", async () => {
+    const root = await setup();
+    await run(deps(root));
+    expect(await readCache(root, "commons")).toMatchObject({
+      version: CACHE_VERSION,
+      savedAt: "2026-10-04",
+      source: "commons",
+    });
+  });
+
+  it("takes a MediaWiki error body for a failure and keeps the older copy", async () => {
+    const root = await setup();
+    await run(deps(root));
+    const inner = wikimedia();
+    const site: PoliteClient = {
+      getJson: async (url) =>
+        url.includes("commons.wikimedia.org")
+          ? { error: { code: "maxlag", info: "Waiting for a database server" } }
+          : inner.getJson(url),
+      getText: async () => "",
+    };
+    expect(
+      await run(deps(root, { today: "2026-10-05", wikimedia: site })),
+    ).toMatchObject({ ok: true });
+    const report = await readFile(file(root, "report.md"), "utf8");
+    expect(report).toContain(
+      "| commons | cached | 2026-10-04 | MediaWiki error maxlag: Waiting for a database server |",
+    );
+    expect((await readCache(root, "commons")).savedAt).toBe("2026-10-04");
+  });
+
+  it("takes an empty answer to a non-empty request for a failure", async () => {
+    const root = await setup();
+    await run(deps(root));
+    const empty: PoliteClient = {
+      getJson: async () => ({ query: { pages: [] } }),
+      getText: async () => "",
+    };
+    const githubEmpty: PoliteClient = {
+      getJson: async () => ({}),
+      getText: async (url) =>
+        url.includes("goalscorers")
+          ? "date,home_team,away_team,team,scorer,minute,own_goal,penalty\n"
+          : csv,
+    };
+    const lines: string[] = [];
+    expect(
+      await run(
+        deps(root, {
+          today: "2026-10-05",
+          wikimedia: empty,
+          github: githubEmpty,
+          log: (l) => lines.push(l),
+        }),
+      ),
+    ).toMatchObject({ ok: true, changed: false });
+    const report = await readFile(file(root, "report.md"), "utf8");
+    for (const source of [
+      "infobox-en",
+      "redirects",
+      "commons",
+      "martj42-goals",
+    ])
+      expect(report).toContain(
+        `| ${source} | cached | 2026-10-04 | empty answer`,
+      );
+    expect(report).toContain("| martj42 | fresh | 2026-10-05 |  |");
+
+    // With nothing cached, an empty answer stops the run.
+    const fresh = await setup();
+    const none = result();
+    const wd: PoliteClient = {
+      getJson: async () => none,
+      getText: async () => "",
+    };
+    expect(await run(deps(fresh, { wdqs: wd }))).toEqual({
+      ok: false,
+      reason:
+        "wikidata failed and there is no cached copy (empty answer: no footballers)",
+    });
+  });
+
+  it("ignores a copy of another cache version, and says so", async () => {
+    const root = await setup();
+    await run(deps(root));
+    const old = await readCache(root, "infobox-en");
+    await writeFile(
+      cacheFile(root, "infobox-en"),
+      JSON.stringify({ ...old, version: CACHE_VERSION + 1 }),
+    );
+    const lines: string[] = [];
+    const outcome = await run(
+      deps(root, {
+        today: "2026-10-05",
+        wikimedia: stopped("en.wikipedia.org"),
+        log: (l) => lines.push(l),
+      }),
+    );
+    expect(outcome).toMatchObject({
+      ok: false,
+      reason: expect.stringContaining(
+        "infobox-en failed and there is no cached copy",
+      ),
+    });
+    expect(lines).toContain(
+      `infobox-en: cached copy ignored: version ${CACHE_VERSION + 1}, this build reads ${CACHE_VERSION}`,
+    );
+  });
+
+  it("ignores a malformed copy instead of crashing on it or using it", async () => {
+    for (const broken of [
+      "not json {",
+      JSON.stringify({
+        version: CACHE_VERSION,
+        savedAt: "2026-10-04",
+        source: "commons",
+        value: { not: "a list" },
+      }),
+    ]) {
+      const root = await setup();
+      await run(deps(root));
+      await writeFile(cacheFile(root, "commons"), broken);
+      const lines: string[] = [];
+      const outcome = await run(
+        deps(root, {
+          today: "2026-10-05",
+          wikimedia: stopped("en.wikipedia.org"),
+          log: (l) => lines.push(l),
+        }),
+      );
+      expect(outcome).toMatchObject({
+        ok: false,
+        reason: expect.stringContaining(
+          "commons failed and there is no cached copy",
+        ),
+      });
+      expect(
+        lines.some((l) => l.startsWith("commons: cached copy ignored:")),
+      ).toBe(true);
+    }
   });
 });
 
