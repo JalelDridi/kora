@@ -90,6 +90,8 @@ export type Infobox = {
   capsAsOf: string | null;
   /** Rows the parser could not read; empty when nothing was skipped. */
   skipped: SkippedRow[];
+  /** ISO birth date; absent when the parser does not read it. */
+  birthDate?: string | null;
 };
 
 /**

@@ -1,4 +1,5 @@
 import type { Infobox, SkippedRow, Spell } from "../types.ts";
+import { parseEnBirth } from "./birth.ts";
 import { parseEnDate } from "./dates.ts";
 import {
   clip,
@@ -144,5 +145,7 @@ export function parseEnInfobox(
     clubsAsOf: parseEnDate(get("pcupdate") || get("club-update")),
     capsAsOf: parseEnDate(get("ntupdate") || get("nationalteam-update")),
     skipped,
+    // splitParams writes "birth_date" as "birth date".
+    birthDate: parseEnBirth(get("birth date")),
   };
 }

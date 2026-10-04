@@ -6,6 +6,7 @@
 //    years                                              | team                                                    | apps (goals)
 
 import type { Infobox, SkippedRow, Spell } from "../types.ts";
+import { parseFrBirth } from "./birth.ts";
 import { parseFrDate } from "./dates.ts";
 import { readCurrentClub } from "./infobox-en.ts";
 import {
@@ -189,5 +190,6 @@ export function parseFrInfobox(
     clubsAsOf: asOf,
     capsAsOf: asOf,
     skipped,
+    birthDate: parseFrBirth(get("date de naissance")),
   };
 }

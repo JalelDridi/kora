@@ -61,6 +61,7 @@ describe("parseEnInfobox", () => {
       clubsAsOf: "2026-09-04",
       capsAsOf: "2024-04-01",
       skipped: [],
+      birthDate: "1990-01-01",
     });
   });
 
@@ -209,6 +210,7 @@ describe("parseFrInfobox", () => {
       clubsAsOf: "2026-09-27",
       capsAsOf: "2026-09-27",
       skipped: [],
+      birthDate: "1993-07-02",
     });
   });
 
@@ -588,6 +590,68 @@ describe("skipped rows", () => {
     expect(skipped).toEqual(
       Object.fromEntries(Object.keys(skipped).map((key) => [key, []])),
     );
+  });
+});
+
+// Step 6.0 (addendum §3): a second and third vote for the birth date.
+// expected.json has no birth dates, so the truth is the recorded line cited.
+describe("birth dates", () => {
+  it("reads birth dates in both languages", () =>
+    expect([
+      enBox("yassine-meriah")?.birthDate,
+      enBox("youssef-msakni")?.birthDate,
+      frBox("hannibal-mejbri")?.birthDate,
+      frBox("ellyes-skhiri")?.birthDate,
+    ]).toEqual(["1993-07-02", "1990-10-28", "2003-01-21", "1995-05-10"]));
+
+  const recordedBirths: [key: string, line: number, iso: string][] = [
+    // {{Birth date and age|1990|01|01|df=y}}: zero-padded, capitalised.
+    ["en/ali-maaloul", 6, "1990-01-01"],
+    // {{Birth date and age|1995|5|10|df=y}}<ref name="DFL"/>
+    ["en/ellyes-skhiri", 6, "1995-05-10"],
+    ["en/ferjani-sassi", 6, "1992-03-18"],
+    ["en/firas-chaouat", 4, "1996-05-08"],
+    ["en/hannibal-mejbri", 6, "2003-01-21"],
+    // {{Birth date and age|1991|2|8|df=y}}<ref>{{cite web |url=…}}</ref>
+    ["en/wahbi-khazri", 6, "1991-02-08"],
+    ["en/yassine-meriah", 6, "1993-07-02"],
+    // {{birth date and age|1990|10|28|df=yes}}
+    ["en/youssef-msakni", 6, "1990-10-28"],
+    // {{date de naissance|1|1|1990|âge=oui}}
+    ["fr/ali-maaloul", 9, "1990-01-01"],
+    // {{Date de naissance|10|5|1995|âge=oui}}: capitalised.
+    ["fr/ellyes-skhiri", 10, "1995-05-10"],
+    ["fr/ferjani-sassi", 10, "1992-03-18"],
+    ["fr/firas-chaouat", 9, "1996-05-08"],
+    // Plain text, no template: "21 janvier 2003".
+    ["fr/hannibal-mejbri", 11, "2003-01-21"],
+    ["fr/wahbi-khazri", 9, "1991-02-08"],
+    ["fr/yassine-meriah", 10, "1993-07-02"],
+    ["fr/youssef-msakni", 8, "1990-10-28"],
+  ];
+  it.each(recordedBirths)("reads %s line %i as %s", (key, line, iso) => {
+    const [lang, slug] = key.split("/");
+    const text = recorded(key).split("\n")[line - 1];
+    expect(text).toMatch(/birth_date|date de naissance/);
+    const box = lang === "en" ? enBox(slug) : frBox(slug);
+    expect(box?.birthDate).toBe(iso);
+  });
+
+  // Hand-made: every recorded article has a readable birth date.
+  it("gives null for a missing or unreadable birth date", () => {
+    expect(parseEnInfobox("X", en("| name = X"))?.birthDate).toBeNull();
+    expect(
+      parseEnInfobox("X", en("| birth_date = 1990s"))?.birthDate,
+    ).toBeNull();
+    expect(
+      parseEnInfobox("X", en("| birth_date = {{birth date|1990|13|2}}"))
+        ?.birthDate,
+    ).toBeNull();
+    expect(parseFrInfobox("X", fr("| nom = X"))?.birthDate).toBeNull();
+    expect(
+      parseFrInfobox("X", fr("| date de naissance = {{date|?|?|1990}}"))
+        ?.birthDate,
+    ).toBeNull();
   });
 });
 
