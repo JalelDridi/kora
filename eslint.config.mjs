@@ -5,6 +5,12 @@ import nextTs from "eslint-config-next/typescript";
 const eslintConfig = defineConfig([
   ...nextVitals,
   ...nextTs,
+  {
+    // Node runs these files directly by stripping types; a type imported
+    // without `import type` would be a missing export at runtime.
+    files: ["src/pipeline/**/*.ts"],
+    rules: { "@typescript-eslint/consistent-type-imports": "error" },
+  },
   globalIgnores([
     ".next/**",
     "out/**",
