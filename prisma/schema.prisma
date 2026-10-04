@@ -171,19 +171,23 @@ model PlayerClub {
   @@map("player_clubs")
 }
 
-/// A club's title in a season. Players' honours are derived from careers.
+/// A club's title in an edition. Players' honours are derived from careers.
+/// An edition is a start year and an end year: the CAF Champions League had
+/// both a "2018" and a "2018–19" edition.
 model Honour {
   id          String      @id @default(uuid()) @db.Uuid
   competition Competition
-  /// The year the season started: 2018 for 2018–19.
+  /// The year the edition started: 2018 for 2018–19.
   seasonStart Int         @map("season_start")
+  /// The year it ended: 2019 for 2018–19, 2018 for 2018.
+  seasonEnd   Int         @map("season_end")
   clubId      String      @map("club_id")
   /// "wikidata" or "curated".
   source      String
 
   club Club @relation(fields: [clubId], references: [id])
 
-  @@unique([competition, seasonStart])
+  @@unique([competition, seasonStart, seasonEnd])
   @@map("honours")
 }
 

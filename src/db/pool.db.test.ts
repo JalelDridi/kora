@@ -170,34 +170,58 @@ describe("careers", () => {
 });
 
 describe("honours", () => {
-  it("have one winner per competition and season", async () => {
+  const honour = {
+    competition: "tn_ligue1" as const,
+    seasonStart: 2012,
+    seasonEnd: 2013,
+    clubId: "cs-sfaxien",
+    source: "wikidata",
+  };
+
+  it("have one winner per competition and edition", async () => {
     await seed();
-    const data = {
-      competition: "tn_ligue1" as const,
-      seasonStart: 2012,
-      clubId: "cs-sfaxien",
-      source: "wikidata",
-    };
-    await db.honour.create({ data });
-    await expect(db.honour.create({ data })).rejects.toMatchObject({
+    await db.honour.create({ data: honour });
+    await expect(db.honour.create({ data: honour })).rejects.toMatchObject({
       code: "P2002",
     });
-    await db.honour.create({ data: { ...data, competition: "tn_cup" } });
+    await db.honour.create({ data: { ...honour, competition: "tn_cup" } });
+  });
+
+  it("keep two editions that start in the same year", async () => {
+    await seed();
+    const cl = { ...honour, competition: "caf_cl" as const, seasonStart: 2018 };
+    await db.honour.create({ data: { ...cl, seasonEnd: 2018 } });
+    await db.honour.create({ data: { ...cl, seasonEnd: 2019 } });
+    expect(await db.honour.count({ where: { competition: "caf_cl" } })).toBe(2);
+  });
+
+  it("reject an edition that ends before it starts", async () => {
+    await seed();
+    await expect(
+      db.honour.create({ data: { ...honour, seasonEnd: 2011 } }),
+    ).rejects.toThrow(/honours_season_end_not_before_start/);
+  });
+
+  it("reject an edition longer than two calendar years", async () => {
+    await seed();
+    await expect(
+      db.honour.create({ data: { ...honour, seasonEnd: 2014 } }),
+    ).rejects.toThrow(/honours_season_end_within_a_year/);
   });
 
   it("reject an unknown source and a season out of range", async () => {
     await seed();
-    const data = {
-      competition: "tn_ligue1" as const,
-      seasonStart: 2012,
-      clubId: "cs-sfaxien",
-    };
     await expect(
-      db.honour.create({ data: { ...data, source: "guess" } }),
+      db.honour.create({ data: { ...honour, source: "guess" } }),
     ).rejects.toThrow(/honours_source/);
     await expect(
       db.honour.create({
-        data: { ...data, seasonStart: 1800, source: "curated" },
+        data: {
+          ...honour,
+          seasonStart: 1800,
+          seasonEnd: 1800,
+          source: "curated",
+        },
       }),
     ).rejects.toThrow(/honours_season_range/);
   });

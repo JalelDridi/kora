@@ -158,6 +158,8 @@ export type WdClub = {
 export type WdHonour = {
   competition: Competition;
   seasonStart: number;
+  /** The edition's end year: 2019 for 2018–19, 2018 for 2018. */
+  seasonEnd: number;
   winnerQid: string;
 };
 
@@ -193,6 +195,8 @@ export type GovernorateRow = {
 export type CuratedHonour = {
   competition: Competition;
   seasonStart: number;
+  /** The edition's end year: 2019 for 2018–19, 2018 for 2018. */
+  seasonEnd: number;
   clubWikidataId: string;
   by: string;
   at: string;
@@ -261,6 +265,8 @@ export type PoolClub = {
 export type PoolHonour = {
   competition: Competition;
   seasonStart: number;
+  /** The edition's end year: 2019 for 2018–19, 2018 for 2018. */
+  seasonEnd: number;
   clubId: string;
   source: "wikidata" | "curated";
 };
