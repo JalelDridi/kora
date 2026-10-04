@@ -31,6 +31,7 @@ import {
   parseRevisions,
   redirectsUrl,
   revisionsUrl,
+  unanswered,
 } from "./wiki/fetch.ts";
 import type { Page } from "./wiki/fetch.ts";
 import { parseEnInfobox } from "./wiki/infobox-en.ts";
@@ -62,6 +63,11 @@ import {
 
 export type RunDeps = {
   root: string;
+  /**
+   * The build's date. Offline, the newest cached copy dates the build instead
+   * (final wave, B1): a rebuild from the cache of 4 October is the pool of 4
+   * October, whatever day it runs.
+   */
   today: string;
   /** The three clients; an offline build has none and makes no request. */
   wdqs?: PoliteClient;
@@ -94,10 +100,19 @@ export function createClients(
     wikimedia: 0,
     github: 0,
   };
-  const make = (name: ClientName, minGapMs: number, maxRetries: number) =>
+  const make = (
+    name: ClientName,
+    minGapMs: number,
+    maxRetries: number,
+    maxAttempts: number,
+  ) =>
     createPoliteClient({
       minGapMs,
       maxRetries,
+      // Final wave, B7: twice the most a run may plan for this client, and
+      // half an hour in all, retries and Retry-After waits included.
+      maxAttempts,
+      maxWallMs: MAX_RUN_MS,
       sleep: options.sleep,
       fetch: (url, init) => {
         counts[name]++;
@@ -105,12 +120,17 @@ export function createClients(
       },
     });
   return {
-    wdqs: make("wdqs", 2_000, 3),
+    wdqs: make("wdqs", 2_000, 3, 2 * WDQS_QUERIES),
     // English and French Wikipedia and Commons share one client: one queue,
     // at least 5 s between request starts, and a 429 or 403 from any of them
     // stops all three for the rest of the run.
-    wikimedia: make("wikimedia", 5_000, 3),
-    github: make("github", 1_000, 2),
+    wikimedia: make(
+      "wikimedia",
+      5_000,
+      3,
+      2 * (MAX_REQUESTS - WDQS_QUERIES - GITHUB_DOWNLOADS),
+    ),
+    github: make("github", 1_000, 2, 2 * GITHUB_DOWNLOADS),
     attempts: () => ({ ...counts }),
   };
 }
@@ -120,6 +140,9 @@ export type RunResult =
 
 /** A first run's budget: more planned requests than this and the run refuses. */
 export const MAX_REQUESTS = 60;
+
+/** The longest a real run's client may keep sending requests (B7). */
+export const MAX_RUN_MS = 30 * 60_000;
 
 /** Four Wikidata queries, then clubs by id, by English and by French title. */
 const WDQS_QUERIES = 4 + 3;
@@ -545,6 +568,13 @@ async function build(deps: RunDeps): Promise<RunResult> {
         for (const batch of chunk(titles[lang])) {
           const json = await wikimedia.getJson(revisionsUrl(lang, batch));
           pagesOf(json, batch.length);
+          // B6: a page listed without content or a missing mark, and no
+          // `continue` to say so, would be cached as fresh but empty.
+          const lost = unanswered(json, batch);
+          if (lost.length > 0)
+            throw new Error(
+              `${lost.length} of ${batch.length} titles came back without content or a missing mark (${lost.slice(0, 3).join(", ")})`,
+            );
           const read = parseRevisions(json);
           raw.pages.push(
             ...read.pages.map((p) => ({
@@ -750,27 +780,46 @@ async function build(deps: RunDeps): Promise<RunResult> {
     (raw) => nonEmpty(tunisiaScorers(raw), "no Tunisia scorer"),
   );
 
-  const { pool, ids } = buildPool({
-    today: deps.today,
-    players,
-    memberships: groupBy(wikidata.memberships, (m) => m.playerQid),
-    index: buildClubIndex(
-      clubs,
-      { en: new Map(redirects.en), fr: new Map(redirects.fr) },
-      checked.overrides.clubTitles,
-    ),
-    infoboxes: { en, fr },
-    photos: new Map(photos.map((p) => [p.file, p])),
-    tunisiaMatches: matches,
-    goalsFloor: goalsFloors(scorers, players),
-    overrides: checked.overrides,
-    governorateIds,
-    honours: wikidata.honours,
-    curatedHonours,
-    ligue1Titles: ligue1.clubs,
-    previous,
-    ids: registry,
-  });
+  // B1: offline, the build is dated by the newest cached copy it read.
+  const today = deps.offline
+    ? (Object.values(statuses)
+        .map((s) => s.retrievedAt)
+        .filter((d): d is string => d != null)
+        .sort()
+        .at(-1) ?? deps.today)
+    : deps.today;
+  if (deps.offline)
+    deps.log(`offline build dated ${today}, its newest cached copy`);
+  // B4: a pool that cannot be built is a refusal with a reason, not a crash.
+  let built: ReturnType<typeof buildPool>;
+  try {
+    built = buildPool({
+      today,
+      players,
+      memberships: groupBy(wikidata.memberships, (m) => m.playerQid),
+      index: buildClubIndex(
+        clubs,
+        { en: new Map(redirects.en), fr: new Map(redirects.fr) },
+        checked.overrides.clubTitles,
+      ),
+      infoboxes: { en, fr },
+      photos: new Map(photos.map((p) => [p.file, p])),
+      tunisiaMatches: matches,
+      goalsFloor: goalsFloors(scorers, players),
+      overrides: checked.overrides,
+      governorateIds,
+      honours: wikidata.honours,
+      curatedHonours,
+      ligue1Titles: ligue1.clubs,
+      previous,
+      ids: registry,
+    });
+  } catch (error) {
+    throw new Refusal(
+      `the pool could not be built: ${error instanceof Error ? error.message : String(error)}`,
+    );
+  }
+  const { pool, ids } = built;
   const attempts = deps.attempts?.() ?? null;
   deps.log(
     attempts
@@ -799,9 +848,10 @@ async function build(deps: RunDeps): Promise<RunResult> {
         pool,
         diff,
         statuses,
-        today: deps.today,
+        today,
         honoursReading: wikidata.honoursReading,
         overrideWarnings: checked.warnings,
+        offline: deps.offline === true,
       }),
     ],
   ]);

@@ -198,6 +198,80 @@ describe("renderReport", () => {
     ).not.toContain("Not every source was read tonight");
   });
 
+  // Final wave, B2: a deliberate offline rebuild is no failure to read.
+  it("says plainly that an offline rebuild read no source", () => {
+    const p = pool([player("x")]);
+    const report = renderReport({
+      pool: p,
+      diff: diffPools(null, p),
+      statuses: {
+        wikidata: {
+          status: "cached",
+          retrievedAt: "2026-10-04",
+          note: "offline build",
+        },
+        "infobox-en": {
+          status: "cached",
+          retrievedAt: "2026-10-03",
+          note: "offline build",
+        },
+      },
+      today: "2026-10-04",
+      offline: true,
+    });
+    expect(report.split("\n").slice(0, 3)).toEqual([
+      "# Nightly pool, 2026-10-04",
+      "",
+      "> Offline rebuild from the cache saved on 2026-10-03 to 2026-10-04; no source was read.",
+    ]);
+    expect(report).not.toContain("Not every source was read tonight");
+  });
+
+  // Final wave, B9 and P40: the answer-ready count, every night.
+  it("counts the active footballers ready to be a daily answer", () => {
+    const sure = {
+      source: "enwiki" as const,
+      retrievedAt: "2026-10-04",
+      confidence: "medium" as const,
+      agreeing: ["enwiki" as const],
+    };
+    const ready = player("ready", {
+      governorate: "tunis",
+      provenance: {
+        clubId: sure,
+        position: sure,
+        birthDate: sure,
+        caps: sure,
+        governorate: sure,
+      },
+    });
+    const notReady = player("not-ready", {
+      provenance: {
+        clubId: sure,
+        position: sure,
+        birthDate: sure,
+        caps: { ...sure, confidence: "low" },
+      },
+    });
+    const legendOnly = player("legend-only", {
+      pools: { active: false, legend: true },
+      provenance: ready.provenance,
+    });
+    const p = pool([ready, notReady, legendOnly]);
+    const report = renderReport({
+      pool: p,
+      diff: diffPools(null, p),
+      statuses: {},
+      today: "2026-10-04",
+    });
+    expect(report).toContain(
+      "Active footballers ready to be a daily answer (P27): 1 of 2.",
+    );
+    expect(report).toContain(
+      "The governorate and the birthplace are medium when Wikidata gives a precise place (P36), else low; the Arabic name and the photo stay low until Jalel confirms them. Low:",
+    );
+  });
+
   it("lists the seasons without a winner", () => {
     expect(
       missingSeasons(

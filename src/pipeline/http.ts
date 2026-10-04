@@ -31,10 +31,25 @@ export class StoppedError extends HttpError {
   }
 }
 
+/**
+ * The client reached its most HTTP attempts or its wall-time limit (final
+ * wave, B7): this request and every later one reject with this error.
+ */
+export class LimitError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "LimitError";
+  }
+}
+
 export type PoliteOptions = {
   /** Minimum time between the starts of two requests. */
   minGapMs: number;
   maxRetries: number;
+  /** The most HTTP attempts this client may make, retries included. */
+  maxAttempts?: number;
+  /** No attempt starts later than this after the client was created. */
+  maxWallMs?: number;
   fetch?: FetchLike;
   sleep?: (ms: number) => Promise<void>;
   now?: () => number;
@@ -72,6 +87,26 @@ export function createPoliteClient(options: PoliteOptions): PoliteClient {
   const now = options.now ?? Date.now;
   let lastStart = Number.NEGATIVE_INFINITY;
   let stopped: StoppedError | null = null;
+  let limited: LimitError | null = null;
+  let attempts = 0;
+  const createdAt = now();
+  /** Throws, and keeps throwing, once an attempt starting at `at` would break a limit. */
+  function checkLimits(url: string, at: number): void {
+    if (limited) throw limited;
+    const host = new URL(url).host;
+    if (options.maxAttempts !== undefined && attempts >= options.maxAttempts)
+      limited = new LimitError(
+        `${host}: ${attempts} HTTP attempts made, the most this run allows`,
+      );
+    else if (
+      options.maxWallMs !== undefined &&
+      at - createdAt > options.maxWallMs
+    )
+      limited = new LimitError(
+        `${host}: the next attempt would start after ${options.maxWallMs / 1000} s, the longest this run allows`,
+      );
+    if (limited) throw limited;
+  }
   // Every request waits for the one before it to finish, failed or not.
   let queue: Promise<unknown> = Promise.resolve();
 
@@ -85,8 +120,10 @@ export function createPoliteClient(options: PoliteOptions): PoliteClient {
     for (let attempt = 0; ; attempt++) {
       if (stopped) throw new StoppedError(url, stopped.status);
       const wait = lastStart + options.minGapMs - now();
+      checkLimits(url, now() + Math.max(0, wait));
       if (wait > 0) await sleep(wait);
       lastStart = now();
+      attempts++;
 
       const headers = new Headers(init.headers);
       headers.set("User-Agent", USER_AGENT);
@@ -112,6 +149,7 @@ export function createPoliteClient(options: PoliteOptions): PoliteClient {
       if (!retryable || attempt >= options.maxRetries || delay > MAX_WAIT_MS) {
         throw new HttpError(url, response.status);
       }
+      checkLimits(url, now() + delay);
       await sleep(delay);
     }
   }

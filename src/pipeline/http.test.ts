@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   createPoliteClient,
   HttpError,
+  LimitError,
   retryDelayMs,
   StoppedError,
   USER_AGENT,
@@ -14,7 +15,10 @@ type Reply = {
 };
 
 // A fake network and a fake clock: sleeping only moves time forward.
-function harness(replies: Reply[]) {
+function harness(
+  replies: Reply[],
+  limits: { maxAttempts?: number; maxWallMs?: number } = {},
+) {
   let time = 0;
   const starts: number[] = [];
   const sleeps: number[] = [];
@@ -22,6 +26,7 @@ function harness(replies: Reply[]) {
   const client = createPoliteClient({
     minGapMs: 5_000,
     maxRetries: 2,
+    ...limits,
     now: () => time,
     sleep: async (ms) => {
       sleeps.push(ms);
@@ -247,5 +252,40 @@ describe("retryDelayMs", () => {
     expect(retryDelayMs(null, 0, 0)).toBe(10_000);
     expect(retryDelayMs(null, 2, 0)).toBe(40_000);
     expect(retryDelayMs(null, 9, 0)).toBe(120_000);
+  });
+});
+
+// Final wave, B7: a cap on HTTP attempts and on wall time, per client.
+describe("createPoliteClient limits", () => {
+  it("stops after the most attempts it may make, retries included, and sends nothing more", async () => {
+    const { client, starts } = harness(
+      [{ status: 503 }, { status: 503 }, { status: 200 }, { status: 200 }],
+      { maxAttempts: 2 },
+    );
+    const first = client.getText("https://query.wikidata.org/sparql");
+    await expect(first).rejects.toThrow(LimitError);
+    await expect(first).rejects.toThrow(
+      "query.wikidata.org: 2 HTTP attempts made, the most this run allows",
+    );
+    await expect(
+      client.getText("https://query.wikidata.org/sparql"),
+    ).rejects.toThrow(LimitError);
+    expect(starts).toHaveLength(2);
+  });
+
+  it("stops rather than wait past its wall-time limit", async () => {
+    const { client, starts } = harness(
+      [{ status: 503, headers: { "Retry-After": "120" } }, { status: 200 }],
+      { maxWallMs: 60_000 },
+    );
+    const error = await client
+      .getText("https://en.wikipedia.org/w/api.php")
+      .catch((e: unknown) => e);
+    expect(error).toBeInstanceOf(LimitError);
+    expect((error as Error).name).toBe("LimitError");
+    expect((error as Error).message).toBe(
+      "en.wikipedia.org: the next attempt would start after 60 s, the longest this run allows",
+    );
+    expect(starts).toHaveLength(1);
   });
 });

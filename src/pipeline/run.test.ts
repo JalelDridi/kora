@@ -768,7 +768,13 @@ describe("run", () => {
             },
           };
         }
-        return baseWm.getJson(url, init);
+        const answer = (await baseWm.getJson(url, init)) as {
+          query: { pages: object[] };
+        };
+        // No English page for him: a missing mark, as the API sends it.
+        if (url.includes("prop=revisions"))
+          answer.query.pages.push({ title: "Tarak Dhiab", missing: true });
+        return answer;
       },
       getText: async () => "",
     };
@@ -783,6 +789,65 @@ describe("run", () => {
       q.includes("en.wikipedia.org/> ; schema:about ?club"),
     );
     expect(byEnglishTitle).toContain('"Hetten FC"@en');
+  });
+
+  // Final wave, B4: an error while building the pool is a refusal with its
+  // reason, not a stack trace.
+  it("refuses, writing nothing, when the pool cannot be built", async () => {
+    const root = await setup();
+    await writeFile(file(root, "pool.json"), JSON.stringify({ version: 1 }));
+    const lines: string[] = [];
+    const result = await run(deps(root, { log: (l) => lines.push(l) }));
+    expect(result.ok).toBe(false);
+    expect(result.ok ? "" : result.reason).toMatch(
+      /^the pool could not be built: /,
+    );
+    expect(lines.at(-1)).toMatch(/^refused: the pool could not be built: /);
+    expect(await exists(file(root, "report.md"))).toBe(false);
+  });
+
+  // Final wave, B6: a page listed without content, and no `continue`, fails
+  // its source instead of being cached as fresh.
+  it("fails a source whose answer lists a page without content", async () => {
+    const root = await setup();
+    const players = JSON.parse(JSON.stringify(answers.players));
+    players.results.bindings.push({
+      p: uri("Q1002"),
+      enLabel: lit("Second Footballer"),
+      birth: lit("1996-01-01T00:00:00Z"),
+      enwiki: lit("Second Footballer"),
+    });
+    const base = wdqs();
+    const client: PoliteClient = {
+      async getJson(url, init) {
+        const query =
+          new URLSearchParams(String(init?.body)).get("query") ?? "";
+        const answer = await base.getJson(url, init);
+        if (query.includes("GROUP BY ?p") && !query.includes("skos:altLabel"))
+          return players;
+        return answer;
+      },
+      getText: async () => "",
+    };
+    const wm = wikimedia();
+    const cut: PoliteClient = {
+      async getJson(url, init) {
+        const answer = (await wm.getJson(url, init)) as {
+          query: { pages: object[] };
+        };
+        if (url.includes("prop=revisions"))
+          answer.query.pages.push({ title: "Second Footballer" });
+        return answer;
+      },
+      getText: async () => "",
+    };
+    const result = await run(deps(root, { wdqs: client, wikimedia: cut }));
+    expect(result).toEqual({
+      ok: false,
+      reason:
+        "infobox-en failed and there is no cached copy (1 of 2 titles came back without content or a missing mark (Second Footballer))",
+    });
+    expect(await exists(file(root, "cache/infobox-en.json"))).toBe(false);
   });
 
   it("refuses a malformed data/ids.json before any request", async () => {
@@ -1196,6 +1261,34 @@ describe("the raw cache and offline builds", () => {
       "| wikidata | cached | 2026-10-04 | offline build |",
     );
     expect(lines.join("\n")).not.toContain("plan:");
+  });
+
+  // Final wave, B1 and B2: an offline rebuild is the pool of its cache's
+  // date, whatever day it runs, and its report says no source was read.
+  it("dates an offline rebuild by its newest cached copy, and says it read no source", async () => {
+    const root = await setup();
+    await run(deps(root));
+    const pool = await readFile(file(root, "pool.json"), "utf8");
+    const lines: string[] = [];
+    expect(
+      await run({
+        root,
+        today: "2027-01-15",
+        offline: true,
+        ...recording(),
+        log: (l) => lines.push(l),
+      }),
+    ).toEqual({ ok: true, changed: false });
+    expect(await readFile(file(root, "pool.json"), "utf8")).toBe(pool);
+    const report = await readFile(file(root, "report.md"), "utf8");
+    expect(report.split("\n").slice(0, 3)).toEqual([
+      "# Nightly pool, 2026-10-04",
+      "",
+      "> Offline rebuild from the cache saved on 2026-10-04; no source was read.",
+    ]);
+    expect(lines).toContain(
+      "offline build dated 2026-10-04, its newest cached copy",
+    );
   });
 
   it("parses the cached answer again, so a parser change shows without a request", async () => {

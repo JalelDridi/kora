@@ -1,4 +1,4 @@
-import { CROSS_CHECKED, SINGLE_SOURCE } from "./confidence.ts";
+import { CROSS_CHECKED, isAnswerReady, SINGLE_SOURCE } from "./confidence.ts";
 import { droppedReasons } from "./types.ts";
 import type {
   Competition,
@@ -209,6 +209,8 @@ export function renderReport(input: {
   honoursReading?: HonoursReading | null;
   /** The warnings of validateOverrides: stale overrides, not applied. */
   overrideWarnings?: string[];
+  /** A deliberate offline rebuild (`--offline`): every source is cached on purpose. */
+  offline?: boolean;
 }): string {
   const { pool, diff, statuses, today } = input;
   const clubName = new Map(pool.clubs.map((c) => [c.id, c.nameLatin]));
@@ -253,15 +255,35 @@ export function renderReport(input: {
     .map(
       ([name, s]) => `${name} (read on ${s.retrievedAt ?? "an unknown date"})`,
     );
+  // An offline rebuild reads the cache on purpose: say so, not a warning.
+  const saved = [
+    ...new Set(
+      Object.values(statuses)
+        .map((s) => s.retrievedAt)
+        .filter((d): d is string => d != null),
+    ),
+  ].sort();
+  const savedOn =
+    saved.length === 0
+      ? "an unknown date"
+      : saved.length === 1
+        ? saved[0]
+        : `${saved[0]} to ${saved.at(-1)}`;
+  const answerReady = pool.players.filter(isAnswerReady).length;
   const out = [
     `# Nightly pool, ${today}`,
     "",
-    ...(fromCache.length > 0
+    ...(input.offline
       ? [
-          `> **Not every source was read tonight.** From the cache: ${fromCache.join(", ")}. Their values may be out of date.`,
+          `> Offline rebuild from the cache saved on ${savedOn}; no source was read.`,
           "",
         ]
-      : []),
+      : fromCache.length > 0
+        ? [
+            `> **Not every source was read tonight.** From the cache: ${fromCache.join(", ")}. Their values may be out of date.`,
+            "",
+          ]
+        : []),
     "| Source | Status | Read on | Note |",
     "| --- | --- | --- | --- |",
   ];
@@ -272,6 +294,8 @@ export function renderReport(input: {
   out.push(
     "",
     `**${pool.players.length} footballers** (${active} active, ${legend} legends, ${both} in both), ${pool.clubs.length} clubs, ${pool.honours.length} honours.`,
+    "",
+    `Active footballers ready to be a daily answer (P27): ${answerReady} of ${active}.`,
     "",
     `## Low confidence, review first (${low.length})`,
     "",
@@ -291,7 +315,7 @@ export function renderReport(input: {
       ? [`- … ${low.length - LOW_LIMIT} more in data/pool.json`]
       : []),
     "",
-    `Single-source fields stay low until Jalel confirms them: ${SINGLE_SOURCE.map((f) => `${f} ${pool.players.filter((p) => p.provenance[f]?.confidence === "low").length}`).join(", ")}.`,
+    `Single-source fields: one source each. The governorate and the birthplace are medium when Wikidata gives a precise place (P36), else low; the Arabic name and the photo stay low until Jalel confirms them. Low: ${SINGLE_SOURCE.map((f) => `${f} ${pool.players.filter((p) => p.provenance[f]?.confidence === "low").length}`).join(", ")}.`,
     "",
     `### Rows the infobox parsers skipped (${skipped.length})`,
     "",
