@@ -81,3 +81,12 @@ test("every page names an icon that exists", async ({ page, request }) => {
   expect(icon.status()).toBe(200);
   expect(icon.headers()["content-type"]).toContain("image/svg+xml");
 });
+
+test("no page sets a cookie (the site stays cookieless)", async ({
+  request,
+}) => {
+  for (const path of ["/", ...locales.map((l) => localeInfo[l].prefix)]) {
+    const response = await request.get(path, { maxRedirects: 0 });
+    expect(response.headers()["set-cookie"], path).toBeUndefined();
+  }
+});
