@@ -6,8 +6,8 @@ import { anchors, cells, elements, hasClass, isoDate, text } from "./html.ts";
 // The country page parser follows a real page's shape (the research probe
 // of 4 October 2026: `td.name a[href^="/player/"]`, `td.dob`, `td.club`, the
 // first `td.stats.matches` under the "FIFA" header, the match table's
-// `td.date` and `td.stats.fifa`, "Last update"). The player page parser is
-// UNVERIFIED until the sample run (B5): no player page has been fetched yet.
+// `td.date` and `td.stats.fifa`, "Last update"); the player page parser too
+// (sample run, 5 October 2026: the chart data and the career table).
 
 export type NftCountryPlayer = {
   id: string;
@@ -92,41 +92,59 @@ export function latestFifaMatch(page: NftCountryPage): string | null {
 export type NftPlayerPage = {
   /** Career FIFA matches for the senior national team; null when unreadable. */
   careerFifa: number | null;
+  /** The chart data's "fifa" entry, when the page has it. */
+  chartFifa: number | null;
+  /** The career table's Tunisia "A" rows, summed, when the page has them. */
+  tableFifa: number | null;
 };
 
+/** The chart script's `"dataProvider": [...]`: its "fifa" entry's matches. */
+function chartFifa(html: string): number | null {
+  const block = /"dataProvider"\s*:\s*\[([\s\S]*?)\]/.exec(html)?.[1];
+  if (!block) return null;
+  for (const entry of block.match(/\{[^{}]*\}/g) ?? []) {
+    if (!/"type"\s*:\s*"fifa"/.test(entry)) continue;
+    const m = /"matches"\s*:\s*(\d+)/.exec(entry);
+    return m ? Number(m[1]) : null;
+  }
+  return null;
+}
+
 /**
- * UNVERIFIED until the sample run: a player page's national-team career.
- * Read from a table whose rows are years: the "Total" row's first FIFA
- * "matches" cell, else the sum of the year rows' cells.
+ * The career table: the one whose header has a "FIFA" and a "Non FIFA"
+ * group. Each row of the senior team (td.country[data-order^="Tunisia_A_"])
+ * counts its first "matches" cell, the FIFA one; youth rows carry other
+ * codes and are left out. The footer, which adds them all, is not read.
+ */
+function tableFifa(html: string): number | null {
+  for (const table of elements(html, "table")) {
+    const head = elements(elements(table, "thead")[0] ?? "", "th").map((h) =>
+      text(h),
+    );
+    if (!head.includes("FIFA") || !head.includes("Non FIFA")) continue;
+    let sum = 0;
+    let rows = 0;
+    for (const row of elements(elements(table, "tbody")[0] ?? "", "tr")) {
+      const row_ = cells(row);
+      const country = row_.find((c) => hasClass(c.cls, "country"));
+      if (!/data-order="Tunisia_A_/.test(country?.attrs ?? "")) continue;
+      const matches = row_.find((c) => hasClass(c.cls, "stats", "matches"));
+      const n = matches ? count(matches.html) : null;
+      if (n === null) continue;
+      sum += n;
+      rows++;
+    }
+    return rows > 0 ? sum : null;
+  }
+  return null;
+}
+
+/**
+ * A player page (checked on the sample of 5 October 2026): his career FIFA
+ * matches for Tunisia, from the chart data, else from the career table.
  */
 export function parsePlayerPage(html: string): NftPlayerPage {
-  for (const table of elements(
-    html,
-    "table",
-    /class="[^"]*\bplayer\b[^"]*"|career/i,
-  )) {
-    const rows = elements(table, "tr");
-    let total: number | null = null;
-    let sum = 0;
-    let years = 0;
-    for (const row of rows) {
-      const row_ = cells(row);
-      const matches = row_.find((c) => hasClass(c.cls, "stats", "matches"));
-      if (!matches) continue;
-      const n = count(matches.html);
-      if (n === null) continue;
-      if (
-        /class="[^"]*\btotal\b/i.test(row) ||
-        /^total\b/i.test(text(row_[0]?.html ?? ""))
-      ) {
-        total = n;
-      } else if (/^\d{4}$/.test(text(row_[0]?.html ?? ""))) {
-        sum += n;
-        years++;
-      }
-    }
-    if (total !== null) return { careerFifa: total };
-    if (years > 0) return { careerFifa: sum };
-  }
-  return { careerFifa: null };
+  const chart = chartFifa(html);
+  const table = tableFifa(html);
+  return { careerFifa: chart ?? table, chartFifa: chart, tableFifa: table };
 }

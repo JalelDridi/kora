@@ -136,6 +136,12 @@ export function describePlan(input: {
    * is no mapping yet. Their footballers get no club verdict.
    */
   unmappedClubs?: { name: string; footballers: number }[] | null;
+  /**
+   * Fix round 2: of the player pages a backfill has not read yet, how many
+   * have the exact link a country page gave, and how many would need a
+   * guessed name; null when there is no mapping yet.
+   */
+  backfillPaths?: { known: number; guessed: number } | null;
   /** From the private folder's last mapping, or null before the first Wikidata query. */
   mapping: {
     players: number;
@@ -171,6 +177,12 @@ export function describePlan(input: {
             "A club whose id is not on the league page (a mismatch) is found only by a live run, and gets no verdict either",
           ]),
   ];
+  if (input.backfillPaths !== undefined && input.mode.kind === "backfill")
+    lines.push(
+      input.backfillPaths === null
+        ? "backfill links: unknown until the Wikidata query"
+        : `backfill links: ${input.backfillPaths.known} player pages not read yet have the exact link a country page gave; ${input.backfillPaths.guessed} would need a guessed name (UNVERIFIED form)`,
+    );
   for (const site of input.sites) {
     const s = SITES[site];
     const paths = planned[site];

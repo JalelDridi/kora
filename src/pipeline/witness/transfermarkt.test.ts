@@ -46,33 +46,58 @@ describe("Transfermarkt pages (synthetic fixtures, S28)", () => {
     expect(clubs.some((c) => c.id === "99999")).toBe(false);
   });
 
-  it("squad page gives player ids, names, birth dates (UNVERIFIED until the sample run)", () => {
+  it("squad page gives player ids, names and ages; its only date is the contract's, never read as a birth date", () => {
     expect(parseSquad(fixture("tm-squad.html"))).toEqual([
       {
         id: "700001",
         path: "/ali-invente/profil/spieler/700001",
         name: "Ali Inventé",
-        birthDate: "1999-03-03",
+        birthDate: null,
+        age: 27,
         loan: false,
       },
       {
         id: "700002",
         path: "/sami-exemple/profil/spieler/700002",
         name: "Sami Exemple",
-        birthDate: "2002-11-21",
-        loan: true,
+        birthDate: null,
+        age: 23,
+        loan: true, // UNVERIFIED shape: no loan in the sample
       },
       {
         id: "700003",
         path: "/karim-fictif/profil/spieler/700003",
         name: "Karim Fictif",
-        birthDate: "1997-07-14",
+        birthDate: null,
+        age: 29,
+        loan: false, // "Returned after loan spell ...; fee: End of loan"
+      },
+      {
+        // No contract date ("-"): still a player.
+        id: "700004",
+        path: "/nabil-exemplaire/profil/spieler/700004",
+        name: "Nabil Exemplaire",
+        birthDate: null,
+        age: 19,
         loan: false,
       },
     ]);
   });
 
-  it("a player profile gives his id, name, birth date and club (UNVERIFIED until the sample run)", () => {
+  it('reads a birth date from a "Date of birth" column when the page has one', () => {
+    const withBirth = fixture("tm-squad.html")
+      .replace(">Age</th>", ">Date of birth/Age</th>")
+      .replace(
+        '<td class="zentriert">27</td>',
+        '<td class="zentriert">Mar 3, 1999 (27)</td>',
+      );
+    expect(parseSquad(withBirth)[0]).toMatchObject({
+      birthDate: "1999-03-03",
+      age: 27,
+    });
+  });
+
+  it("a player profile gives his id, name, birth date and club", () => {
     expect(parseProfile(fixture("tm-profile.html"))).toEqual({
       id: "700001",
       name: "Ali Inventé",
@@ -105,16 +130,23 @@ const hasSample = existsSync(saved(SAMPLE_PAGES.transfermarkt.squad));
 
 describe("local real pages (the private sample, when present)", () => {
   it.skipIf(!hasSample)(
-    "the saved squad page parses into players with ids and birth dates",
+    "the saved squad page parses into players with ids and ages, and no contract date read as a birth date",
     () => {
-      const players = parseSquad(
-        readFileSync(saved(SAMPLE_PAGES.transfermarkt.squad), "utf8"),
+      const html = readFileSync(
+        saved(SAMPLE_PAGES.transfermarkt.squad),
+        "utf8",
       );
+      const players = parseSquad(html);
       expect(players.length).toBeGreaterThan(15);
       expect(players.every((p) => /^\d+$/.test(p.id))).toBe(true);
-      expect(
-        players.filter((p) => p.birthDate !== null).length,
-      ).toBeGreaterThan(15);
+      expect(players.every((p) => p.age !== null)).toBe(true);
+      // The compact view has no birth-date column: no birth date at all.
+      if (!/Date of birth/i.test(html))
+        expect(players.every((p) => p.birthDate === null)).toBe(true);
+      // "Returned after loan spell ... End of loan" is no loan.
+      for (const p of players)
+        if (p.loan)
+          expect(html).toMatch(/on loan from|fee:\s*loan\b|loan fee/i);
     },
   );
 

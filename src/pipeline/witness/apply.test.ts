@@ -244,7 +244,7 @@ describe("the S29 sentinel: no site value in data/witness.json, the report, or a
     // 777 career FIFA matches.
     const squad = parseSquad(fixture("tm-squad.html"));
     const career = parsePlayerPage(
-      fixture("nft-player.html").replace(">21<", ">777<"),
+      fixture("nft-player.html").replace('"matches": 21', '"matches": 777'),
     ).careerFifa;
     const country = parseCountryPage(fixture("nft-country.html"));
     expect(career).toBe(777);

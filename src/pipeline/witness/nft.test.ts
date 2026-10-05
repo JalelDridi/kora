@@ -56,17 +56,41 @@ describe("national-football-teams.com pages (synthetic fixtures, S28)", () => {
     expect(page.lastUpdate).toBe("2026-09-27");
   });
 
-  it("player page gives career FIFA matches (UNVERIFIED until the sample run)", () => {
+  it("player page gives career FIFA matches from the chart data, and the career table agrees", () => {
+    // Chart: "fifa" matches 21. Table: Tunisia A rows 7 + 14; the U23 row
+    // (5) and the footer total (26) are not counted.
     expect(parsePlayerPage(fixture("nft-player.html"))).toEqual({
       careerFifa: 21,
+      chartFifa: 21,
+      tableFifa: 21,
     });
-    // Without a total row: the sum of the year rows.
-    const noTotal = fixture("nft-player.html").replace(
-      /<tfoot>[\s\S]*<\/tfoot>/,
-      "",
-    );
-    expect(parsePlayerPage(noTotal)).toEqual({ careerFifa: 21 });
-    expect(parsePlayerPage("<html></html>")).toEqual({ careerFifa: null });
+  });
+
+  it("falls back to the career table without the chart block, and gives null with neither", () => {
+    const html = fixture("nft-player.html");
+    const noChart = html.replace(/<script[\s\S]*?<\/script>/, "");
+    expect(parsePlayerPage(noChart)).toEqual({
+      careerFifa: 21,
+      chartFifa: null,
+      tableFifa: 21,
+    });
+    const noTable = html.replace(/<table[\s\S]*<\/table>/, "");
+    expect(parsePlayerPage(noTable)).toEqual({
+      careerFifa: 21,
+      chartFifa: 21,
+      tableFifa: null,
+    });
+    const neither = noChart.replace(/<table[\s\S]*<\/table>/, "");
+    expect(parsePlayerPage(neither)).toEqual({
+      careerFifa: null,
+      chartFifa: null,
+      tableFifa: null,
+    });
+    // Youth rows only: no senior count from the table.
+    expect(
+      parsePlayerPage(noChart.replaceAll("Tunisia_A_M_2", "Tunisia_U20_M_2"))
+        .tableFifa,
+    ).toBeNull();
   });
 });
 
@@ -108,6 +132,9 @@ describe("local real pages (the private sample, when present)", () => {
         ),
       );
       expect(page.careerFifa).not.toBeNull();
+      // Both shapes are on the real page, and they agree.
+      expect(page.chartFifa).not.toBeNull();
+      expect(page.tableFifa).toBe(page.chartFifa);
     },
   );
 });

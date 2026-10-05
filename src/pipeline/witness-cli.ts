@@ -1,4 +1,4 @@
-import { readFile, rename, writeFile } from "node:fs/promises";
+import { readdir, readFile, rename, writeFile } from "node:fs/promises";
 import { homedir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -26,7 +26,14 @@ import {
   insideRepo,
   witnessDir,
 } from "./witness/safety.ts";
-import { runBackfill, runSample, runWeekly } from "./witness/run.ts";
+import {
+  knownPlayerPaths,
+  runBackfill,
+  runSample,
+  runWeekly,
+} from "./witness/run.ts";
+import { emptyState } from "./witness/store.ts";
+import type { WitnessState } from "./witness/store.ts";
 import { emptyWitness, validateWitness } from "./witness/verdicts.ts";
 import type { WitnessFile } from "./witness/verdicts.ts";
 import { openStore } from "./witness/store.ts";
@@ -126,6 +133,47 @@ const unmappedClubs = await Promise.all([
   })
   .catch(() => null);
 
+// Fix round 2: backfill pages with the exact link, and those needing a guess.
+const backfillPaths =
+  mode.kind !== "backfill"
+    ? undefined
+    : await Promise.all([
+        readFile(path.join(privateDir, "mapping.json"), "utf8"),
+        readFile(path.join(repoRoot, "data", "pool.json"), "utf8"),
+        readFile(path.join(privateDir, "state.json"), "utf8").catch(() => null),
+        readdir(path.join(privateDir, "pages", "national-football-teams"))
+          .then((names) =>
+            Promise.all(
+              names
+                .filter((n) => n.endsWith(".html"))
+                .map((n) =>
+                  readFile(
+                    path.join(
+                      privateDir,
+                      "pages",
+                      "national-football-teams",
+                      n,
+                    ),
+                    "utf8",
+                  ),
+                ),
+            ),
+          )
+          .catch(() => [] as string[]),
+      ])
+        .then(([m, p, st, pages]) => {
+          const ids = mappingFromJson(JSON.parse(m));
+          const pool = JSON.parse(p) as Pool;
+          const state = st ? (JSON.parse(st) as WitnessState) : emptyState();
+          const known = knownPlayerPaths(state, pages);
+          const todo = pool.players
+            .map((x) => ids.players.get(x.wikidataId)?.nft)
+            .filter((id): id is string => !!id && !state.backfill.done[id]);
+          const withLink = todo.filter((id) => known.has(id)).length;
+          return { known: withLink, guessed: todo.length - withLink };
+        })
+        .catch(() => null);
+
 for (const line of describePlan({
   mode,
   year,
@@ -133,6 +181,7 @@ for (const line of describePlan({
   privateDir,
   mapping,
   unmappedClubs,
+  backfillPaths,
 }))
   console.log(line);
 

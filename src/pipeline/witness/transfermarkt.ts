@@ -1,14 +1,13 @@
 import { anchors, cells, elements, hasClass, isoDate, text } from "./html.ts";
 
 // Transfermarkt pages, read for the private witness (P43, P48). Only ids,
-// names and birth dates are taken: enough to say whether a club's page
-// lists a footballer. Nothing read here is ever published (S29). Pure.
+// names and ages are taken: enough to say whether a club's page lists a
+// footballer. Nothing read here is ever published (S29). Pure.
 //
-// The league page parser follows a real page's shape (the research probe of
-// 4 October 2026). The squad page and player profile parsers are
-// UNVERIFIED until the sample run (B5): no such page has been fetched yet;
-// they follow Transfermarkt's usual markup as best known, on synthetic
-// fixtures, and must be checked against the pages the sample saves.
+// Every parser here follows a real page's shape: the league page (research
+// probe, 4 October 2026), the squad page and a profile (sample run, 5
+// October 2026). Still UNVERIFIED: how a player on loan AT the club is
+// marked (the sample had none).
 
 export type TmClub = {
   id: string;
@@ -48,19 +47,53 @@ export type TmSquadPlayer = {
   /** His profile's path, as the row links it. */
   path: string;
   name: string;
+  /** Only when the page has a "Date of birth" column; the compact squad view has none. */
   birthDate: string | null;
-  /** The row says he is on loan (to or from the club). */
+  /** The "Age" column. */
+  age: number | null;
+  /** The row's transfer badge says he is on loan at the club (UNVERIFIED shape). */
   loan: boolean;
 };
 
+// Anchored: only these exact path shapes are ever followed (fix round 1).
 const PLAYER_LINK = /^\/[a-z0-9-]+\/profil\/spieler\/(\d+)$/;
 /** The canonical link of a profile: the same path on Transfermarkt's host. */
 const CANONICAL =
   /^https:\/\/www\.transfermarkt\.[a-z.]+(\/[a-z0-9-]+\/profil\/spieler\/\d+)$/;
 
-/** UNVERIFIED until the sample run: a club's squad page, one row per player. */
+/**
+ * A loan badge. The sample (5 October 2026) showed only "Joined from ...;
+ * fee: ..." and "Returned after loan spell ...; fee: End of loan" (back
+ * from a loan, so his own club now): neither is a loan. A player on loan
+ * AT the club was not in the sample: "on loan from" or "fee: loan" is a
+ * guess, UNVERIFIED.
+ */
+function onLoan(row: string): boolean {
+  const titles = [
+    ...row.matchAll(
+      /<span class="wechsel-kader-wappen[^"]*"[^>]*>\s*<a\b[^>]*title="([^"]*)"/gi,
+    ),
+  ].map((m) => m[1]);
+  return titles.some(
+    (t) =>
+      !/end of loan|returned after loan/i.test(t) &&
+      /\bon loan\b|fee:\s*loan\b|loan fee|ausgeliehen|leihe/i.test(t),
+  );
+}
+
+/**
+ * A club's squad page (checked on the sample of 5 October 2026): one row
+ * per player in the first "items" table; columns found by their header
+ * ("Age", "Date of birth" when present). Every row with a profile link is
+ * a player, a missing contract date included.
+ */
 export function parseSquad(html: string): TmSquadPlayer[] {
   const table = elements(html, "table", /class="items"/)[0] ?? "";
+  const head = elements(elements(table, "thead")[0] ?? "", "th").map((h) =>
+    text(h),
+  );
+  const ageAt = head.findIndex((h) => /^age$/i.test(h));
+  const birthAt = head.findIndex((h) => /date of birth/i.test(h));
   const body = elements(table, "tbody")[0] ?? table;
   const out: TmSquadPlayer[] = [];
   // Top-level rows only: each holds a nested table for the name and position.
@@ -71,15 +104,20 @@ export function parseSquad(html: string): TmSquadPlayer[] {
     if (!link) continue;
     const id = PLAYER_LINK.exec(link.href)![1];
     if (out.some((p) => p.id === id)) continue;
-    const birth = cells(row)
-      .map((c) => isoDate(text(c.html)))
-      .find((d) => d !== null);
+    const row_ = cells(row);
+    const cellText = (i: number) =>
+      i >= 0 && row_[i] ? text(row_[i].html) : "";
+    // "27", or the birth column's "Mar 3, 1999 (27)".
+    const age =
+      /^(\d{1,2})$/.exec(cellText(ageAt)) ??
+      /\((\d{1,2})\)/.exec(cellText(birthAt));
     out.push({
       id,
       path: link.href,
       name: link.title ?? link.text,
-      birthDate: birth ?? null,
-      loan: /ausgeliehen|on loan|leihe/i.test(row),
+      birthDate: isoDate(cellText(birthAt)),
+      age: age ? Number(age[1]) : null,
+      loan: onLoan(row),
     });
   }
   return out;
@@ -93,7 +131,7 @@ export type TmProfile = {
   clubId: string | null;
 };
 
-/** UNVERIFIED until the sample run: a player profile's header. */
+/** A player profile's header (checked on the sample of 5 October 2026). */
 export function parseProfile(html: string): TmProfile {
   const canonical =
     /<link[^>]+rel="canonical"[^>]+href="([^"]+)"/i.exec(html)?.[1] ?? "";
