@@ -278,6 +278,49 @@ describe("syncPool", () => {
     expect(await snapshot()).toEqual(before);
   });
 
+  // D-S2-4: what the calendar reads to choose a day's footballer.
+  it("sync writes fame, tier and local star, and a second sync rewrites nothing", async () => {
+    const famous: PoolPlayer = {
+      ...maaloul,
+      fame: {
+        score: 5.41,
+        tier: "A",
+        views: { en: 258284, fr: 0, ar: 0 },
+        window: "202510-202609",
+        localStar: true,
+      },
+    };
+    const unmeasured: PoolPlayer = {
+      ...msakni,
+      pools: { active: true, legend: true },
+      fame: {
+        score: null,
+        tier: null,
+        views: null,
+        window: null,
+        localStar: false,
+      },
+    };
+    await syncPool(sql, pool([famous, unmeasured]), governorates);
+    const rows = await db.player.findMany({
+      orderBy: { id: "asc" },
+      select: { id: true, fame: true, fameTier: true, localStar: true },
+    });
+    expect(rows).toEqual([
+      { id: "ali-maaloul", fame: 5.41, fameTier: "A", localStar: true },
+      { id: "youssef-msakni", fame: null, fameTier: null, localStar: false },
+    ]);
+    expect(
+      await syncPool(sql, pool([famous, unmeasured]), governorates),
+    ).toEqual(NOTHING);
+    // A pool built before Sprint 2 has no fame: nothing is known.
+    await syncPool(sql, pool([maaloul, msakni]), governorates);
+    expect(
+      (await db.player.findUniqueOrThrow({ where: { id: "ali-maaloul" } }))
+        .fameTier,
+    ).toBeNull();
+  });
+
   it("updates only what changed", async () => {
     await syncPool(sql, pool([maaloul, msakni]), governorates);
     const counts = await syncPool(

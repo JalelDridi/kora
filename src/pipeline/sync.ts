@@ -116,6 +116,9 @@ const PLAYERS = upsert(
     { name: "pool_active", type: "boolean" },
     { name: "pool_legend", type: "boolean" },
     { name: "provenance", type: "jsonb" },
+    { name: "fame", type: "real" },
+    text("fame_tier"),
+    { name: "local_star", type: "boolean" },
   ],
   true,
 );
@@ -275,6 +278,10 @@ export async function syncPool(
             pool_active: p.pools.active,
             pool_legend: p.pools.legend,
             provenance: p.provenance,
+            // D-S2-4; a pool built before Sprint 2 has no fame.
+            fame: p.fame?.score ?? null,
+            fame_tier: p.fame?.tier ?? null,
+            local_star: p.fame?.localStar ?? false,
           })),
         ),
       ),
