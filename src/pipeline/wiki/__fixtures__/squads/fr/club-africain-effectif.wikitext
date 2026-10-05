@@ -1,0 +1,37 @@
+=== Effectif professionnel (2026-2027) ===
+{{Feff début|team=Club africain|saison=2026-2027<ref>{{Lien web |langue=fr |titre=Club africain Tunis |url=https://www.transfermarkt.fr/club-africain-tunis/kader/verein/819/saison_id/2026|site=[[Transfermarkt]] |consulté le=17 août 2026}}.</ref>|texte1==#FFD700|fond1=#12427C|texte2=white|fond2=#FF0000|ancien club=oui|contrat=oui}}
+{{Feff joueur|num=1|pos=G|prénom=Mouhib|nom=Chamakh|jour=25|mois=8|an=2001|nat=Tunisie|sélection=[[Équipe de Tunisie de football|Tunisie]]|club précédent=[[Étoile sportive de Métlaoui|ES Métlaoui]]|contrat=2025-2029}}
+{{Feff joueur|num=16|pos=G|prénom=Ghaith|nom=Yeferni|jour=20|mois=5|an=1998|nat=Tunisie|sélection=|club précédent=[[Union sportive de Ben Guerdane|US Ben Guerdane]]|contrat=2020-2028}}
+{{Feff joueur|num=32|pos=G|prénom=Malek|nom=Saada|nolink=oui|jour=25|mois=3|an=2006|nat=Tunisie|club précédent=''Formé au club''|contrat=2025-2030}}
+{{Feff joueur|num=5|pos=D|prénom=Yassine|nom=Meriah|jour=2|mois=7|an=1993|nat=Tunisie|sélection=[[Équipe de Tunisie de football|Tunisie]]|club précédent=[[Espérance sportive de Tunis (football)|ES Tunis]]|contrat=2026-2028}}
+{{Feff joueur|num=4|pos=D|prénom=Yassine|nom=Bouabid|jour=8|mois=5|an=1999|nat=Tunisie|club précédent=[[Olympique de Béja (football)|Olympique Béja]]|contrat=2024-2029}}
+{{Feff joueur|num=23|pos=D|prénom=Ismaïla|nom=Simpara|jour=13|mois=6|an=1998|nat=Mali|sélection=[[Équipe du Mali de football|Mali]]|club précédent=[[Stade malien]]|contrat=2026-2028}}
+{{Feff joueur|num=25|pos=D|prénom=Mamadou|nom=Diatta|nolink=oui|jour=19|mois=1|an=2006|nat=Sénégal|club précédent=[[Association sportive et culturelle Jaraaf|ASC Jaraaf]]|contrat=2026-2031}}
+{{Feff joueur|num=6|pos=D|prénom=Ammar|nom=Abdelhak|nolink=oui|jour=11|mois=1|an=2007|nat=Tunisie|club précédent=''Formé au club''|contrat=2026-2031}}
+{{Feff joueur|num=17|pos=D|prénom=Ghaith|nom=Zaalouni|jour=6|mois=4|an=2002|nat=Tunisie|sélection=[[Équipe de Tunisie de football|Tunisie]]|club précédent=''Formé au club''|contrat=2020-2027}}
+{{Feff joueur|num=24|pos=D|prénom=Houssem Hassen|nom=Romdhane|jour=25|mois=8|an=2001|nat=Tunisie|sélection=[[Équipe de Tunisie de football|Tunisie]]|club précédent=[[Espérance sportive de Zarzis|ES Zarzis]]|contrat=2025-2027}}
+{{Feff joueur|num=33|pos=D|prénom=Houssem|nom=Ben Ali|jour=10|mois=6|an=1996|nat=Tunisie|sélection=[[Équipe de Tunisie de football|Tunisie]]|club précédent=[[Étoile sportive du Sahel (football)|ES Sahel]]|contrat=2025-2028}}
+{{Feff joueur|num=3|pos=D|prénom=Ghassen|nom=Mahersi|nat=Tunisie|club précédent=[[Espérance sportive de Zarzis|ES Zarzis]]|contrat=2026-2029|jour=20|mois=02|an=2001|âge=oui}}
+{{Feff joueur|num=15|pos=D|prénom=Wills Tene|nom=Nkingne|jour=20|mois=2|an=2003|nat=Cameroun|club précédent=[[Pau Football Club|Pau FC]]|contrat=2024-2029}}
+{{Feff joueur|num=28|pos=M|prénom=Saidou|nom=Khan|jour=5|mois=12|an=1995|nat=Gambie|sélection=[[Équipe de Gambie de football|{{gris|Gambie}}]]|club précédent=[[Swindon Town Football Club|Swindon Town FC]]|contrat=2025-2027}}
+{{Feff joueur|num=8|pos=M|prénom=Franck Alain|nom=Kanté|jour=16|mois=12|an=2006|nat=Burkina Faso|club précédent=[[Union sportive des Forces armées|USFA]]|contrat=2026-2029}}
+{{Feff joueur|num=13|pos=M|prénom=Charfeddine|nom=Ouni|jour=9|mois=9|an=2000|nat=Tunisie|club précédent=[[Olympique de Béja (football)|Olympique Béja]]|contrat=2025-2028}}
+{{Feff joueur|num=35|pos=M|prénom=Yahia|nom=Mtiri|nolink=oui|jour=3|mois=11|an=2004|nat=Tunisie|club précédent=[[Jeunesse sportive kairouanaise|JS Kairouanaise]]|contrat=2025-2028}}
+{{Feff joueur|num=22|pos=M|prénom=Ryan Ebene|nom=Tetego|nolink=oui|jour=27|mois=9|an=2007|nat=Cameroun|club précédent=[[Victoria United Football Club|Victoria United FC]]|contrat=2026-2029}}
+{{Feff joueur|num=30|pos=M|prénom=Mootez|nom=Zaddem|jour=5|mois=1|an=2001|nat=Tunisie|sélection=[[Équipe de Tunisie de football|Tunisie]]|club précédent=[[Al-Shorta Sports Club|Al-Shorta SC]]|contrat=2026-2028}}
+{{Feff joueur|num=20|pos=M|prénom=Haykeul|nom=Chikhaoui|jour=4|mois=9|an=1996|nat=Tunisie|club précédent=[[Al Nasr Sporting Club|Al-Nasr SC]]|contrat=2026-2029}}
+{{Feff joueur|num=32|pos=M|prénom=Osama Mukhtar|nom=Al Shremi|jour=20|mois=2|an=2001|nat=Libye|sélection=[[Équipe de Libye de football|{{gris|Libye}}]]|club précédent=[[Asswehly Sports Club|Asswehly SC]]|contrat=2025-2028}}
+{{Feff joueur|num=10|pos=M|prénom=Mohamed Sadok|nom=Mahmoud|dab=football, 1997|nolink=oui|jour=10|mois=11|an=2005|nat=Tunisie|sélection=[[Équipe de Tunisie des moins de 20 ans de football|{{gris|Tunisie -20 ans}}]]|club précédent=[[Club sportif de Korba]]|contrat=2025-2028}}
+{{Feff joueur|num=19|pos=A|prénom=Bassem|nom=Srarfi|jour=25|mois=6|an=1997|nat=Tunisie|sélection=[[Équipe de Tunisie de football|{{gris|Tunisie}}]]|club précédent=[[Al Arabi Sporting Club]]|contrat=2023-2025}}
+{{Feff joueur|num=7|pos=A|prénom=Hamza|nom=Khadhraoui|jour=16|mois=1|an=1999|nat=Tunisie|sélection=[[Équipe de Tunisie de football|{{gris|Tunisie}}]]|club précédent=[[Stade tunisien (football)|Stade tunisien]]|contrat=2024-2027}}
+{{Feff joueur|num=21|pos=A|prénom=Bilel|nom=Aït Malek|jour=19|mois=8|an=1996|nat=Tunisie|sélection=[[Équipe de Tunisie de football|Tunisie]]|club précédent=[[Union sportive monastirienne (football)|US Monastirienne]]|contrat=2024-2027}}
+{{Feff joueur|num=18|pos=A|prénom=Philippe|nom=Kinzumbi|jour=26|mois=1|an=1999|nat=RD Congo|sélection=[[Équipe de république démocratique du Congo de football|RD Congo]]|club précédent=[[Tout Puissant Mazembe|TP Mazembe]]|contrat=2024-2027}}
+{{Feff joueur|num=11|pos=A|prénom=Oussama|nom=Bouguerra|jour=17|mois=10|an=1998|nat=Tunisie|club précédent=[[Espérance sportive de Tunis (football)|ES Tunis]]|contrat=2026-2028}}
+{{Feff joueur|num=31|pos=A|prénom=Aymen|nom=Harzi|jour=1|mois=3|an=1995|nat=Tunisie|club précédent=[[Union sportive monastirienne (football)|US Monastirienne]]|contrat=2026-2028}}
+{{Feff joueur|num=34|pos=A|prénom=Taddeus|nom=Nkeng|nat=Cameroun|club précédent=[[Stade malien]]|contrat=2026-2028|jour=26|mois=02|an=2000|âge=oui}}
+{{Feff joueur|num=40|pos=A|prénom=Sadok|nom=Kadida|jour=2|mois=12|an=2003|nat=Tunisie|club précédent=[[FK Budućnost Podgorica]]|contrat=2026-2029}}
+{{Feff joueur|num=29|pos=A|prénom=Hamza|nom=Mnasri|nolink=oui|jour=17|mois=1|an=2004|nat=Tunisie|club précédent=[[Étoile sportive de Métlaoui|ES Métlaoui]]|contrat=2025-2029}}
+{{Feff fin|entraîneur=*{{Feff staff|TUN|[[Maher Kanzari]]}}|adjoint=*{{Feff staff|TUN|Khaled Melliti}}
+*{{Feff staff|TUN|Sami Zemmit}}|physique=*{{Feff staff|TUN|Ammar Nebigh}}
+*{{Feff staff|TUN|Raouf Hammami}}|gardien=*{{Feff staff|TUN|[[Mohamed Amine Ksiksi]]}}|médecin=*{{Feff staff|TUN|Wajih Ben Saïd}}|kiné=*{{Feff staff|TUN|Wajih Boughrara}}
+*{{Feff staff|TUN|Sami Guerchi}}|analyste=*{{Feff staff|TUN|Houssem Soltani}}}}

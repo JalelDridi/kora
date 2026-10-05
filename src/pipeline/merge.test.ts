@@ -804,6 +804,35 @@ describe("mergePlayer", () => {
     };
   }
 
+  it("club medium + Transfermarkt agrees: high (P48, S20)", () => {
+    const ctx = context();
+    const before = mergePlayer(wdPlayer(), ctx)!.draft.provenance.clubId;
+    expect(before).toMatchObject({
+      confidence: "medium",
+      agreeing: ["enwiki"],
+    });
+    const after = mergePlayer(wdPlayer(), {
+      ...ctx,
+      witness: {
+        version: 1,
+        checks: {
+          Q19956607: {
+            clubId: {
+              site: "transfermarkt",
+              checkedOn: "2026-10-01",
+              verdict: "agrees",
+              checked: "Q3",
+            },
+          },
+        },
+      },
+    })!.draft.provenance.clubId;
+    expect(after).toMatchObject({
+      confidence: "high",
+      agreeing: ["enwiki", "transfermarkt"],
+    });
+  });
+
   it("builds a draft with every field's source, and the flags to review", () => {
     const merged = mergePlayer(wdPlayer(), context());
     expect(merged?.draft).toMatchObject({

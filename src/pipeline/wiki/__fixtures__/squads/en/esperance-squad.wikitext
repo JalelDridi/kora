@@ -1,0 +1,67 @@
+===Current squad===
+{{Fs start}}
+{{Fs player|no=1 |nat=TUN|pos=GK|name=[[Amenallah Memmiche]]}}
+{{Fs player|no=2 |nat=TUN|pos=DF|name=[[Mohamed Ben Ali]]|other=[[Captain (association football)#Vice-captain|4th captain]]}}
+{{Fs player|no=3 |nat=TUN|pos=DF|name=[[Elies Araar]]}}
+{{Fs player|no=4 |nat=TUN|pos=DF|name=[[Marouane Sahraoui]]}}
+{{Fs player|no=6 |nat=TUN|pos=DF|name=[[Hamza Jelassi]]|other=[[Captain (association football)#Vice-captain|3rd captain]]}}
+{{Fs player|no=7 |nat=FRA|pos=FW|name=[[Imad Faraj]]}}
+{{Fs player|no=8 |nat=TUN|pos=MF|name=[[Hamza Rafia]]|other=[[Captain (association football)#Vice-captain|vice-captain]]}}
+{{Fs player|no=9 |nat=FRA|pos=FW|name=[[Florian Danho]]}}
+{{Fs player|no=10|nat=BRA|pos=FW|name=[[Lucas Ribeiro (footballer, born 1998)|Lucas Ribeiro]]}}
+{{Fs player|no=11|nat=ALG|pos=FW|name=[[Youcef Belaïli]]|other=[[Captain (association football)|captain]]}}
+{{Fs player|no=12|nat=TUN|pos=DF|name=[[Nidhal Laifi]]}}
+{{Fs player|no=13|nat=TUN|pos=DF|name=[[Mohamed Dräger]]}}
+{{Fs player|no=14|nat=TUN|pos=MF|name=[[Khairi Meddaoui]]}}
+{{Fs player|no=15|nat=TUN|pos=MF|name=[[Khalil Guenichi]]}}
+{{Fs player|no=16|nat=PER|pos=MF|name=[[Jesús Castillo (Peruvian footballer)|Jesús Castillo]]}}
+{{Fs mid}}
+{{Fs player|no=17|nat=TUN|pos=MF|name=[[Haytham Dhaou]]}}
+{{Fs player|no=18|nat=TUN|pos=MF|name=[[Moez Hadj Ali]]}}
+{{Fs player|no=19|nat=TUN|pos=FW|name=[[Achref Jabri]]}}
+{{Fs player|no=20|nat=TUN|pos=MF|name=[[Hadj Mahmoud|Mohamed Belhadj Mahmoud]]}}
+{{Fs player|no=21|nat=CIV|pos=MF|name=[[Abdramane Konaté]]}}
+{{Fs player|no=22|nat=TUN|pos=GK|name=[[Montasser Essid]]}}
+{{Fs player|no=23|nat=CIV|pos=FW|name=[[Namory Keita]]}}
+{{Fs player|no=24|nat=TUN|pos=FW|name=[[Youssef Becha]]}}
+{{Fs player|no=25|nat=TUN|pos=DF|name=[[Raed Chikhaoui]]}}
+{{Fs player|no=27|nat=TUN|pos=FW|name=[[Hazem Mastouri]]}}
+{{Fs player|no=28|nat=ALG|pos=DF|name=[[Adem Alilet]]}}
+{{Fs player|no=29|nat=CMR|pos=FW|name=[[Maël Fernandez]]}}
+{{Fs player|no=31|nat=TUN|pos=MF|name=[[Chiheb Jebali]]}}
+{{Fs player|no=32|nat=TUN|pos=GK|name=[[Bechir Ben Saïd]]}}
+{{Fs player|no=36|nat=TUN|pos=MF|name=[[Arkem Taboubi]]}}
+{{Fs end}}
+
+===Reserve team===
+{{Fs start}}
+{{Fs player|nat=TUN|pos=DF|name=[[Mohamed Aloui]]}}
+{{Fs player|nat=TUN|pos=MF|name=[[Wajdi Issaoui]]}}
+{{Fs mid}}
+{{Fs player|nat=TUN|pos=FW|name=[[Amenallah Frikhi]]}}
+{{Fs end}}
+
+===Out on loan===
+{{Fs start}}
+{{Fs player|nat=TUN|pos=GK|name=[[Mokhtar Ifaoui]]|other=at [[US Ben Guerdane]] until 30 June 2027}}
+{{Fs player|nat=TUN|pos=DF|name=[[Aziz Koudhai]]|other=at [[CS Hammam-Lif]] until 30 June 2027}}
+{{Fs mid}}
+{{Fs player|nat=TUN|pos=FW|name=[[Zinedine Kada]]|other=at [[Al Tahaddy SC|Al Tahaddy]] until 30 June 2027}}
+{{Fs end}}
+
+===Other players under contract===
+{{Fs start}}
+{{Fs player|nat=SWE|pos=DF|name=[[Elyas Bouzaiene]]}}
+{{Fs player|nat=TUN|pos=DF|name=[[Ala Derbali]]}}
+{{Fs player|nat=TUN|pos=DF|name=[[Koussay Smiri]]}}
+{{Fs mid}}
+{{Fs player|nat=TUN|pos=MF|name=[[Aziz Fellah]]}}
+{{Fs player|nat=TUN|pos=FW|name=[[Salmen Trabelsi]]}}
+{{Fs end}}
+
+===Retired numbers===
+{{see also|List of retired numbers in association football}}
+
+{{football squad start}}
+{{football squad player|no=5|pos=DF|nat=TUN|name=[[Hédi Berkhissa]]|other=1991–97 – posthumous honour}}
+{{football squad end}}

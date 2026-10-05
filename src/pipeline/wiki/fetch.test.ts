@@ -1,6 +1,10 @@
+import { readFileSync } from "node:fs";
+import path from "node:path";
 import { describe, expect, it } from "vitest";
 import {
   chunk,
+  pagepropsUrl,
+  parsePageprops,
   parseRevisions,
   redirectsUrl,
   revisionsUrl,
@@ -109,5 +113,50 @@ describe("unanswered", () => {
     expect(
       unanswered(json, ["ali maaloul", "Nobody", "Cut Short", "Not Listed"]),
     ).toEqual(["Cut Short", "Not Listed"]);
+  });
+});
+
+describe("pagepropsUrl and parsePageprops (squad links, S13)", () => {
+  it("pagepropsUrl asks pageprops wikibase_item with redirects", () => {
+    const url = new URL(pagepropsUrl("fr", ["Youcef Belaïli", "Namory Keita"]));
+    expect(url.host).toBe("fr.wikipedia.org");
+    expect(url.searchParams.get("prop")).toBe("pageprops");
+    expect(url.searchParams.get("ppprop")).toBe("wikibase_item");
+    expect(url.searchParams.get("redirects")).toBe("1");
+    expect(url.searchParams.get("maxlag")).toBe("5");
+    expect(url.searchParams.get("titles")).toBe("Youcef Belaïli|Namory Keita");
+  });
+
+  it("parsePageprops follows normalized and redirects to a Wikidata id", () => {
+    // Recorded (squad-list research, fr.wikipedia, 4 October 2026), cut to
+    // four pages: one reached through a redirect, one missing.
+    const recorded = JSON.parse(
+      readFileSync(
+        path.join(
+          import.meta.dirname,
+          "__fixtures__",
+          "squads",
+          "pageprops-fr.json",
+        ),
+        "utf8",
+      ),
+    );
+    const ids = parsePageprops(recorded);
+    expect(ids.get("Jesús Castillo")).toBe("Q110321491");
+    expect(ids.get("Jesús Castillo (football, 2001)")).toBe("Q110321491");
+    expect(ids.get("Youcef Belaïli")).toBe("Q3572787");
+    expect(ids.has("Namory Keita")).toBe(false);
+    // Hand-made: a normalized title, then a redirect.
+    const moved = parsePageprops({
+      query: {
+        normalized: [{ from: "ali test", to: "Ali test" }],
+        redirects: [{ from: "Ali test", to: "Ali Test" }],
+        pages: [{ title: "Ali Test", pageprops: { wikibase_item: "Q7" } }],
+      },
+    });
+    expect(moved.get("ali test")).toBe("Q7");
+    expect(() =>
+      parsePageprops({ error: { code: "maxlag", info: "lagged" } }),
+    ).toThrow("MediaWiki error maxlag");
   });
 });

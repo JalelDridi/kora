@@ -530,11 +530,11 @@ describe("run", () => {
     expect(await exists(file(root, "pool.json"))).toBe(false);
   });
 
-  it("refuses before any Wikimedia request when the plan is truly over 60", async () => {
+  it("refuses before any Wikimedia request when the plan is truly over 70", async () => {
     const root = await setup();
-    // 2,700 wanted footballers with an English article: 54 batches of 50.
+    // 3,000 wanted footballers with an English article: 60 batches of 50.
     const many = result(
-      ...Array.from({ length: 2700 }, (_, i) => ({
+      ...Array.from({ length: 3000 }, (_, i) => ({
         p: uri(`Q${5000 + i}`),
         enLabel: lit(`Footballer ${i}`),
         birth: lit("1995-05-05T00:00:00Z"),
@@ -564,11 +564,11 @@ describe("run", () => {
     expect(outcome).toEqual({
       ok: false,
       reason:
-        "the run would make at least 63 requests before redirects, over the budget of 60",
+        "the run would make at least 71 requests before redirects, over the budget of 70",
     });
     expect(calls.urls).toEqual([]);
     expect(lines).toContain(
-      "plan: wdqs 7, wikimedia 54 (+ redirects, counted before they are asked), github 2: at most 63 requests before redirects, plus retries after a 503 (budget 60)",
+      "plan: wdqs 7, wikimedia 62 (+ redirects, counted before they are asked), github 2: at most 71 requests before redirects, plus retries after a 503 (budget 70)",
     );
   });
 
@@ -576,23 +576,24 @@ describe("run", () => {
     const root = await setup();
     const calls: Calls = { urls: [], queries: [] };
     const lines: string[] = [];
-    // 7 + (1 English batch + 1 Commons batch) + 2 = 11 before redirects; 1 redirect batch makes 12.
+    // 7 + (1 English batch + 1 Commons batch + 2 squad pages) + 2 = 13
+    // before redirects; 1 redirect batch makes 14.
     const outcome = await run(
       deps(root, {
         wikimedia: wikimedia(calls),
-        maxRequests: 11,
+        maxRequests: 13,
         log: (l) => lines.push(l),
       }),
     );
     expect(outcome).toEqual({
       ok: false,
       reason:
-        "with 1 redirect lookups the run would make up to 12 requests, over the budget of 11",
+        "with 1 redirect lookups the run would make up to 14 requests, over the budget of 13",
     });
     expect(calls.urls).toHaveLength(1);
     expect(calls.urls[0]).toContain("prop=revisions");
     expect(lines).toContain(
-      "plan with redirects: wdqs 7, wikimedia 3, github 2: at most 12 requests, plus retries after a 503 (budget 11)",
+      "plan with redirects: wdqs 7, wikimedia 5, github 2: at most 14 requests, plus retries after a 503 (budget 13)",
     );
   });
 
@@ -797,7 +798,12 @@ describe("run", () => {
     const revisions = wmCalls.urls
       .filter((u) => u.includes("prop=revisions"))
       .map((u) => new URL(u).searchParams.get("titles"));
-    expect(revisions).toEqual(["Test Footballer|Tarak Dhiab", "Tarak Dhiab"]);
+    // Then the squad pages (P42): Ligue 1 clubs and the national team.
+    expect(revisions).toEqual([
+      "Test Footballer|Tarak Dhiab",
+      "Tarak Dhiab",
+      "Club Africain|Tunisia national football team",
+    ]);
     const byEnglishTitle = wdCalls.queries.find((q) =>
       q.includes("en.wikipedia.org/> ; schema:about ?club"),
     );
@@ -1075,6 +1081,347 @@ describe("the source cache", () => {
         lines.some((l) => l.startsWith("commons: cached copy ignored:")),
       ).toBe(true);
     }
+  });
+});
+
+// P42 (P47): the squad lists, an extra witness fetched after Commons.
+const clubSquad = `== Current squad ==
+{{updated|27 September 2026}}
+{{Fs start}}
+{{Fs player|no=8|nat=TUN|pos=MF|name=[[Test Footballer]]}}
+{{Fs player|no=9|nat=TUN|pos=FW|name=[[Unknown Kid]]}}
+{{Fs end}}
+`;
+const nationalSquad = `===Current squad===
+''Caps and goals correct as of 28 September 2026, after the match.''
+{{nat fs g start}}
+{{nat fs g player|no=8|pos=MF|name=[[Test Footballer]]|age={{birth date and age|1995|5|5}}|caps=30|goals=2|club=[[Club Africain]]|clubnat=TUN}}
+{{nat fs end}}
+===Recent call-ups===
+`;
+const squadAnswer = {
+  query: {
+    pages: [
+      {
+        title: "Club Africain",
+        revisions: [
+          {
+            revid: 11,
+            timestamp: "2026-09-27T10:00:00Z",
+            slots: { main: { content: `Intro.\n${clubSquad}` } },
+          },
+        ],
+      },
+      {
+        title: "Tunisia national football team",
+        revisions: [
+          {
+            revid: 12,
+            timestamp: "2026-10-01T10:00:00Z",
+            slots: { main: { content: `Intro.\n${nationalSquad}` } },
+          },
+        ],
+      },
+    ],
+  },
+};
+const linksAnswer = {
+  query: {
+    pages: [{ title: "Unknown Kid", pageprops: { wikibase_item: "Q999" } }],
+  },
+};
+
+/** wikimedia(), plus the squad pages and their link lookups; `stop` answers the squads with a 429. */
+function squadWikimedia(
+  calls: Calls,
+  stop = false,
+  extraLinks = 0,
+): PoliteClient {
+  const base = wikimedia(calls);
+  const answer = JSON.parse(JSON.stringify(squadAnswer));
+  const extra = Array.from(
+    { length: extraLinks },
+    (_, i) => `{{Fs player|nat=TUN|pos=DF|name=[[Kid ${i}]]}}
+`,
+  ).join("");
+  const page = answer.query.pages[0].revisions[0].slots.main;
+  page.content = page.content.replace("{{Fs end}}", `${extra}{{Fs end}}`);
+  return {
+    async getJson(url, init) {
+      const titles = new URL(url).searchParams.get("titles") ?? "";
+      if (titles.includes("Tunisia national football team")) {
+        calls.urls.push(url);
+        if (stop) throw new StoppedError(url, 429);
+        return answer;
+      }
+      if (url.includes("prop=pageprops")) {
+        calls.urls.push(url);
+        return linksAnswer;
+      }
+      return base.getJson(url, init);
+    },
+    getText: base.getText,
+  };
+}
+
+/** Clients that fail any call, and the calls they got. */
+function noRequests() {
+  const calls: string[] = [];
+  const none: PoliteClient = {
+    getJson: async (url) => {
+      calls.push(url);
+      throw new Error("no request expected");
+    },
+    getText: async (url) => {
+      calls.push(url);
+      throw new Error("no request expected");
+    },
+  };
+  return { calls, wdqs: none, wikimedia: none, github: none };
+}
+
+describe("the squad lists in the run (P42)", () => {
+  it("MAX_REQUESTS is 70", () => {
+    expect(MAX_REQUESTS).toBe(70);
+  });
+
+  it("fetches squads after Commons, so a 429 there costs no core source", async () => {
+    const root = await setup();
+    const calls: Calls = { urls: [], queries: [] };
+    expect(
+      await run(deps(root, { wikimedia: squadWikimedia(calls, true) })),
+    ).toEqual({ ok: true, changed: true });
+    const commons = calls.urls.findIndex((u) => u.includes("commons."));
+    const squads = calls.urls.findIndex((u) =>
+      u.includes("Tunisia+national+football+team"),
+    );
+    expect(commons).toBeGreaterThanOrEqual(0);
+    expect(squads).toBeGreaterThan(commons);
+    // No link lookup after the stop.
+    expect(calls.urls.some((u) => u.includes("prop=pageprops"))).toBe(false);
+    const report = await readFile(file(root, "report.md"), "utf8");
+    for (const source of ["infobox-en", "commons", "martj42"])
+      expect(report).toContain(`| ${source} | fresh | 2026-10-04 |  |`);
+  });
+
+  it("a failed squads source with no cache: the build goes on and the report says failed", async () => {
+    const root = await setup();
+    const lines: string[] = [];
+    expect(
+      await run(
+        deps(root, {
+          wikimedia: squadWikimedia({ urls: [], queries: [] }, true),
+          log: (l) => lines.push(l),
+        }),
+      ),
+    ).toMatchObject({ ok: true });
+    const report = await readFile(file(root, "report.md"), "utf8");
+    expect(report).toMatch(
+      /\| squads \| failed \| never \| squads failed and there is no cached copy \(HTTP 429/,
+    );
+    expect(lines.join("\n")).toContain("squads: left out of this build");
+    expect(await exists(path.join(root, "data", "cache", "squads.json"))).toBe(
+      false,
+    );
+    // The pool is the pool without squads: no squad source anywhere.
+    expect(JSON.stringify(await readPool(root))).not.toContain("squad");
+  });
+
+  it("plans 2 page requests plus link lookups and refuses over the budget before the first link lookup", async () => {
+    const root = await setup();
+    const calls: Calls = { urls: [], queries: [] };
+    // 7 + (1 English + 1 Commons + 1 redirect + 2 squad pages) + 2 = 14
+    // before the links (the French squad page is counted, at most one per
+    // club, until the clubs answer says there is none). Exactly: 1 squad
+    // page, then 52 unknown targets, 2 lookups: 15.
+    const outcome = await run(
+      deps(root, {
+        wikimedia: squadWikimedia(calls, false, 51),
+        maxRequests: 14,
+      }),
+    );
+    expect(outcome).toEqual({
+      ok: false,
+      reason:
+        "with 52 squad link targets to look up the run would make up to 15 requests, over the budget of 14",
+    });
+    expect(calls.urls.filter((u) => u.includes("prop=revisions"))).toHaveLength(
+      2,
+    );
+    expect(calls.urls.some((u) => u.includes("prop=pageprops"))).toBe(false);
+  });
+
+  it("looks up unknown links, and the lists vote: club and caps high", async () => {
+    const root = await setup();
+    const calls: Calls = { urls: [], queries: [] };
+    expect(
+      await run(deps(root, { wikimedia: squadWikimedia(calls) })),
+    ).toMatchObject({ ok: true });
+    const lookups = calls.urls.filter((u) => u.includes("prop=pageprops"));
+    expect(lookups.map((u) => new URL(u).searchParams.get("titles"))).toEqual([
+      "Unknown Kid",
+    ]);
+    const player = (await readPool(root)).players[0];
+    expect(player.provenance.clubId).toMatchObject({
+      confidence: "high",
+      agreeing: ["enwiki", "enwiki-squad", "enwiki-national"],
+    });
+    expect(player.provenance.caps).toMatchObject({
+      source: "enwiki",
+      confidence: "high",
+      agreeing: ["enwiki", "enwiki-national"],
+    });
+  });
+
+  it("offline: squads and squad-links come from data/cache with their dates", async () => {
+    const root = await setup();
+    await run(
+      deps(root, { wikimedia: squadWikimedia({ urls: [], queries: [] }) }),
+    );
+    const pool = await readFile(file(root, "pool.json"), "utf8");
+    const clients = noRequests();
+    expect(
+      await run({
+        root,
+        today: "2026-10-05",
+        offline: true,
+        ...clients,
+        log: () => {},
+      }),
+    ).toEqual({ ok: true, changed: false });
+    expect(clients.calls).toEqual([]);
+    expect(await readFile(file(root, "pool.json"), "utf8")).toBe(pool);
+    const report = await readFile(file(root, "report.md"), "utf8");
+    expect(report).toContain(
+      "| squads | cached | 2026-10-04 | offline build |",
+    );
+    expect(report).toContain(
+      "| squad-links | cached | 2026-10-04 | offline build |",
+    );
+  });
+
+  it("the cache keeps the answers as sent, and a parser change needs no request", async () => {
+    const root = await setup();
+    await run(
+      deps(root, { wikimedia: squadWikimedia({ urls: [], queries: [] }) }),
+    );
+    const cache = path.join(root, "data", "cache", "squads.json");
+    const entry = JSON.parse(await readFile(cache, "utf8"));
+    expect(entry).toMatchObject({
+      version: CACHE_VERSION,
+      savedAt: "2026-10-04",
+      source: "squads",
+    });
+    // Whole pages, as sent: the intro before the list is kept.
+    expect(entry.value.en[0].pages[0].revisions[0].slots.main.content).toBe(
+      `Intro.\n${clubSquad}`,
+    );
+    expect(entry.value.fr).toEqual([]);
+    const links = JSON.parse(
+      await readFile(
+        path.join(root, "data", "cache", "squad-links.json"),
+        "utf8",
+      ),
+    );
+    expect(links.value.en).toEqual([linksAnswer.query]);
+    // As if the table now said 31 on 2 October: the parser reads the cached
+    // page again, and the table is now the newest source.
+    const main = entry.value.en[0].pages[1].revisions[0].slots.main;
+    main.content = main.content
+      .replace("caps=30", "caps=31")
+      .replace("28 September 2026", "2 October 2026");
+    await writeFile(cache, JSON.stringify(entry));
+    const clients = noRequests();
+    await run({
+      root,
+      today: "2026-10-04",
+      offline: true,
+      ...clients,
+      log: () => {},
+    });
+    expect(clients.calls).toEqual([]);
+    const player = (await readPool(root)).players[0];
+    expect(player.caps).toBe(31);
+    expect(player.provenance.caps?.source).toBe("enwiki-national");
+  });
+
+  it("without a squads cache an offline rebuild gives the pool of a build without squads, byte for byte", async () => {
+    const root = await setup();
+    // An online build whose squads fail: the pool without squads.
+    await run(
+      deps(root, {
+        wikimedia: squadWikimedia({ urls: [], queries: [] }, true),
+      }),
+    );
+    const pool = await readFile(file(root, "pool.json"), "utf8");
+    const lines: string[] = [];
+    expect(
+      await run({
+        root,
+        today: "2026-10-04",
+        offline: true,
+        ...noRequests(),
+        log: (l) => lines.push(l),
+      }),
+    ).toEqual({ ok: true, changed: false });
+    expect(await readFile(file(root, "pool.json"), "utf8")).toBe(pool);
+    expect(lines).toContain("squads: offline build; no cached copy");
+  });
+});
+
+describe("the private witness's verdicts in the run (P48, B7)", () => {
+  it("reads data/witness.json with no request; a broken file refuses like overrides", async () => {
+    const root = await setup();
+    await writeFile(
+      file(root, "witness.json"),
+      JSON.stringify({
+        version: 1,
+        checks: { Q1001: { caps: { site: "x" } } },
+      }),
+    );
+    const calls: Calls = { urls: [], queries: [] };
+    const lines: string[] = [];
+    const outcome = await run(
+      deps(root, {
+        wdqs: wdqs(calls),
+        wikimedia: wikimedia(calls),
+        log: (l) => lines.push(l),
+      }),
+    );
+    expect(outcome).toEqual({
+      ok: false,
+      reason: "data/witness.json has 4 errors",
+    });
+    expect(calls.urls).toEqual([]);
+    expect(lines).toContain(
+      "data/witness.json: checks.Q1001.caps: unknown site x",
+    );
+
+    // A good file: an agreeing verdict on the club we publish is one more source.
+    await writeFile(
+      file(root, "witness.json"),
+      JSON.stringify({
+        version: 1,
+        checks: {
+          Q1001: {
+            clubId: {
+              site: "transfermarkt",
+              checkedOn: "2026-10-01",
+              verdict: "agrees",
+              checked: "Q2001",
+            },
+          },
+        },
+      }),
+    );
+    expect(await run(deps(root))).toMatchObject({ ok: true });
+    const player = (await readPool(root)).players[0];
+    expect(player.provenance.clubId?.agreeing).toEqual([
+      "enwiki",
+      "transfermarkt",
+    ]);
+    const report = await readFile(file(root, "report.md"), "utf8");
+    expect(report).toContain("| clubId | transfermarkt | 1 | 0 | 0 | 0 |");
   });
 });
 

@@ -5,6 +5,7 @@ import type { KnownIds } from "./overrides.ts";
 import { competitions, regions } from "./types.ts";
 import type { IdRegistry, Pool } from "./types.ts";
 import { validateIdRegistry, validatePool } from "./validate.ts";
+import { validateWitness } from "./witness/verdicts.ts";
 
 // Every file in data/ that people edit or the job writes, checked in CI.
 
@@ -212,5 +213,21 @@ export async function inspectData(
         (e) => `data/pool.json: ${e}`,
       ),
     );
+
+  // P48 (B6): the private witness's verdicts. A footballer the pool no longer
+  // holds is a warning: the next build simply does not use his verdicts.
+  const witness = await read("witness.json");
+  if (witness !== undefined) {
+    const witnessErrors = validateWitness(witness);
+    errors.push(...witnessErrors.map((e) => `data/witness.json: ${e}`));
+    if (witnessErrors.length === 0 && usablePool(pool)) {
+      const held = new Set(pool.players.map((p) => p.wikidataId));
+      for (const qid of Object.keys((witness as { checks: object }).checks))
+        if (!held.has(qid))
+          warnings.push(
+            `data/witness.json: ${qid} is not in the pool; his verdicts are not used`,
+          );
+    }
+  }
   return { errors, warnings };
 }

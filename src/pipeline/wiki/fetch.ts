@@ -165,3 +165,53 @@ export function rawBatch(
     pages,
   };
 }
+
+/**
+ * Squad-list link targets to Wikidata ids (S13): the page each title leads
+ * to after normalization and redirects, and its `wikibase_item`.
+ */
+export function pagepropsUrl(lang: "en" | "fr", titles: string[]): string {
+  return api(lang, {
+    prop: "pageprops",
+    ppprop: "wikibase_item",
+    redirects: "1",
+    titles: titles.join("|"),
+  });
+}
+
+/**
+ * Each asked title (and each page title) with the Wikidata id of the page it
+ * leads to, following `normalized` and `redirects`. A missing page, or one
+ * without an item, is left out.
+ */
+export function parsePageprops(json: unknown): Map<string, string> {
+  const response = json as ApiResponse & {
+    query?: {
+      pages?: (ApiPage & { pageprops?: { wikibase_item?: string } })[];
+    };
+  };
+  if (response?.error) {
+    throw new Error(
+      `MediaWiki error ${response.error.code}: ${response.error.info}`,
+    );
+  }
+  const query = response?.query ?? {};
+  const items = new Map<string, string>();
+  for (const page of query.pages ?? []) {
+    const item = page.pageprops?.wikibase_item;
+    if (page.title && !page.missing && item) items.set(page.title, item);
+  }
+  const moves = new Map(
+    [...(query.normalized ?? []), ...(query.redirects ?? [])]
+      .filter((m): m is { from: string; to: string } => Boolean(m.from && m.to))
+      .map((m) => [m.from, m.to]),
+  );
+  const out = new Map(items);
+  for (const from of moves.keys()) {
+    let to = from;
+    for (let i = 0; i < 4 && moves.has(to); i++) to = moves.get(to)!;
+    const item = items.get(to);
+    if (item) out.set(from, item);
+  }
+  return out;
+}

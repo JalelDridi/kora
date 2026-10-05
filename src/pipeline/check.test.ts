@@ -351,3 +351,56 @@ describe("data:check agrees with the build about overrides (fix round 3)", () =>
     ]);
   });
 });
+
+describe("data/witness.json (P48, B6)", () => {
+  const verdict = {
+    site: "transfermarkt",
+    checkedOn: "2026-10-05",
+    verdict: "agrees",
+    checked: "Q1024482",
+  };
+
+  it("passes the committed empty file and a well-formed verdict", async () => {
+    const { root, write } = await copyOfData();
+    expect(await inspectData(root)).toMatchObject({ errors: [] });
+    await write("witness.json", { version: 1, checks: {} });
+    expect((await inspectData(root)).errors).toEqual([]);
+  });
+
+  it("fails a malformed file, naming each problem", async () => {
+    const { root, write } = await copyOfData();
+    await write("witness.json", {
+      version: 1,
+      checks: {
+        Q2836275: { clubId: { ...verdict, checkedOn: "soon", value: "X" } },
+      },
+    });
+    expect((await inspectData(root)).errors).toEqual([
+      "data/witness.json: checks.Q2836275.clubId: unknown key value (a verdict holds no value of the site's)",
+      "data/witness.json: checks.Q2836275.clubId: checkedOn must be an ISO date",
+    ]);
+    await write("witness.json", "not json");
+    expect((await inspectData(root)).errors[0]).toMatch(
+      /^data\/witness\.json: /,
+    );
+  });
+
+  it("warns about a footballer missing from the pool", async () => {
+    const { root, write } = await copyOfData();
+    await write("pool.json", pool);
+    await write("ids.json", {
+      players: { Q2836275: "ali-maaloul" },
+      clubs: { Q1024482: "cs-sfaxien" },
+    });
+    await write("overrides.json", { players: {}, clubTitles: {} });
+    await write("witness.json", {
+      version: 1,
+      checks: { Q2836275: { clubId: verdict }, Q9: { clubId: verdict } },
+    });
+    const { errors, warnings } = await inspectData(root);
+    expect(errors).toEqual([]);
+    expect(warnings).toEqual([
+      "data/witness.json: Q9 is not in the pool; his verdicts are not used",
+    ]);
+  });
+});

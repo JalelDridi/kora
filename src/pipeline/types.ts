@@ -48,6 +48,15 @@ export type SourceId =
   | "martj42"
   | "override"
   | "curated"
+  /** Decision P42 (P47): an English club's current squad list, a vote on the club. */
+  | "enwiki-squad"
+  /** A French club's "Effectif professionnel" list of the current season. */
+  | "frwiki-squad"
+  /** The English national team's current squad table: caps, goals and a club vote. */
+  | "enwiki-national"
+  /** Decision P43 (P48): the private witness, named as it agrees (S23); never its value. */
+  | "transfermarkt"
+  | "national-football-teams"
   /** No source gives the value; the merge stores a placeholder rated low. */
   | "none";
 
@@ -361,7 +370,19 @@ export type FlagKind =
   /** An honour's winner has no club row with a country, so the honour is left out. */
   | "honour-winner-unresolved"
   /** A curated honour replaced a Wikidata edition of the same competition and start year. */
-  | "honour-replaced-by-curated";
+  | "honour-replaced-by-curated"
+  /** S7: a current squad list (or the national table) names another club than the chosen one, or a club where none is chosen. */
+  | "club-squad-list-differs"
+  /** S10: his chosen club has a current squad list, and it does not name him. */
+  | "club-not-on-squad-list"
+  /** S11: the current lists of two clubs both name him; neither votes. */
+  | "squad-lists-disagree"
+  /** S12: the row links to him but names the club a namesake already has; no vote. */
+  | "squad-namesake"
+  /** P48 (S21 = b): Transfermarkt, checked lately, does not list him at the published club; the club is rated low. */
+  | "club-witness-differs"
+  /** P48 (S21 = b): national-football-teams.com, checked lately, has another count; the caps are rated low. */
+  | "caps-witness-differs";
 
 /** Something for Jalel to look at. `subject` is a Wikidata id or a title. */
 export type Flag = { subject: string; kind: FlagKind; detail: string };
