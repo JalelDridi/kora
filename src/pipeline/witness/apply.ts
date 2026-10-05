@@ -21,7 +21,7 @@ export const WITNESS_FRESH_DAYS = 21;
 export type WitnessUse = "used" | "stale" | "changed";
 
 /** Whether a verdict counts tonight for the value we now publish. */
-export function useOf(
+export function verdictUse(
   check: WitnessCheck,
   ours: string | number | null,
   today: string,
@@ -58,7 +58,7 @@ export function witnessEvidence(
   const checks = file?.checks[qid];
   if (!checks) return out;
   const club = checks.clubId;
-  if (club && useOf(club, chosen.clubQid, today) === "used") {
+  if (club && verdictUse(club, chosen.clubQid, today) === "used") {
     if (club.verdict === "agrees")
       out.clubVotes.push({
         source: club.site,
@@ -74,7 +74,7 @@ export function witnessEvidence(
       });
   }
   const caps = checks.caps;
-  if (caps && useOf(caps, chosen.caps, today) === "used") {
+  if (caps && verdictUse(caps, chosen.caps, today) === "used") {
     if (caps.verdict === "agrees")
       out.capsVotes.push({
         source: caps.site,
@@ -149,7 +149,7 @@ export function witnessSummary(
       const club = p.clubId === null ? null : (clubs.get(p.clubId) ?? null);
       const ours =
         field === "caps" ? p.caps : club === null ? null : club.wikidataId;
-      const use = useOf(check, ours, today);
+      const use = verdictUse(check, ours, today);
       if (use === "stale") summary.stale++;
       else if (use === "changed") summary.unused++;
       else {

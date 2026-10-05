@@ -5,9 +5,9 @@ import { buildClubIndex, mergePlayer } from "../merge.ts";
 import type { MergeContext } from "../merge.ts";
 import { diffPools, renderReport } from "../report.ts";
 import type { Infobox, Pool, WdPlayer } from "../types.ts";
-import { useOf, witnessEvidence, witnessSummary } from "./apply.ts";
+import { verdictUse, witnessEvidence, witnessSummary } from "./apply.ts";
 import { parseMapping } from "./mapping.ts";
-import { parseCountryPage, parsePlayerPage } from "./nft.ts";
+import { latestFifaMatch, parseCountryPage, parsePlayerPage } from "./nft.ts";
 import { parseSquad } from "./transfermarkt.ts";
 import {
   capsVerdicts,
@@ -55,9 +55,9 @@ describe("witnessEvidence (B7)", () => {
   });
 
   it("stale after 21 days", () => {
-    expect(useOf(agrees(30, "2026-09-14"), 30, today)).toBe("used"); // 21 days
-    expect(useOf(agrees(30, "2026-09-13"), 30, today)).toBe("stale"); // 22 days
-    expect(useOf(agrees(30, "2026-10-06"), 30, today)).toBe("stale"); // the future
+    expect(verdictUse(agrees(30, "2026-09-14"), 30, today)).toBe("used"); // 21 days
+    expect(verdictUse(agrees(30, "2026-09-13"), 30, today)).toBe("stale"); // 22 days
+    expect(verdictUse(agrees(30, "2026-10-06"), 30, today)).toBe("stale"); // the future
     expect(
       witnessEvidence(
         file({ Q1: { caps: agrees(30, "2026-09-01") } }),
@@ -245,7 +245,7 @@ describe("the S29 sentinel: no site value in data/witness.json, the report, or a
         players: [{ qid: "Q1", caps: 30, capsAsOf: "2026-09-28" }],
         mapping,
         careers: new Map([["800001", career]]),
-        latestMatch: "2026-09-20",
+        latestMatch: latestFifaMatch(country),
         today,
       }).checks,
     ];
