@@ -80,6 +80,12 @@ export type Provenance = {
   agreeing?: SourceId[];
   /** Why the level is what it is, in a few words. */
   confidenceNote?: string;
+  /**
+   * Caps only, D-S2-6: every source falls in the same caps band and nothing
+   * else contradicts the count, so the game's caps tile is right even when
+   * P26 rates the exact count low. Written only when true.
+   */
+  bandAgreed?: boolean;
 };
 
 /** A senior club spell as an infobox writes it. */
@@ -217,6 +223,11 @@ export type Photo = {
   author: string | null;
   sourceUrl: string;
   attributionRequired: boolean;
+  /**
+   * P30: where the copied thumbnail is served ("/photos/<id>.jpg"); null
+   * until it is copied. Absent in a pool built before Sprint 2.
+   */
+  path?: string | null;
 };
 
 export type Match = {
@@ -309,6 +320,29 @@ export type PoolPlayer = {
   wiki: { en: string | null; fr: string | null; ar: string | null };
   pools: { active: boolean; legend: boolean };
   provenance: Partial<Record<ProvenancedField, Provenance>>;
+  /**
+   * D-S2-4: active footballers only; null for legends only. Absent in a pool
+   * built before Sprint 2 (read as not measured).
+   */
+  fame?: Fame | null;
+};
+
+/** Page views over 12 full months, per Wikipedia (D-S2-4). */
+export type PageViews = { en: number; fr: number; ar: number };
+
+export type FameTier = "A" | "B" | "C" | "D";
+
+/**
+ * D-S2-4. `score` and `tier` are null until the footballer's page views have
+ * been measured; `window` names the oldest 12 months they come from
+ * ("202510-202609"), or is "" for a footballer with no article at all.
+ */
+export type Fame = {
+  score: number | null;
+  tier: FameTier | null;
+  views: PageViews | null;
+  window: string | null;
+  localStar: boolean;
 };
 
 export type PoolClub = {

@@ -1,13 +1,31 @@
-import { mkdir, readFile, rename, rm, writeFile } from "node:fs/promises";
+import {
+  access,
+  mkdir,
+  readdir,
+  readFile,
+  rename,
+  rm,
+  writeFile,
+} from "node:fs/promises";
 import path from "node:path";
 import { knownIds } from "./check.ts";
 import { commonsUrl, parseCommons } from "./commons.ts";
 import { GOALSCORERS_URL, goalsFloors, tunisiaScorers } from "./goalscorers.ts";
+import { fameOf } from "./fame.ts";
 import { createPoliteClient } from "./http.ts";
 import type { FetchLike, PoliteClient } from "./http.ts";
 import { buildClubIndex, chosenClubOf } from "./merge.ts";
 import type { MergeContext } from "./merge.ts";
 import { validateOverrides } from "./overrides.ts";
+import {
+  addToCache,
+  fetchViews,
+  monthWindow,
+  planPageviews,
+  viewsOf,
+} from "./pageviews.ts";
+import type { Measured, ViewLang, ViewsCache } from "./pageviews.ts";
+import { syncPhotos } from "./photos.ts";
 import { buildPool, emptyRegistry } from "./pool.ts";
 import {
   diffPools,
@@ -105,6 +123,15 @@ export type RunDeps = {
   maxRequests?: number;
   /** HTTP attempts per client so far, retries included (createClients gives it); without it the run counts calls. */
   attempts?: () => Record<ClientName, number>;
+  /** D-S2-4, P49: the Pageviews REST API, a client of its own. */
+  pageviews?: PoliteClient;
+  /**
+   * P30: downloads the Commons thumbnails (binary, so not a PoliteClient);
+   * without it no photo is downloaded and the copies already made are kept.
+   */
+  photoFetch?: FetchLike;
+  /** The wait between two photo downloads (tests make it instant). */
+  sleep?: (ms: number) => Promise<void>;
 };
 
 export type ClientName = "wdqs" | "wikimedia" | "github";
@@ -117,6 +144,8 @@ export function createClients(
   options: { fetch?: FetchLike; sleep?: (ms: number) => Promise<void> } = {},
 ): Record<ClientName, PoliteClient> & {
   attempts: () => Record<ClientName, number>;
+  photoFetch: FetchLike;
+  pageviews: PoliteClient;
 } {
   const counts: Record<ClientName, number> = {
     wdqs: 0,
@@ -155,6 +184,19 @@ export function createClients(
     ),
     github: make("github", 1_000, 2, 2 * GITHUB_DOWNLOADS),
     attempts: () => ({ ...counts }),
+    // P49: the Pageviews REST API (published limit 100 requests a second)
+    // has its own client and cap; it never touches the 70 above.
+    pageviews: createPoliteClient({
+      minGapMs: PAGEVIEWS_GAP_MS,
+      maxRetries: 2,
+      maxAttempts: 2 * PAGEVIEWS_MAX_PER_RUN,
+      maxWallMs: MAX_RUN_MS,
+      sleep: options.sleep,
+      fetch: options.fetch,
+    }),
+    // P30, P49: thumbnails from upload.wikimedia.org; syncPhotos sends them
+    // one at a time, PHOTO_GAP_MS apart, at most PHOTOS_MAX_PER_RUN a run.
+    photoFetch: (url, init) => (options.fetch ?? globalThis.fetch)(url, init),
   };
 }
 
@@ -166,6 +208,15 @@ export type RunResult =
  * since the squad lists (S14): the last run used 50, squads add 4 to 7.
  */
 export const MAX_REQUESTS = 70;
+
+/**
+ * P49: page views and photos have their own polite clients and caps; the 70
+ * above is for Wikidata and the MediaWiki API only.
+ */
+export const PAGEVIEWS_MAX_PER_RUN = 800;
+export const PAGEVIEWS_GAP_MS = 100;
+export const PHOTOS_MAX_PER_RUN = 200;
+export const PHOTO_GAP_MS = 250;
 
 /** The English article whose "Current squad" table gives caps (P42). */
 export const NATIONAL_TEAM_TITLE = "Tunisia national football team";
@@ -226,6 +277,8 @@ const SHAPES: Record<string, (v: unknown) => boolean> = {
   // P42: whole squad pages, and the link lookups (pageprops), as sent.
   squads: (v) => isObject(v) && batches(v.en) && batches(v.fr),
   "squad-links": (v) => isObject(v) && batches(v.en) && batches(v.fr),
+  // D-S2-4: page view counts per window, per article.
+  pageviews: (v) => isObject(v) && Object.values(v).every(isObject),
 };
 
 /** Wikitext before the first section heading: the lead, where the infobox is. */
@@ -1054,7 +1107,137 @@ async function build(deps: RunDeps): Promise<RunResult> {
       `the pool could not be built: ${error instanceof Error ? error.message : String(error)}`,
     );
   }
-  const { pool, ids } = built;
+  const { ids } = built;
+
+  // D-S2-4: fame from Wikipedia page views, through its own polite client
+  // (P49): the Pageviews REST API is a separate service, so the 70 requests
+  // stay for Wikidata and the MediaWiki API. One request per article; every
+  // footballer whose count is missing or from an earlier 12-month window is
+  // measured in this run, unmeasured first, up to PAGEVIEWS_MAX_PER_RUN. A
+  // failure keeps the counts already known (data/cache/pageviews.json and
+  // the pool) and the build goes on.
+  const viewsWindow = monthWindow(today);
+  const cachedViews = await readCache<ViewsCache>("pageviews");
+  let views: ViewsCache = cachedViews?.value ?? {};
+  const previousFame = new Map(
+    (previous?.players ?? []).map((p) => [p.id, p.fame ?? null]),
+  );
+  const measured: Measured[] = built.pool.players
+    .filter((p) => p.pools.active)
+    .map((p) => ({
+      id: p.id,
+      wiki: p.wiki,
+      previous: previousFame.get(p.id) ?? null,
+    }));
+  const viewRun = { asked: 0, read: 0, failure: null as string | null };
+  if (!deps.offline) {
+    const asked = planPageviews({
+      players: measured,
+      cache: views,
+      window: viewsWindow,
+      max: PAGEVIEWS_MAX_PER_RUN,
+    });
+    deps.log(
+      `plan: pageviews ${asked.length} (one per article, at most ${PAGEVIEWS_MAX_PER_RUN} a run)`,
+    );
+    const client = deps.pageviews;
+    const got: { lang: ViewLang; title: string; views: number }[] = [];
+    if (asked.length > 0 && !client) viewRun.failure = "no page views client";
+    else
+      for (const a of asked) {
+        try {
+          got.push({
+            ...a,
+            views: await fetchViews(client!, a.lang, a.title, viewsWindow),
+          });
+        } catch (error) {
+          viewRun.failure =
+            error instanceof Error ? error.message : String(error);
+          break;
+        }
+      }
+    viewRun.asked = asked.length;
+    viewRun.read = got.length;
+    if (got.length > 0) views = addToCache(views, viewsWindow, got);
+  }
+
+  // P30: the thumbnails, through their own client (P49), as soon as a
+  // footballer has a photo record: new files first, at most
+  // PHOTOS_MAX_PER_RUN. Kept in memory until the outputs are written, so a
+  // refused build copies nothing.
+  const photoDir = path.join(deps.root, "public", "photos");
+  const pending = new Map<string, Uint8Array>();
+  const previousPhotos = new Map(
+    (previous?.players ?? []).map((p) => [p.id, p.photo]),
+  );
+  const photoRun = await syncPhotos({
+    players: built.pool.players,
+    previous: previousPhotos,
+    max: PHOTOS_MAX_PER_RUN,
+    offline: deps.offline === true || deps.photoFetch === undefined,
+    fetch: deps.photoFetch ?? (() => Promise.reject(new Error("no client"))),
+    exists: (name) =>
+      access(path.join(photoDir, name)).then(
+        () => true,
+        () => false,
+      ),
+    write: async (name, bytes) => {
+      pending.set(name, bytes);
+    },
+    sleep: deps.sleep,
+    gapMs: PHOTO_GAP_MS,
+  });
+
+  if (deps.offline) {
+    statuses.pageviews = cachedViews
+      ? { status: "cached", retrievedAt: cachedViews.savedAt }
+      : {
+          status: "failed",
+          retrievedAt: null,
+          note: "no cached copy; the last pool's counts are kept",
+        };
+  } else {
+    if (viewRun.read > 0) {
+      const file = path.join(data, "cache", "pageviews.json");
+      await mkdir(path.dirname(file), { recursive: true });
+      const entry: CacheEntry<ViewsCache> = {
+        version: CACHE_VERSION,
+        savedAt: today,
+        source: "pageviews",
+        value: views,
+      };
+      await writeFile(file, JSON.stringify(entry));
+    }
+    const waiting = measured.filter((m) => viewsOf(m, views) === null).length;
+    const note = `${viewRun.read} of ${viewRun.asked} articles read${viewRun.failure ? ` (then: ${viewRun.failure})` : ""}; ${waiting} active footballers not measured yet`;
+    deps.log(`pageviews: ${note}`);
+    statuses.pageviews =
+      viewRun.failure !== null && viewRun.read === 0
+        ? { status: "failed", retrievedAt: cachedViews?.savedAt ?? null, note }
+        : { status: "fresh", retrievedAt: today, note };
+  }
+  deps.log(
+    `photos: ${photoRun.downloaded} downloaded, ${photoRun.waiting} waiting for a later run, ${photoRun.notes.length} not copied`,
+  );
+  const pool = {
+    ...built.pool,
+    players: built.pool.players.map((p) => {
+      const photo = p.photo && {
+        ...p.photo,
+        path: photoRun.paths.get(p.id) ?? null,
+      };
+      if (!p.pools.active) return { ...p, photo, fame: null };
+      const m = measured.find((x) => x.id === p.id)!;
+      const found = viewsOf(m, views);
+      const localStar =
+        checked.overrides.players[p.wikidataId]?.localStar?.value === true;
+      return {
+        ...p,
+        photo,
+        fame: fameOf(found?.views ?? null, found?.window ?? null, localStar),
+      };
+    }),
+  };
   const attempts = deps.attempts?.() ?? null;
   deps.log(
     attempts
@@ -1073,7 +1256,23 @@ async function build(deps: RunDeps): Promise<RunResult> {
   if (refusal) throw new Refusal(refusal);
 
   const diff = diffPools(previous, pool);
-  // Everything is rendered before anything is written.
+  // P30: copies no footballer uses any more stay; deleting is Jalel's call.
+  const used = new Set(
+    pool.players
+      .map((p) => p.photo?.path?.replace(/^\/photos\//, ""))
+      .filter(present),
+  );
+  const onDisk = await readdir(photoDir).catch(() => [] as string[]);
+  const unused = onDisk
+    .filter((name) => /\.(jpg|png)$/.test(name) && !used.has(name))
+    .sort();
+  // Everything is rendered before anything is written. The photos go first:
+  // a photo with no pool pointing at it yet is harmless.
+  if (pending.size > 0) {
+    await mkdir(photoDir, { recursive: true });
+    for (const [name, bytes] of pending)
+      await writeFile(path.join(photoDir, name), bytes);
+  }
   await commit(data, deps.writeFile ?? ((f, t) => writeFile(f, t)), [
     ["ids.json", stableJson(ids)],
     ["pool.json", JSON.stringify(pool, null, 2) + "\n"],
@@ -1088,6 +1287,12 @@ async function build(deps: RunDeps): Promise<RunResult> {
         overrideWarnings: checked.warnings,
         offline: deps.offline === true,
         witness: witnessSummary(witness, pool, today),
+        photos: {
+          downloaded: photoRun.downloaded,
+          waiting: photoRun.waiting,
+          notes: photoRun.notes,
+          unused,
+        },
         squads:
           squadLists && squadMatch
             ? squadSummary(

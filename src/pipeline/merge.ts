@@ -1014,8 +1014,15 @@ export function mergePlayer(
   const names = new Set(
     [nameLatin, nameArabic, p.nameFr].filter((n): n is string => n !== null),
   );
+  // Recommendation 7 (D-S2-12): the Arabic article's title, without its
+  // qualifier, is one more spelling people type.
+  const arTitle = p.titles.ar ? titleName(p.titles.ar) : null;
   const aliases = [
-    ...new Set([...p.aliases, ...(o.aliases?.value ?? [])]),
+    ...new Set([
+      ...p.aliases,
+      ...(arTitle ? [arTitle] : []),
+      ...(o.aliases?.value ?? []),
+    ]),
   ].filter((a) => !names.has(a));
 
   // P48: the private witness's fresh verdicts on the values chosen now.
@@ -1176,6 +1183,8 @@ export function mergePlayer(
       entry.confidenceNote = scored
         ? `no senior national row; martj42 lists ${floor} goals by him`
         : "no senior national row";
+      // P34 rates these; the band rule (D-S2-6) does not apply.
+      delete entry.bandAgreed;
     }
   }
 
@@ -1194,6 +1203,8 @@ export function mergePlayer(
     if (entry && entry.source !== "override") {
       entry.confidence = "low";
       entry.confidenceNote = `${d.site} checked on ${d.checkedOn}: differs (P48)`;
+      // A "differs" waits for Jalel even at band level (S21 = b).
+      delete entry.bandAgreed;
     }
   }
 

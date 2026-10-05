@@ -274,6 +274,35 @@ describe("carryProvenance", () => {
     expect(carried.provenance.caps?.retrievedAt).toBe(today);
   });
 
+  // P30: the copy's path is the run's, not the source's: a photo already
+  // copied is the same Commons photo as tonight's draft without a path.
+  it("dates the photo by its Commons file, not by the copy's path", () => {
+    const photo = {
+      file: "File:X.jpg",
+      thumbUrl: "https://upload.wikimedia.org/x.jpg",
+      width: 1,
+      height: 1,
+      licence: "CC BY-SA 4.0",
+      licenceUrl: null,
+      author: "Someone",
+      sourceUrl: "https://commons.wikimedia.org/wiki/File:X.jpg",
+      attributionRequired: true,
+    };
+    const before: PoolPlayer = {
+      ...base,
+      photo: { ...photo, path: "/photos/x.jpg" },
+      provenance: { photo: { source: "commons", retrievedAt: "2026-10-01" } },
+    };
+    const after: PoolPlayer = {
+      ...base,
+      photo,
+      provenance: { photo: { source: "commons", retrievedAt: today } },
+    };
+    expect(carryProvenance(before, after).provenance.photo?.retrievedAt).toBe(
+      "2026-10-01",
+    );
+  });
+
   it("dates goals on their own: unchanged goals keep their date when the caps change", () => {
     const before: PoolPlayer = {
       ...base,

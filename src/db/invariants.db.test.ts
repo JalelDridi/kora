@@ -94,21 +94,36 @@ describe("results", () => {
   });
 
   it("rejects a negative score", async () => {
-    await expect(createResult({ score: -1 })).rejects.toThrow(
+    await expect(createResult({ game: "aktar", score: -1 })).rejects.toThrow(
       /results_score_non_negative/,
     );
+  });
+
+  it("a Chkoun? result has 1 to 8 guesses", async () => {
+    await expect(createResult({ score: 0 })).rejects.toThrow(
+      /results_chkoun_score/,
+    );
+    await expect(createResult({ score: 9 })).rejects.toThrow(
+      /results_chkoun_score/,
+    );
+    await createResult({ score: 1 });
+    await createResult({ score: 8, visitorId: otherVisitor });
   });
 });
 
 describe("puzzles", () => {
   it("allows one puzzle per game and day", async () => {
-    await db.puzzle.create({ data: { game: "chkoun", day } });
+    await createPlayer();
+    const playerId = "test-player";
+    await db.puzzle.create({ data: { game: "chkoun", day, playerId } });
 
     await expect(
-      db.puzzle.create({ data: { game: "chkoun", day } }),
+      db.puzzle.create({ data: { game: "chkoun", day, playerId } }),
     ).rejects.toMatchObject({ code: "P2002" });
 
-    await db.puzzle.create({ data: { game: "chkoun", day: nextDay } });
+    await db.puzzle.create({
+      data: { game: "chkoun", day: nextDay, playerId },
+    });
     await db.puzzle.create({ data: { game: "season", day } });
     expect(await db.puzzle.count()).toBe(3);
   });
@@ -121,6 +136,80 @@ describe("puzzles", () => {
     });
 
     expect(puzzle.player?.nameLatin).toBe("Test Player");
+  });
+});
+
+describe("the Chkoun? calendar", () => {
+  // Days relative to today in Tunis, computed by Postgres, never a fixed date.
+  async function insertDay(offset: number, source = "generator") {
+    await db.$executeRawUnsafe(
+      `INSERT INTO puzzles (id, game, day, player_id, source)
+       VALUES (gen_random_uuid(), 'chkoun',
+               (now() AT TIME ZONE 'Africa/Tunis')::date + $1::int,
+               'test-player', $2)`,
+      offset,
+      source,
+    );
+  }
+
+  function updateDay(offset: number) {
+    return db.$executeRawUnsafe(
+      `UPDATE puzzles SET note = 'swapped'
+       WHERE game = 'chkoun'
+         AND day = (now() AT TIME ZONE 'Africa/Tunis')::date + $1::int`,
+      offset,
+    );
+  }
+
+  function deleteDay(offset: number) {
+    return db.$executeRawUnsafe(
+      `DELETE FROM puzzles
+       WHERE game = 'chkoun'
+         AND day = (now() AT TIME ZONE 'Africa/Tunis')::date + $1::int`,
+      offset,
+    );
+  }
+
+  beforeEach(async () => {
+    await createPlayer();
+  });
+
+  it("a Chkoun? puzzle must name a footballer", async () => {
+    await expect(
+      db.puzzle.create({ data: { game: "chkoun", day } }),
+    ).rejects.toThrow(/puzzles_chkoun_has_player/);
+    await db.puzzle.create({ data: { game: "season", day } });
+  });
+
+  it("a puzzle's source is generator, pin or reserve", async () => {
+    await expect(insertDay(10, "manual")).rejects.toThrow(/puzzles_source/);
+    await insertDay(10, "generator");
+    await insertDay(11, "pin");
+    await insertDay(12, "reserve");
+    expect(await db.puzzle.count()).toBe(3);
+  });
+
+  it("a note is 1 to 200 characters", async () => {
+    await expect(
+      db.puzzle.create({
+        data: { game: "chkoun", day, playerId: "test-player", note: "" },
+      }),
+    ).rejects.toThrow(/puzzles_note_length/);
+  });
+
+  it("a day less than 48 hours away cannot be changed", async () => {
+    await insertDay(1);
+    await insertDay(5);
+
+    await expect(updateDay(1)).rejects.toThrow(/puzzle day is frozen/);
+    expect(await updateDay(5)).toBe(1);
+    await expect(deleteDay(1)).rejects.toThrow(/puzzle day is frozen/);
+    expect(await db.puzzle.count()).toBe(2);
+  });
+
+  it("a frozen day can still be filled once", async () => {
+    await insertDay(0, "reserve");
+    expect(await db.puzzle.count()).toBe(1);
   });
 });
 
@@ -160,6 +249,34 @@ describe("players and clubs", () => {
     await expect(
       createClub({ id: "club-africain", wikidataId: "Q2" }),
     ).rejects.toMatchObject({ code: "P2002" });
+  });
+
+  it("fame tier is A to D", async () => {
+    await expect(
+      db.player.create({
+        data: {
+          id: "test-player",
+          nameLatin: "Test Player",
+          position: "midfielder",
+          birthDate: new Date("1998-01-01"),
+          fameTier: "E",
+        },
+      }),
+    ).rejects.toThrow(/players_fame_tier/);
+  });
+
+  it("a stored photo path needs a credited photo", async () => {
+    await expect(
+      db.player.create({
+        data: {
+          id: "test-player",
+          nameLatin: "Test Player",
+          position: "midfielder",
+          birthDate: new Date("1998-01-01"),
+          photoPath: "/photos/test-player.jpg",
+        },
+      }),
+    ).rejects.toThrow(/players_photo_path_credited/);
   });
 
   it("rejects a country that is not two capital letters", async () => {

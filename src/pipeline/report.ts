@@ -1,4 +1,9 @@
-import { CROSS_CHECKED, isAnswerReady, SINGLE_SOURCE } from "./confidence.ts";
+import {
+  CHKOUN_FIELDS,
+  CROSS_CHECKED,
+  isAnswerReady,
+  SINGLE_SOURCE,
+} from "./confidence.ts";
 import type { Sighting } from "./squads/match.ts";
 import { WITNESS_FRESH_DAYS } from "./witness/apply.ts";
 import type { WitnessSummary } from "./witness/apply.ts";
@@ -20,6 +25,35 @@ import type {
 // comes first, then how complete the pool is, then what changed.
 
 export type CoverageRow = { field: string; count: number; total: number };
+
+/**
+ * Active footballers who fail exactly one answer-ready field (P27, D-S2-6):
+ * the field and its confidence ("missing" when there is no entry).
+ */
+export function oneFieldAway(
+  players: PoolPlayer[],
+): { id: string; field: string; why: string }[] {
+  const out: { id: string; field: string; why: string }[] = [];
+  for (const p of players) {
+    if (!p.pools.active || isAnswerReady(p)) continue;
+    const place = p.governorate === null ? "birthPlace" : "governorate";
+    const failing = [...CHKOUN_FIELDS, place].filter((field) => {
+      const entry = p.provenance[field as ProvenancedField];
+      const sure =
+        entry?.confidence === "high" || entry?.confidence === "medium";
+      return !sure && !(field === "caps" && entry?.bandAgreed === true);
+    });
+    if (failing.length === 1) {
+      const entry = p.provenance[failing[0] as ProvenancedField];
+      out.push({
+        id: p.id,
+        field: failing[0],
+        why: entry?.confidence ?? "missing",
+      });
+    }
+  }
+  return out;
+}
 
 const MEASURES: [string, (p: PoolPlayer) => boolean][] = [
   ["Arabic name", (p) => p.nameArabic !== null],
@@ -310,6 +344,36 @@ function squadSection(squads: SquadSummary | null): string[] {
   ];
 }
 
+export type PhotoSummary = {
+  downloaded: number;
+  waiting: number;
+  notes: string[];
+  /** Files in public/photos/ no footballer uses any more. */
+  unused: string[];
+};
+
+function photoSection(p: PhotoSummary, pool: Pool): string[] {
+  const copied = pool.players.filter((x) => x.photo?.path).length;
+  const withPhoto = pool.players.filter((x) => x.photo).length;
+  return [
+    `## Photos (P30)`,
+    "",
+    `${copied} of the ${withPhoto} footballers with a Commons photo have a copy in public/photos/. Tonight: ${p.downloaded} downloaded, ${p.waiting} waiting for a later night's budget.`,
+    "",
+    `### Not copied (${p.notes.length})`,
+    "",
+    ...(p.notes.length === 0 ? ["None."] : p.notes.map((n) => `- ${n}`)),
+    "",
+    `### Copies no footballer uses any more (${p.unused.length})`,
+    "",
+    "Kept: deleting a file is Jalel's call.",
+    "",
+    ...(p.unused.length === 0
+      ? ["None."]
+      : p.unused.map((n) => `- public/photos/${n}`)),
+  ];
+}
+
 function witnessSection(w: WitnessSummary): string[] {
   const total = w.counts.reduce(
     (n, c) => n + Object.values(c.verdicts).reduce((a, b) => a + b, 0),
@@ -375,6 +439,8 @@ export function renderReport(input: {
   squads?: SquadSummary | null;
   /** P43: the private witness's verdicts; absent: no section. */
   witness?: WitnessSummary;
+  /** P30: the thumbnails copied into public/photos/; absent: no section. */
+  photos?: PhotoSummary;
 }): string {
   const { pool, diff, statuses, today } = input;
   const clubName = new Map(pool.clubs.map((c) => [c.id, c.nameLatin]));
@@ -433,7 +499,15 @@ export function renderReport(input: {
       : saved.length === 1
         ? saved[0]
         : `${saved[0]} to ${saved.at(-1)}`;
-  const answerReady = pool.players.filter(isAnswerReady).length;
+  const ready = pool.players.filter(isAnswerReady);
+  const answerReady = ready.length;
+  const nearly = oneFieldAway(pool.players);
+  // D-S2-6: ready only because every caps source falls in one band.
+  const byBand = ready.filter(
+    (p) =>
+      p.provenance.caps?.confidence === "low" &&
+      p.provenance.caps.bandAgreed === true,
+  ).length;
   const out = [
     `# Nightly pool, ${today}`,
     "",
@@ -460,6 +534,16 @@ export function renderReport(input: {
     `**${pool.players.length} footballers** (${active} active, ${legend} legends, ${both} in both), ${pool.clubs.length} clubs, ${pool.honours.length} honours.`,
     "",
     `Active footballers ready to be a daily answer (P27): ${answerReady} of ${active}.`,
+    `Of them, ready through caps agreed at band level (D-S2-6): ${byBand}.`,
+    `Fame tiers among them (D-S2-4; D is never an answer, C only at weekends): ${(["A", "B", "C", "D"] as const).map((t) => `${t} ${ready.filter((p) => p.fame?.tier === t).length}`).join(", ")}, not measured yet ${ready.filter((p) => !p.fame?.tier).length}.`,
+    "",
+    `### One field away from a daily answer (${nearly.length})`,
+    "",
+    "Active footballers who fail exactly one of the fields a puzzle needs: an override, or a local star tag for fame, can bring each in.",
+    "",
+    ...(nearly.length === 0
+      ? ["None."]
+      : nearly.map((n) => `- ${n.id}: ${n.field} (${n.why})`)),
     "",
     `## Low confidence, review first (${low.length})`,
     "",
@@ -495,6 +579,9 @@ export function renderReport(input: {
     ...(input.witness === undefined
       ? []
       : [...witnessSection(input.witness), ""]),
+    ...(input.photos === undefined
+      ? []
+      : [...photoSection(input.photos, pool), ""]),
     `## Left out of the pool (${pool.dropped.length})`,
     "",
     ...droppedReasons.map(

@@ -1,4 +1,6 @@
 import pg from "pg";
+import { tunisDay } from "../engine/chkoun/day.ts";
+import { CalendarRefusal, topUpCalendar } from "./calendar.ts";
 import { databaseTarget } from "./database-url.ts";
 import { runSync } from "./sync-run.ts";
 import { describeError, withConnectionRetry } from "./wake.ts";
@@ -6,14 +8,24 @@ import { describeError, withConnectionRetry } from "./wake.ts";
 // Run with Node directly, inside `vercel-build` (scripts/vercel-build.sh):
 //   node src/pipeline/sync-cli.ts wake   wait until the database answers SELECT 1
 //   node src/pipeline/sync-cli.ts        write data/pool.json into the database
+//   node src/pipeline/sync-cli.ts calendar   top up the Chkoun? calendar (D-S2-2)
 // The database is DATABASE_URL_UNPOOLED, else DATABASE_URL; outside Vercel
 // only a local one (see databaseTarget). Prints the host masked, never the URL.
-// An entry point: app code never imports this file.
+// The calendar needs CHKOUN_SEED and fails without it; it never prints the
+// seed or a footballer. An entry point: app code never imports this file.
 const command = process.argv[2] ?? "sync";
 
-if (command !== "wake" && command !== "sync") {
-  console.error("usage: node src/pipeline/sync-cli.ts [wake]");
+if (command !== "wake" && command !== "sync" && command !== "calendar") {
+  console.error("usage: node src/pipeline/sync-cli.ts [wake | calendar]");
   process.exit(2);
+}
+
+// Before any connection: a build without the seed fails here, by name.
+if (command === "calendar" && !process.env.CHKOUN_SEED) {
+  console.error(
+    "calendar: CHKOUN_SEED is not set: the Chkoun? calendar cannot be drawn. Set it in Vercel for Production and Preview (decision D-S2-2)",
+  );
+  process.exit(1);
 }
 
 const target = databaseTarget(process.env);
@@ -47,7 +59,35 @@ const retrying = () =>
     log: (line) => console.log(line),
   });
 
-if (command === "wake") {
+if (command === "calendar") {
+  let client: pg.Client;
+  try {
+    client = await retrying();
+  } catch (error) {
+    console.error(
+      `calendar: could not reach ${target.host} (${describeError(error)})`,
+    );
+    process.exit(1);
+  }
+  let code = 0;
+  try {
+    await topUpCalendar({
+      db: client,
+      seed: process.env.CHKOUN_SEED,
+      today: tunisDay(new Date()),
+      log: (line) => console.log(line),
+    });
+  } catch (error) {
+    code = 1;
+    console.error(
+      error instanceof CalendarRefusal
+        ? `calendar: refused: ${error.message}`
+        : `calendar: failed, nothing written (${describeError(error)})`,
+    );
+  }
+  await client.end().catch(() => {});
+  process.exit(code);
+} else if (command === "wake") {
   const started = Date.now();
   let client: pg.Client;
   try {

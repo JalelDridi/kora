@@ -8,7 +8,7 @@ const eslintConfig = defineConfig([
   {
     // Node runs these files directly by stripping types; a type imported
     // without `import type` would be a missing export at runtime.
-    files: ["src/pipeline/**/*.ts"],
+    files: ["src/pipeline/**/*.ts", "src/engine/**/*.ts"],
     rules: { "@typescript-eslint/consistent-type-imports": "error" },
   },
   globalIgnores([

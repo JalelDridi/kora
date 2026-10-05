@@ -278,6 +278,78 @@ describe("syncPool", () => {
     expect(await snapshot()).toEqual(before);
   });
 
+  // D-S2-4: what the calendar reads to choose a day's footballer.
+  it("sync writes fame, tier and local star, and a second sync rewrites nothing", async () => {
+    const famous: PoolPlayer = {
+      ...maaloul,
+      fame: {
+        score: 5.41,
+        tier: "A",
+        views: { en: 258284, fr: 0, ar: 0 },
+        window: "202510-202609",
+        localStar: true,
+      },
+    };
+    const unmeasured: PoolPlayer = {
+      ...msakni,
+      pools: { active: true, legend: true },
+      fame: {
+        score: null,
+        tier: null,
+        views: null,
+        window: null,
+        localStar: false,
+      },
+    };
+    await syncPool(sql, pool([famous, unmeasured]), governorates);
+    const rows = await db.player.findMany({
+      orderBy: { id: "asc" },
+      select: { id: true, fame: true, fameTier: true, localStar: true },
+    });
+    expect(rows).toEqual([
+      { id: "ali-maaloul", fame: 5.41, fameTier: "A", localStar: true },
+      { id: "youssef-msakni", fame: null, fameTier: null, localStar: false },
+    ]);
+    expect(
+      await syncPool(sql, pool([famous, unmeasured]), governorates),
+    ).toEqual(NOTHING);
+    // A pool built before Sprint 2 has no fame: nothing is known.
+    await syncPool(sql, pool([maaloul, msakni]), governorates);
+    expect(
+      (await db.player.findUniqueOrThrow({ where: { id: "ali-maaloul" } }))
+        .fameTier,
+    ).toBeNull();
+  });
+
+  // P30: the copied thumbnail's path, beside its credit.
+  it("sync writes the photo path, and the database refuses a path without a credited photo", async () => {
+    const copied: PoolPlayer = {
+      ...maaloul,
+      photo: { ...maaloul.photo!, path: "/photos/ali-maaloul.jpg" },
+    };
+    await syncPool(sql, pool([copied, msakni]), governorates);
+    expect(
+      (await db.player.findUniqueOrThrow({ where: { id: "ali-maaloul" } }))
+        .photoPath,
+    ).toBe("/photos/ali-maaloul.jpg");
+    expect(await syncPool(sql, pool([copied, msakni]), governorates)).toEqual(
+      NOTHING,
+    );
+    await expect(
+      syncPool(
+        sql,
+        pool([
+          {
+            ...copied,
+            photo: { ...copied.photo!, path: "/photos/elsewhere/x.jpg" },
+          },
+          msakni,
+        ]),
+        governorates,
+      ),
+    ).rejects.toThrow(/players_photo_path_shape/);
+  });
+
   it("updates only what changed", async () => {
     await syncPool(sql, pool([maaloul, msakni]), governorates);
     const counts = await syncPool(
@@ -469,25 +541,45 @@ describe("ANSWER_READY_SQL against synced rows (P27, for Sprint 2)", () => {
       wikidataId: "Q5",
       pools: { active: false, legend: true },
     };
-    await syncPool(
-      sql,
-      pool([
-        sure,
-        doubtful,
-        unrated,
-        abroad,
-        abroadLow,
-        missingCaps,
-        legendOnly,
-      ]),
-      governorates,
-    );
+    // D-S2-6: low caps whose sources all fall in one band are ready.
+    const byBand: PoolPlayer = {
+      ...sure,
+      id: "by-band",
+      wikidataId: "Q7",
+      provenance: {
+        ...sure.provenance,
+        caps: { ...rated("low"), bandAgreed: true },
+      },
+    };
+    // The band flag frees caps only.
+    const bandElsewhere: PoolPlayer = {
+      ...sure,
+      id: "band-elsewhere",
+      wikidataId: "Q8",
+      provenance: {
+        ...sure.provenance,
+        caps: rated("low"),
+        position: { ...rated("low"), bandAgreed: true },
+      },
+    };
+    const all = [
+      sure,
+      doubtful,
+      unrated,
+      abroad,
+      abroadLow,
+      missingCaps,
+      legendOnly,
+      byBand,
+      bandElsewhere,
+    ];
+    await syncPool(sql, pool(all), governorates);
 
     const { rows } = await client.query<{ id: string }>(ANSWER_READY_SQL);
-    expect(rows.map((r) => r.id)).toEqual(["abroad", "ali-maaloul"]);
+    expect(rows.map((r) => r.id)).toEqual(["abroad", "ali-maaloul", "by-band"]);
     // Final wave, B9: the TypeScript twin the report and the stop rule use.
     expect(
-      [sure, doubtful, unrated, abroad, abroadLow, missingCaps, legendOnly]
+      all
         .filter(isAnswerReady)
         .map((p) => p.id)
         .sort(),

@@ -54,6 +54,26 @@ describe("validateOverrides", () => {
 
   // Fix round 1, finding 5: any error means nothing may be applied, so the
   // result carries the errors and no overrides at all.
+  // D-S2-4: Jalel tags the footballers known at home beyond their page views.
+  it("overrides accept localStar: true or false", () => {
+    const check = (value: unknown) =>
+      validateOverrides(
+        { players: { Q1: { localStar: { value, ...by } } }, clubTitles: {} },
+        governorates,
+        known,
+      );
+    for (const value of [true, false]) {
+      const result = check(value);
+      expect(result.ok).toBe(true);
+      if (result.ok)
+        expect(result.overrides.players.Q1.localStar?.value).toBe(value);
+    }
+    expect(check("yes")).toEqual({
+      ok: false,
+      errors: ['players.Q1.localStar: invalid value "yes"'],
+    });
+  });
+
   it("names every problem and gives nothing to apply", () => {
     const result = validateOverrides(
       {

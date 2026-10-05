@@ -276,6 +276,148 @@ describe("renderReport", () => {
     );
   });
 
+  // D-S2-6: the band rule's gain is shown on its own line.
+  it("counts the footballers ready only through the band rule", () => {
+    const sure = {
+      source: "enwiki" as const,
+      retrievedAt: "2026-10-04",
+      confidence: "medium" as const,
+      agreeing: ["enwiki" as const],
+    };
+    const fields = {
+      clubId: sure,
+      position: sure,
+      birthDate: sure,
+      governorate: sure,
+    };
+    const byBand = player("by-band", {
+      governorate: "tunis",
+      provenance: {
+        ...fields,
+        caps: { ...sure, confidence: "low", bandAgreed: true },
+      },
+    });
+    const plain = player("plain", {
+      governorate: "tunis",
+      provenance: { ...fields, caps: sure },
+    });
+    const p = pool([byBand, plain]);
+    const report = renderReport({
+      pool: p,
+      diff: diffPools(null, p),
+      statuses: {},
+      today: "2026-10-04",
+    });
+    expect(report).toContain(
+      "Active footballers ready to be a daily answer (P27): 2 of 2.",
+    );
+    expect(report).toContain(
+      "Of them, ready through caps agreed at band level (D-S2-6): 1.",
+    );
+  });
+
+  // D-S2-4: what the calendar can draw from, and who is nearly ready.
+  it("counts fame tiers among the ready, and lists who is one field away", () => {
+    const sure = {
+      source: "enwiki" as const,
+      retrievedAt: "2026-10-04",
+      confidence: "medium" as const,
+      agreeing: ["enwiki" as const],
+    };
+    const low = { ...sure, confidence: "low" as const };
+    const fields = {
+      clubId: sure,
+      position: sure,
+      birthDate: sure,
+      caps: sure,
+      governorate: sure,
+    };
+    const fame = (
+      score: number | null,
+      tier: "A" | "B" | "C" | "D" | null,
+    ) => ({
+      score,
+      tier,
+      views: score === null ? null : { en: 1, fr: 0, ar: 0 },
+      window: score === null ? null : "202510-202609",
+      localStar: false,
+    });
+    const a = player("a", {
+      governorate: "tunis",
+      provenance: fields,
+      fame: fame(5.2, "A"),
+    });
+    const c = player("c", {
+      governorate: "tunis",
+      provenance: fields,
+      fame: fame(4.1, "C"),
+    });
+    const unmeasured = player("unmeasured", {
+      governorate: "tunis",
+      provenance: fields,
+      fame: fame(null, null),
+    });
+    const nearly = player("nearly", {
+      governorate: "tunis",
+      provenance: { ...fields, clubId: low },
+    });
+    const far = player("far", {
+      governorate: "tunis",
+      provenance: { ...fields, clubId: low, caps: low },
+    });
+    const p = pool([a, c, unmeasured, nearly, far]);
+    const report = renderReport({
+      pool: p,
+      diff: diffPools(null, p),
+      statuses: {},
+      today: "2026-10-04",
+    });
+    expect(report).toContain(
+      "Fame tiers among them (D-S2-4; D is never an answer, C only at weekends): A 1, B 0, C 1, D 0, not measured yet 1.",
+    );
+    expect(report).toContain("### One field away from a daily answer (1)");
+    expect(report).toContain("- nearly: clubId (low)");
+    expect(report).not.toContain("- far: clubId (low)");
+  });
+
+  it("says how many photos were copied, which were not and why, and which copies are unused", () => {
+    const withPhoto = (id: string, path: string | null) =>
+      player(id, {
+        photo: {
+          file: `File:${id}.jpg`,
+          thumbUrl: "https://upload.wikimedia.org/x.jpg",
+          width: 1,
+          height: 1,
+          licence: "CC BY-SA 4.0",
+          licenceUrl: null,
+          author: "Someone",
+          sourceUrl: `https://commons.wikimedia.org/wiki/File:${id}.jpg`,
+          attributionRequired: true,
+          path,
+        },
+      });
+    const p = pool([withPhoto("a", "/photos/a.jpg"), withPhoto("b", null)]);
+    const report = renderReport({
+      pool: p,
+      diff: diffPools(null, p),
+      statuses: {},
+      today: "2026-10-04",
+      photos: {
+        downloaded: 1,
+        waiting: 0,
+        notes: ["b: not copied, HTTP 404 from upload.wikimedia.org"],
+        unused: ["gone.jpg"],
+      },
+    });
+    expect(report).toContain(
+      "1 of the 2 footballers with a Commons photo have a copy in public/photos/. Tonight: 1 downloaded, 0 waiting for a later night's budget.",
+    );
+    expect(report).toContain(
+      "- b: not copied, HTTP 404 from upload.wikimedia.org",
+    );
+    expect(report).toContain("- public/photos/gone.jpg");
+  });
+
   it("lists the seasons without a winner", () => {
     expect(
       missingSeasons(

@@ -4,6 +4,7 @@ import {
   capForSkipped,
   capsCeiling,
   CHKOUN_FIELDS,
+  isAnswerReady,
   rateCount,
   rateDated,
   rateFields,
@@ -323,5 +324,143 @@ describe("rateCount on a closed national career", () => {
     });
     expect(r.confidence).toBe("low");
     expect(r.confidenceNote).toMatch(/ended in 2003/);
+  });
+});
+
+// D-S2-6 (refines P27): caps confirmed at band level for the game. Read as:
+// at least two sources, every vote in one band (0 / 1-9 / 10-29 / 30-59 /
+// 60+), and no other caps conflict.
+describe("caps at band level (D-S2-6)", () => {
+  const chosen: Chosen = {
+    caps: 57,
+    goals: 0,
+    clubQid: null,
+    history: [],
+    birthDate: null,
+    position: null,
+    positionDetailLine: null,
+    nameLatin: null,
+  };
+  const base: Evidence = {
+    caps: [],
+    goals: [],
+    goalsFloor: null,
+    capsCeiling: null,
+    clubId: [],
+    birthDate: [],
+    position: [],
+    nameLatin: [],
+    history: [],
+    skipped: { national: [], career: [] },
+  };
+  // Aymen Abdennour's three dated counts, all on one date so P26 rates low.
+  const abdennour = [
+    v("enwiki", 52, "2019-06-01"),
+    v("frwiki", 53, "2019-06-01"),
+    v("wikidata", 57, "2019-06-01"),
+  ];
+  const caps = (
+    votes: Vote<number>[],
+    count = 57,
+    more: Partial<Evidence> = {},
+  ) =>
+    rateFields(
+      {
+        caps: {
+          source: "wikidata",
+          retrievedAt: today,
+          asOf: "2019-06-01",
+        },
+      },
+      { ...chosen, caps: count },
+      { ...base, caps: votes, ...more },
+      today,
+    ).provenance.caps!;
+
+  it("caps 52, 53, 57 from three dated sources are band-agreed (30-59)", () => {
+    const rated = caps(abdennour);
+    expect(rated.bandAgreed).toBe(true);
+    // The confidence stays what P26 says.
+    expect(rated.confidence).toBe("low");
+  });
+
+  it("caps 9 and 10 are not band-agreed", () => {
+    const rated = caps(
+      [v("enwiki", 9, "2019-06-01"), v("wikidata", 10, "2019-06-01")],
+      10,
+    );
+    expect(rated.bandAgreed).toBeUndefined();
+  });
+
+  it("one source alone is not band-agreed", () => {
+    expect(caps([v("wikidata", 57, "2019-06-01")]).bandAgreed).toBeUndefined();
+    expect(caps([]).bandAgreed).toBeUndefined();
+  });
+
+  it("a count above the matches Tunisia played is not band-agreed", () => {
+    expect(caps(abdennour, 57, { capsCeiling: 55 }).bandAgreed).toBeUndefined();
+  });
+
+  it("skipped national rows are not band-agreed", () => {
+    expect(
+      caps(abdennour, 57, { skipped: { national: ["enwiki"], career: [] } })
+        .bandAgreed,
+    ).toBeUndefined();
+  });
+
+  it("a closed national career that the dates cannot explain is not band-agreed", () => {
+    expect(
+      caps([v("enwiki", 52), v("wikidata", 57, "2019-06-01")], 57, {
+        capsClosedEnd: 2017,
+      }).bandAgreed,
+    ).toBeUndefined();
+  });
+
+  it("an override or a placeholder carries no band flag", () => {
+    const rate = (source: SourceId) =>
+      rateFields(
+        { caps: { source, retrievedAt: today } },
+        chosen,
+        { ...base, caps: abdennour },
+        today,
+      ).provenance.caps!;
+    expect(rate("override").bandAgreed).toBeUndefined();
+    expect(rate("none").bandAgreed).toBeUndefined();
+  });
+});
+
+describe("isAnswerReady with the band rule", () => {
+  const entry = (confidence: "high" | "medium" | "low") => ({
+    source: "enwiki" as const,
+    retrievedAt: today,
+    confidence,
+  });
+  const player = (caps: Record<string, unknown>) => ({
+    pools: { active: true, legend: false },
+    governorate: "tunis",
+    provenance: {
+      clubId: entry("high"),
+      position: entry("high"),
+      birthDate: entry("high"),
+      governorate: entry("medium"),
+      caps: { ...entry("low"), ...caps },
+    },
+  });
+
+  it("isAnswerReady accepts low caps that are band-agreed", () => {
+    expect(isAnswerReady(player({ bandAgreed: true }))).toBe(true);
+    expect(isAnswerReady(player({}))).toBe(false);
+  });
+
+  it("the band flag frees only caps, never another field", () => {
+    const p = player({ bandAgreed: true });
+    p.provenance.position = { ...entry("low"), bandAgreed: true } as never;
+    expect(isAnswerReady(p)).toBe(false);
+  });
+
+  it("ANSWER_READY_SQL lets band-agreed caps through", () => {
+    expect(ANSWER_READY_SQL).toContain(
+      "NOT (e.field = 'caps' AND COALESCE(e.entry->>'bandAgreed', '') = 'true')",
+    );
   });
 });

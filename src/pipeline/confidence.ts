@@ -1,3 +1,4 @@
+import { capsBand } from "../engine/chkoun/caps-band.ts";
 import { plainLatin } from "./places.ts";
 import { latestPlayed } from "./results.ts";
 import type {
@@ -401,6 +402,10 @@ export function rateFields(
             kind: "caps-above-ceiling",
             detail: `${chosen.caps} caps; Tunisia played ${ev.capsCeiling} matches in his national years`,
           });
+        if (capsBandAgreed(vote(chosen.caps), ev)) {
+          out[field] = { ...p, ...r, bandAgreed: true };
+          continue;
+        }
         break;
       case "goals":
         r = capForSkipped(
@@ -507,6 +512,24 @@ export function rateFields(
   return { provenance: out, flags };
 }
 
+/**
+ * D-S2-6 (refines P27): the caps count is confirmed at band level when at
+ * least two sources give a count, every count falls in one band, and nothing
+ * else contradicts it: no count above the matches Tunisia played, no closed
+ * national career the dates cannot explain, no skipped national rows.
+ */
+export function capsBandAgreed(chosen: Vote<number>, ev: Evidence): boolean {
+  const all = withChosen(chosen, ev.caps);
+  if (sourcesOf(all).length < 2) return false;
+  const band = capsBand(chosen.value);
+  if (!all.every((v) => capsBand(v.value) === band)) return false;
+  if (ev.capsCeiling != null && all.some((v) => v.value > ev.capsCeiling!))
+    return false;
+  if (closedCareerConflicts(chosen, ev.caps, ev.capsClosedEnd).length > 0)
+    return false;
+  return ev.skipped.national.length === 0;
+}
+
 /** P27: what a Chkoun? puzzle shows (club and its country, position, age, caps), plus the governorate or, born abroad, the birthplace. */
 export const CHKOUN_FIELDS: readonly ProvenancedField[] = [
   "clubId",
@@ -527,8 +550,10 @@ const PLACE_FIELD =
  * CHKOUN_FIELDS and for the governorate (born abroad: the birthplace), and
  * each of those entries has a confidence of exactly "high" or "medium". A
  * missing entry means not ready, and so does an entry without a confidence
- * key (an unrated value: nothing says it can be trusted). No parameters: the
- * field names are written in from CHKOUN_FIELDS.
+ * key (an unrated value: nothing says it can be trusted). One exception
+ * (D-S2-6): a caps entry rated low with "bandAgreed": true passes, because
+ * the game shows the band, not the count. No parameters: the field names are
+ * written in from CHKOUN_FIELDS.
  */
 export const ANSWER_READY_SQL = `
 SELECT p.id FROM players p
@@ -538,14 +563,16 @@ WHERE p.pool_active
   AND NOT EXISTS (
     SELECT 1 FROM jsonb_each(p.provenance) AS e(field, entry)
     WHERE (e.field IN (${CHKOUN_LIST}) OR e.field = ${PLACE_FIELD})
-      AND COALESCE(e.entry->>'confidence', '') NOT IN ('high', 'medium'))
+      AND COALESCE(e.entry->>'confidence', '') NOT IN ('high', 'medium')
+      AND NOT (e.field = 'caps' AND COALESCE(e.entry->>'bandAgreed', '') = 'true'))
 ORDER BY p.id`;
 
 /**
  * ANSWER_READY_SQL's rule on a pool entry (final wave, B9), for the report
  * and the stop rule (P40): active, and an entry rated high or medium for
  * every field in CHKOUN_FIELDS and for the governorate (when it is null, the
- * birthplace). The database test checks that both agree.
+ * birthplace); low caps pass when band-agreed (D-S2-6). The database test
+ * checks that both agree.
  */
 export function isAnswerReady(
   player: Pick<PoolPlayer, "pools" | "governorate" | "provenance">,
@@ -553,7 +580,10 @@ export function isAnswerReady(
   if (!player.pools.active) return false;
   const place = player.governorate === null ? "birthPlace" : "governorate";
   return [...CHKOUN_FIELDS, place].every((field) => {
-    const confidence = player.provenance[field as ProvenancedField]?.confidence;
-    return confidence === "high" || confidence === "medium";
+    const entry = player.provenance[field as ProvenancedField];
+    if (entry?.confidence === "high" || entry?.confidence === "medium")
+      return true;
+    // D-S2-6: low caps whose sources all fall in one band.
+    return field === "caps" && entry?.bandAgreed === true;
   });
 }

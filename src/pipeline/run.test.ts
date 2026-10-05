@@ -5,8 +5,10 @@ import {
   mkdtemp,
   readdir,
   readFile,
+  rm,
   writeFile,
 } from "node:fs/promises";
+import { readFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
@@ -18,6 +20,7 @@ import {
   CACHE_VERSION,
   createClients,
   MAX_REQUESTS,
+  PAGEVIEWS_GAP_MS,
   planRequests,
   run,
   sectionZero,
@@ -141,6 +144,7 @@ function wikimedia(calls: Calls = { urls: [], queries: [] }) {
                       "https://commons.wikimedia.org/wiki/File:Test.jpg",
                     extmetadata: {
                       LicenseShortName: { value: "CC BY-SA 4.0" },
+                      Artist: { value: "Someone" },
                     },
                   },
                 ],
@@ -1460,6 +1464,35 @@ describe("createClients", () => {
     await clients.wikimedia.getJson("https://en.wikipedia.org/w/api.php");
     expect(clients.attempts()).toEqual({ wdqs: 0, wikimedia: 2, github: 0 });
   });
+
+  // P49: page views have a client of their own, at least 100 ms apart, and
+  // never count against the 70.
+  it("gives page views their own client, 100 ms apart, outside the 70", async () => {
+    const waits: number[] = [];
+    let clock = 0;
+    const realNow = Date.now;
+    Date.now = () => clock;
+    try {
+      const clients = createClients({
+        fetch: async () => new Response('{"items":[]}'),
+        sleep: async (ms) => {
+          waits.push(ms);
+          clock += ms;
+        },
+      });
+      for (let i = 0; i < 3; i++)
+        await clients.pageviews.getJson("https://wikimedia.org/api/rest_v1/x");
+      expect(clients.attempts()).toEqual({
+        wdqs: 0,
+        wikimedia: 0,
+        github: 0,
+      });
+    } finally {
+      Date.now = realNow;
+    }
+    expect(waits).toEqual([PAGEVIEWS_GAP_MS, PAGEVIEWS_GAP_MS]);
+    expect(PAGEVIEWS_GAP_MS).toBeGreaterThanOrEqual(100);
+  });
 });
 
 /** Thrown by no-network.ts; not imported here, so its side effect comes from the setup alone. */
@@ -1762,4 +1795,313 @@ describe("the raw cache and offline builds", () => {
     expect(stdout).not.toContain(NO_NETWORK);
     expect(stdout).toMatch(/data:build: (no change|the pool changed)/);
   }, 30_000);
+});
+
+describe("fame from page views in the run (D-S2-4)", () => {
+  const views = (lang: string) =>
+    JSON.parse(
+      readFileSync(
+        path.join(
+          import.meta.dirname,
+          "__fixtures__",
+          `pageviews-${lang}.json`,
+        ),
+        "utf8",
+      ),
+    ) as unknown;
+  /** Wikimedia, plus the Pageviews API answering from the fixtures. */
+  function withViews(calls: Calls = { urls: [], queries: [] }): PoliteClient {
+    const base = wikimedia(calls);
+    return {
+      async getJson(url, init) {
+        if (url.startsWith("https://wikimedia.org/api/rest_v1/")) {
+          calls.urls.push(url);
+          return views(url.includes("/fr.wikipedia/") ? "fr" : "en");
+        }
+        return base.getJson(url, init);
+      },
+      getText: base.getText,
+    };
+  }
+
+  it("the build with recorded fixtures writes fame for active footballers", async () => {
+    const root = await setup();
+    const calls: Calls = { urls: [], queries: [] };
+    expect(await run(deps(root, { pageviews: withViews(calls) }))).toEqual({
+      ok: true,
+      changed: true,
+    });
+    const pool = await readPool(root);
+    // The test footballer has an English article only.
+    expect(pool.players[0].fame).toEqual({
+      score: 5.41,
+      tier: "A",
+      views: { en: 258284, fr: 0, ar: 0 },
+      window: "202510-202609",
+      localStar: false,
+    });
+    expect(calls.urls.filter((u) => u.includes("/metrics/pageviews/"))).toEqual(
+      [
+        "https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article/en.wikipedia/user/Test_Footballer/monthly/2025100100/2026090100",
+      ],
+    );
+    const report = await readFile(file(root, "report.md"), "utf8");
+    expect(report).toContain(
+      "| pageviews | fresh | 2026-10-04 | 1 of 1 articles read; 0 active footballers not measured yet |",
+    );
+    const cached = JSON.parse(
+      await readFile(file(root, "cache/pageviews.json"), "utf8"),
+    );
+    expect(cached.value).toEqual({
+      "202510-202609": { "en:Test Footballer": 258284 },
+    });
+  });
+
+  it("asks nothing again within the same window", async () => {
+    const root = await setup();
+    await run(deps(root, { pageviews: withViews() }));
+    const calls: Calls = { urls: [], queries: [] };
+    await run(deps(root, { pageviews: withViews(calls) }));
+    expect(calls.urls.some((u) => u.includes("/metrics/pageviews/"))).toBe(
+      false,
+    );
+    expect((await readPool(root)).players[0].fame?.tier).toBe("A");
+  });
+
+  it("a local star tag in the overrides adds 0.5", async () => {
+    const root = await setup({
+      players: {
+        Q1001: { localStar: { value: true, by: "jalel", at: "2026-10-05" } },
+      },
+      clubTitles: {},
+    });
+    await run(deps(root, { pageviews: withViews() }));
+    expect((await readPool(root)).players[0].fame).toMatchObject({
+      score: 5.91,
+      tier: "A",
+      localStar: true,
+    });
+  });
+
+  it("fame is null for legends only", async () => {
+    const root = await setup({
+      players: {
+        Q1001: {
+          pools: {
+            value: { active: false, legend: true },
+            by: "jalel",
+            at: "2026-10-04",
+          },
+        },
+      },
+      clubTitles: {},
+    });
+    const calls: Calls = { urls: [], queries: [] };
+    expect(
+      await run(deps(root, { pageviews: withViews(calls) })),
+    ).toMatchObject({ ok: true });
+    expect((await readPool(root)).players[0].fame).toBeNull();
+    expect(calls.urls.some((u) => u.includes("/metrics/pageviews/"))).toBe(
+      false,
+    );
+  });
+
+  it("page views have their own client: the 70 for Wikidata and MediaWiki does not limit them (P49)", async () => {
+    const root = await setup();
+    const calls: Calls = { urls: [], queries: [] };
+    const lines: string[] = [];
+    // 14 requests planned with the redirects (see above): none left of 14.
+    expect(
+      await run(
+        deps(root, {
+          pageviews: withViews(calls),
+          maxRequests: 14,
+          log: (l) => lines.push(l),
+        }),
+      ),
+    ).toMatchObject({ ok: true });
+    expect(lines).toContain(
+      "plan: pageviews 1 (one per article, at most 800 a run)",
+    );
+    expect(lines).toContain(
+      "pageviews: 1 of 1 articles read; 0 active footballers not measured yet",
+    );
+    expect(calls.urls).toHaveLength(1);
+    expect((await readPool(root)).players[0].fame?.tier).toBe("A");
+  });
+
+  it("without a page views client the build goes on, and the report says so", async () => {
+    const root = await setup();
+    expect(await run(deps(root))).toMatchObject({ ok: true });
+    const report = await readFile(file(root, "report.md"), "utf8");
+    expect(report).toContain(
+      "| pageviews | failed | never | 0 of 1 articles read (then: no page views client)",
+    );
+  });
+
+  it("a failed fetch keeps the previous pool's fame, and the report says so", async () => {
+    const root = await setup();
+    await run(deps(root, { pageviews: withViews() }));
+    // A new window, and the Pageviews API now fails (wikimedia() answers a
+    // MediaWiki body, which has no items).
+    await rm(file(root, "cache"), { recursive: true, force: true });
+    expect(
+      await run(deps(root, { today: "2026-11-02", pageviews: wikimedia() })),
+    ).toMatchObject({ ok: true });
+    expect((await readPool(root)).players[0].fame).toMatchObject({
+      tier: "A",
+      window: "202510-202609",
+    });
+    const report = await readFile(file(root, "report.md"), "utf8");
+    expect(report).toMatch(
+      /\| pageviews \| failed \| never \| 0 of 1 articles read \(then: no items in the page views\)/,
+    );
+  });
+
+  it("offline, page views come from the cache with no request", async () => {
+    const root = await setup();
+    await run(deps(root, { pageviews: withViews() }));
+    const lines: string[] = [];
+    expect(
+      await run({
+        root,
+        today: "2026-10-04",
+        offline: true,
+        log: (l) => lines.push(l),
+      }),
+    ).toMatchObject({ ok: true });
+    expect((await readPool(root)).players[0].fame?.score).toBe(5.41);
+    const report = await readFile(file(root, "report.md"), "utf8");
+    expect(report).toContain("| pageviews | cached | 2026-10-04 |");
+  });
+});
+
+describe("photos copied into the repo in the run (P30)", () => {
+  const jpeg = () =>
+    new Response(new Uint8Array(2000), {
+      status: 200,
+      headers: { "content-type": "image/jpeg" },
+    });
+  const views = {
+    items: [{ views: 120000 }],
+  };
+  function withViews(calls: string[] = []): PoliteClient {
+    const base = wikimedia();
+    return {
+      async getJson(url, init) {
+        if (url.startsWith("https://wikimedia.org/api/rest_v1/")) {
+          calls.push(url);
+          return views;
+        }
+        return base.getJson(url, init);
+      },
+      getText: base.getText,
+    };
+  }
+  const photoFetch = (asked: string[]) => async (url: string) => {
+    asked.push(url);
+    return jpeg();
+  };
+
+  it("copies the thumbnail into public/photos/ and the pool names its path", async () => {
+    const root = await setup();
+    const asked: string[] = [];
+    expect(
+      await run(
+        deps(root, {
+          pageviews: withViews(),
+          photoFetch: photoFetch(asked),
+          sleep: async () => {},
+        }),
+      ),
+    ).toMatchObject({ ok: true });
+    expect(asked).toEqual([
+      "https://upload.wikimedia.org/t.jpg?utm_source=commons",
+    ]);
+    const pool = await readPool(root);
+    expect(pool.players[0].photo?.path).toBe("/photos/test-footballer.jpg");
+    const copied = await readFile(
+      path.join(root, "public", "photos", "test-footballer.jpg"),
+    );
+    expect(copied.byteLength).toBe(2000);
+    const report = await readFile(file(root, "report.md"), "utf8");
+    expect(report).toContain(
+      "1 of the 1 footballers with a Commons photo have a copy in public/photos/. Tonight: 1 downloaded, 0 waiting for a later night's budget.",
+    );
+
+    // The next night: the same Commons file, already copied, is not asked again.
+    asked.length = 0;
+    await run(
+      deps(root, {
+        pageviews: withViews(),
+        photoFetch: photoFetch(asked),
+        sleep: async () => {},
+      }),
+    );
+    expect(asked).toEqual([]);
+    expect((await readPool(root)).players[0].photo?.path).toBe(
+      "/photos/test-footballer.jpg",
+    );
+  });
+
+  it("downloads photos without waiting for fame, and again only for a new file name (P49)", async () => {
+    const root = await setup();
+    const asked: string[] = [];
+    // No page views at all: the photo is copied anyway.
+    await run(
+      deps(root, { photoFetch: photoFetch(asked), sleep: async () => {} }),
+    );
+    expect(asked).toHaveLength(1);
+    expect((await readPool(root)).players[0].photo?.path).toBe(
+      "/photos/test-footballer.jpg",
+    );
+    expect((await readPool(root)).players[0].fame?.tier).toBeNull();
+  });
+
+  it("a refused build copies no photo", async () => {
+    const root = await setup();
+    const asked: string[] = [];
+    // The shrink guard refuses: the last pool had 50 footballers.
+    await writeFile(
+      file(root, "pool.json"),
+      JSON.stringify({
+        version: 1,
+        players: Array.from({ length: 50 }, (_, i) => ({
+          id: `p${i}`,
+          wikidataId: `Q${9000 + i}`,
+          provenance: {},
+        })),
+        clubs: [],
+        honours: [],
+        flags: [],
+        dropped: [],
+      }),
+    );
+    const outcome = await run(
+      deps(root, {
+        pageviews: withViews(),
+        photoFetch: photoFetch(asked),
+        sleep: async () => {},
+      }),
+    );
+    expect(outcome.ok).toBe(false);
+    expect(await exists(path.join(root, "public", "photos"))).toBe(false);
+  });
+
+  it("offline, downloads no photo and keeps the copies already made", async () => {
+    const root = await setup();
+    await run(
+      deps(root, {
+        pageviews: withViews(),
+        photoFetch: photoFetch([]),
+        sleep: async () => {},
+      }),
+    );
+    expect(
+      await run({ root, today: "2026-10-04", offline: true, log: () => {} }),
+    ).toMatchObject({ ok: true });
+    expect((await readPool(root)).players[0].photo?.path).toBe(
+      "/photos/test-footballer.jpg",
+    );
+  });
 });

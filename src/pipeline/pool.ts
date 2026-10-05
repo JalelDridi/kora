@@ -118,7 +118,8 @@ const FIELDS: Record<ProvenancedField, (p: PoolPlayer) => unknown> = {
   caps: (p) => [p.caps, p.capsAsOf],
   goals: (p) => p.goals,
   history: (p) => p.history,
-  photo: (p) => p.photo,
+  // The copy's path (P30) is set after the merge; the photo is the Commons file.
+  photo: (p) => p.photo && { ...p.photo, path: undefined },
   pools: (p) => p.pools,
 };
 

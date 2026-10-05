@@ -1,0 +1,7 @@
+{
+  "type": "https://mediawiki.org/wiki/HyperSwitch/errors/not_found",
+  "title": "Not found.",
+  "method": "get",
+  "detail": "The date(s) you used are valid, but we either do not have data for those date(s), or the project you asked for is not loaded yet.",
+  "uri": "/analytics.wikimedia.org/v1/pageviews/per-article/fr.wikipedia/user/Nobody/monthly/2025100100/2026090100"
+}

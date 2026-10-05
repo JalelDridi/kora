@@ -1,3 +1,4 @@
+import { fameTier } from "./fame.ts";
 import { competitions, confidences, droppedReasons, lines } from "./types.ts";
 import type { Confidence, IdRegistry, Pool } from "./types.ts";
 
@@ -27,6 +28,30 @@ function registered(
   return space[qid] === id
     ? []
     : [`${at}: id differs from data/ids.json (${space[qid]})`];
+}
+
+const WINDOW = /^\d{6}-\d{6}$/;
+const views = (n: unknown) =>
+  typeof n === "number" && Number.isInteger(n) && n >= 0;
+
+/** D-S2-4: measured (score, tier from it, views, window) or not (all null). */
+function validFame(fame: unknown): boolean {
+  if (!isRecord(fame) || typeof fame.localStar !== "boolean") return false;
+  if (fame.score === null)
+    return fame.tier === null && fame.views === null && fame.window === null;
+  const v = fame.views;
+  return (
+    typeof fame.score === "number" &&
+    fame.score >= 0 &&
+    fame.score <= 10 &&
+    fame.tier === fameTier(fame.score) &&
+    isRecord(v) &&
+    views(v.en) &&
+    views(v.fr) &&
+    views(v.ar) &&
+    typeof fame.window === "string" &&
+    (fame.window === "" || WINDOW.test(fame.window))
+  );
 }
 
 /** Rows that are objects; each other row is a named error, not a TypeError. */
@@ -125,6 +150,13 @@ export function validatePool(
     }
     if (p.photo && (!p.photo.file || !p.photo.licence || !p.photo.sourceUrl))
       errors.push(`${at}: photo without licence or source page`);
+    // P30, as the database checks (players_photo_path_shape).
+    if (
+      p.photo?.path != null &&
+      p.photo.path !== `/photos/${p.id}.jpg` &&
+      p.photo.path !== `/photos/${p.id}.png`
+    )
+      errors.push(`${at}: photo path ${p.photo.path}`);
     if (ids.has(p.id)) errors.push(`${at}: duplicate id`);
     ids.add(p.id);
     if (!QID.test(p.wikidataId) || qids.has(p.wikidataId))
@@ -148,6 +180,11 @@ export function validatePool(
     }
     if (registry)
       errors.push(...registered(registry.players, p.wikidataId, p.id, at));
+    // D-S2-4: absent in a pool built before Sprint 2.
+    if (p.fame !== undefined && p.fame !== null) {
+      if (!validFame(p.fame)) errors.push(`${at}: fame is malformed`);
+      else if (!p.pools.active) errors.push(`${at}: a legend only has no fame`);
+    }
     if (!p.pools.active && !p.pools.legend)
       errors.push(`${at}: in neither pool`);
     // Decision P26: every value says how sure it is, and on whose word.
