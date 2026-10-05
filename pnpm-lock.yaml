@@ -81,6 +81,9 @@ importers:
       eslint-config-next:
         specifier: 16.3.8
         version: 16.3.8(@typescript-eslint/parser@8.71.0(eslint@9.39.5(jiti@2.7.0))(typescript@5.9.3))(eslint@9.39.5(jiti@2.7.0))(typescript@5.9.3)
+      fast-check:
+        specifier: 3.23.2
+        version: 3.23.2
       prettier:
         specifier: ^3.9.9
         version: 3.9.9
