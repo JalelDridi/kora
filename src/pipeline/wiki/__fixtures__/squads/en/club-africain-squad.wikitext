@@ -1,0 +1,34 @@
+== Current squad ==
+* {{updated|27 September 2026}}
+{{Fs start}}
+{{Fs player|no= 1|nat=TUN|pos=GK|name=[[Mouhib Chamakh]]}}
+{{Fs player|no= 3|nat=TUN|pos=DF|name=Ghassen Mahersi}}
+{{Fs player|no= 4|nat=TUN|pos=DF|name=Yassine Bouabid}}
+{{Fs player|no= 6|nat=TUN|pos=DF|name=Ammar Abdelhak}}
+{{Fs player|no= 7|nat=TUN|pos=FW|name=Hamza Khadhraoui}}
+{{Fs player|no= 8|nat=BFA|pos=MF|name=Alain Kanté}}
+{{Fs player|no=10|nat=TUN|pos=MF|name=Mohamed Sadok}}
+{{Fs player|no=11|nat=TUN|pos=FW|name=[[Oussama Bouguerra]]}}
+{{Fs player|no=15|nat=CMR|pos=DF|name=Wills Nkingne}}
+{{Fs player|no=16|nat=TUN|pos=GK|name=Ghaith Yeferni}}
+{{Fs player|no=17|nat=TUN|pos=DF|name=Ghaith Zaalouni}}
+{{Fs player|no=18|nat=COD|pos=FW|name=[[Phillippe Kinzumbi]]}}
+{{Fs player|no=19|nat=TUN|pos=MF|name=[[Bassem Srarfi]]}}
+{{Fs player|no=20|nat=TUN|pos=MF|name=[[Haykeul Chikhaoui]]}}
+{{Fs player|no=21|nat=TUN|pos=FW|name=[[Bilel Aït Malek]]}}
+{{Fs mid}}
+{{Fs player|no=22|nat=TUN|pos=GK|name=Malek Saada}}
+{{Fs player|no=24|nat=TUN|pos=DF|name=Houssem Romdhane}}
+{{Fs player|no=25|nat=CMR|pos=MF|name=Rayan Tetego}}
+{{Fs player|no=28|nat=GAM|pos=MF|name=[[Saidou Khan]]}}
+{{Fs player|no=29|nat=SEN|pos=DF|name=Mamadou Diatta}}
+{{Fs player|no=30|nat=TUN|pos=MF|name=[[Mootez Zaddem]]}}
+{{Fs player|no=31|nat=TUN|pos=FW|name=[[Aymen Harzi]]}}
+{{Fs player|no=32|nat=LBY|pos=MF|name=Osama Elsharimi}}
+{{Fs player|no=33|nat=TUN|pos=DF|name=Houssem Ben Ali}}
+{{Fs player|no=34|nat=CMR|pos=FW|name=[[Taddeus Nkeng]]}}
+{{Fs player|no=35|nat=TUN|pos=MF|name=Yahia Mtiri}}
+{{Fs player|no=36|nat=MLI|pos=DF|name=Ismaïla Simpara}}
+{{Fs player|no=39|nat=TUN|pos=MF|name=Youssef Mokhtari}}
+{{Fs player|no=40|nat=TUN|pos=FW|name=Sadok Kadida}}
+{{Fs end}}

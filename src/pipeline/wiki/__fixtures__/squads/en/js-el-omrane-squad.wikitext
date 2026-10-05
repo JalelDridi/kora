@@ -1,0 +1,32 @@
+==Current squad==
+{{updated|27 September 2026}}
+{{Fs start}}
+{{Fs player|no= 1|nat=TUN|pos=GK|name=[[Wassim Karoui]]}}
+{{Fs player|no= 4|nat=TUN|pos=DF|name=[[Kabil Othmani]]}}
+{{Fs player|no= 5|nat=TUN|pos=DF|name=[[Samer Marouani]]}}
+{{Fs player|no= 6|nat=NGR|pos=MF|name=[[Aly Casmir Chinonso]]}}
+{{Fs player|no= 7|nat=TUN|pos=FW|name=[[Souhaieb Abdelli]]}}
+{{Fs player|no= 8|nat=TUN|pos=MF|name=[[Anouar Jouini]]}}
+{{Fs player|no= 9|nat=TUN|pos=FW|name=[[Bilel Touati]]}}
+{{Fs player|no=10|nat=TUN|pos=MF|name=[[Ghaith Ben Hamida]]}}
+{{Fs player|no=11|nat=TUN|pos=FW|name=[[Ouday Belhaj]]}}
+{{Fs player|no=12|nat=TUN|pos=DF|name=[[Moustapha Souissi]]}}
+{{Fs player|no=13|nat=TUN|pos=GK|name=[[Seif Nahdi]]}}
+{{Fs player|no=14|nat=TUN|pos=MF|name=[[Firas Mahdhaoui]]}}
+{{Fs player|no=15|nat=TUN|pos=DF|name=[[Aziz Gharbi]]}}
+{{Fs player|no=17|nat=TUN|pos=FW|name=[[Chiheb Zoughlami]]}}
+{{Fs mid}}
+{{Fs player|no=18|nat=NGR|pos=DF|name=[[Chigozie Eruchukwu]]}}
+{{Fs player|no=19|nat=TUN|pos=MF|name=[[Mohamed Amine Ben Amor]]}}
+{{Fs player|no=20|nat=TUN|pos=DF|name=[[Sami Hammami]]}}
+{{Fs player|no=21|nat=CIV|pos=FW|name=Lionel Mondesir}}
+{{Fs player|no=22|nat=TUN|pos=GK|name=[[Oussema Hanzouli]]}}
+{{Fs player|no=25|nat=TUN|pos=FW|name=[[Malek Jammel]]}}
+{{Fs player|no=26|nat=TUN|pos=DF|name=[[Omar Zouaghi]]}}
+{{Fs player|no=27|nat=TUN|pos=DF|name=[[Bilel Mgannem]]}}
+{{Fs player|no=28|nat=TUN|pos=FW|name=[[Mohamed Askri]]}}
+{{Fs player|no=30|nat=TUN|pos=DF|name=[[Haroune Kouki]]}}
+{{Fs player|no=31|nat=TUN|pos=DF|name=[[Yassine Mizouni]]}}
+{{Fs player|no=33|nat=TUN|pos=FW|name=[[Hosni Guezmir]]}}
+{{Fs player|no=87|nat=TUN|pos=MF|name=Yassine Nahdi}}
+{{Fs end}}

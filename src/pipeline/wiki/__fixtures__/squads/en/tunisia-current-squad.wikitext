@@ -1,0 +1,86 @@
+===Current squad===
+The following players were called up for the [[2027 Africa Cup of Nations qualification#Group H|2027 Africa Cup of Nations qualification]] matches against [[Uganda national football team|Uganda]], [[Botswana national football team|Botswana]] and the [[Exhibition game#International football|friendly]] against [[Mali national football team|Mali]] on 24, 29 September and 3 October 2026; respectively.<ref>{{cite web |url=https://www.facebook.com/photo?fbid=1536161435212578 |title=Squad List |publisher=[[Tunisian Football Federation]] |via=[[Facebook]] |date=18 September 2026 |access-date=18 September 2026 |language=Arabic}}</ref>
+<br>''Caps and goals correct as of 28 September 2026, after the match against the [[Botswana national football team|Botswana]].''
+
+{{nat fs g start}}
+{{nat fs g player|no=1|pos=GK|name=[[Mouhib Chamakh]]|age={{birth date and age|2001|8|25|df=y}}|caps=4|goals=0|club=[[Club Africain]]|clubnat=TUN}}
+{{nat fs g player|no=16|pos=GK|name=[[Aymen Dahmen]]|age={{birth date and age|1997|1|28|df=y}}|caps=41|goals=0|club=[[CS Sfaxien|Sfaxien]]|clubnat=TUN}}
+{{nat fs g player|no=|pos=GK|name=[[Sabri Ben Hessen]]|age={{birth date and age|1996|6|13|df=y}}|caps=1|goals=0|club=[[Étoile Sportive du Sahel|Étoile du Sahel]]|clubnat=TUN}}
+{{nat fs break}}
+{{nat fs g player|no=2|pos=DF|name=[[Mohamed Amine Ben Hamida]]|age={{birth date and age|1995|12|15|df=y}}|caps=16|goals=0|club=[[Al-Hazem FC|Al-Hazem]]|clubnat=KSA}}
+{{nat fs g player|no=3|pos=DF|name=[[Montassar Talbi]]|age={{birth date and age|1998|5|26|df=y}}|caps=69|goals=4|club=[[FC Lorient|Lorient]]|clubnat=FRA}}
+{{nat fs g player|no=4|pos=DF|name=[[Mohamed Nasraoui]]|age={{birth date and age|2002|08|18|df=yes}}|caps=1|goals=0|club=[[NK Istra 1961|Istra 1961]]|clubnat=CRO}}
+{{nat fs g player|no=6|pos=DF|name=[[Adem Arous]]|age={{birth date and age|2004|7|17|df=y}}|caps=4|goals=1|club=[[Kasımpaşa S.K.|Kasımpaşa]]|clubnat=TUR}}
+{{nat fs g player|no=12|pos=DF|name=[[Ali Maâloul]]|age={{birth date and age|1990|1|1|df=y}}|caps=96|goals=3|club=[[CS Sfaxien|Sfaxien]]|clubnat=TUN}}
+{{nat fs g player|no=19|pos=DF|name=[[Moutaz Neffati]]|age={{birth date and age|2004|9|4|df=y}}|caps=5|goals=0|club=[[IFK Norrköping|Norrköping]]|clubnat=SWE}}
+{{nat fs g player|no=20|pos=DF|name=[[Yan Valery]]|age={{birth date and age|1999|2|22|df=y}}|caps=26|goals=0|club=[[Sheffield Wednesday F.C.|Sheffield Wednesday]]|clubnat=ENG}}
+{{nat fs g player|no=21|pos=DF|name=[[Amin Cherni]]|age={{birth date and age|2001|7|7|df=y}}|caps=5|goals=0|club=[[FC Nantes|Nantes]]|clubnat=FRA}}
+{{nat fs g player|no=|pos=DF|name=[[Alaa Ghram]]|age={{birth date and age|2001|7|24|df=y}}|caps=7|goals=0|club=[[FC Shakhtar Donetsk|Shakhtar Donetsk]]|clubnat=UKR}}
+{{nat fs break}}
+{{nat fs g player|no=5|pos=MF|name=[[Mohamed Ali Ben Romdhane]]|age={{birth date and age|1999|9|6|df=y}}|caps=61|goals=7|club=[[Al-Shamal SC|Al-Shamal]]|clubnat=QAT}}
+{{nat fs g player|no=8|pos=MF|name=[[Hamza Rafia]]|age={{birth date and age|1999|04|02|df=yes}}|caps=38|goals=4|club=[[Espérance Sportive de Tunis|Esperance de Tunis]]|clubnat=TUN}}
+{{nat fs g player|no=11|pos=MF|name=[[Ismaël Gharbi]]|age={{birth date and age|2004|4|10|df=y}}|caps=22|goals=2|club=[[CD Leganés|Leganés]]|clubnat=ESP}}
+{{nat fs g player|no=13|pos=MF|name=[[Ferjani Sassi]]|age={{birth date and age|1992|3|18|df=y}}|caps=104|goals=9|club=[[Al-Gharafa SC|Al-Gharafa]]|clubnat=QAT}}
+{{nat fs g player|no=14|pos=MF|name=[[Aïssa Laïdouni]]|age={{birth date and age|1996|12|13|df=y}}|caps=60|goals=2|club=[[Al-Wakrah SC|Al-Wakrah]]|clubnat=QAT}}
+{{nat fs g player|no=15|pos=MF|name=[[Samy Chouchane]]|age={{birth date and age|2003|09|05|df=yes}}|caps=0|goals=0|club=[[Dijon FCO|Dijon]]|clubnat=FRA}}
+{{nat fs g player|no=18|pos=MF|name=[[Anis Ben Slimane]]|age={{birth date and age|2001|3|16|df=y}}|caps=46|goals=4|club=[[Norwich City F.C.|Norwich City]]|clubnat=ENG}}
+{{nat fs break}}
+{{nat fs g player|no=7|pos=FW|name=[[Elias Achouri]]|age={{birth date and age|1999|2|10|df=y}}|caps=35|goals=4|club=[[San Diego FC|San Diego]]|clubnat=USA}}
+{{nat fs g player|no=9|pos=FW|name=[[Hazem Mastouri]]|age={{birth date and age|1997|6|18|df=y}}|caps=21|goals=7|club=[[Espérance Sportive de Tunis|Esperance de Tunis]]|clubnat=TUN}}
+{{nat fs g player|no=10|pos=FW|name=[[Khalil Ayari]]|age={{birth date and age|2005|2|2|df=y}}|caps=5|goals=0|club=[[USL Dunkerque|Dunkerque]]|clubnat=FRA}}
+{{nat fs g player|no=17|pos=FW|name=[[Sebastian Tounekti]]|age={{birth date and age|2002|7|13|df=y}}|caps=17|goals=1|club=[[Celtic F.C.|Celtic]]|clubnat=SCO}}
+{{nat fs g player|no=22|pos=FW|name=[[Rayan Elloumi]]|age={{birth date and age|2007|9|17|df=y}}|caps=6|goals=0|club=[[Vancouver Whitecaps FC|Vancouver Whitecaps]]|clubnat=CAN}}
+{{nat fs g player|no=23|pos=FW|name=[[Sayfallah Ltaief]]|age={{birth date and age|2000|4|12|df=y}}|caps=25|goals=1|club=[[KS Cracovia|Cracovia]]|clubnat=POL}}
+{{nat fs g player|no=|pos=FW|name=Sadok Kadida|age={{birth date and age|2003|12|02|df=yes}}|caps=1|goals=0|club=[[Club Africain]]|clubnat=TUN}}
+{{nat fs end}}
+
+===Recent call-ups===
+The following players have been called up within the last twelve months.
+<!--Sorted by position, most recent call-up, caps, goals and last name.-->
+{{nat fs r start}}
+{{nat fs r player|pos=GK|name=[[Noureddine Farhati]]|age={{birth date and age|2000|9|14|df=y}}|caps=1|goals=0|club=[[Stade Tunisien]]|clubnat=TUN|latest=v. {{fb|CAN}}, 31 March 2026}}
+{{nat fs r player|pos=GK|name=[[Bechir Ben Saïd]]|age={{birth date and age|1994|11|29|df=y}}|caps=22|goals=0|club=[[Espérance Sportive de Tunis|Espérance de Tunis]]|clubnat=TUN|latest=[[2025 Africa Cup of Nations]]}}
+{{nat fs break}}
+{{nat fs r player|no=6|pos=DF|name=[[Dylan Bronn]]|age={{birth date and age|1995|6|19|df=y}}|caps=53|goals=2|club=[[Servette FC|Servette]]|clubnat=SUI|latest=[[2026 FIFA World Cup]]}}
+{{nat fs r player|no=2|pos=DF|name=[[Ali Abdi (footballer)|Ali Abdi]]|age={{birth date and age|1993|12|20|df=y}}|caps=49|goals=7|club=[[OGC Nice|Nice]]|clubnat=FRA|latest=[[2026 FIFA World Cup]]}}
+{{nat fs r player|no=12|pos=DF|name=[[Mortadha Ben Ouanes]]|age={{birth date and age|1994|7|2|df=y}}|caps=19|goals=0|club=[[Kasımpaşa S.K.|Kasımpaşa]]|clubnat=TUR|latest=[[2026 FIFA World Cup]]}}
+{{nat fs r player|no=4|pos=DF|name=[[Omar Rekik]]|age={{birth date and age|2001|12|20|df=y}}|caps=8|goals=1|club=[[NK Maribor|Maribor]]|clubnat=SVN|latest=[[2026 FIFA World Cup]]}}
+{{nat fs r player|no=24|pos=DF|name=[[Raed Chikhaoui]]|age={{birth date and age|2004|6|9|df=y}}|caps=0|goals=0|club=[[Espérance Sportive de Tunis|Espérance de Tunis]]|clubnat=TUN|latest=[[2026 FIFA World Cup]]}}
+{{nat fs r player|pos=DF|name=[[Ghaith Zaalouni]]|age={{birth date and age|2002|5|6|df=y}}|caps=1|goals=0|club=[[Club Africain]]|clubnat=TUN|latest=v. {{fb|CAN}}, 31 March 2026}}
+{{nat fs r player|pos=DF|name=[[Yassine Meriah]]|age={{birth date and age|1993|7|2|df=y}}|caps=95|goals=6|club=[[Club Africain]]|clubnat=TUN|latest=[[2025 Africa Cup of Nations]]}}
+{{nat fs r player|pos=DF|name=[[Nader Ghandri]]|age={{birth date and age|1995|2|18|df=y}}|caps=20|goals=0|club=[[Asswehly SC|Asswehly]]|clubnat=LBY|latest=[[2025 Africa Cup of Nations]]}}
+{{nat fs r player|pos=DF|name=[[Mohamed Ben Ali]]|age={{birth date and age|1995|2|16|df=y}}|caps=5|goals=1|club=[[Espérance Sportive de Tunis|Espérance de Tunis]]|clubnat=TUN|latest=[[2025 Africa Cup of Nations]]}}
+{{nat fs r player|pos=DF|name=[[Oussama Haddadi]]|age={{birth date and age|1992|1|28|df=y}}|caps=36|goals=0|club=[[RS Berkane]]|clubnat=MAR|latest=[[2025 FIFA Arab Cup]]}}
+{{nat fs r player|pos=DF|name=[[Hamza Jelassi]]|age={{birth date and age|1991|9|29|df=y}}|caps=7|goals=0|club=[[Espérance Sportive de Tunis|Espérance de Tunis]]|clubnat=TUN|latest=[[2025 FIFA Arab Cup]]}}
+{{nat fs r player|pos=DF|name=[[Marouane Sahraoui]]|age={{birth date and age|1996|1|9|df=y}}|caps=1|goals=0|club=[[Espérance Sportive de Tunis|Espérance de Tunis]]|clubnat=TUN|latest=[[2025 FIFA Arab Cup]]}}
+{{nat fs r player|pos=DF|name=[[Mahmoud Ghorbel]]|age={{birth date and age|2003|12|31|df=y}}|caps=3|goals=0|club=[[FC Sheriff Tiraspol|Sheriff Tiraspol]]|clubnat=MDA|latest=v. {{fb|BRA}}, 18 November 2025}}
+{{nat fs break}}
+{{nat fs r player|no=17|pos=MF|name=[[Ellyes Skhiri]]|other=[[Captain (association football)|captain]]|age={{birth date and age|1995|5|10|df=y}}|caps=86|goals=4|club=[[Eintracht Frankfurt]]|clubnat=GER|latest=[[2026 FIFA World Cup]]}}
+{{nat fs r player|no=10|pos=MF|name=[[Hannibal Mejbri]]|age={{birth date and age|2003|1|21|df=y}}|caps=48|goals=1|club=[[Burnley F.C.|Burnley]]|clubnat=ENG|latest=[[2026 FIFA World Cup]]}}
+{{nat fs r player|no=15|pos=MF|name=[[Mohamed Belhadj Mahmoud]]|age={{birth date and age|2000|4|24|df=y}}|caps=11|goals=0|club=[[Espérance Sportive de Tunis|Espérance de Tunis]]|clubnat=TUN|latest=[[2026 FIFA World Cup]]}}
+{{nat fs r player|no=13|pos=MF|name=[[Rani Khedira]]|age={{birth date and age|1994|1|27|df=y}}|caps=6|goals=0|club=[[1. FC Union Berlin|Union Berlin]]|clubnat=GER|latest=[[2026 FIFA World Cup]]}}
+{{nat fs r player|pos=MF|name=[[Houssem Tka]]|age={{birth date and age|2000|8|16|df=y}}|caps=4|goals=0|club=[[CR Belouizdad]]|clubnat=ALG|latest=[[2025 Africa Cup of Nations]]}}
+{{nat fs r player|pos=MF|name=[[Chiheb Jebali]]|age={{birth date and age|1996|5|26|df=y}}|caps=3|goals=0|club=[[Espérance Sportive de Tunis|Espérance de Tunis]]|clubnat=TUN|latest=[[2025 FIFA Arab Cup]]}}
+{{nat fs r player|pos=MF|name=[[Firas Ben Larbi]]|age={{birth date and age|1996|5|27|df=y}}|caps=16|goals=3|club=[[Sharjah FC|Sharjah]]|clubnat=UAE|latest=v. {{fb|BRA}}, 18 November 2025}}
+{{nat fs break}}
+{{nat fs r player|no=19|pos=FW|name=[[Firas Chaouat]]|age={{birth date and age|1996|5|8|df=y}}|caps=33|goals=6|club=[[Club Africain]]|clubnat=TUN|latest=[[2026 FIFA World Cup]]}}
+{{nat fs r player|no=8|pos=FW|name=[[Elias Saad]]|age={{birth date and age|1999|12|27|df=y}}|caps=17|goals=4|club=[[Nashville SC]]|clubnat=USA|latest=[[2026 FIFA World Cup]]}}
+{{nat fs r player|pos=FW|name=[[Louey Ben Farhat]]|age={{birth date and age|2006|7|19|df=y}}|caps=2|goals=0|club=[[Karlsruher SC]]|clubnat=GER|latest=v. {{fb|CAN}}, 31 March 2026}}
+{{nat fs r player|pos=FW|name=[[Omar Ben Ali]]|age={{birth date and age|2005|4|22|df=y}}|caps=0|goals=0|club=[[Alanyaspor]]|clubnat=TUR|latest=v. {{fb|CAN}}, 31 March 2026}}
+{{nat fs r player|pos=FW|name=[[Anisse Saidi]]|age={{birth date and age|2008|6|20|df=y}}|caps=0|goals=0|club=[[S.L. Benfica|Benfica]]|clubnat=POR|latest=v. {{fb|CAN}}, 31 March 2026}}
+{{nat fs r player|pos=FW|name=[[Naïm Sliti]]|age={{birth date and age|1992|7|27|df=y}}|caps=85|goals=16|club=[[Free agent|''Unattached'']]|clubnat=|latest=[[2025 Africa Cup of Nations]]<sup>RET</sup>}}
+{{nat fs r player|pos=FW|name=[[Seifeddine Jaziri]]|age={{birth date and age|1993|2|11|df=y}}|caps=44|goals=11|club=[[Zamalek SC|Zamalek]]|clubnat=EGY|latest=[[2025 Africa Cup of Nations]]}}
+{{nat fs r player|pos=FW|name=[[Amor Layouni]]|age={{birth date and age|1992|10|3|df=y}}|caps=16|goals=2|club=[[BK Häcken|Häcken]]|clubnat=SWE|latest=[[2025 FIFA Arab Cup]]}}
+{{nat fs r player|pos=FW|name=[[Rayane Anane]]|age={{birth date and age|2006|8|15|df=y}}|caps=1|goals=0|club=[[Étoile Sportive du Sahel|Étoile du Sahel]]|clubnat=TUN|latest=[[2025 FIFA Arab Cup]]}}
+{{nat fs r player|pos=FW|name=[[Nacim Dendani]]|age={{birth date and age|2006|4|30|df=y}}|caps=0|goals=0|club=[[AS Monaco FC|Monaco]]{{efn|name=mon|[[AS Monaco FC|Monaco]] is a Monégasque club playing in the [[French football league system]].}}|clubnat=FRA|latest=[[2025 FIFA Arab Cup]]}}
+{{nat fs r player|pos=FW|name=[[Issam Jebali]]|age={{birth date and age|1991|12|25|df=y}}|caps=17|goals=2|club=[[Gamba Osaka]]|clubnat=JPN|latest=v. {{fb|BRA}}, 18 November 2025}}
+{{nat fs r player|pos=FW|name=[[Youssef Snana]]|age={{birth date and age|2004|3|24|df=y}}|caps=1|goals=0|club=[[Al-Sailiya SC|Al-Sailiya]]|clubnat=QAT|latest=v. {{fb|NAM}}, 13 October 2025<sup>WD</sup>}}
+{{nat fs break}}
+;Notes
+*<sup>INJ</sup> Player withdrew from the squad due to an injury.
+*<sup>PRE</sup> Preliminary squad.
+*<sup>RET</sup> Player has retired from international football.
+*<sup>SUS</sup> Player is serving a suspension.
+*<sup>WD</sup> Player withdrew for personal reasons.
+{{nat fs end}}
+{{notelist}}

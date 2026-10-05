@@ -57,7 +57,8 @@ export function parseEnDate(text: string): string | null {
   const t = unwrap(text);
   let m = /(\d{4})-(\d{2})-(\d{2})/.exec(t);
   if (m) return iso(Number(m[1]), Number(m[2]), Number(m[3]));
-  m = /(\d{1,2})\s+([A-Za-z]+)\s+(\d{4})/.exec(t);
+  // "15 September, 2026" (a squad list's {{updated}}) has a comma before the year.
+  m = /(\d{1,2})\s+([A-Za-z]+),?\s+(\d{4})/.exec(t);
   if (m && month(m[2], EN) > 0)
     return iso(Number(m[3]), month(m[2], EN), Number(m[1]));
   m = /([A-Za-z]+)\s+(\d{1,2}),?\s+(\d{4})/.exec(t);

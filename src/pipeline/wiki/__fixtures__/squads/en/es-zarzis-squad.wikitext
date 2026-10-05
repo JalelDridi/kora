@@ -1,0 +1,30 @@
+==Current squad==
+{{updated|22 September 2026}}
+{{Fs start}}
+{{Fs player|no=3|nat=TUN|pos=DF|name=[[Yassine Laariadh]]}}
+{{Fs player|no=4|nat=TUN|pos=DF|name=[[Oussama Bahri]]}}
+{{Fs player|no=5|nat=TUN|pos=MF|name=[[Moatez Chouchane]]}}
+{{Fs player|no=6|nat=TUN|pos=MF|name=[[Koumi Khalfa]]}}
+{{Fs player|no=7|nat=TUN|pos=FW|name=[[Hamdi Labidi]]}}
+{{Fs player|no=8|nat=TUN|pos=MF|name=[[Ryayne Sghaier]]}}
+{{Fs player|no=9|nat=TUN|pos=FW|name=[[Youssef Snana]]}}
+{{Fs player|no=10|nat=TUN|pos=MF|name=[[Nassim Douihech]]}}
+{{Fs player|no=11|nat=TUN|pos=MF|name=[[Mohamed Youssef Bousoukaya]]}}
+{{Fs player|no=15|nat=TUN|pos=DF|name=[[Seifedine Sabeur]]}}
+{{Fs player|no=16|nat=TUN|pos=GK|name=[[Mohamed Amine Hazgui]]}}
+{{Fs player|no=18|nat=TUN|pos=FW|name=[[Yosri Dhaflaoui]]}}
+{{Fs player|no=19|nat=NGA|pos=FW|name=[[Nwoke Kelechi]]}}
+{{Fs mid}}
+{{Fs player|no=21|nat=TUN|pos=MF|name=[[Mohamed Belghith]]}}
+{{Fs player|no=22|nat=TUN|pos=GK|name=[[Saifeddine Charfi]]}}
+{{Fs player|no=23|nat=NGA|pos=MF|name=[[Ambrose Ochigbo]]}}
+{{Fs player|no=24|nat=TUN|pos=DF|name=[[Houssem Hassen Romdhane]]}}
+{{Fs player|no=25|nat=SEN|pos=DF|name=[[Fallou Mendy]]}}
+{{Fs player|no=26|nat=BFA|pos=FW|name=[[Clavert Kiendrebeogo]]}}
+{{Fs player|no=27|nat=TUN|pos=MF|name=[[Amir Tajourii]]}}
+{{Fs player|no=28|nat=TUN|pos=DF|name=[[Lamjed Rjili]]}}
+{{Fs player|no=29|nat=SEN|pos=DF|name=[[Samba Diouf]]}}
+{{Fs player|no=30|nat=TUN|pos=MF|name=[[Youssef Mosrati]]}}
+{{Fs player|no=32|nat=TUN|pos=GK|name=[[Hamza Ghanmi]]}}
+{{Fs player|no=34|nat=ALG|pos=MF|name=[[Mourad Hakem]]}}
+{{Fs end}}

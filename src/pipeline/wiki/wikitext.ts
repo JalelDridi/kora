@@ -39,6 +39,29 @@ export function findTemplate(wikitext: string, name: RegExp): string | null {
   return null;
 }
 
+/**
+ * Every template whose name matches, in order, each without braces and
+ * name; a template nested inside a matching one is not listed again.
+ */
+export function findTemplates(wikitext: string, name: RegExp): string[] {
+  const text = stripNoise(wikitext);
+  const head = /\{\{\s*([^|{}]+?)\s*(?=\||\}\})/y;
+  const out: string[] = [];
+  for (let i = text.indexOf("{{"); i !== -1;) {
+    head.lastIndex = i;
+    const match = head.exec(text);
+    if (match && name.test(match[1].replace(/_/g, " "))) {
+      const end = closingBraces(text, i);
+      if (end === -1) break;
+      out.push(text.slice(i + match[0].length, end));
+      i = text.indexOf("{{", end + 2);
+    } else {
+      i = text.indexOf("{{", i + 2);
+    }
+  }
+  return out;
+}
+
 /** Splits at top-level characters only (outside {{ }} and [[ ]]). */
 function topLevel(text: string, char: string): number[] {
   const at: number[] = [];

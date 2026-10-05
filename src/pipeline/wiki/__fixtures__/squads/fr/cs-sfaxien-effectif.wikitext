@@ -1,0 +1,41 @@
+==== Effectif professionnel (2024-2025) ====
+{{Section à actualiser|date=juillet 2026}}
+{{Feff début|team=Club sportif sfaxien|saison=2024-2025|texte=#FFFFFF|fond=#000000|ancien club=oui}}
+{{Feff joueur|num=1|pos=G|prénom=Mohamed Hedi|nom=Gaaloul|nolink=oui|jour=30|mois=4|an=1989|nat=Tunisie|ancien club=Formé au club}}
+{{Feff joueur|num=16|pos=G|prénom=Sabri|nom=Ben Hassen|capitaine=oui|nolink=oui|jour=13|mois=6|an=1996|nat=Tunisie|ancien club=Formé au club}}
+{{Feff joueur|num=-|pos=G|prénom=Aymen|nom=Dahmen|jour=28|mois=1|an=1997|nat=Tunisie|club précédent=[[Al-Hazem Saudi Club|Al-Hazem SC]]}}
+{{Feff joueur|num=3|pos=D|prénom=Mohamed|nom=Nasraoui|nolink=oui|jour=18|mois=8|an=2002|nat=Tunisie|sel=[[Équipe de Tunisie olympique de football|{{gris|Tunisie -23 ans}}]]|ancien club=Formé au club}}
+{{Feff joueur|num=33|pos=D|prénom=Koffi|nom=Kouamé|nolink=oui|jour=28|mois=9|an=1995|nat=Côte d'Ivoire|ancien club=[[Football Club de San-Pédro|FC San-Pédro]]}}
+{{Feff joueur|num=25|pos=D|prénom=Chaouki|nom=Ben Khader|nolink=oui|jour=8|mois=2|an=2001|nat=Tunisie|sel=[[Équipe de Tunisie olympique de football|{{gris|Tunisie -23 ans}}]]|ancien club=Formé au club}}
+{{Feff joueur|num=—|pos=D|prénom=Gianni|nom=D'Angelo|nolink=oui|jour=2|mois=9|an=2005|nat=Tunisie|sel=[[Équipe de Tunisie olympique de football|{{gris|Tunisie -20 ans}}]]|ancien club=[[Racing Club de Strasbourg Alsace|RC Strasbourg]]}}
+{{Feff joueur|num=-|pos=D|prénom=Hichem|nom=Baccar|nolink=oui|jour=23|mois=5|an=2001|nat=Tunisie|sel=[[Équipe de Tunisie olympique de football|{{gris|Tunisie -23 ans}}]]|ancien club=[[Union sportive monastirienne (football)|US Monastirienne]]}}
+{{Feff joueur|num=25|pos=D|prénom=Rayan|nom=Nasraoui|nolink=oui|jour=27|mois=6|an=2003|nat=Tunisie|sel=[[Équipe de Tunisie olympique de football|{{gris|Tunisie -23 ans}}]]|ancien club=[[Étoile sportive du Sahel (football)|ES Sahel]]}}
+{{Feff joueur|num=32|pos=D|prénom=Adam|nom=Ben Lamin|jour=2|mois=6|an=2001|nat=Tunisie|ancien club=Formé au club}}
+{{Feff joueur|num=15|pos=D|prénom=Mohamed Salah|nom=Mhadhebi|nolink=oui|jour=16|mois=10|an=1993|nat=Tunisie|ancien club=[[Olympique de Béja (football)|Olympique Béja]]}}
+{{Feff joueur|num=-|pos=M|prénom=Gaoussou|nom=Traoré|nolink=oui|jour=4|mois=12|an=1999|nat=France|ancien club=[[Football Club Versailles 78|FC Versailles]]}}
+{{Feff joueur|num=22|pos=M|prénom=Fode|nom=Camara|nolink=oui|jour=23|mois=6|an=2003|nat=Guinée|ancien club=[[Horoya Athlétic Club|Horoya AC]]}}
+{{Feff joueur|num=22|pos=M|prénom=Pedro|nom=Sà|nolink=oui|jour=1|mois=12|an=1993|nat=Portugal|ancien club=[[Club Football Estrela da Amadora|CFE da Amadora]]}}
+{{Feff joueur|num=4|pos=M|prénom=Jasser|nom=Maaroufi|nolink=oui|jour=2|mois=3|an=2003|nat=Tunisie|ancien club=Formé au club}}
+{{Feff joueur|num=—|pos=M|prénom=Firas|nom=Sekkouhi|nolink=oui|jour=27|mois=9|an=1998|nat=Tunisie|ancien club=[[Club sportif de Hammam Lif (football)|CS Hammam Lif]]}}
+{{Feff joueur|num=—|pos=M|prénom=Mohamed Islem|nom=Guesmi|nolink=oui|jour=9|mois=12|an=2004|nat=Tunisie|ancien club=Formé au club}}
+{{Feff joueur|num=14|pos=M|prénom=Wadhah|nom=Zaidi|nolink=oui|jour=29|mois=9|an=1998|nat=Tunisie|ancien club=[[Espérance sportive de Zarzis|ES Zarzis]]}}
+{{Feff joueur|num=26|pos=M|prénom=Khalil|nom=Elloumi|nolink=oui|jour=26|mois=3|an=2004|nat=Tunisie|sel=[[Équipe de Tunisie des moins de 20 ans de football|{{gris|Tunisie -20 ans}}]]|ancien club=Formé au club}}
+{{Feff joueur|num=19|nom=Sekrafi|prénom=Mohamed Aziz|nolink=oui|jour=6|mois=1|an=2004|nat=Tunisie|pos=M|club précédent=Formé au club}}
+{{Feff joueur|num=7|nom=Haboubi|prénom=Amine|jour=29|mois=4|an=2002|nat=Tunisie|pos=A|club précédent=[[Olympique de Béja (football)|Olympique Béja]]}}
+{{Feff joueur|num=24|pos=A|prénom=Iyed|nom=Belwafi|jour=23|mois=5|an=2003|nat=Tunisie|sel=[[Équipe de Tunisie des moins de 20 ans de football|{{gris|Tunisie -20 ans}}]]|ancien club=Formé au club}}
+{{Feff joueur|num=29|pos=A|prénom=Achref|nom=Habessi|jour=8|mois=12|an=2001|nat=Tunisie|sel=[[Équipe de Tunisie olympique de football|{{gris|Tunisie -23 ans}}]]|ancien club=Formé au club}}
+{{Feff joueur|num=27|pos=A|prénom=Baraket|nom=Hmidi|nolink=oui|jour=1|mois=3|an=2003|nat=Tunisie|sel=[[Équipe de Tunisie des moins de 20 ans de football|{{gris|Tunisie -20 ans}}]]|ancien club=[[Stade gabésien (football)|Stade gabésien]]}}
+{{Feff joueur|num=20|pos=A|prénom=Youssef|nom=Becha|nolink=oui|jour=13|mois=4|an=2005|nat=Tunisie|sel=[[Équipe de Tunisie des moins de 20 ans de football|{{gris|Tunisie -20 ans}}]]|ancien club=Formé au club}}
+{{Feff joueur|num=—|pos=A|prénom=Mohamed|nom=Dhaoui|jour=14|mois=5|an=2003|nat=Tunisie|sel=[[Équipe de Tunisie de football|Tunisie]]|ancien club=[[Al Ahly Sporting Club|Al Ahly SC]]}}
+{{Feff joueur|num=—|pos=A|prénom=Fabien|nom=Winley|nolink=oui|jour=20|mois=12|an=2002|nat=Côte d'Ivoire|ancien club=Formé au club}}
+{{Feff joueur|num=—|pos=A|prénom=Ameur|nom=Jouini|nolink=oui|jour=20|mois=1|an=2003|nat=Tunisie|ancien club=Formé au club}}
+{{Feff joueur|num=—|pos=A|prénom=Hazem|nom=Haj Hassen|jour=15|mois=2|an=1996|nat=Tunisie|ancien club=[[Étoile sportive du Sahel (football)|ES Sahel]]}}
+{{Feff joueur|num=29|pos=A|prénom=Omar|nom=Ben Ali|nolink=oui|jour=22|mois=4|an=2005|nat=Tunisie|sel=[[Équipe de Tunisie des moins de 20 ans de football|{{gris|Tunisie -20 ans}}]]|ancien club=Formé au club}}
+{{Feff fin
+|entraineur=*{{Feff staff|TUN|[[Mohamed Kouki]]}}
+|adj=*{{Feff staff|POR|Nuno Loureiro}}
+|gardien=*{{Feff staff|TUN|Safouane Hidri}}
+|medecin=*{{Feff staff|TUN|Habib Elleuch}}
+|physique=*{{Feff staff|POR|Shamilo De Sousa}}
+|url effectif=http://www.css.org.tn/fr/seniors
+|}}

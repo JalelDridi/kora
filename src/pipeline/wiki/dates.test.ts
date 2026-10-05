@@ -14,6 +14,12 @@ describe("parseEnDate", () => {
     expect(parseEnDate("")).toBeNull();
     expect(parseEnDate("soon")).toBeNull();
   });
+
+  it('accepts "15 September, 2026"', () => {
+    // Recorded: squads/en/us-monastir-squad line 2, {{updated|15 September, 2026}}.
+    expect(parseEnDate("15 September, 2026")).toBe("2026-09-15");
+    expect(parseEnDate("{{updated|15 September, 2026}}")).toBe("2026-09-15");
+  });
 });
 
 describe("parseFrDate", () => {

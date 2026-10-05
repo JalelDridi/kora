@@ -1,0 +1,34 @@
+==Current squad==
+{{updated|13 January 2025}}
+{{Fs start}}
+{{Fs player|no=1|nat=TUN|pos=GK|name=[[Kais Amdouni]]}}
+{{Fs player|no=4|nat=TUN|pos=DF|name=[[Rayane Rehimi]]}}
+{{Fs player|no=5|nat=TUN|pos=MF|name=[[Achref Ferchichi]]}}
+{{Fs player|no=6|nat=SEN|pos=DF|name=[[Abdou Seydi]]}}
+{{Fs player|no=7|nat=TUN|pos=FW|name=[[Khalil Balbouz]]}}
+{{Fs player|no=8|nat=TUN|pos=DF|name=[[Yasser Mechergui]]}}
+{{Fs player|no=9|nat=TUN|pos=MF|name=[[Rayan Mechergui]]}}
+{{Fs player|no=10|nat=SEN|pos=MF|name=[[Alassane Kante]]}}
+{{Fs player|no=11|nat=TUN|pos=FW|name=[[Ahmed Amri]]}}
+{{Fs player|no=12|nat=NGA|pos=FW|name=[[Favour Onyemaechi Adegbile]]}}
+{{Fs player|no=13|nat=ALG|pos=FW|name=[[Abderraouf Othmani]]}}
+{{Fs player|no=14|nat=TUN|pos=DF|name=[[Firas Akeremi]]}}
+{{Fs player|no=15|nat=SEN|pos=MF|name=[[Ibrahima Cissoko]]}}
+{{Fs player|no=17|nat=TUN|pos=MF|name=[[Iyed Midani]]}}
+{{Fs player|no=18|nat=SEN|pos=FW|name=[[Momar Diop]]}}
+{{Fs mid}}
+{{Fs player|no=19|nat=ALG|pos=FW|name=[[Youcef Fellahi]]}}
+{{Fs player|no=20|nat=TUN|pos=DF|name=[[Malek Doukali]]}}
+{{Fs player|no=21|nat=FRA|pos=MF|name=[[Firas Ben Othman]]}}
+{{Fs player|no=24|nat=TUN|pos=DF|name=[[Mohamed Allela]]}}
+{{Fs player|no=25|nat=TUN|pos=MF|name=[[Alaeddine Bouallegui]]}}
+{{Fs player|no=26|nat=NOR|pos=MF|name=[[Oussama Ali]]}}
+{{Fs player|no=27|nat=TUN|pos=GK|name=[[Achraf Krir]]}}
+{{Fs player|no=28|nat=TUN|pos=MF|name=[[Mohamed Sadok Jammali]]}}
+{{Fs player|no=29|nat=TUN|pos=FW|name=[[Zied Aloui]]}}
+{{Fs player|no=30|nat=TUN|pos=DF|name=[[Abdelmajid Haouachi]]}}
+{{Fs player|no=31|nat=TUN|pos=DF|name=[[Aziz Guesmi]]}}
+{{Fs player|no=33|nat=TUN|pos=MF|name=[[Aymen Amri]]}}
+{{Fs player|no=|nat=NGR|pos=FW|name=[[Olamilekan Ayinde]]}}
+{{Fs player|no=|nat=TUN|pos=MF|name=[[Othman Charfeddine]]}}
+{{Fs end}}

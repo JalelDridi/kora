@@ -1,0 +1,46 @@
+===Current squad===
+{{updated|15 September 2026}}
+{{fs start}}
+{{fs player|no= 1|nat=TUN|pos=GK|name=[[Mohamed Hedi Gaaloul]]}}
+{{fs player|no= 3|nat=TUN|pos=DF|name=[[Mohamed Amine Ben Ali]]}}
+{{fs player|no= 4|nat=TUN|pos=MF|name=[[Youssef Habchia]]}}
+{{fs player|no= 5|nat=TUN|pos=DF|name=[[Abdessalem Akid]]}}
+{{fs player|no= 6|nat=TUN|pos=MF|name=[[Mohamed Absi]]}}
+{{fs player|no= 7|nat=TUN|pos=MF|name=[[Ghaith Sghaier]]}}
+{{fs player|no= 8|nat=TUN|pos=MF|name=[[Rayan Chaâban]]}}
+{{fs player|no= 9|nat=CGO|pos=FW|name=[[Josna Loulendo]]}}
+{{fs player|no=10|nat=TUN|pos=DF|name=[[Ali Maâloul]]|other=[[Captain (association football)|captain]]}}
+{{fs player|no=11|nat=TUN|pos=FW|name=[[Iyed Belwafi]]}}
+{{fs player|no=12|nat=UGA|pos=MF|name=[[Travis Mutyaba]]}}
+{{fs player|no=13|nat=TUN|pos=DF|name=[[Rayane Derbali]]}}
+{{fs player|no=15|nat=DRC|pos=DF|name=[[Kévin Mondeko]]}}
+{{fs player|no=17|nat=TUN|pos=DF|name=[[Mohamed Salah Mhadhebi]]}}
+{{fs player|no=18|nat=NGA|pos=FW|name=[[Emmanuel Agaba Ogbole]]}}
+{{fs mid}}
+{{fs player|no=19|nat=TUN|pos=MF|name=[[Nour Karoui]]}}
+{{fs player|no=20|nat=TUN|pos=MF|name=Walid Dhouib}}
+{{fs player|no=21|nat=TUN|pos=DF|name=[[Hichem Baccar]]}}
+{{fs player|no=22|nat=TUN|pos=GK|name=[[Abdessalem Hallaoui]]}}
+{{fs player|no=23|nat=TUN|pos=MF|name=[[Mohamed Amine Aidi]]}}
+{{fs player|no=24|nat=TUN|pos=DF|name=[[Hamza Mathlouthi]]}}
+{{fs player|no=25|nat=UGA|pos=MF|name=Hakim Mutebi}}
+{{fs player|no=27|nat=MLI|pos=MF|name=[[Bouara Diarra]]}}
+{{fs player|no=29|nat=TUN|pos=FW|name=[[Noomen Rahmani]]}}
+{{fs player|no=30|nat=TUN|pos=GK|name=[[Aymen Dahmen]]}}
+{{fs player|no=31|nat=TUN|pos=GK|name=[[Mohamed Ali Jamiaa]]}}
+{{fs player|no=32|nat=BFA|pos=MF|name=[[Hasamadou Ouédraogo]]}}
+{{fs player|no=33|nat=TUN|pos=MF|name=[[Mohamed Trabelsi]]}}
+{{fs player|no=35|nat=TUN|pos=DF|name=Mohamed Amine Ben Ncir}}
+{{fs end}}
+
+===Out on loan===
+{{fs start}}
+{{fs player|nat=TUN|pos=DF|name=[[Adem Saidi]]|other=at [[PS Sakiet Eddaïer]] until 30 June 2026}}
+{{fs player|nat=TUN|pos=DF|name=[[Ahmed Ajjal]]|other=at [[AS Kasserine]] until 30 June 2026}}
+{{fs player|nat=TUN|pos=DF|name=[[Khalil Elloumi]]|other=at [[OC Kerkennah]] until 30 June 2026}}
+{{fs player|nat=TUN|pos=MF|name=[[Jasser Maaroufi]]|other=at [[AS Agareb]] until 30 June 2026}}
+{{fs player|nat=TUN|pos=MF|name=[[Aziz Sekrafi]]|other=at [[AS Gabès]] until 30 June 2026}}
+{{fs player|nat=TUN|pos=MF|name=[[Mohamed Islem Gasmi]]|other=at [[ES Métlaoui]] until 30 June 2026}}
+{{fs player|nat=TUN|pos=FW|name=[[Ameur Jouini]]|other=at [[AS Gabès]] until 30 June 2026}}
+{{fs player|nat=TUN|pos=FW|name=[[Mohamed Mahdi Kachouri]]|other=at [[SC Ben Arous]] until 30 June 2026}}
+{{fs end}}

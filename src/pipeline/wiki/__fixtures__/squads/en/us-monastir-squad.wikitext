@@ -1,0 +1,42 @@
+===Current squad===
+{{updated|15 September, 2026}}
+{{Fs start}}
+{{Fs player|no= 1|nat=TUN|pos=GK|name=Rayen Besbes}}
+{{Fs player|no= 2|nat=TUN|pos=DF|name=Mahmoud Ghorbel}}
+{{Fs player|no= 3|nat=TUN|pos=DF|name=Youssef Herch}}
+{{Fs player|no= 5|nat=TUN|pos=MF|name=Miras Ben Hassan}}
+{{Fs player|no= 7|nat=GIN|pos=MF|name=Ousmane Diané}}
+{{Fs player|no= 8|nat=TUN|pos=MF|name=Yassine Amri}}
+{{Fs player|no= 9|nat=TUN|pos=FW|name=Ahmed Bouassida}}
+{{Fs player|no=11|nat=TUN|pos=MF|name=Adnene Yaakoubi}}
+{{Fs player|no=12|nat=TUN|pos=DF|name=Abderrahman Bouzganda}}
+{{Fs player|no=13|nat=TUN|pos=DF|name=Rayane Azzouz}}
+{{Fs player|no=16|nat=TUN|pos=DF|name=[[Ayman Ben Mohamed]]}}
+{{Fs player|no=17|nat=CMR|pos=DF|name=Aboubakar Youssouf}}
+{{Fs player|no=19|nat=TUN|pos=MF|name=Anes Kordi}}
+{{Fs player|no=20|nat=TUN|pos=MF|name=Salah Barhoumi}}
+{{Fs player|no=21|nat=TUN|pos=DF|name=[[Raed Bouchniba]]}}
+{{Fs player|no=23|nat=TUN|pos=MF|name=Chaïm El Djebali}}
+{{Fs mid}}
+{{Fs player|no=24|nat=TUN|pos=GK|name=Ahmed Slimane}}
+{{Fs player|no=26|nat=TUN|pos=DF|name=Nour Zamen Zammouri}}
+{{Fs player|no=27|nat=TUN|pos=MF|name=Nassim Douihech}}
+{{Fs player|no=28|nat=ALG|pos=FW|name=Samy Bouali}}
+{{Fs player|no=29|nat=MLI|pos=FW|name=Ibrahim Gadiaga}}
+{{Fs player|no=31|nat=TUN|pos=MF|name=Adem Boulila}}
+{{Fs player|no=32|nat=TUN|pos=GK|name=Yassine Kallel}}
+{{Fs player|no=33|nat=MAD|pos=MF|name=Behaja Tsirava}}
+{{Fs player|no=35|nat=TUN|pos=FW|name=Firas Miladi}}
+{{Fs player|no=36|nat=FRA|pos=MF|name=Mohamed Boussadia}}
+{{Fs player|no=37|nat=TUN|pos=FW|name=Béchir Yacoub}}
+{{Fs player|no=43|nat=TUN|pos=MF|name=Omar Hafsi}}
+{{Fs player|no=47|nat=TUN|pos=DF|name=Bayram Nouicer}}
+{{Fs player|no=67|nat=TUN|pos=MF|name=Malek Mehri}}
+{{Fs player|no=71|nat=TUN|pos=GK|name=Dries Arfaoui}}
+{{Fs player|no=99|nat=TUN|pos=DF|name=Rayan Boukadida}}
+{{Fs end}}
+
+===Out on loan===
+{{Fs start}}
+{{Fs player|no=  |nat=CIV|pos=MF|name=Alpha Sidibé|other=at [[Olympique Béja]] until 30 June 2026}}
+{{Fs end}}
