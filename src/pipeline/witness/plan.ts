@@ -146,6 +146,11 @@ export function describePlan(input: {
     input.mapping
       ? `ids from the last Wikidata query: ${input.mapping.transfermarkt} of ${input.mapping.players} footballers on Transfermarkt, ${input.mapping.nft} on national-football-teams, ${input.mapping.clubs} clubs`
       : "ids: unknown until the Wikidata query (one request to query.wikidata.org, live runs only)",
+    ...(input.mode.kind === "sample"
+      ? []
+      : [
+          "Wikidata: a live run first asks query.wikidata.org once for the ids (P2446, P2574, P7223)",
+        ]),
   ];
   for (const site of input.sites) {
     const s = SITES[site];

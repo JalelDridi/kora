@@ -1,10 +1,27 @@
 import { SiteRefusal, SiteStopped } from "./client.ts";
 import type { SiteClient } from "./client.ts";
-import { parseCountryPage } from "./nft.ts";
-import { nftCountryPath, SAMPLE_PAGES, TM_SAMPLE_SQUAD_PATH } from "./plan.ts";
+import { plainLatin } from "../places.ts";
+import type { Pool } from "../types.ts";
+import type { Mapping } from "./mapping.ts";
+import { latestFifaMatch, parseCountryPage, parsePlayerPage } from "./nft.ts";
+import type { NftCountryPage } from "./nft.ts";
+import {
+  nftCountryPath,
+  SAMPLE_PAGES,
+  SITES,
+  TM_LEAGUE_PATH,
+  TM_SAMPLE_SQUAD_PATH,
+} from "./plan.ts";
 import type { SiteName } from "./plan.ts";
-import type { Store } from "./store.ts";
-import { parseSquad } from "./transfermarkt.ts";
+import type { Store, WitnessState } from "./store.ts";
+import { parseLeague, parseSquad } from "./transfermarkt.ts";
+import {
+  capsVerdicts,
+  clubVerdicts,
+  mergeChecks,
+  witnessJson,
+} from "./verdicts.ts";
+import type { Tally, WitnessFile } from "./verdicts.ts";
 
 // The witness runs (B5, B8). All logic lives here and receives its clients:
 // the entry point creates real clients only after every guard passed, and
@@ -156,4 +173,244 @@ export async function runSample(
     `sample: ${saved.length} files saved in ${deps.store.dir}; no verdict made`,
   );
   return { saved, stopped };
+}
+
+/** What a weekly or backfill run needs besides its clients. */
+export type CheckInput = WitnessDeps & {
+  /** data/pool.json: our published values. */
+  pool: Pool;
+  /** From the Wikidata query (B4), or the private folder's last copy. */
+  mapping: Mapping;
+  /** data/witness.json as it is now. */
+  witness: WitnessFile;
+  /** Writes the new data/witness.json (the entry point writes it atomically). */
+  writeWitness: (text: string) => Promise<void>;
+};
+
+export type CheckResult = {
+  stopped: Partial<Record<SiteName, string>>;
+  /** Null when nothing was written (interrupted, or no verdict). */
+  witness: WitnessFile | null;
+  tallies: Partial<Record<SiteName, Tally>>;
+};
+
+/** Our published club (Wikidata id) and caps per footballer. */
+function published(pool: Pool) {
+  const clubs = new Map(pool.clubs.map((c) => [c.id, c.wikidataId]));
+  return pool.players.map((p) => ({
+    qid: p.wikidataId,
+    clubQid: p.clubId === null ? null : (clubs.get(p.clubId) ?? null),
+    caps: p.caps,
+    capsAsOf: p.capsAsOf,
+  }));
+}
+
+/** The verdicts made, then data/witness.json written and what to commit printed. */
+async function finish(
+  input: CheckInput,
+  tallies: Partial<Record<SiteName, Tally>>,
+  stopped: Partial<Record<SiteName, string>>,
+): Promise<CheckResult> {
+  const checks = Object.values(tallies).flatMap((t) => t?.checks ?? []);
+  for (const [site, t] of Object.entries(tallies)) {
+    if (!t) continue;
+    const by = (v: string) =>
+      t.checks.filter((c) => c.check.verdict === v).length;
+    input.log(
+      `${site}: ${t.checks.length} verdicts (${by("agrees")} agree, ${by("differs")} differ, ${by("not-found")} not found, ${by("not-comparable")} not comparable); ${t.noId} footballers without an id, ${t.unjudged} not judged`,
+    );
+  }
+  if (input.signal?.aborted) {
+    input.log(
+      "interrupted: the pages and the state are kept in the private folder; data/witness.json was not changed",
+    );
+    return { stopped, witness: null, tallies };
+  }
+  if (checks.length === 0) {
+    input.log("no verdict made: data/witness.json was not changed");
+    return { stopped, witness: null, tallies };
+  }
+  const witness = mergeChecks(input.witness, checks);
+  await input.writeWitness(witnessJson(witness));
+  input.log(
+    "data/witness.json updated. To publish the verdicts: review it, then commit data/witness.json alone in a small pull request (this command never runs git).",
+  );
+  return { stopped, witness, tallies };
+}
+
+/**
+ * UNVERIFIED path form: a player page from his id and a name (the country
+ * page links each player as /player/<id>/<Given_Family>.html).
+ */
+export function playerPath(id: string, name: string): string {
+  const slug = plainLatin(name)
+    .replace(/[^a-z0-9]+/g, "_")
+    .replace(/^_+|_+$/g, "")
+    .replace(/(^|_)([a-z])/g, (_, a: string, b: string) => a + b.toUpperCase());
+  return `/player/${id}/${slug}.html`;
+}
+
+/**
+ * B8, weekly: Transfermarkt's league page and its 16 squad pages (18
+ * requests with robots.txt), then national-football-teams.com's country
+ * page and the player pages whose matches this year changed since they
+ * were last read. Each page is saved as it arrives, the state after each
+ * player page. The first refusal stops that site; the other goes on.
+ */
+export async function runWeekly(input: CheckInput): Promise<CheckResult> {
+  const stopped: Partial<Record<SiteName, string>> = {};
+  const tallies: Partial<Record<SiteName, Tally>> = {};
+  const ours = published(input.pool);
+  const state: WitnessState = await input.store.readState();
+
+  // Transfermarkt: which club page lists whom.
+  const squads = new Map<string, Set<string>>();
+  const tm = await forSite(input, "transfermarkt", async (client) => {
+    const league = await client.get(TM_LEAGUE_PATH);
+    await input.store.savePage("transfermarkt", "league", league);
+    const clubs = parseLeague(league);
+    input.log(`transfermarkt: the league page lists ${clubs.length} clubs`);
+    for (const club of clubs) {
+      checkAbort(input);
+      const page = await client.get(club.squadPath);
+      await input.store.savePage("transfermarkt", `squad-${club.id}`, page);
+      squads.set(club.id, new Set(parseSquad(page).map((p) => p.id)));
+    }
+  });
+  if (tm) stopped.transfermarkt = tm;
+  if (squads.size > 0)
+    tallies.transfermarkt = clubVerdicts({
+      players: ours,
+      mapping: input.mapping,
+      squads,
+      today: input.today,
+    });
+
+  // national-football-teams.com: careers, refreshed where this year changed.
+  const read: { country: NftCountryPage | null } = { country: null };
+  const nft = await forSite(
+    input,
+    "national-football-teams",
+    async (client) => {
+      const year = Number(input.today.slice(0, 4));
+      const html = await client.get(nftCountryPath(year));
+      await input.store.savePage(
+        "national-football-teams",
+        `country-${year}`,
+        html,
+      );
+      const country = parseCountryPage(html);
+      read.country = country;
+      const wanted = new Set(
+        [...input.mapping.players.values()]
+          .map((m) => m.nft)
+          .filter((id): id is string => Boolean(id)),
+      );
+      const due = country.players.filter(
+        (p) =>
+          wanted.has(p.id) &&
+          (state.nft[p.id]?.careerFifa === undefined ||
+            state.nft[p.id]?.yearMatches !== (p.fifaMatches ?? undefined)),
+      );
+      const room =
+        SITES["national-football-teams"].maxRequests - client.requests();
+      input.log(
+        `national-football-teams: ${country.players.length} players on the country page; ${due.length} player pages due, ${Math.min(due.length, room)} asked this run`,
+      );
+      for (const p of due.slice(0, room)) {
+        checkAbort(input);
+        const page = await client.get(p.path);
+        await input.store.savePage(
+          "national-football-teams",
+          `player-${p.id}`,
+          page,
+        );
+        state.nft[p.id] = {
+          careerFifa: parsePlayerPage(page).careerFifa ?? undefined,
+          yearMatches: p.fifaMatches ?? undefined,
+          readOn: input.today,
+        };
+        await input.store.writeState(state);
+      }
+    },
+  );
+  if (nft) stopped["national-football-teams"] = nft;
+  const country = read.country;
+  if (country) {
+    // A career read earlier still holds today when the country page, read
+    // today, shows no match of his since: same count this year, or absent.
+    const careers = new Map<string, number | null>();
+    for (const [id, s] of Object.entries(state.nft)) {
+      const row = country.players.find((p) => p.id === id);
+      const current =
+        !row ||
+        (s.yearMatches !== undefined &&
+          s.yearMatches === (row.fifaMatches ?? undefined));
+      if (s.careerFifa !== undefined && current) careers.set(id, s.careerFifa);
+    }
+    tallies["national-football-teams"] = capsVerdicts({
+      players: ours,
+      mapping: input.mapping,
+      careers,
+      latestMatch: latestFifaMatch(country),
+      today: input.today,
+    });
+  }
+  return finish(input, tallies, stopped);
+}
+
+/**
+ * B8, backfill: the next `pages` national-football-teams player pages not
+ * read yet, low-confidence caps first, at the site's pace (60 s or its
+ * Crawl-delay). The careers go to the private state; the next weekly run
+ * makes the verdicts, with the country page's latest match to compare.
+ */
+export async function runBackfill(
+  input: CheckInput & { pages: number },
+): Promise<CheckResult> {
+  const state = await input.store.readState();
+  const rank = { low: 0, medium: 1, high: 2 } as const;
+  const queue = input.pool.players
+    .map((p) => ({ p, id: input.mapping.players.get(p.wikidataId)?.nft }))
+    .filter((x): x is { p: Pool["players"][number]; id: string } =>
+      Boolean(x.id && !state.backfill.done[x.id]),
+    )
+    .sort(
+      (a, b) =>
+        rank[a.p.provenance.caps?.confidence ?? "low"] -
+          rank[b.p.provenance.caps?.confidence ?? "low"] ||
+        Number(a.p.wikidataId.slice(1)) - Number(b.p.wikidataId.slice(1)),
+    )
+    .slice(0, input.pages);
+  input.log(
+    `national-football-teams: backfill of ${queue.length} player pages`,
+  );
+  const stopped: Partial<Record<SiteName, string>> = {};
+  const why = await forSite(
+    input,
+    "national-football-teams",
+    async (client) => {
+      for (const { p, id } of queue) {
+        checkAbort(input);
+        const page = await client.get(playerPath(id, p.nameLatin));
+        await input.store.savePage(
+          "national-football-teams",
+          `player-${id}`,
+          page,
+        );
+        state.nft[id] = {
+          ...state.nft[id],
+          careerFifa: parsePlayerPage(page).careerFifa ?? undefined,
+          readOn: input.today,
+        };
+        state.backfill.done[id] = input.today;
+        await input.store.writeState(state);
+      }
+    },
+  );
+  if (why) stopped["national-football-teams"] = why;
+  input.log(
+    `backfill: ${Object.keys(state.backfill.done).length} player pages read so far; the next weekly run turns them into verdicts`,
+  );
+  return { stopped, witness: null, tallies: {} };
 }

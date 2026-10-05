@@ -1,8 +1,19 @@
-import { readFile } from "node:fs/promises";
+import { readFile, rename, writeFile } from "node:fs/promises";
 import { homedir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { createPoliteClient } from "./http.ts";
+import type { Pool } from "./types.ts";
+import { sparqlRequest } from "./wikidata/queries.ts";
 import { createSiteClient } from "./witness/client.ts";
+import {
+  mappingCounts,
+  mappingFromJson,
+  mappingQuery,
+  mappingToJson,
+  parseMapping,
+} from "./witness/mapping.ts";
+import type { Mapping } from "./witness/mapping.ts";
 import {
   describePlan,
   SITE_NAMES,
@@ -15,7 +26,9 @@ import {
   insideRepo,
   witnessDir,
 } from "./witness/safety.ts";
-import { runSample } from "./witness/run.ts";
+import { runBackfill, runSample, runWeekly } from "./witness/run.ts";
+import { emptyWitness, validateWitness } from "./witness/verdicts.ts";
+import type { WitnessFile } from "./witness/verdicts.ts";
 import { openStore } from "./witness/store.ts";
 
 // The private witness (decisions P43, P44, P48): an entry point only, with
@@ -129,4 +142,83 @@ if (mode.kind === "sample") {
   process.exit(0);
 }
 
-fail("weekly and backfill runs are not built yet (Task B8)");
+// Weekly and backfill: our published values, the verdicts so far, the ids.
+const dataDir = path.join(repoRoot, "data");
+const pool = JSON.parse(
+  await readFile(path.join(dataDir, "pool.json"), "utf8"),
+) as Pool;
+const witnessText = await readFile(path.join(dataDir, "witness.json"), "utf8")
+  .then((t) => t)
+  .catch(() => null);
+const witness: WitnessFile = witnessText
+  ? (JSON.parse(witnessText) as WitnessFile)
+  : emptyWitness();
+const witnessErrors = validateWitness(witness);
+if (witnessErrors.length > 0)
+  fail(`data/witness.json is broken: ${witnessErrors.join("; ")}`);
+
+// B4: one Wikidata query, with the pipeline's usual manners.
+const playerQids = pool.players.map((p) => p.wikidataId);
+const clubQids = pool.clubs.filter((c) => c.ligue1).map((c) => c.wikidataId);
+let ids: Mapping;
+try {
+  const wdqs = createPoliteClient({
+    minGapMs: 2_000,
+    maxRetries: 1,
+    maxAttempts: 2,
+  });
+  const { url, init } = sparqlRequest(mappingQuery(playerQids, clubQids));
+  ids = parseMapping(await wdqs.getJson(url, init));
+  const counts = mappingCounts(ids, playerQids);
+  await store.writeJson("mapping.json", mappingToJson(ids, counts));
+  log(
+    `ids: ${counts.transfermarkt} of ${counts.players} footballers on Transfermarkt (${counts.withoutTransfermarkt} without), ${counts.nft} on national-football-teams (${counts.withoutNft} without), ${counts.clubs} of ${clubQids.length} Ligue 1 clubs with a Transfermarkt id`,
+  );
+} catch (error) {
+  const last =
+    await store.readJson<Parameters<typeof mappingFromJson>[0]>("mapping.json");
+  if (!last)
+    fail(
+      `the Wikidata query failed (${(error as Error).message}) and the private folder has no earlier mapping`,
+    );
+  ids = mappingFromJson(last);
+  log(
+    `ids: the Wikidata query failed (${(error as Error).message}); using the private folder's last mapping`,
+  );
+}
+
+// Ctrl+C: the pages and the state already saved are kept; a second Ctrl+C quits.
+const controller = new AbortController();
+process.on("SIGINT", () => {
+  if (controller.signal.aborted) process.exit(130);
+  console.log("stopping after the current request (Ctrl+C again to quit now)");
+  controller.abort();
+});
+
+const input = {
+  sites: Object.fromEntries(
+    sites.map((s) => [s, siteClient(s, SITES[s].maxRequests)]),
+  ),
+  store,
+  log,
+  today,
+  signal: controller.signal,
+  pool,
+  mapping: ids,
+  witness,
+  writeWitness: async (text: string) => {
+    const file = path.join(dataDir, "witness.json");
+    const temp = `${file}.${process.pid}.tmp`;
+    await writeFile(temp, text);
+    await rename(temp, file);
+  },
+};
+const result =
+  mode.kind === "backfill"
+    ? await runBackfill({ ...input, pages: mode.pages })
+    : await runWeekly(input);
+for (const [name, why] of Object.entries(result.stopped))
+  console.log(
+    `${name} stopped: ${why}. Do not retry it this week (P48 stop rules).`,
+  );
+process.exit(0);
