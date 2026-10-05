@@ -87,8 +87,8 @@ export function drawOne(input: {
  * rows, including the last 120 days before today. Frozen days (today and
  * the next two), pins and reserves are never changed; an empty day is filled,
  * frozen or not (the database lets an empty day be filled once). An unfrozen
- * generator day keeps its footballer while he is a candidate, else it is
- * redrawn. A footballer is not drawn within `window` days, before or after,
+ * generator day keeps its footballer while he is a candidate and no pin or
+ * reserve within the window holds him, else it is redrawn. A footballer is not drawn within `window` days, before or after,
  * of another day he holds; when no candidate is left for a day, the window
  * shrinks for that day only and a note says so. `write` holds only new or
  * redrawn rows.
@@ -125,6 +125,18 @@ export function schedule(input: {
     return held;
   };
 
+  // Review L2: a pin or a reserve within the window that holds the same
+  // footballer as a kept generator day sends that day back to the draw.
+  const pinnedNear = (index: number, id: string): boolean => {
+    for (let d = -window; d <= window; d++) {
+      if (d === 0) continue;
+      const other = calendar.get(index + d);
+      if (other && other.source !== "generator" && other.playerId === id)
+        return true;
+    }
+    return false;
+  };
+
   for (let i = 0; i < input.days; i++) {
     const day = addDays(input.today, i);
     const row = calendar.get(i);
@@ -132,7 +144,7 @@ export function schedule(input: {
       const fixed =
         row.source !== "generator" ||
         isFrozen(day, input.today) ||
-        eligible.has(row.playerId);
+        (eligible.has(row.playerId) && !pinnedNear(i, row.playerId));
       if (fixed) continue;
     }
     const tiers = TIER_WEIGHTS[weekday(day)];

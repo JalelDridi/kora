@@ -169,6 +169,52 @@ describe("schedule", () => {
       expect(noted.has(first) || noted.has(second)).toBe(true);
   });
 
+  // Review L2: a pin added later must not leave the same footballer on a
+  // kept generator day within the window.
+  it("a kept generator day is redrawn when a later pin within the window holds its footballer", () => {
+    const list = pool(40, "A");
+    const first = schedule({
+      seed,
+      today,
+      days: 20,
+      candidates: list,
+      existing: [],
+    });
+    const generated = first.write;
+    const onDay10 = generated.find((r) => r.day === addDays(today, 10))!;
+    // Jalel pins day 10's footballer on day 8 (A plays on weekdays only).
+    const existing: CalendarRow[] = generated.map((r) =>
+      r.day === addDays(today, 8)
+        ? { ...r, playerId: onDay10.playerId, source: "pin" }
+        : r,
+    );
+    const out = schedule({ seed, today, days: 20, candidates: list, existing });
+    const byDay = new Map(out.write.map((r) => [r.day, r.playerId]));
+    expect(byDay.has(addDays(today, 10))).toBe(true);
+    expect(byDay.get(addDays(today, 10))).not.toBe(onDay10.playerId);
+    // Nothing else moves.
+    expect(out.write).toHaveLength(1);
+    // A frozen day keeps its footballer, pin or no pin.
+    const frozenConflict: CalendarRow[] = generated.map((r) =>
+      r.day === addDays(today, 3)
+        ? {
+            ...r,
+            playerId: generated.find((g) => g.day === addDays(today, 2))!
+              .playerId,
+            source: "pin",
+          }
+        : r,
+    );
+    const again = schedule({
+      seed,
+      today,
+      days: 20,
+      candidates: list,
+      existing: frozenConflict,
+    });
+    expect(again.write.map((r) => r.day)).not.toContain(addDays(today, 2));
+  });
+
   it("when a day has no candidate within the window, the window shrinks for that day only and a note says so", () => {
     // Three A footballers for a Monday to Thursday stretch: the window is
     // 2; a pin on Tuesday leaves Monday-to-Wednesday short.
