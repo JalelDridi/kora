@@ -1,14 +1,17 @@
 import "server-only";
 import {
   addDays,
+  dayDiff,
   FIRST_DAY,
   puzzleNumber,
   tunisDay,
+  weekday,
 } from "@/engine/chkoun/day.ts";
-import { drawOne } from "@/engine/chkoun/schedule.ts";
+import { drawOne, MAX_WINDOW, TIER_WEIGHTS } from "@/engine/chkoun/schedule.ts";
+import type { Candidate, Tier } from "@/engine/chkoun/schedule.ts";
 import type { Day } from "@/engine/chkoun/types.ts";
 import { getDb } from "@/db/client";
-import { CANDIDATES_SQL, HISTORY_DAYS } from "@/pipeline/calendar.ts";
+import { CANDIDATES_SQL } from "@/pipeline/calendar.ts";
 import { getRedis } from "@/redis";
 
 // Today's Chkoun? answer, on the server only (D-S2-2): the one module that
@@ -48,15 +51,52 @@ export type PuzzleDeps = {
 const PUZZLE_SQL = `
 SELECT player_id FROM puzzles WHERE game = 'chkoun' AND day = $1::date`;
 
-const RECENT_SQL = `
-SELECT player_id FROM puzzles
-WHERE game = 'chkoun' AND day >= $1::date AND day < $2::date`;
+// The calendar around a day, both sides: the window looks before and after.
+const NEAR_SQL = `
+SELECT to_char(day, 'YYYY-MM-DD') AS day, player_id FROM puzzles
+WHERE game = 'chkoun' AND day >= $1::date AND day <= $2::date`;
 
 // The reserve: written once; a second writer finds the first one's row.
 const RESERVE_SQL = `
 INSERT INTO puzzles (id, game, day, player_id, source)
 VALUES (gen_random_uuid(), 'chkoun', $1::date, $2, 'reserve')
 ON CONFLICT (game, day) DO NOTHING`;
+
+/**
+ * Today's reserve footballer (review L1): the calendar's own repeat window,
+ * min(120, eligible - 1), before and after the day, shrunk for this day
+ * only when nobody is left. Tier A first, then A and B, then the day's own
+ * tiers (C only at weekends, never D). Null when no candidate exists.
+ */
+export async function drawReserve(
+  seed: string,
+  day: Day,
+  candidates: Candidate[],
+  near: (from: Day, to: Day) => Promise<{ day: Day; playerId: string }[]>,
+): Promise<string | null> {
+  const eligible = new Set(
+    candidates.filter((c) => ["A", "B", "C"].includes(c.tier)).map((c) => c.id),
+  );
+  const window = Math.max(0, Math.min(MAX_WINDOW, eligible.size - 1));
+  const rows = (await near(addDays(day, -window), addDays(day, window))).filter(
+    (r) => r.day !== day,
+  );
+  const tierSets: Record<Tier, number>[] = [
+    { A: 1, B: 0, C: 0 },
+    { A: 0.5, B: 0.5, C: 0 },
+    TIER_WEIGHTS[weekday(day)],
+  ];
+  for (let span = window; span >= 0; span--) {
+    const recent = rows
+      .filter((r) => Math.abs(dayDiff(day, r.day)) <= span)
+      .map((r) => r.playerId);
+    for (const tiers of tierSets) {
+      const drawn = drawOne({ seed, day, candidates, recent, tiers });
+      if (drawn !== null) return drawn;
+    }
+  }
+  return null;
+}
 
 export function puzzleKey(env: string, day: Day): string {
   return `kora:${env}:chkoun:p:${day}`;
@@ -84,30 +124,17 @@ export function createPuzzleReader(
       id: String(r.id),
       tier: String(r.tier),
     }));
-    const recent = (
-      await deps.sql(RECENT_SQL, [addDays(day, -HISTORY_DAYS), day])
-    ).map((r) => String(r.player_id));
-    // Tier A first: a reserve day should be one everybody can play.
-    const drawn =
-      drawOne({
-        seed: deps.seed,
-        day,
-        candidates,
-        recent,
-        tiers: { A: 1, B: 0, C: 0 },
-      }) ??
-      drawOne({
-        seed: deps.seed,
-        day,
-        candidates,
-        recent,
-        tiers: { A: 0.5, B: 0.5, C: 0 },
-      });
-    if (drawn === null) {
+    const id = await drawReserve(deps.seed, day, candidates, async (from, to) =>
+      (await deps.sql(NEAR_SQL, [from, to])).map((r) => ({
+        day: String(r.day),
+        playerId: String(r.player_id),
+      })),
+    );
+    if (id === null) {
       deps.log(`chkoun: no puzzle for ${day} and no footballer for a reserve`);
       return null;
     }
-    await deps.sql(RESERVE_SQL, [day, drawn]);
+    await deps.sql(RESERVE_SQL, [day, id]);
     deps.log(`chkoun: no puzzle for ${day}; a reserve was written`);
     const again = await deps.sql(PUZZLE_SQL, [day]);
     return again.length > 0 ? String(again[0].player_id) : null;
