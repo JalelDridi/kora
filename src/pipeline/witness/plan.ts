@@ -130,6 +130,12 @@ export function describePlan(input: {
   year: number;
   sites: readonly SiteName[];
   privateDir: string;
+  /**
+   * Fix round 1: our Ligue 1 clubs with no Transfermarkt id in the last
+   * mapping, with how many of our footballers each holds; null when there
+   * is no mapping yet. Their footballers get no club verdict.
+   */
+  unmappedClubs?: { name: string; footballers: number }[] | null;
   /** From the private folder's last mapping, or null before the first Wikidata query. */
   mapping: {
     players: number;
@@ -151,6 +157,19 @@ export function describePlan(input: {
       : [
           "Wikidata: a live run first asks query.wikidata.org once for the ids (P2446, P2574, P7223)",
         ]),
+    ...(input.unmappedClubs === undefined ||
+    !input.sites.includes("transfermarkt")
+      ? []
+      : input.unmappedClubs === null
+        ? [
+            "Ligue 1 clubs without a Transfermarkt id: unknown until the Wikidata query",
+          ]
+        : [
+            input.unmappedClubs.length === 0
+              ? "Ligue 1 clubs without a Transfermarkt id in the last mapping: none"
+              : `Ligue 1 clubs without a Transfermarkt id in the last mapping, so no club verdict for their ${input.unmappedClubs.reduce((n, c) => n + c.footballers, 0)} footballers: ${input.unmappedClubs.map((c) => `${c.name} (${c.footballers})`).join(", ")}`,
+            "A club whose id is not on the league page (a mismatch) is found only by a live run, and gets no verdict either",
+          ]),
   ];
   for (const site of input.sites) {
     const s = SITES[site];

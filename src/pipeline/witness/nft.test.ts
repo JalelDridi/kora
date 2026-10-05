@@ -10,6 +10,22 @@ const fixture = (name: string) =>
   readFileSync(path.join(import.meta.dirname, "__fixtures__", name), "utf8");
 
 describe("national-football-teams.com pages (synthetic fixtures, S28)", () => {
+  it("follows only the exact player path shape (fix round 1)", () => {
+    const page = (href: string) =>
+      `<table class="table player"><tbody><tr><td class="name"><a href="${href}">A, B</a></td><td class="stats matches">1</td></tr></tbody></table>`;
+    for (const odd of [
+      "//other.host/player/1/A.html",
+      "https://other.host/player/1/A.html",
+      "/player/1/../../x.html",
+      "/player/1/A.html?x=//other.host",
+      "/player/1/a/b.html",
+    ])
+      expect(parseCountryPage(page(odd)).players, odd).toEqual([]);
+    expect(parseCountryPage(page("/player/1/A_B.html")).players).toHaveLength(
+      1,
+    );
+  });
+
   it("country page gives player ids, birth dates, FIFA matches this year, the match dates, and the last update", () => {
     const page = parseCountryPage(fixture("nft-country.html"));
     expect(page.players).toEqual([

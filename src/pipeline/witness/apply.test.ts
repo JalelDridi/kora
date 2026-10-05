@@ -239,6 +239,8 @@ describe("the S29 sentinel: no site value in data/witness.json, the report, or a
           ["90009", new Set<string>()],
           ["90001", new Set(squad.map((p) => p.id))],
         ]),
+        ligue1: new Set(["Q900"]),
+        leagueIds: new Set(["90009", "90001"]),
         today,
       }).checks,
       ...capsVerdicts({

@@ -78,6 +78,22 @@ export function createSiteClient(options: {
   const gap = () =>
     Math.max(options.gapMs, (robots?.crawlDelaySec ?? 0) * 1000);
 
+  const origin = `https://${options.host}`;
+  /** Only a plain path on this host: never another host, whatever a page links. */
+  function urlOf(path: string): string {
+    const odd =
+      !path.startsWith("/") ||
+      path.startsWith("//") ||
+      /[\\@]/.test(path) ||
+      /[\u0000-\u001f\s]/.test(path);
+    const url = odd ? null : new URL(path, origin);
+    if (!url || url.origin !== origin || url.protocol !== "https:")
+      throw new SiteRefusal(
+        `${options.host}: refused to follow ${JSON.stringify(path)}, not a plain path on this host`,
+      );
+    return url.href;
+  }
+
   async function fetchText(
     path: string,
   ): Promise<{ status: number; text: string }> {
@@ -90,9 +106,10 @@ export function createSiteClient(options: {
     if (wait > 0) await sleep(wait);
     lastStart = now();
     sent++;
-    const url = `https://${options.host}${path}`;
+    const url = urlOf(path);
+    let text: string;
     try {
-      return { status: 200, text: await http.getText(url) };
+      text = await http.getText(url);
     } catch (error) {
       const status = error instanceof HttpError ? error.status : 0;
       // A missing robots.txt is no refusal: no extra rules (B2).
@@ -100,10 +117,21 @@ export function createSiteClient(options: {
       stopped = `${options.host} answered ${status === 0 ? (error as Error).message : `HTTP ${status}`} for ${path}; nothing more is sent to it this run`;
       throw new SiteStopped(stopped);
     }
+    // Any answer, robots.txt included: a challenge page stops the site.
+    const marker = CHALLENGE_MARKERS.find((m) =>
+      text.toLowerCase().includes(m.toLowerCase()),
+    );
+    if (marker) {
+      stopped = `${options.host} answered ${path} with a challenge page ("${marker}"); nothing more is sent to it this run`;
+      throw new SiteStopped(stopped);
+    }
+    return { status: 200, text };
   }
 
   return {
     async get(path) {
+      if (stopped) throw new SiteStopped(stopped);
+      urlOf(path); // an odd path is refused before any request, robots.txt included
       if (robots === null) {
         const answer = await fetchText("/robots.txt");
         robotsText = answer.status === 404 ? null : answer.text;
@@ -116,15 +144,7 @@ export function createSiteClient(options: {
         throw new SiteRefusal(
           `robots.txt of ${options.host} disallows ${path}`,
         );
-      const { text } = await fetchText(path);
-      const marker = CHALLENGE_MARKERS.find((m) =>
-        text.toLowerCase().includes(m.toLowerCase()),
-      );
-      if (marker) {
-        stopped = `${options.host} answered ${path} with a challenge page ("${marker}"); nothing more is sent to it this run`;
-        throw new SiteStopped(stopped);
-      }
-      return text;
+      return (await fetchText(path)).text;
     },
     stopped: () => stopped,
     requests: () => sent,

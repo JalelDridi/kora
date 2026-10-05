@@ -34,6 +34,11 @@ const squads = new Map([
   ["90002", new Set(["700002"])],
 ]);
 const today = "2026-10-05";
+/** Both our Ligue 1 clubs are tied to a club of the league page. */
+const tied = {
+  ligue1: new Set(["Q900", "Q901"]),
+  leagueIds: new Set(["90001", "90002"]),
+};
 
 describe("club verdicts (B6)", () => {
   it("club agrees when the Transfermarkt page of his pool club lists him", () => {
@@ -41,6 +46,7 @@ describe("club verdicts (B6)", () => {
       players: [{ qid: "Q1", clubQid: "Q900" }],
       mapping,
       squads,
+      ...tied,
       today,
     });
     expect(checks).toEqual([
@@ -66,6 +72,7 @@ describe("club verdicts (B6)", () => {
       ],
       mapping,
       squads,
+      ...tied,
       today,
     });
     expect(
@@ -86,6 +93,7 @@ describe("club verdicts (B6)", () => {
       ],
       mapping,
       squads,
+      ...tied,
       today,
     });
     expect(checks.map((c) => c.check.verdict)).toEqual(["not-found"]);
@@ -101,9 +109,16 @@ describe("club verdicts (B6)", () => {
         ],
         mapping,
         squads,
+        ...tied,
         today,
       }),
-    ).toEqual({ checks: [], noId: 2, unjudged: 0 });
+    ).toEqual({
+      checks: [],
+      noId: 2,
+      unjudged: 0,
+      unmappedClubs: [],
+      mismatchedClubs: [],
+    });
   });
 });
 
@@ -243,6 +258,7 @@ describe("data/witness.json (B6, S18)", () => {
       players: [{ qid: "Q2", clubQid: "Q900" }],
       mapping,
       squads,
+      ...tied,
       today,
     });
     const caps = capsVerdicts({
@@ -302,5 +318,67 @@ describe("data/witness.json (B6, S18)", () => {
       'checks.Q1.clubId: a reason goes only with a caps "differs"',
       "checks.Q1.goals: unknown field",
     ]);
+  });
+});
+
+describe("club verdicts need a Ligue 1 club tied to the league page (fix round 1)", () => {
+  it("a club with no Transfermarkt id on Wikidata gives no verdict to its footballers, even listed elsewhere", () => {
+    const tally = clubVerdicts({
+      players: [
+        { qid: "Q1", clubQid: "Q902" }, // listed at 90001
+        { qid: "Q4", clubQid: "Q902" }, // listed nowhere
+      ],
+      mapping,
+      squads,
+      ligue1: new Set(["Q900", "Q901", "Q902"]),
+      leagueIds: new Set(["90001", "90002"]),
+      today,
+    });
+    expect(tally.checks).toEqual([]);
+    expect(tally.unjudged).toBe(2);
+    expect(tally.unmappedClubs).toEqual(["Q902"]);
+  });
+
+  it("a club whose Wikidata id is not a club of the league page: no verdict, listed as a mismatch", () => {
+    // Wikidata says Q900 is 90001; the league page lists 90002 and 90003 only.
+    const tally = clubVerdicts({
+      players: [{ qid: "Q1", clubQid: "Q900" }],
+      mapping,
+      squads: new Map([
+        ["90002", new Set(["700002"])],
+        ["90003", new Set(["700001"])],
+      ]),
+      ligue1: new Set(["Q900", "Q901"]),
+      leagueIds: new Set(["90002", "90003"]),
+      today,
+    });
+    expect(tally.checks).toEqual([]);
+    expect(tally.unjudged).toBe(1);
+    expect(tally.mismatchedClubs).toEqual(["Q900"]);
+  });
+
+  it("his own club's page not read this run: no verdict, not differs", () => {
+    const tally = clubVerdicts({
+      players: [{ qid: "Q2", clubQid: "Q901" }], // listed at 90002, page 90001 unread
+      mapping,
+      squads: new Map([["90001", new Set(["700002"])]]),
+      ...tied,
+      today,
+    });
+    expect(tally.checks).toEqual([]);
+    expect(tally.unjudged).toBe(1);
+  });
+
+  it("a row marked as on loan never makes a differs", () => {
+    const tally = clubVerdicts({
+      players: [{ qid: "Q2", clubQid: "Q900" }], // listed at 90002 only
+      mapping,
+      squads,
+      ...tied,
+      loans: new Set(["700002"]),
+      today,
+    });
+    expect(tally.checks).toEqual([]);
+    expect(tally.unjudged).toBe(1);
   });
 });

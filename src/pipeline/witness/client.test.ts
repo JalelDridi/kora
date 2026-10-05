@@ -143,3 +143,61 @@ describe("createSiteClient (B2)", () => {
     }
   });
 });
+
+describe("createSiteClient: robots.txt and odd paths (fix round 1)", () => {
+  it("a refused or challenged robots.txt stops the site with no further request", async () => {
+    const answers: [string, Reply][] = [
+      ["403", { status: 403 }],
+      ["429", { status: 429 }],
+      ["503", { status: 503 }],
+      ["redirect", { status: 302, headers: { location: "/consent" } }],
+      ["Just a moment", ok("<title>Just a moment...</title>")],
+      ["cf-chl", ok("cf-chl-bypass")],
+      ["captcha", ok("please solve the captcha")],
+      ["datadome", ok("datadome")],
+    ];
+    for (const [what, reply] of answers) {
+      const { client, log } = harness({ "/robots.txt": [reply], "/a": [ok()] });
+      await expect(client.get("/a"), what).rejects.toThrow(SiteStopped);
+      expect(client.stopped(), what).toMatch(/robots\.txt/);
+      await expect(client.get("/a"), what).rejects.toThrow(SiteStopped);
+      expect(
+        log.map((l) => l.path),
+        what,
+      ).toEqual(["/robots.txt"]);
+      expect(client.robots(), what).toBeNull();
+    }
+  });
+
+  it("a real 404 for robots.txt still means no extra rules", async () => {
+    const { client, log } = harness({
+      "/robots.txt": [{ status: 404 }],
+      "/a": [ok()],
+    });
+    expect(await client.get("/a")).toBe("<html>page</html>");
+    expect(log.map((l) => l.path)).toEqual(["/robots.txt", "/a"]);
+  });
+
+  it("refuses every odd href without a request: another host, a protocol, a backslash, an @", async () => {
+    for (const odd of [
+      "//other.host/x",
+      "/\\other.host/x",
+      "\\\\other.host/x",
+      "https://other.host/x",
+      "http://site.test/x",
+      "https://site.test/x",
+      "/x@other.host",
+      "x/y",
+      "",
+      "/a\nb",
+      " /a",
+    ]) {
+      const { client, log } = harness({ "/robots.txt": [ok("")] });
+      await expect(client.get(odd), JSON.stringify(odd)).rejects.toThrow(
+        SiteRefusal,
+      );
+      expect(log, JSON.stringify(odd)).toEqual([]);
+      expect(client.requests()).toBe(0);
+    }
+  });
+});

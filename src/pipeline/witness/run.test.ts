@@ -305,6 +305,9 @@ describe("the weekly run (B8)", () => {
       "/player/800002/Sami_Exemple.html",
     ]);
     expect(nft.minutes()).toBe(2);
+    expect(lines).toContain(
+      "transfermarkt: 1 verdicts (1 agree, 0 differ, 0 not found, 0 not comparable); 1 footballers without an id, 1 not judged",
+    );
     expect(result.stopped).toEqual({});
     const file = JSON.parse(written[0]) as WitnessFile;
     expect(file.checks.Q1).toEqual({
@@ -321,9 +324,10 @@ describe("the weekly run (B8)", () => {
         checked: 21,
       },
     });
-    // Sami: listed by a Ligue 1 page while we give him no club; his page
-    // says another count and we have no date for ours.
-    expect(file.checks.Q2.clubId?.verdict).toBe("differs");
+    // Sami: listed by a Ligue 1 page while we give him no club, but his row
+    // is marked as a loan: no club verdict. His page says another count and
+    // we have no date for ours.
+    expect(file.checks.Q2.clubId).toBeUndefined();
     expect(file.checks.Q2.caps).toMatchObject({
       verdict: "differs",
       reason: "older",
@@ -476,6 +480,48 @@ describe("the backfill (B8)", () => {
     ).toEqual(["player-800003.html"]);
     expect(lines).toContain(
       "national-football-teams: interrupted; what arrived is kept",
+    );
+  });
+});
+
+describe("unmapped and mismatched clubs in the weekly run (fix round 1)", () => {
+  it("lists the clubs it cannot tie and counts their footballers left unjudged", async () => {
+    const store = await tempStore();
+    const tm = fakeSite("www.transfermarkt.com", await tmPages());
+    const unmapped = parseMapping({
+      results: {
+        bindings: [{ item: uri("Q1"), tm: lit("700001") }],
+      },
+    });
+    const { input, lines, written } = checkInput(
+      store,
+      { transfermarkt: tm.client },
+      { mapping: unmapped },
+    );
+    await runWeekly(input);
+    expect(lines).toContain(
+      "transfermarkt: no Transfermarkt id on Wikidata for Our Club: 1 footballers left unjudged",
+    );
+    expect(written).toEqual([]);
+    const mismatch = parseMapping({
+      results: {
+        bindings: [
+          { item: uri("Q1"), tm: lit("700001") },
+          { item: uri("Q900"), tmClub: lit("12345") },
+        ],
+      },
+    });
+    const second = checkInput(
+      store,
+      {
+        transfermarkt: fakeSite("www.transfermarkt.com", await tmPages())
+          .client,
+      },
+      { mapping: mismatch },
+    );
+    await runWeekly(second.input);
+    expect(second.lines).toContain(
+      "transfermarkt: Wikidata's id is not a club of the league page for Our Club (mismatch): 1 footballers left unjudged",
     );
   });
 });

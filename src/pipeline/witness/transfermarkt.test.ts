@@ -10,6 +10,28 @@ const fixture = (name: string) =>
   readFileSync(path.join(import.meta.dirname, "__fixtures__", name), "utf8");
 
 describe("Transfermarkt pages (synthetic fixtures, S28)", () => {
+  it("follows only the exact path shapes (fix round 1)", () => {
+    const row = (href: string) =>
+      `<table class="items"><tbody><tr class="odd"><td class="hauptlink"><a href="${href}">Name</a></td><td>Mar 3, 1999 (27)</td></tr></tbody></table>`;
+    for (const odd of [
+      "//other.host/x/profil/spieler/1",
+      "https://other.host/x/profil/spieler/1",
+      "/x/profil/spieler/1/../../../y",
+      "/x/profil/spieler/1?next=//other.host",
+      "/X/profil/spieler/1",
+    ])
+      expect(parseSquad(row(odd)), odd).toEqual([]);
+    expect(parseSquad(row("/ali-invente/profil/spieler/1"))).toHaveLength(1);
+    const league = (href: string) =>
+      `<table class="items"><tbody><tr class="odd"><td class="hauptlink"><a title="C" href="${href}">C</a></td></tr></tbody></table>`;
+    for (const odd of [
+      "//other.host/startseite/verein/1/saison_id/2026",
+      "/c/startseite/verein/1/saison_id/2026/../x",
+      "https://x/c/startseite/verein/1/saison_id/2026",
+    ])
+      expect(parseLeague(league(odd)), odd).toEqual([]);
+  });
+
   it("league page gives 16 club ids and squad URLs", () => {
     const clubs = parseLeague(fixture("tm-league.html"));
     expect(clubs).toHaveLength(16);

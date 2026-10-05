@@ -29,7 +29,8 @@ export type NftCountryPage = {
   lastUpdate: string | null;
 };
 
-const PLAYER = /^\/player\/(\d+)\//;
+// Anchored: only this exact path shape is ever followed (fix round 1).
+const PLAYER = /^\/player\/(\d+)\/[\w%.-]+\.html$/;
 
 const count = (html: string): number | null => {
   const m = /\d+/.exec(text(html));

@@ -18,7 +18,9 @@ export type TmClub = {
   squadPath: string;
 };
 
-const CLUB_LINK = /^\/([^/]+)\/startseite\/verein\/(\d+)\/saison_id\/(\d{4})/;
+// Anchored: only these exact path shapes are ever followed (fix round 1).
+const CLUB_LINK =
+  /^\/([a-z0-9-]+)\/startseite\/verein\/(\d+)\/saison_id\/(\d{4})$/;
 
 /** The league page: each club of the first "items" table, once, in order. */
 export function parseLeague(html: string): TmClub[] {
@@ -51,7 +53,10 @@ export type TmSquadPlayer = {
   loan: boolean;
 };
 
-const PLAYER_LINK = /\/profil\/spieler\/(\d+)/;
+const PLAYER_LINK = /^\/[a-z0-9-]+\/profil\/spieler\/(\d+)$/;
+/** The canonical link of a profile: the same path on Transfermarkt's host. */
+const CANONICAL =
+  /^https:\/\/www\.transfermarkt\.[a-z.]+(\/[a-z0-9-]+\/profil\/spieler\/\d+)$/;
 
 /** UNVERIFIED until the sample run: a club's squad page, one row per player. */
 export function parseSquad(html: string): TmSquadPlayer[] {
@@ -96,7 +101,7 @@ export function parseProfile(html: string): TmProfile {
   const club = elements(html, "span", /data-header__club/)[0] ?? "";
   const birth = /itemprop="birthDate"[^>]*>([^<]+)</i.exec(html)?.[1] ?? "";
   return {
-    id: PLAYER_LINK.exec(canonical)?.[1] ?? null,
+    id: PLAYER_LINK.exec(CANONICAL.exec(canonical)?.[1] ?? "")?.[1] ?? null,
     name: headline
       ? text(
           headline.replace(/<span[^>]*shirt-number[^>]*>[\s\S]*?<\/span>/i, ""),

@@ -108,7 +108,32 @@ const mapping = await readFile(path.join(privateDir, "mapping.json"), "utf8")
   })
   .catch(() => null);
 
-for (const line of describePlan({ mode, year, sites, privateDir, mapping }))
+// Fix round 1: our Ligue 1 clubs the last mapping cannot tie to Transfermarkt.
+const unmappedClubs = await Promise.all([
+  readFile(path.join(privateDir, "mapping.json"), "utf8"),
+  readFile(path.join(repoRoot, "data", "pool.json"), "utf8"),
+])
+  .then(([m, p]) => {
+    const clubs =
+      (JSON.parse(m) as { clubs?: Record<string, string> }).clubs ?? {};
+    const pool = JSON.parse(p) as Pool;
+    return pool.clubs
+      .filter((c) => c.ligue1 && !Object.hasOwn(clubs, c.wikidataId))
+      .map((c) => ({
+        name: c.nameLatin,
+        footballers: pool.players.filter((x) => x.clubId === c.id).length,
+      }));
+  })
+  .catch(() => null);
+
+for (const line of describePlan({
+  mode,
+  year,
+  sites,
+  privateDir,
+  mapping,
+  unmappedClubs,
+}))
   console.log(line);
 
 if (!argv.includes("--live")) {

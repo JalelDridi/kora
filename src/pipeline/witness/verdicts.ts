@@ -41,8 +41,12 @@ export type Tally = {
   checks: { qid: string; field: WitnessField; check: WitnessCheck }[];
   /** Footballers with no id on the site (S25): no verdict, counted. */
   noId: number;
-  /** Footballers with an id that this run could not judge (page not read, club abroad and unlisted). */
+  /** Footballers with an id that this run could not judge (page not read, club abroad and unlisted, club unmapped, a loan row). */
   unjudged: number;
+  /** Club verdicts only: our Ligue 1 clubs with no Transfermarkt id on Wikidata. */
+  unmappedClubs?: string[];
+  /** Club verdicts only: our Ligue 1 clubs whose Wikidata id is not a club of the league page. */
+  mismatchedClubs?: string[];
 };
 
 /**
@@ -53,9 +57,31 @@ export function clubVerdicts(input: {
   players: { qid: string; clubQid: string | null }[];
   mapping: Mapping;
   squads: Map<string, Set<string>>;
+  /** Our Ligue 1 clubs (Wikidata ids). */
+  ligue1: Set<string>;
+  /** The clubs the league page lists (Transfermarkt ids). */
+  leagueIds: Set<string>;
+  /** Players a squad page marks as on loan (Transfermarkt ids): never "differs". */
+  loans?: Set<string>;
   today: string;
 }): Tally {
-  const tally: Tally = { checks: [], noId: 0, unjudged: 0 };
+  // Fix round 1: a Ligue 1 club we cannot tie to the league page gives no
+  // verdict at all: Wikidata has no id for it (unmapped), or its id is not
+  // a club of the league page (mismatch; the league page's ids are not
+  // trusted over Wikidata, nor the reverse).
+  const unmapped = [...input.ligue1].filter((q) => !input.mapping.clubs.has(q));
+  const mismatched = [...input.ligue1].filter((q) => {
+    const id = input.mapping.clubs.get(q);
+    return id !== undefined && !input.leagueIds.has(id);
+  });
+  const untied = new Set([...unmapped, ...mismatched]);
+  const tally: Tally = {
+    checks: [],
+    noId: 0,
+    unjudged: 0,
+    unmappedClubs: unmapped.sort(),
+    mismatchedClubs: mismatched.sort(),
+  };
   for (const p of input.players) {
     const tmId = input.mapping.players.get(p.qid)?.transfermarkt;
     if (!tmId) {
@@ -65,15 +91,26 @@ export function clubVerdicts(input: {
     const listedAt = [...input.squads]
       .filter(([, ids]) => ids.has(tmId))
       .map(([club]) => club);
+    if (p.clubQid !== null && untied.has(p.clubQid)) {
+      tally.unjudged++;
+      continue;
+    }
     const ours = p.clubQid ? input.mapping.clubs.get(p.clubQid) : undefined;
     let verdict: Verdict | null;
-    if (ours !== undefined && input.squads.has(ours))
+    if (
+      p.clubQid !== null &&
+      input.ligue1.has(p.clubQid) &&
+      !input.squads.has(ours!)
+    )
+      verdict = null; // his club's page was not read this run
+    else if (ours !== undefined && input.squads.has(ours))
       verdict = listedAt.includes(ours)
         ? "agrees"
         : listedAt.length > 0
           ? "differs"
           : "not-found";
     else verdict = listedAt.length > 0 ? "differs" : null;
+    if (verdict === "differs" && input.loans?.has(tmId)) verdict = null;
     if (verdict === null) {
       tally.unjudged++;
       continue;

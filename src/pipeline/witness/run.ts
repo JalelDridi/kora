@@ -265,26 +265,51 @@ export async function runWeekly(input: CheckInput): Promise<CheckResult> {
 
   // Transfermarkt: which club page lists whom.
   const squads = new Map<string, Set<string>>();
+  const leagueIds = new Set<string>();
+  const loans = new Set<string>();
   const tm = await forSite(input, "transfermarkt", async (client) => {
     const league = await client.get(TM_LEAGUE_PATH);
     await input.store.savePage("transfermarkt", "league", league);
     const clubs = parseLeague(league);
+    for (const c of clubs) leagueIds.add(c.id);
     input.log(`transfermarkt: the league page lists ${clubs.length} clubs`);
     for (const club of clubs) {
       checkAbort(input);
       const page = await client.get(club.squadPath);
       await input.store.savePage("transfermarkt", `squad-${club.id}`, page);
-      squads.set(club.id, new Set(parseSquad(page).map((p) => p.id)));
+      const players = parseSquad(page);
+      squads.set(club.id, new Set(players.map((p) => p.id)));
+      for (const p of players) if (p.loan) loans.add(p.id);
     }
   });
   if (tm) stopped.transfermarkt = tm;
-  if (squads.size > 0)
-    tallies.transfermarkt = clubVerdicts({
+  if (squads.size > 0) {
+    const ligue1 = new Set(
+      input.pool.clubs.filter((c) => c.ligue1).map((c) => c.wikidataId),
+    );
+    const t = clubVerdicts({
       players: ours,
       mapping: input.mapping,
       squads,
+      ligue1,
+      leagueIds,
+      loans,
       today: input.today,
     });
+    tallies.transfermarkt = t;
+    const name = (q: string) =>
+      input.pool.clubs.find((c) => c.wikidataId === q)?.nameLatin ?? q;
+    const left = (qs: string[]) =>
+      ours.filter((p) => p.clubQid !== null && qs.includes(p.clubQid)).length;
+    if (t.unmappedClubs?.length)
+      input.log(
+        `transfermarkt: no Transfermarkt id on Wikidata for ${t.unmappedClubs.map(name).join(", ")}: ${left(t.unmappedClubs)} footballers left unjudged`,
+      );
+    if (t.mismatchedClubs?.length)
+      input.log(
+        `transfermarkt: Wikidata's id is not a club of the league page for ${t.mismatchedClubs.map(name).join(", ")} (mismatch): ${left(t.mismatchedClubs)} footballers left unjudged`,
+      );
+  }
 
   // national-football-teams.com: careers, refreshed where this year changed.
   const read: { country: NftCountryPage | null } = { country: null };
