@@ -9,6 +9,8 @@ import { governorateSlug, TUNISIA_TEAM } from "./places.ts";
 import type { BirthPlaceKind } from "./confidence.ts";
 import { firstPosition, lineFromLabel } from "./positions.ts";
 import { playedAfter } from "./results.ts";
+import { squadEvidence } from "./squads/evidence.ts";
+import type { SquadContext } from "./squads/evidence.ts";
 import type { OverrideValue, Overrides, PlayerOverride } from "./overrides.ts";
 import type {
   FlagKind,
@@ -83,7 +85,16 @@ export function resolveClub(
 }
 
 type Dated = { source: SourceId; asOf: string | null };
-const SOURCE_ORDER: SourceId[] = ["override", "enwiki", "frwiki", "wikidata"];
+// On a date tie the infoboxes come first, then the squad lists (S16).
+const SOURCE_ORDER: SourceId[] = [
+  "override",
+  "enwiki",
+  "frwiki",
+  "wikidata",
+  "enwiki-national",
+  "enwiki-squad",
+  "frwiki-squad",
+];
 
 /** Newest "as of" first; undated last; English before French on a tie. */
 export function newestFirst(a: Dated, b: Dated): number {
@@ -692,6 +703,12 @@ export type MergeContext = {
   governorateIds: Set<string>;
   /** Tunisia goals per footballer from martj42, a floor (Task 8). */
   goalsFloor?: Map<string, number>;
+  /**
+   * Decision P42 (P47): the squad lists and the rows matched to each
+   * footballer. Absent when no list was read: the merge is then exactly
+   * what it was before the squad lists.
+   */
+  squads?: SquadContext;
 };
 
 export type Draft = {
@@ -715,6 +732,26 @@ export type Draft = {
   wiki: { en: string | null; fr: string | null; ar: string | null };
   provenance: Partial<Record<ProvenancedField, Provenance>>;
 };
+
+/**
+ * The club the merge gives a footballer (an override included), without the
+ * rest of the merge: for the squad lists' namesake guard (S12).
+ */
+export function chosenClubOf(p: WdPlayer, ctx: MergeContext): string | null {
+  const o = ctx.overrides.players[p.qid] ?? {};
+  const en = p.titles.en ? (ctx.infoboxes.en.get(p.titles.en) ?? null) : null;
+  const fr = p.titles.fr ? (ctx.infoboxes.fr.get(p.titles.fr) ?? null) : null;
+  return (
+    pickClub({
+      en,
+      fr: dropUndatedFrench(en, fr).fr,
+      memberships: ctx.memberships.get(p.qid) ?? [],
+      index: ctx.index,
+      override: o.club,
+      today: ctx.today,
+    }).club?.qid ?? null
+  );
+}
 
 export function mergePlayer(
   p: WdPlayer,
@@ -781,6 +818,18 @@ export function mergePlayer(
   flags.push(...club.flags);
   if (club.provenance) prov.clubId = club.provenance;
 
+  // P42: the squad lists vote on the club and may give the caps (S7, S8).
+  const squad = ctx.squads
+    ? squadEvidence({
+        sightings: ctx.squads.sightings.get(p.qid) ?? [],
+        lists: ctx.squads.lists,
+        chosenClub: club.club?.qid ?? null,
+        index: ctx.index,
+        namesakes: ctx.squads.namesakes?.get(p.qid),
+      })
+    : null;
+  if (squad) flags.push(...squad.flags);
+
   const history = pickHistory({
     en,
     fr,
@@ -816,6 +865,7 @@ export function mergePlayer(
       ref: `P54 ${TUNISIA_TEAM} P1350`,
     });
   }
+  if (squad) candidates.push(...squad.capsCandidates);
   const capsPick = pickCaps(candidates);
   flags.push(...capsPick.flags);
   let caps = capsPick.chosen?.caps ?? 0;
@@ -1022,6 +1072,7 @@ export function mergePlayer(
       ...(openClubs.length === 1
         ? some<string | null>("wikidata", openClubs[0].teamQid)
         : []),
+      ...(squad?.clubVotes ?? []),
     ],
     history: [
       ...boxes
