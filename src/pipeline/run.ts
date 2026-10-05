@@ -5,12 +5,22 @@ import { commonsUrl, parseCommons } from "./commons.ts";
 import { GOALSCORERS_URL, goalsFloors, tunisiaScorers } from "./goalscorers.ts";
 import { createPoliteClient } from "./http.ts";
 import type { FetchLike, PoliteClient } from "./http.ts";
-import { buildClubIndex } from "./merge.ts";
+import { buildClubIndex, chosenClubOf } from "./merge.ts";
+import type { MergeContext } from "./merge.ts";
 import { validateOverrides } from "./overrides.ts";
 import { buildPool, emptyRegistry } from "./pool.ts";
 import { diffPools, guardChange, renderReport } from "./report.ts";
 import type { HonoursReading } from "./report.ts";
 import { RESULTS_URL, tunisiaMatches } from "./results.ts";
+import { plainLatin } from "./places.ts";
+import type { Namesake, SquadContext } from "./squads/evidence.ts";
+import {
+  knownTitleIds,
+  linkKey,
+  linkTargets,
+  matchRows,
+} from "./squads/match.ts";
+import type { MatchResult } from "./squads/match.ts";
 import type {
   CuratedHonour,
   GovernorateRow,
@@ -28,12 +38,16 @@ import type {
 import { validateIdRegistry, validatePool } from "./validate.ts";
 import {
   chunk,
+  pagepropsUrl,
+  parsePageprops,
   parseRevisions,
   redirectsUrl,
   rawBatch,
   revisionsUrl,
   unanswered,
 } from "./wiki/fetch.ts";
+import { parseSquadList } from "./wiki/squads.ts";
+import type { SquadList } from "./wiki/squads.ts";
 import type { Page, RawBatch } from "./wiki/fetch.ts";
 import { parseEnInfobox } from "./wiki/infobox-en.ts";
 import { parseFrInfobox } from "./wiki/infobox-fr.ts";
@@ -139,8 +153,14 @@ export function createClients(
 export type RunResult =
   { ok: true; changed: boolean } | { ok: false; reason: string };
 
-/** A first run's budget: more planned requests than this and the run refuses. */
-export const MAX_REQUESTS = 60;
+/**
+ * A run's budget: more planned requests than this and the run refuses. 70
+ * since the squad lists (S14): the last run used 50, squads add 4 to 7.
+ */
+export const MAX_REQUESTS = 70;
+
+/** The English article whose "Current squad" table gives caps (P42). */
+export const NATIONAL_TEAM_TITLE = "Tunisia national football team";
 
 /** The longest a real run's client may keep sending requests (B7). */
 export const MAX_RUN_MS = 30 * 60_000;
@@ -195,6 +215,9 @@ const SHAPES: Record<string, (v: unknown) => boolean> = {
   commons: listOf,
   martj42: (v) => typeof v === "string",
   "martj42-goals": (v) => typeof v === "string",
+  // P42: whole squad pages, and the link lookups (pageprops), as sent.
+  squads: (v) => isObject(v) && batches(v.en) && batches(v.fr),
+  "squad-links": (v) => isObject(v) && batches(v.en) && batches(v.fr),
 };
 
 /** Wikitext before the first section heading: the lead, where the infobox is. */
@@ -239,12 +262,15 @@ function pagesOf(json: unknown, asked: number): void {
  * request. `en`, `fr` and `files` are the wanted footballers' distinct
  * article titles and photo files; `redirects` the distinct current-club
  * titles to look up, known only once the infoboxes are read (0 before).
+ * `squads` (P42): the squad pages per language, then the link targets to
+ * look up, known only once the pages are read.
  */
 export function planRequests(input: {
   en: number;
   fr: number;
   files: number;
   redirects?: { en: number; fr: number };
+  squads?: { en: number; fr: number; links?: { en: number; fr: number } };
 }): {
   wdqs: number;
   wikimedia: number;
@@ -257,7 +283,11 @@ export function planRequests(input: {
     batches(input.fr) +
     batches(input.files) +
     batches(input.redirects?.en ?? 0) +
-    batches(input.redirects?.fr ?? 0);
+    batches(input.redirects?.fr ?? 0) +
+    batches(input.squads?.en ?? 0) +
+    batches(input.squads?.fr ?? 0) +
+    batches(input.squads?.links?.en ?? 0) +
+    batches(input.squads?.links?.fr ?? 0);
   return {
     wdqs: WDQS_QUERIES,
     wikimedia,
@@ -441,6 +471,29 @@ async function build(deps: RunDeps): Promise<RunResult> {
     }
   }
 
+  /**
+   * An extra witness (S15): like `source`, but with no usable copy it gives
+   * null and the build goes on; the report says the source failed.
+   */
+  async function optionalSource<R, T>(
+    name: string,
+    fetchRaw: () => Promise<R>,
+    parse: (raw: R) => T,
+  ): Promise<T | null> {
+    try {
+      return await source(name, fetchRaw, parse);
+    } catch (error) {
+      if (!(error instanceof Refusal)) throw error;
+      deps.log(`${name}: left out of this build (${error.message})`);
+      statuses[name] = {
+        status: "failed",
+        retrievedAt: null,
+        note: error.message,
+      };
+      return null;
+    }
+  }
+
   // Curated files and the last build.
   const previous = await readJson<Pool>(path.join(data, "pool.json"));
   const governorates =
@@ -541,10 +594,18 @@ async function build(deps: RunDeps): Promise<RunResult> {
   };
   const files = [...new Set(wanted.map((p) => p.imageFile).filter(present))];
 
+  // P42: the Ligue 1 clubs' English articles and the national team's; the
+  // French articles are those clubs' French titles, known from the clubs
+  // answer (at most one each, counted so before).
+  const squadPages = {
+    en: ligue1.clubs.length + 1,
+    fr: ligue1.clubs.length,
+  };
   const plan = planRequests({
     en: titles.en.length,
     fr: titles.fr.length,
     files: files.length,
+    squads: squadPages,
   });
   const budget = deps.maxRequests ?? MAX_REQUESTS;
   deps.log(
@@ -647,6 +708,7 @@ async function build(deps: RunDeps): Promise<RunResult> {
     fr: titles.fr.length,
     files: files.length,
     redirects: { en: currentClubs.en.length, fr: currentClubs.fr.length },
+    squads: squadPages,
   });
   if (!deps.offline) {
     deps.log(
@@ -778,6 +840,138 @@ async function build(deps: RunDeps): Promise<RunResult> {
     },
     (raw) => [...parseCommons({ query: { pages: raw } }).values()],
   );
+  // P42: the squad lists, after Commons (S15): an extra witness, so a 429
+  // here costs no core source. Whole pages, kept as sent; the lists are read
+  // from them once the build's date is known.
+  const index = buildClubIndex(
+    clubs,
+    { en: new Map(redirects.en), fr: new Map(redirects.fr) },
+    checked.overrides.clubTitles,
+  );
+  const squadTitles = {
+    en: [...new Set([...ligue1.clubs, NATIONAL_TEAM_TITLE])],
+    fr: [
+      ...new Set(
+        ligue1.clubs
+          .map((t) => index.resolve("en", t)?.titleFr)
+          .filter(present),
+      ),
+    ],
+  };
+  type SquadsRaw = { en: RawBatch[]; fr: RawBatch[] };
+  type SquadPage = { lang: "en" | "fr"; page: Page };
+  const squadPagesRead = await optionalSource<SquadsRaw, SquadPage[]>(
+    "squads",
+    async () => {
+      const out: SquadsRaw = { en: [], fr: [] };
+      for (const lang of ["en", "fr"] as const) {
+        for (const batch of chunk(squadTitles[lang])) {
+          const json = await wikimedia.getJson(revisionsUrl(lang, batch));
+          pagesOf(json, batch.length);
+          const lost = unanswered(json, batch);
+          if (lost.length > 0)
+            throw new Error(
+              `${lost.length} of ${batch.length} squad titles came back without content or a missing mark (${lost.slice(0, 3).join(", ")})`,
+            );
+          parseRevisions(json); // throws on an error body
+          out[lang].push(rawBatch(json));
+        }
+      }
+      return out;
+    },
+    (raw) =>
+      (["en", "fr"] as const).flatMap((lang) =>
+        raw[lang].flatMap((b) =>
+          parseRevisions({ query: b }).pages.map((page) => ({ lang, page })),
+        ),
+      ),
+  );
+
+  // The lists' status depends on the day (S4): offline, the newest copy read so far.
+  const squadDay = deps.offline
+    ? (Object.values(statuses)
+        .map((s) => s.retrievedAt)
+        .filter((d): d is string => d != null)
+        .sort()
+        .at(-1) ?? deps.today)
+    : deps.today;
+  const squadLists: SquadList[] | null =
+    squadPagesRead?.map(({ lang, page }) =>
+      parseSquadList({
+        lang,
+        page: page.title,
+        kind:
+          lang === "en" && page.title === NATIONAL_TEAM_TITLE
+            ? "national"
+            : "club",
+        wikitext: page.wikitext,
+        today: squadDay,
+      }),
+    ) ?? null;
+
+  // S13: the link targets that are no known footballer's title, looked up
+  // in batches of 50 once the lists are read; the budget is checked again
+  // before the first lookup.
+  let squadMatch: MatchResult | null = null;
+  if (squadLists) {
+    const knownIds = knownTitleIds(players);
+    const known = {
+      en: new Set(players.map((p) => p.titles.en).filter(present)),
+      fr: new Set(players.map((p) => p.titles.fr).filter(present)),
+    };
+    const targets = linkTargets(squadLists, known);
+    if (!deps.offline) {
+      const withLinks = planRequests({
+        en: titles.en.length,
+        fr: titles.fr.length,
+        files: files.length,
+        redirects: { en: currentClubs.en.length, fr: currentClubs.fr.length },
+        squads: {
+          en: squadTitles.en.length,
+          fr: squadTitles.fr.length,
+          links: { en: targets.en.length, fr: targets.fr.length },
+        },
+      });
+      deps.log(
+        `plan with squad links: wdqs ${withLinks.wdqs}, wikimedia ${withLinks.wikimedia}, github ${withLinks.github}: at most ${withLinks.total} requests, plus retries after a 503 (budget ${budget})`,
+      );
+      if (withLinks.total > budget)
+        throw new Refusal(
+          `with ${targets.en.length + targets.fr.length} squad link targets to look up the run would make up to ${withLinks.total} requests, over the budget of ${budget}`,
+        );
+    }
+    type LinksRaw = { en: RawBatch[]; fr: RawBatch[] };
+    const looked = await optionalSource<LinksRaw, Map<string, string>>(
+      "squad-links",
+      async () => {
+        const out: LinksRaw = { en: [], fr: [] };
+        for (const lang of ["en", "fr"] as const) {
+          for (const batch of chunk(targets[lang])) {
+            const json = await wikimedia.getJson(pagepropsUrl(lang, batch));
+            pagesOf(json, batch.length);
+            parsePageprops(json); // throws on an error body
+            out[lang].push(rawBatch(json));
+          }
+        }
+        return out;
+      },
+      (raw) => {
+        const ids = new Map<string, string>();
+        for (const lang of ["en", "fr"] as const)
+          for (const b of raw[lang])
+            for (const [title, qid] of parsePageprops({ query: b }))
+              ids.set(linkKey(lang, title), qid);
+        return ids;
+      },
+    );
+    // The footballers' own titles always win over a looked-up target.
+    const ids = new Map([...(looked ?? []), ...knownIds]);
+    squadMatch = matchRows(squadLists, players, ids);
+    deps.log(
+      `squads: ${squadLists.length} lists (${squadLists.filter((l) => l.status === "current").length} current), ${squadMatch.sightings.length} rows matched`,
+    );
+  }
+
   // martj42: the header and the rows naming Tunisia, as text.
   const matches = await source<string, Match[]>(
     "martj42",
@@ -801,24 +995,33 @@ async function build(deps: RunDeps): Promise<RunResult> {
     : deps.today;
   if (deps.offline)
     deps.log(`offline build dated ${today}, its newest cached copy`);
+  const base: MergeContext = {
+    today,
+    memberships: groupBy(wikidata.memberships, (m) => m.playerQid),
+    index,
+    infoboxes: { en, fr },
+    photos: new Map(photos.map((p) => [p.file, p])),
+    tunisiaMatches: matches,
+    goalsFloor: goalsFloors(scorers, players),
+    overrides: checked.overrides,
+    governorateIds,
+  };
+  // P42: absent when no squad list was read, and the merge is as before.
+  const squads: SquadContext | undefined =
+    squadLists && squadMatch
+      ? {
+          sightings: groupBy(squadMatch.sightings, (s) => s.qid),
+          lists: squadLists,
+          namesakes: namesakesOf(squadMatch, players, base),
+        }
+      : undefined;
   // B4: a pool that cannot be built is a refusal with a reason, not a crash.
   let built: ReturnType<typeof buildPool>;
   try {
     built = buildPool({
-      today,
+      ...base,
+      ...(squads ? { squads } : {}),
       players,
-      memberships: groupBy(wikidata.memberships, (m) => m.playerQid),
-      index: buildClubIndex(
-        clubs,
-        { en: new Map(redirects.en), fr: new Map(redirects.fr) },
-        checked.overrides.clubTitles,
-      ),
-      infoboxes: { en, fr },
-      photos: new Map(photos.map((p) => [p.file, p])),
-      tunisiaMatches: matches,
-      goalsFloor: goalsFloors(scorers, players),
-      overrides: checked.overrides,
-      governorateIds,
       honours: wikidata.honours,
       curatedHonours,
       ligue1Titles: ligue1.clubs,
@@ -867,6 +1070,34 @@ async function build(deps: RunDeps): Promise<RunResult> {
     ],
   ]);
   return { ok: true, changed: diff.changed };
+}
+
+/**
+ * S12: for each footballer a squad row links to, the other footballers of
+ * his name and the club the merge gives each.
+ */
+function namesakesOf(
+  match: MatchResult,
+  players: WdPlayer[],
+  ctx: MergeContext,
+): Map<string, Namesake[]> {
+  const key = (p: WdPlayer) => plainLatin(p.nameEn ?? p.nameFr ?? p.qid).trim();
+  const byName = groupBy(players, key);
+  const out = new Map<string, Namesake[]>();
+  for (const qid of new Set(
+    match.sightings.filter((s) => s.by === "link").map((s) => s.qid),
+  )) {
+    const p = players.find((x) => x.qid === qid);
+    const twins = p
+      ? (byName.get(key(p)) ?? []).filter((x) => x.qid !== qid)
+      : [];
+    if (twins.length > 0)
+      out.set(
+        qid,
+        twins.map((t) => ({ qid: t.qid, clubQid: chosenClubOf(t, ctx) })),
+      );
+  }
+  return out;
 }
 
 /**
