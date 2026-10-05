@@ -1,6 +1,5 @@
 import pg from "pg";
-import { tunisDay } from "../engine/chkoun/day.ts";
-import { CalendarRefusal, topUpCalendar } from "./calendar.ts";
+import { CalendarRefusal, topUpCalendar, tunisToday } from "./calendar.ts";
 import { databaseTarget } from "./database-url.ts";
 import { runSync } from "./sync-run.ts";
 import { describeError, withConnectionRetry } from "./wake.ts";
@@ -74,7 +73,8 @@ if (command === "calendar") {
     await topUpCalendar({
       db: client,
       seed: process.env.CHKOUN_SEED,
-      today: tunisDay(new Date()),
+      // Postgres's date, the one the frozen-day trigger uses (review L4).
+      today: await tunisToday(client),
       log: (line) => console.log(line),
     });
   } catch (error) {

@@ -152,9 +152,10 @@ describe("topUpCalendar", () => {
       log: (l) => lines.push(l),
     });
     expect(out).toMatchObject({ written: 0, filled: 0 });
-    expect(lines).toContain(
-      "chkoun calendar: 0 of 30 days filled: no footballer has a fame tier yet",
-    );
+    // Review L5: one line, not one per empty day.
+    expect(lines).toEqual([
+      "chkoun calendar: 0 of 30 days filled, 0 written, 0 eligible (A 0, B 0, C 0), window 0 days: no footballer has a fame tier yet",
+    ]);
     expect((await calendar()).size).toBe(0);
   });
 
@@ -172,8 +173,10 @@ describe("topUpCalendar", () => {
     expect(out.filled).toBeLessThan(30);
     expect((await calendar()).size).toBe(out.filled);
     expect(lines).toContain(
-      `chkoun calendar: ${out.filled} of 30 days filled: only 15 eligible footballers (answer-ready, tiers A to C), too few for every day's tiers and the repeat window`,
+      `chkoun calendar: ${out.filled} of 30 days filled, ${out.written} written, 15 eligible (A 0, B 0, C 15), window 14 days: only 15 eligible footballers (answer-ready, tiers A to C), too few for every day's tiers and the repeat window`,
     );
+    // One summary line, plus at most one line per filled day.
+    expect(lines.length).toBeLessThanOrEqual(1 + out.filled);
   });
 
   it("says when footballers have tiers but none is answer-ready", async () => {
@@ -185,9 +188,45 @@ describe("topUpCalendar", () => {
       today: today(),
       log: (l) => lines.push(l),
     });
-    expect(lines).toContain(
-      "chkoun calendar: 0 of 30 days filled: no answer-ready footballer has a tier A to C",
+    expect(lines).toEqual([
+      "chkoun calendar: 0 of 30 days filled, 0 written, 0 eligible (A 0, B 0, C 0), window 0 days: no answer-ready footballer has a tier A to C",
+    ]);
+  });
+
+  // Review L4: a deploy that starts before midnight in Tunis and writes
+  // after it sees day + 3 as open while Postgres sees it frozen. The
+  // trigger refuses; the top-up says so and succeeds (P50).
+  it("a day that froze meanwhile is left alone, said in one line, and the top-up succeeds", async () => {
+    await sync(eligible);
+    await topUp();
+    const before = await calendar();
+    // The footballer of day + 2 (frozen) stops being eligible.
+    const frozenDay = addDays(today(), 2);
+    const gone = before.get(frozenDay)!.player;
+    await sync(
+      eligible.map((p) =>
+        p.id === gone ? footballer(p.id, p.fame!.tier!, false) : p,
+      ),
     );
+    const lines: string[] = [];
+    // Node still thinks it is yesterday: day + 2 looks like day + 3.
+    const out = await topUpCalendar({
+      db: client,
+      seed,
+      today: addDays(today(), -1),
+      log: (l) => lines.push(l),
+    });
+    expect(out.written).toBe(0);
+    expect(lines.at(-1)).toMatch(
+      /^chkoun calendar: .*: a day froze or another deploy wrote it meanwhile; nothing written, the next top-up tries again$/,
+    );
+    expect(lines.join(" ")).not.toContain(gone);
+    expect(await calendar()).toEqual(before);
+  });
+
+  it("the CLI reads today's Tunis date from Postgres", async () => {
+    const { tunisToday } = await import("./calendar.ts");
+    expect(await tunisToday(client)).toBe(today());
   });
 
   it("says all days are filled when they are", async () => {
@@ -199,7 +238,9 @@ describe("topUpCalendar", () => {
       today: today(),
       log: (l) => lines.push(l),
     });
-    expect(lines).toContain("chkoun calendar: 30 of 30 days filled");
+    expect(lines).toEqual([
+      "chkoun calendar: 30 of 30 days filled, 30 written, 45 eligible (A 15, B 15, C 15), window 44 days",
+    ]);
   });
 });
 
@@ -227,7 +268,7 @@ describe("node src/pipeline/sync-cli.ts calendar", () => {
     const r = cli({ CHKOUN_SEED: seed });
     expect(r.status).toBe(0);
     expect(r.stdout).toContain(
-      "chkoun calendar: 0 of 30 days filled: no footballer has a fame tier yet",
+      "chkoun calendar: 0 of 30 days filled, 0 written, 0 eligible (A 0, B 0, C 0), window 0 days: no footballer has a fame tier yet",
     );
   });
 
@@ -235,10 +276,9 @@ describe("node src/pipeline/sync-cli.ts calendar", () => {
     await sync(eligible);
     const r = cli({ CHKOUN_SEED: seed });
     expect(r.status).toBe(0);
-    expect(r.stdout).toMatch(
-      /calendar: 45 eligible footballers \(A 15, B 15, C 15\), window 44 days/,
+    expect(r.stdout).toContain(
+      "chkoun calendar: 30 of 30 days filled, 30 written, 45 eligible (A 15, B 15, C 15), window 44 days",
     );
-    expect(r.stdout).toMatch(/calendar: 30 days written/);
     for (const p of eligible) expect(r.stdout).not.toContain(p.id);
     expect(r.stdout).not.toContain(seed);
   });

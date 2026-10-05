@@ -61,6 +61,23 @@ ON CONFLICT (game, day) DO UPDATE
   WHERE puzzles.source = 'generator'
     AND puzzles.player_id IS DISTINCT FROM EXCLUDED.player_id`;
 
+/** check_violation (the frozen-day trigger) or unique_violation. */
+function isRace(error: unknown): boolean {
+  const code = (error as { code?: unknown } | null)?.code;
+  return code === "23514" || code === "23505";
+}
+
+/**
+ * Today's date in Tunis as Postgres sees it, so the top-up and the frozen
+ * day trigger agree on "today" (review L4).
+ */
+export async function tunisToday(db: SqlClient): Promise<Day> {
+  const { rows } = await db.query(
+    "SELECT to_char((now() AT TIME ZONE 'Africa/Tunis')::date, 'YYYY-MM-DD') AS today",
+  );
+  return String(rows[0].today);
+}
+
 /** Why some days stay empty, in a few words; no footballer named. */
 async function shortage(db: SqlClient, eligible: number): Promise<string> {
   if (eligible > 0)
@@ -93,9 +110,9 @@ export async function readCalendar(
 
 /**
  * Tops the calendar up to `days` days from `today` (a Tunis date). Refuses
- * only without a seed. A data shortage never fails it (P50): it writes the
- * days it can and prints one line saying how many of the `days` are filled
- * and why not all.
+ * only without a seed. A data shortage, or a day that froze meanwhile, never
+ * fails it (P50): it writes the days it can and prints one line saying how
+ * many of the `days` are filled and why not all.
  */
 export async function topUpCalendar(input: {
   db: SqlClient;
@@ -130,11 +147,12 @@ export async function topUpCalendar(input: {
   });
   const counts = { A: 0, B: 0, C: 0 } as Record<string, number>;
   for (const c of candidates) counts[c.tier]++;
-  log(
-    `calendar: ${candidates.length} eligible footballers (A ${counts.A}, B ${counts.B}, C ${counts.C}), window ${out.window} days`,
-  );
-  for (const note of out.notes) log(`calendar: ${note}`);
+  // Review L5: one summary line, plus one line per day whose window had to
+  // shrink; never a footballer.
+  for (const note of out.notes)
+    if (note.includes("window shrunk")) log(`calendar: ${note}`);
   let written = 0;
+  let race = false;
   if (out.write.length > 0) {
     await db.query("BEGIN");
     try {
@@ -147,21 +165,27 @@ export async function topUpCalendar(input: {
       await db.query("COMMIT");
     } catch (error) {
       await db.query("ROLLBACK").catch(() => {});
-      throw error;
+      // Review L4: a day froze between the read and the write (a deploy
+      // around midnight in Tunis, or two Preview builds at once). That is a
+      // data reason, so it never fails the build (P50): nothing is written
+      // and the next top-up tries again.
+      if (!isRace(error)) throw error;
+      race = true;
     }
   }
-  log(
-    `calendar: ${written} day${written === 1 ? "" : "s"} written, ${today} to ${addDays(today, days - 1)}`,
-  );
   const filledDays = new Set([
     ...existing.map((r) => r.day),
-    ...out.write.map((r) => r.day),
+    ...(race ? [] : out.write.map((r) => r.day)),
   ]);
   const filled = Array.from({ length: days }, (_, i) =>
     addDays(today, i),
   ).filter((d) => filledDays.has(d)).length;
-  log(
-    `chkoun calendar: ${filled} of ${days} days filled${filled < days ? `: ${await shortage(db, candidates.length)}` : ""}`,
-  );
+  const summary = `chkoun calendar: ${filled} of ${days} days filled, ${written} written, ${candidates.length} eligible (A ${counts.A}, B ${counts.B}, C ${counts.C}), window ${out.window} days`;
+  const why = race
+    ? "a day froze or another deploy wrote it meanwhile; nothing written, the next top-up tries again"
+    : filled < days
+      ? await shortage(db, candidates.length)
+      : null;
+  log(why ? `${summary}: ${why}` : summary);
   return { written, filled, window: out.window, notes: out.notes };
 }
