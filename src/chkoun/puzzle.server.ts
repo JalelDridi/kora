@@ -12,7 +12,7 @@ import type { Candidate, Tier } from "@/engine/chkoun/schedule.ts";
 import type { Day } from "@/engine/chkoun/types.ts";
 import { getDb } from "@/db/client";
 import { CANDIDATES_SQL } from "@/pipeline/calendar.ts";
-import { getRedis } from "@/redis";
+import { getKv, kvEnv } from "./kv.ts";
 
 // Today's Chkoun? answer, on the server only (D-S2-2): the one module that
 // reads it. Read once per server instance and day, and with Redis on, once a
@@ -191,9 +191,9 @@ export function todayPuzzle(now: Date = new Date()): Promise<Puzzle | null> {
     reader = createPuzzleReader({
       sql: async (text, values = []) =>
         getDb().$queryRawUnsafe<Record<string, unknown>[]>(text, ...values),
-      kv: getRedis(),
+      kv: getKv(),
       seed: process.env.CHKOUN_SEED,
-      env: process.env.VERCEL_ENV ?? "local",
+      env: kvEnv(),
       log: (line) => console.warn(line),
     });
   }
