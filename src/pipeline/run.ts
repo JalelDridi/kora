@@ -189,7 +189,9 @@ export function createClients(
     pageviews: createPoliteClient({
       minGapMs: PAGEVIEWS_GAP_MS,
       maxRetries: 2,
-      maxAttempts: 2 * PAGEVIEWS_MAX_PER_RUN,
+      // The 800 counts attempts, retries included (P49): a run whose retries
+      // would pass it stops there and keeps the counts it has.
+      maxAttempts: PAGEVIEWS_MAX_PER_RUN,
       maxWallMs: MAX_RUN_MS,
       sleep: options.sleep,
       fetch: options.fetch,

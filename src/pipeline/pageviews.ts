@@ -1,10 +1,12 @@
 // Wikipedia page views for the fame score (D-S2-4), from the Wikimedia
 // Pageviews API: one request per article, 12 full months, user agents only.
-// The API answers one article per request, so a full measure is about 600
-// requests a month; the nightly budget (70, all sources together) leaves a
-// few a night. The run therefore measures a few footballers each night,
-// those never measured first, then the oldest windows, and keeps every
-// count it got in data/cache/pageviews.json and in the pool.
+// A full measure is about 600 requests a month. The API is a separate
+// service with its own client and cap (P49): at least 100 ms apart and at
+// most 800 HTTP attempts a run, retries included, outside the budget of 70
+// for Wikidata and the MediaWiki API. Each run measures every footballer
+// whose count is missing or from an earlier window, those never measured
+// first, and keeps every count it got in data/cache/pageviews.json and in
+// the pool.
 
 import { HttpError } from "./http.ts";
 import type { PoliteClient } from "./http.ts";
