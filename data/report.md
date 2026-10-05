@@ -1,15 +1,15 @@
-# Nightly pool, 2026-10-04
+# Nightly pool, 2026-10-05
 
 | Source | Status | Read on | Note |
 | --- | --- | --- | --- |
-| wikidata | fresh | 2026-10-04 |  |
-| infobox-en | fresh | 2026-10-04 |  |
-| infobox-fr | fresh | 2026-10-04 |  |
-| redirects | fresh | 2026-10-04 |  |
-| clubs | fresh | 2026-10-04 |  |
-| commons | fresh | 2026-10-04 |  |
-| martj42 | fresh | 2026-10-04 |  |
-| martj42-goals | fresh | 2026-10-04 |  |
+| wikidata | fresh | 2026-10-05 |  |
+| infobox-en | fresh | 2026-10-05 |  |
+| infobox-fr | fresh | 2026-10-05 |  |
+| redirects | fresh | 2026-10-05 |  |
+| clubs | fresh | 2026-10-05 |  |
+| commons | fresh | 2026-10-05 |  |
+| martj42 | fresh | 2026-10-05 |  |
+| martj42-goals | fresh | 2026-10-05 |  |
 
 **372 footballers** (245 active, 159 legends, 32 in both), 628 clubs, 111 honours.
 
@@ -264,25 +264,18 @@ None means the field has no value to rate (for example no current club).
 
 ## Changes since the previous pool
 
-310 footballers before, 372 now. Shrink guard passed (it refuses a loss of more than a tenth).
+372 footballers before, 372 now. Shrink guard passed (it refuses a loss of more than a tenth).
 
-## Club changes, review each (9)
+## Club changes, review each (0)
 
-- afif-jebali: Al-Mina'a SC → Anwar Al-Abyar
-- habib-oueslati: Talaba SC → Newroz SC
-- karim-laribi: anzio → A.S.D. Albalonga
-- maher-kanzari: Club Africain → none
-- mehdi-nafti: sociedad-deportiva-ponferradina → none
-- nour-zamen-zammouri: US Monastir → Alhiyad Sports Club
-- sabri-ameri: JS Kairouan → Al Safa FC
-- selim-benachour: Étoile Sportive du Sahel → none
-- tarek-thabet: Espérance Sportive de Tunis → none
+None.
 
 ## Other changes
 
-- Added (63): abdelhamid-hergal, abdelmajid-chetali, abderraouf-ben-aziza, ahmed-mghirbi, ahmed-sghaier, alaya-sassi, ali-ben-neji, ali-boumnijel, ali-kaabi, ali-larbi-hannachi, ali-retima, amor-jebali, boubaker-ezzitouni, chokri-el-ouaer, ezzedine-chakroun, hedi-bayari, imad-mizouri, jameleddine-limam, kamel-chebli, khaled-ben-yahia, khaled-gasmi, khaled-yahia, larbi-touati, lassaad-abdelli, lotfi-hsoumi, lotfi-rouissi, maher-ben-sghaier, moez-aloulou, mohamed-akid, mohamed-ali-mahjoubi, mohamed-ben-rehaiem, mohamed-salah-jedidi, mohieddine-habita, mohsen-habacha, mokhtar-dhouieb, mokhtar-naili, moncef-chargui, moncef-cherif, moncef-khouini, mounir-boukadida, mourad-gharbi, mourad-okbi, nabil-maaloul, nejib-ghommidh, noureddine-diwa, rached-meddeb, riadh-el-fahem, ridha-el-louze, ridha-rouatbi, sadok-sassi, …
-- Removed (1): mohamed-ben-othman
-- Caps or goals changed: 1. Other fields changed: 43.
+- Added (0): none
+- Removed (0): none
+- Caps or goals changed: 0. Other fields changed: 0.
+- Only dates, sources or confidence ratings changed.
 
 ## Flags (380)
 
