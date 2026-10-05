@@ -16,9 +16,9 @@ const TYPES: Record<string, "jpg" | "png"> = {
   "image/png": "png",
 };
 
-/** What a file was copied from: the same Commons file at the same size. */
+/** P49: a copy is fetched again only when the Commons file name changes. */
 export function sameCommonsFile(a: Photo, b: Photo): boolean {
-  return a.file === b.file && a.width === b.width && a.height === b.height;
+  return a.file === b.file;
 }
 
 /** Why a photo cannot be copied at all, or null when it can. */
@@ -44,8 +44,8 @@ export type PhotoSync = {
 };
 
 /**
- * Copies the thumbnails that are new or whose Commons file changed, at most
- * `max` downloads, one at a time, `gapMs` apart. A photo already copied from
+ * Copies the thumbnails that are new, then those whose Commons file name
+ * changed, at most `max` downloads, one at a time, `gapMs` apart. A photo already copied from
  * the same Commons file keeps its path while its file is still there.
  * `exists(name)` and `write(name, bytes)` work in public/photos/. A 429 or
  * 403 stops the downloads for the run, like the other clients.
@@ -71,34 +71,36 @@ export async function syncPhotos(input: {
     waiting: 0,
     notes: [],
   };
-  let stopped: string | null = null;
-  let first = true;
+  // First every footballer's place: no photo, kept, or to download. New
+  // copies go before re-fetches of a renamed Commons file (P49).
+  const fresh: { id: string; photo: Photo }[] = [];
+  const renamed: { id: string; photo: Photo }[] = [];
   for (const { id, photo } of input.players) {
-    if (photo === null) {
-      out.paths.set(id, null);
-      continue;
-    }
+    out.paths.set(id, null);
+    if (photo === null) continue;
     const gap = creditGap(photo);
     if (gap) {
-      out.paths.set(id, null);
       out.notes.push(`${id}: not copied, ${gap}`);
       continue;
     }
     const before = input.previous.get(id);
-    if (
-      before?.path &&
-      sameCommonsFile(before, photo) &&
-      (await input.exists(before.path.replace(/^\/photos\//, "")))
-    ) {
-      out.paths.set(id, before.path);
+    const copied =
+      before?.path != null &&
+      (await input.exists(before.path.replace(/^\/photos\//, "")));
+    if (copied && sameCommonsFile(before!, photo)) {
+      out.paths.set(id, before!.path!);
       continue;
     }
+    (copied ? renamed : fresh).push({ id, photo });
+  }
+  let stopped: string | null = null;
+  let first = true;
+  for (const { id, photo } of [...fresh, ...renamed]) {
     if (input.offline || stopped || out.downloaded >= input.max) {
-      out.paths.set(id, null);
       out.waiting++;
       continue;
     }
-    if (!first) await sleep(input.gapMs ?? 1_000);
+    if (!first) await sleep(input.gapMs ?? 250);
     first = false;
     try {
       const response = await input.fetch(photo.thumbUrl, {

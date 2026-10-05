@@ -123,6 +123,8 @@ export type RunDeps = {
   maxRequests?: number;
   /** HTTP attempts per client so far, retries included (createClients gives it); without it the run counts calls. */
   attempts?: () => Record<ClientName, number>;
+  /** D-S2-4, P49: the Pageviews REST API, a client of its own. */
+  pageviews?: PoliteClient;
   /**
    * P30: downloads the Commons thumbnails (binary, so not a PoliteClient);
    * without it no photo is downloaded and the copies already made are kept.
@@ -143,6 +145,7 @@ export function createClients(
 ): Record<ClientName, PoliteClient> & {
   attempts: () => Record<ClientName, number>;
   photoFetch: FetchLike;
+  pageviews: PoliteClient;
 } {
   const counts: Record<ClientName, number> = {
     wdqs: 0,
@@ -181,8 +184,18 @@ export function createClients(
     ),
     github: make("github", 1_000, 2, 2 * GITHUB_DOWNLOADS),
     attempts: () => ({ ...counts }),
-    // P30: thumbnails from upload.wikimedia.org; syncPhotos sends them one at
-    // a time, a second apart, within the run's budget.
+    // P49: the Pageviews REST API (published limit 100 requests a second)
+    // has its own client and cap; it never touches the 70 above.
+    pageviews: createPoliteClient({
+      minGapMs: PAGEVIEWS_GAP_MS,
+      maxRetries: 2,
+      maxAttempts: 2 * PAGEVIEWS_MAX_PER_RUN,
+      maxWallMs: MAX_RUN_MS,
+      sleep: options.sleep,
+      fetch: options.fetch,
+    }),
+    // P30, P49: thumbnails from upload.wikimedia.org; syncPhotos sends them
+    // one at a time, PHOTO_GAP_MS apart, at most PHOTOS_MAX_PER_RUN a run.
     photoFetch: (url, init) => (options.fetch ?? globalThis.fetch)(url, init),
   };
 }
@@ -195,6 +208,15 @@ export type RunResult =
  * since the squad lists (S14): the last run used 50, squads add 4 to 7.
  */
 export const MAX_REQUESTS = 70;
+
+/**
+ * P49: page views and photos have their own polite clients and caps; the 70
+ * above is for Wikidata and the MediaWiki API only.
+ */
+export const PAGEVIEWS_MAX_PER_RUN = 800;
+export const PAGEVIEWS_GAP_MS = 100;
+export const PHOTOS_MAX_PER_RUN = 200;
+export const PHOTO_GAP_MS = 250;
 
 /** The English article whose "Current squad" table gives caps (P42). */
 export const NATIONAL_TEAM_TITLE = "Tunisia national football team";
@@ -659,8 +681,6 @@ async function build(deps: RunDeps): Promise<RunResult> {
     squads: squadPages,
   });
   const budget = deps.maxRequests ?? MAX_REQUESTS;
-  // The most requests planned so far; page views get what the budget leaves.
-  let planned = plan.total;
   deps.log(
     `${players.length} footballers on Wikidata, ${wanted.length} men: ${titles.en.length} English and ${titles.fr.length} French articles, ${files.length} photos`,
   );
@@ -772,7 +792,6 @@ async function build(deps: RunDeps): Promise<RunResult> {
         `with ${exact.wikimedia - plan.wikimedia} redirect lookups the run would make up to ${exact.total} requests, over the budget of ${budget}`,
       );
   }
-  planned = exact.total;
   // The answer's `normalized` and `redirects` lists, as from → to pairs.
   // B8: each answer kept as sent; the moves are read from it on every build.
   type Moves = { en: [string, string][]; fr: [string, string][] };
@@ -993,7 +1012,6 @@ async function build(deps: RunDeps): Promise<RunResult> {
         throw new Refusal(
           `with ${targets.en.length + targets.fr.length} squad link targets to look up the run would make up to ${withLinks.total} requests, over the budget of ${budget}`,
         );
-      planned = withLinks.total;
     }
     type LinksRaw = { en: RawBatch[]; fr: RawBatch[] };
     const looked = await optionalSource<LinksRaw, Map<string, string>>(
@@ -1091,20 +1109,13 @@ async function build(deps: RunDeps): Promise<RunResult> {
   }
   const { ids } = built;
 
-  // What the budget leaves after every other source goes, in this order, to
-  // the page views of footballers never measured (D-S2-4: without them he
-  // cannot be a daily answer), then to new photos (P30), then to refreshing
-  // the oldest page views. Never more than the budget.
-  let room = deps.offline ? 0 : Math.max(0, budget - planned);
-  if (!deps.offline)
-    deps.log(
-      `${room} requests left in the budget of ${budget} for page views and photos`,
-    );
-
-  // D-S2-4: fame from Wikipedia page views. The API answers one article per
-  // request, so each run measures the footballers it can, and keeps every
-  // count in data/cache/pageviews.json and in the pool. A failure keeps the
-  // counts already known.
+  // D-S2-4: fame from Wikipedia page views, through its own polite client
+  // (P49): the Pageviews REST API is a separate service, so the 70 requests
+  // stay for Wikidata and the MediaWiki API. One request per article; every
+  // footballer whose count is missing or from an earlier 12-month window is
+  // measured in this run, unmeasured first, up to PAGEVIEWS_MAX_PER_RUN. A
+  // failure keeps the counts already known (data/cache/pageviews.json and
+  // the pool) and the build goes on.
   const viewsWindow = monthWindow(today);
   const cachedViews = await readCache<ViewsCache>("pageviews");
   let views: ViewsCache = cachedViews?.value ?? {};
@@ -1119,37 +1130,40 @@ async function build(deps: RunDeps): Promise<RunResult> {
       previous: previousFame.get(p.id) ?? null,
     }));
   const viewRun = { asked: 0, read: 0, failure: null as string | null };
-  /** Reads the articles planned for these footballers, within `room`. */
-  async function measure(players: Measured[]): Promise<void> {
-    if (viewRun.failure !== null) return;
+  if (!deps.offline) {
     const asked = planPageviews({
-      players,
+      players: measured,
       cache: views,
       window: viewsWindow,
-      max: room,
+      max: PAGEVIEWS_MAX_PER_RUN,
     });
+    deps.log(
+      `plan: pageviews ${asked.length} (one per article, at most ${PAGEVIEWS_MAX_PER_RUN} a run)`,
+    );
+    const client = deps.pageviews;
     const got: { lang: ViewLang; title: string; views: number }[] = [];
-    for (const a of asked) {
-      room--;
-      try {
-        got.push({
-          ...a,
-          views: await fetchViews(wikimedia, a.lang, a.title, viewsWindow),
-        });
-      } catch (error) {
-        viewRun.failure =
-          error instanceof Error ? error.message : String(error);
-        break;
+    if (asked.length > 0 && !client) viewRun.failure = "no page views client";
+    else
+      for (const a of asked) {
+        try {
+          got.push({
+            ...a,
+            views: await fetchViews(client!, a.lang, a.title, viewsWindow),
+          });
+        } catch (error) {
+          viewRun.failure =
+            error instanceof Error ? error.message : String(error);
+          break;
+        }
       }
-    }
-    viewRun.asked += asked.length;
-    viewRun.read += got.length;
+    viewRun.asked = asked.length;
+    viewRun.read = got.length;
     if (got.length > 0) views = addToCache(views, viewsWindow, got);
   }
-  if (!deps.offline)
-    await measure(measured.filter((m) => viewsOf(m, views) === null));
 
-  // P30: the thumbnails, kept in memory until the outputs are written, so a
+  // P30: the thumbnails, through their own client (P49), as soon as a
+  // footballer has a photo record: new files first, at most
+  // PHOTOS_MAX_PER_RUN. Kept in memory until the outputs are written, so a
   // refused build copies nothing.
   const photoDir = path.join(deps.root, "public", "photos");
   const pending = new Map<string, Uint8Array>();
@@ -1159,7 +1173,7 @@ async function build(deps: RunDeps): Promise<RunResult> {
   const photoRun = await syncPhotos({
     players: built.pool.players,
     previous: previousPhotos,
-    max: room,
+    max: PHOTOS_MAX_PER_RUN,
     offline: deps.offline === true || deps.photoFetch === undefined,
     fetch: deps.photoFetch ?? (() => Promise.reject(new Error("no client"))),
     exists: (name) =>
@@ -1171,9 +1185,8 @@ async function build(deps: RunDeps): Promise<RunResult> {
       pending.set(name, bytes);
     },
     sleep: deps.sleep,
+    gapMs: PHOTO_GAP_MS,
   });
-  room -= photoRun.downloaded;
-  if (!deps.offline) await measure(measured);
 
   if (deps.offline) {
     statuses.pageviews = cachedViews

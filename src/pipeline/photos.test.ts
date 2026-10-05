@@ -85,6 +85,41 @@ describe("syncPhotos (P30)", () => {
     expect(w.files.get("wahbi-khazri.jpg")?.byteLength).toBe(30_000);
   });
 
+  it("does not fetch again for the same file name, whatever its size (P49)", async () => {
+    const w = world();
+    w.files.set("wahbi-khazri.jpg", new Uint8Array(1));
+    await syncPhotos({
+      players: [{ id: "wahbi-khazri", photo: { ...photo, width: 999 } }],
+      previous: new Map([
+        ["wahbi-khazri", { ...photo, path: "/photos/wahbi-khazri.jpg" }],
+      ]),
+      max: 10,
+      ...w.deps,
+    });
+    expect(w.asked).toEqual([]);
+  });
+
+  it("downloads new files before re-fetching renamed ones (P49)", async () => {
+    const w = world();
+    w.files.set("renamed.jpg", new Uint8Array(1));
+    const out = await syncPhotos({
+      players: [
+        { id: "renamed", photo: { ...photo, thumbUrl: "https://x/renamed" } },
+        { id: "new", photo: { ...photo, thumbUrl: "https://x/new" } },
+      ],
+      previous: new Map([
+        [
+          "renamed",
+          { ...photo, file: "File:Old.jpg", path: "/photos/renamed.jpg" },
+        ],
+      ]),
+      max: 1,
+      ...w.deps,
+    });
+    expect(w.asked.map((a) => a.url)).toEqual(["https://x/new"]);
+    expect(out.waiting).toBe(1);
+  });
+
   it("skips it when the stored file is the same Commons file", async () => {
     const w = world();
     w.files.set("wahbi-khazri.jpg", new Uint8Array(1));

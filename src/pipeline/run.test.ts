@@ -20,6 +20,7 @@ import {
   CACHE_VERSION,
   createClients,
   MAX_REQUESTS,
+  PAGEVIEWS_GAP_MS,
   planRequests,
   run,
   sectionZero,
@@ -1463,6 +1464,35 @@ describe("createClients", () => {
     await clients.wikimedia.getJson("https://en.wikipedia.org/w/api.php");
     expect(clients.attempts()).toEqual({ wdqs: 0, wikimedia: 2, github: 0 });
   });
+
+  // P49: page views have a client of their own, at least 100 ms apart, and
+  // never count against the 70.
+  it("gives page views their own client, 100 ms apart, outside the 70", async () => {
+    const waits: number[] = [];
+    let clock = 0;
+    const realNow = Date.now;
+    Date.now = () => clock;
+    try {
+      const clients = createClients({
+        fetch: async () => new Response('{"items":[]}'),
+        sleep: async (ms) => {
+          waits.push(ms);
+          clock += ms;
+        },
+      });
+      for (let i = 0; i < 3; i++)
+        await clients.pageviews.getJson("https://wikimedia.org/api/rest_v1/x");
+      expect(clients.attempts()).toEqual({
+        wdqs: 0,
+        wikimedia: 0,
+        github: 0,
+      });
+    } finally {
+      Date.now = realNow;
+    }
+    expect(waits).toEqual([PAGEVIEWS_GAP_MS, PAGEVIEWS_GAP_MS]);
+    expect(PAGEVIEWS_GAP_MS).toBeGreaterThanOrEqual(100);
+  });
 });
 
 /** Thrown by no-network.ts; not imported here, so its side effect comes from the setup alone. */
@@ -1797,7 +1827,7 @@ describe("fame from page views in the run (D-S2-4)", () => {
   it("the build with recorded fixtures writes fame for active footballers", async () => {
     const root = await setup();
     const calls: Calls = { urls: [], queries: [] };
-    expect(await run(deps(root, { wikimedia: withViews(calls) }))).toEqual({
+    expect(await run(deps(root, { pageviews: withViews(calls) }))).toEqual({
       ok: true,
       changed: true,
     });
@@ -1829,9 +1859,9 @@ describe("fame from page views in the run (D-S2-4)", () => {
 
   it("asks nothing again within the same window", async () => {
     const root = await setup();
-    await run(deps(root, { wikimedia: withViews() }));
+    await run(deps(root, { pageviews: withViews() }));
     const calls: Calls = { urls: [], queries: [] };
-    await run(deps(root, { wikimedia: withViews(calls) }));
+    await run(deps(root, { pageviews: withViews(calls) }));
     expect(calls.urls.some((u) => u.includes("/metrics/pageviews/"))).toBe(
       false,
     );
@@ -1845,7 +1875,7 @@ describe("fame from page views in the run (D-S2-4)", () => {
       },
       clubTitles: {},
     });
-    await run(deps(root, { wikimedia: withViews() }));
+    await run(deps(root, { pageviews: withViews() }));
     expect((await readPool(root)).players[0].fame).toMatchObject({
       score: 5.91,
       tier: "A",
@@ -1868,7 +1898,7 @@ describe("fame from page views in the run (D-S2-4)", () => {
     });
     const calls: Calls = { urls: [], queries: [] };
     expect(
-      await run(deps(root, { wikimedia: withViews(calls) })),
+      await run(deps(root, { pageviews: withViews(calls) })),
     ).toMatchObject({ ok: true });
     expect((await readPool(root)).players[0].fame).toBeNull();
     expect(calls.urls.some((u) => u.includes("/metrics/pageviews/"))).toBe(
@@ -1876,43 +1906,47 @@ describe("fame from page views in the run (D-S2-4)", () => {
     );
   });
 
-  it("never goes over the budget: with no room left, nothing is measured", async () => {
+  it("page views have their own client: the 70 for Wikidata and MediaWiki does not limit them (P49)", async () => {
     const root = await setup();
     const calls: Calls = { urls: [], queries: [] };
     const lines: string[] = [];
-    // 14 requests planned with the redirects (see above): none left.
+    // 14 requests planned with the redirects (see above): none left of 14.
     expect(
       await run(
         deps(root, {
-          wikimedia: withViews(calls),
+          pageviews: withViews(calls),
           maxRequests: 14,
           log: (l) => lines.push(l),
         }),
       ),
     ).toMatchObject({ ok: true });
-    expect(calls.urls.some((u) => u.includes("/metrics/pageviews/"))).toBe(
-      false,
+    expect(lines).toContain(
+      "plan: pageviews 1 (one per article, at most 800 a run)",
     );
     expect(lines).toContain(
-      "0 requests left in the budget of 14 for page views and photos",
+      "pageviews: 1 of 1 articles read; 0 active footballers not measured yet",
     );
-    expect(lines).toContain(
-      "pageviews: 0 of 0 articles read; 1 active footballers not measured yet",
+    expect(calls.urls).toHaveLength(1);
+    expect((await readPool(root)).players[0].fame?.tier).toBe("A");
+  });
+
+  it("without a page views client the build goes on, and the report says so", async () => {
+    const root = await setup();
+    expect(await run(deps(root))).toMatchObject({ ok: true });
+    const report = await readFile(file(root, "report.md"), "utf8");
+    expect(report).toContain(
+      "| pageviews | failed | never | 0 of 1 articles read (then: no page views client)",
     );
-    expect((await readPool(root)).players[0].fame).toMatchObject({
-      score: null,
-      tier: null,
-    });
   });
 
   it("a failed fetch keeps the previous pool's fame, and the report says so", async () => {
     const root = await setup();
-    await run(deps(root, { wikimedia: withViews() }));
+    await run(deps(root, { pageviews: withViews() }));
     // A new window, and the Pageviews API now fails (wikimedia() answers a
     // MediaWiki body, which has no items).
     await rm(file(root, "cache"), { recursive: true, force: true });
     expect(
-      await run(deps(root, { today: "2026-11-02", wikimedia: wikimedia() })),
+      await run(deps(root, { today: "2026-11-02", pageviews: wikimedia() })),
     ).toMatchObject({ ok: true });
     expect((await readPool(root)).players[0].fame).toMatchObject({
       tier: "A",
@@ -1926,7 +1960,7 @@ describe("fame from page views in the run (D-S2-4)", () => {
 
   it("offline, page views come from the cache with no request", async () => {
     const root = await setup();
-    await run(deps(root, { wikimedia: withViews() }));
+    await run(deps(root, { pageviews: withViews() }));
     const lines: string[] = [];
     expect(
       await run({
@@ -1975,7 +2009,7 @@ describe("photos copied into the repo in the run (P30)", () => {
     expect(
       await run(
         deps(root, {
-          wikimedia: withViews(),
+          pageviews: withViews(),
           photoFetch: photoFetch(asked),
           sleep: async () => {},
         }),
@@ -1999,7 +2033,7 @@ describe("photos copied into the repo in the run (P30)", () => {
     asked.length = 0;
     await run(
       deps(root, {
-        wikimedia: withViews(),
+        pageviews: withViews(),
         photoFetch: photoFetch(asked),
         sleep: async () => {},
       }),
@@ -2010,28 +2044,18 @@ describe("photos copied into the repo in the run (P30)", () => {
     );
   });
 
-  it("spends the budget on unmeasured page views first, then photos", async () => {
+  it("downloads photos without waiting for fame, and again only for a new file name (P49)", async () => {
     const root = await setup();
     const asked: string[] = [];
-    const viewCalls: string[] = [];
-    // 14 planned with the redirects (see above): one request left.
-    const night = () =>
-      run(
-        deps(root, {
-          wikimedia: withViews(viewCalls),
-          photoFetch: photoFetch(asked),
-          sleep: async () => {},
-          maxRequests: 15,
-        }),
-      );
-    await night();
-    expect([viewCalls.length, asked.length]).toEqual([1, 0]);
-    expect((await readPool(root)).players[0].photo?.path).toBeNull();
-    await night();
-    expect([viewCalls.length, asked.length]).toEqual([1, 1]);
+    // No page views at all: the photo is copied anyway.
+    await run(
+      deps(root, { photoFetch: photoFetch(asked), sleep: async () => {} }),
+    );
+    expect(asked).toHaveLength(1);
     expect((await readPool(root)).players[0].photo?.path).toBe(
       "/photos/test-footballer.jpg",
     );
+    expect((await readPool(root)).players[0].fame?.tier).toBeNull();
   });
 
   it("a refused build copies no photo", async () => {
@@ -2055,7 +2079,7 @@ describe("photos copied into the repo in the run (P30)", () => {
     );
     const outcome = await run(
       deps(root, {
-        wikimedia: withViews(),
+        pageviews: withViews(),
         photoFetch: photoFetch(asked),
         sleep: async () => {},
       }),
@@ -2068,7 +2092,7 @@ describe("photos copied into the repo in the run (P30)", () => {
     const root = await setup();
     await run(
       deps(root, {
-        wikimedia: withViews(),
+        pageviews: withViews(),
         photoFetch: photoFetch([]),
         sleep: async () => {},
       }),
