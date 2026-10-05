@@ -1146,9 +1146,11 @@ async function build(deps: RunDeps): Promise<RunResult> {
       if (!p.pools.active) return { ...p, fame: null };
       const m = measured.find((x) => x.id === p.id)!;
       const found = viewsOf(m, views);
+      const localStar =
+        checked.overrides.players[p.wikidataId]?.localStar?.value === true;
       return {
         ...p,
-        fame: fameOf(found?.views ?? null, found?.window ?? null, false),
+        fame: fameOf(found?.views ?? null, found?.window ?? null, localStar),
       };
     }),
   };

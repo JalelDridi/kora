@@ -28,6 +28,8 @@ export type PlayerOverride = {
   aliases?: OverrideValue<string[]>;
   pools?: OverrideValue<{ active: boolean; legend: boolean }>;
   exclude?: OverrideValue<boolean>;
+  /** D-S2-4: known at home beyond his page views; +0.5 to his fame. */
+  localStar?: OverrideValue<boolean>;
 };
 
 export type Overrides = {
@@ -63,6 +65,7 @@ const CHECKS: Record<keyof PlayerOverride, Check> = {
     typeof v.active === "boolean" &&
     typeof v.legend === "boolean",
   exclude: (v) => typeof v === "boolean",
+  localStar: (v) => typeof v === "boolean",
 };
 
 function isRecord(v: unknown): v is Record<string, unknown> {

@@ -60,7 +60,7 @@ Keyed by the footballer's Wikidata id. Every value says who decided and when:
       "clubTitles": { "en:Esperance de Tunis": "Q44897" }
     }
 
-Fields: `club` (a club's Wikidata id, or `null` for none), `position`, `positionDetail`, `caps`, `goals`, `capsAsOf`, `birthDate` (`YYYY-MM-DD`, decision P37), `governorate`, `birthCountry`, `nameArabic`, `aliases`, `pools` (`{ "active": true, "legend": false }`), `exclude`. `clubTitles` pins a Wikipedia link title to a club. Edit overrides on `main`, never on the `data/nightly` branch, which is rebuilt every night.
+Fields: `club` (a club's Wikidata id, or `null` for none), `position`, `positionDetail`, `caps`, `goals`, `capsAsOf`, `birthDate` (`YYYY-MM-DD`, decision P37), `governorate`, `birthCountry`, `nameArabic`, `aliases`, `pools` (`{ "active": true, "legend": false }`), `exclude`, `localStar` (`true` adds 0.5 to his fame, D-S2-4: a footballer known at home beyond his page views; the report's "one field away" list helps choose). `clubTitles` pins a Wikipedia link title to a club. Edit overrides on `main`, never on the `data/nightly` branch, which is rebuilt every night.
 
 ## Confidence
 

@@ -1837,6 +1837,21 @@ describe("fame from page views in the run (D-S2-4)", () => {
     expect((await readPool(root)).players[0].fame?.tier).toBe("A");
   });
 
+  it("a local star tag in the overrides adds 0.5", async () => {
+    const root = await setup({
+      players: {
+        Q1001: { localStar: { value: true, by: "jalel", at: "2026-10-05" } },
+      },
+      clubTitles: {},
+    });
+    await run(deps(root, { wikimedia: withViews() }));
+    expect((await readPool(root)).players[0].fame).toMatchObject({
+      score: 5.91,
+      tier: "A",
+      localStar: true,
+    });
+  });
+
   it("fame is null for legends only", async () => {
     const root = await setup({
       players: {
