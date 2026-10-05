@@ -1,5 +1,7 @@
 import { CROSS_CHECKED, isAnswerReady, SINGLE_SOURCE } from "./confidence.ts";
+import type { Sighting } from "./squads/match.ts";
 import { droppedReasons } from "./types.ts";
+import type { SquadList } from "./wiki/squads.ts";
 import type {
   Competition,
   Flag,
@@ -183,6 +185,129 @@ export function missingSeasons(
   return out;
 }
 
+/** The squad lists (P42) as the report shows them. */
+export type SquadSummary = {
+  lists: (Pick<
+    SquadList,
+    "lang" | "page" | "kind" | "date" | "season" | "status"
+  > & {
+    rows: number;
+    matched: number;
+  })[];
+  votes: Record<"clubId" | "caps", { agree: number; differ: number }>;
+  /** Rows that named two footballers at once (no match). */
+  notes: string[];
+};
+
+const SQUAD_SOURCES: readonly SourceId[] = [
+  "enwiki-squad",
+  "frwiki-squad",
+  "enwiki-national",
+];
+
+/**
+ * Per list, its rows and how many matched; per field, the footballers in the
+ * pool whose value a squad list agrees with or differs from.
+ */
+export function squadSummary(
+  lists: SquadList[],
+  sightings: Sighting[],
+  pool: Pool,
+  notes: string[] = [],
+): SquadSummary {
+  const key = (l: Pick<SquadList, "lang" | "page">) => `${l.lang}:${l.page}`;
+  const inPool = new Map(pool.players.map((p) => [p.wikidataId, p]));
+  const agrees = (p: PoolPlayer, field: "clubId" | "caps") =>
+    (p.provenance[field]?.agreeing ?? []).some((s) =>
+      SQUAD_SOURCES.includes(s),
+    );
+  const capsDiffer = new Set(
+    sightings
+      .filter((s) => {
+        const p = inPool.get(s.qid);
+        return (
+          p !== undefined &&
+          s.list.kind === "national" &&
+          s.caps !== undefined &&
+          s.caps !== p.caps
+        );
+      })
+      .map((s) => s.qid),
+  );
+  return {
+    lists: lists.map((l) => ({
+      lang: l.lang,
+      page: l.page,
+      kind: l.kind,
+      date: l.date,
+      season: l.season,
+      status: l.status,
+      rows: l.rows.length,
+      matched: sightings.filter((s) => key(s.list) === key(l)).length,
+    })),
+    votes: {
+      clubId: {
+        agree: pool.players.filter((p) => agrees(p, "clubId")).length,
+        differ: new Set(
+          pool.flags
+            .filter((f) => f.kind === "club-squad-list-differs")
+            .map((f) => f.subject),
+        ).size,
+      },
+      caps: {
+        agree: pool.players.filter((p) => agrees(p, "caps")).length,
+        differ: capsDiffer.size,
+      },
+    },
+    notes,
+  };
+}
+
+function squadSection(squads: SquadSummary | null): string[] {
+  if (squads === null)
+    return [
+      "## Squad lists (P42)",
+      "",
+      "No squad list was read in this build: the squads source failed or has no cached copy. The pool is what it would be without them.",
+    ];
+  const current = squads.lists.filter((l) => l.status === "current");
+  const named = (status: string) =>
+    squads.lists
+      .filter((l) => l.status === status)
+      .map(
+        (l) => `${l.lang}:${l.page}${l.date ? ` (${l.season ?? l.date})` : ""}`,
+      );
+  const stale = named("stale");
+  const undated = named("undated");
+  const none = named("none");
+  return [
+    `## Squad lists (P42): ${current.length} current of ${squads.lists.length}`,
+    "",
+    "Each list read tonight, by its own date or season (never the page edit). Only a current list votes; the national table's caps count at any date. A row counts when it matches a footballer by its link or by name and birth date.",
+    "",
+    "| List | Language | Date or season | Status | Tunisian rows | Matched |",
+    "| --- | --- | --- | --- | --- | --- |",
+    ...squads.lists.map(
+      (l) =>
+        `| ${l.page}${l.kind === "national" ? " (national table)" : ""} | ${l.lang} | ${l.season ?? l.date ?? "none"} | ${l.status} | ${l.rows} | ${l.matched} |`,
+    ),
+    "",
+    `Club: a squad list agrees with ${squads.votes.clubId.agree} footballers' club and differs for ${squads.votes.clubId.differ} (flag club-squad-list-differs). Caps: the national table agrees with ${squads.votes.caps.agree} and differs for ${squads.votes.caps.differ}.`,
+    "",
+    `- Stale, no vote (${stale.length}): ${stale.join(", ") || "none"}`,
+    `- Undated, no vote (${undated.length}): ${undated.join(", ") || "none"}`,
+    `- No list on the page (${none.length}): ${none.join(", ") || "none"}`,
+    ...(squads.notes.length > 0
+      ? [
+          "",
+          `Rows that name two footballers, not matched (${squads.notes.length}):`,
+          "",
+          ...squads.notes.map((n) => `- ${n}`),
+        ]
+      : []),
+  ];
+}
+
 /** What parseHonoursReport corrected or dropped while reading Wikidata's honours. */
 export type HonoursReading = {
   issues: HonourIssue[];
@@ -211,6 +336,8 @@ export function renderReport(input: {
   overrideWarnings?: string[];
   /** A deliberate offline rebuild (`--offline`): every source is cached on purpose. */
   offline?: boolean;
+  /** P42: the squad lists; null when none was read; absent: no section. */
+  squads?: SquadSummary | null;
 }): string {
   const { pool, diff, statuses, today } = input;
   const clubName = new Map(pool.clubs.map((c) => [c.id, c.nameLatin]));
@@ -327,6 +454,7 @@ export function renderReport(input: {
     "",
     ...flagList(undatedSpells),
     "",
+    ...(input.squads === undefined ? [] : [...squadSection(input.squads), ""]),
     `## Left out of the pool (${pool.dropped.length})`,
     "",
     ...droppedReasons.map(

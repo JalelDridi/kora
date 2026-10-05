@@ -7,8 +7,12 @@ import {
   lowFields,
   missingSeasons,
   renderReport,
+  squadSummary,
 } from "./report.ts";
+import type { SquadSummary } from "./report.ts";
+import type { Sighting } from "./squads/match.ts";
 import type { Pool, PoolPlayer } from "./types.ts";
+import type { SquadList } from "./wiki/squads.ts";
 
 function player(id: string, fields: Partial<PoolPlayer> = {}): PoolPlayer {
   return {
@@ -758,5 +762,158 @@ describe("footballers missing a field, in the report (fix round 2, item 3)", () 
     expect(report.indexOf("### Missing a required field")).toBeLessThan(
       report.indexOf("## Stale overrides"),
     );
+  });
+});
+
+describe("the squad lists section (P42)", () => {
+  const list = (page: string, over: Partial<SquadList> = {}): SquadList => ({
+    lang: "en",
+    page,
+    kind: "club",
+    date: "2026-09-27",
+    season: null,
+    status: "current",
+    rows: [
+      { name: "a", link: "a", part: "squad", nat: "TUN" },
+      { name: "b", link: null, part: "squad", nat: "TUN" },
+    ],
+    ...over,
+  });
+  const africain = list("Club Africain");
+  const national = list("Tunisia national football team", {
+    kind: "national",
+    date: "2026-09-28",
+  });
+  const lists = [
+    africain,
+    list("Club africain (football)", {
+      lang: "fr",
+      date: "2026-07-01",
+      season: "2026-2027",
+    }),
+    list("CA Bizertin", { date: "2025-01-13", status: "stale" }),
+    list("Espérance Sportive de Tunis", { date: null, status: "undated" }),
+    list("ES Hammam Sousse", { date: null, status: "none", rows: [] }),
+    national,
+  ];
+  const agreeing = player("agreeing", {
+    wikidataId: "Q10",
+    caps: 5,
+    provenance: {
+      clubId: {
+        source: "enwiki",
+        retrievedAt: "2026-10-04",
+        confidence: "high",
+        agreeing: ["enwiki", "enwiki-squad"],
+      },
+      caps: {
+        source: "enwiki",
+        retrievedAt: "2026-10-04",
+        confidence: "high",
+        agreeing: ["enwiki", "enwiki-national"],
+      },
+    },
+  });
+  const differing = player("differing", { wikidataId: "Q11", caps: 3 });
+  const sightings: Sighting[] = [
+    {
+      qid: "Q10",
+      list: africain,
+      part: "squad",
+      asOf: "2026-09-27",
+      by: "link",
+    },
+    {
+      qid: "Q10",
+      list: national,
+      part: "squad",
+      asOf: "2026-09-28",
+      caps: 5,
+      by: "link",
+    },
+    {
+      qid: "Q11",
+      list: national,
+      part: "squad",
+      asOf: "2026-09-28",
+      caps: 4,
+      by: "link",
+    },
+  ];
+  const withFlag = {
+    ...pool([agreeing, differing]),
+    flags: [
+      {
+        subject: "Q11",
+        kind: "club-squad-list-differs" as const,
+        detail:
+          "enwiki-squad Club Africain (2026-09-27) lists him at Club Africain; chosen: none",
+      },
+    ],
+  };
+  const render = (squads: SquadSummary | null | undefined) =>
+    renderReport({
+      pool: withFlag,
+      diff: diffPools(null, withFlag),
+      statuses: {
+        squads: { status: "fresh", retrievedAt: "2026-10-04" },
+      },
+      today: "2026-10-04",
+      ...(squads === undefined ? {} : { squads }),
+    });
+
+  it("lists each squad list with language, date or season, status and rows matched", () => {
+    const report = render(squadSummary(lists, sightings, withFlag));
+    expect(report).toContain("## Squad lists (P42): 3 current of 6");
+    expect(report).toContain(
+      "| Club Africain | en | 2026-09-27 | current | 2 | 1 |",
+    );
+    expect(report).toContain(
+      "| Club africain (football) | fr | 2026-2027 | current | 2 | 0 |",
+    );
+    expect(report).toContain(
+      "| Tunisia national football team (national table) | en | 2026-09-28 | current | 2 | 2 |",
+    );
+    // After the low-confidence section, before the footballers left out.
+    expect(report.indexOf("## Squad lists")).toBeGreaterThan(
+      report.indexOf("## Low confidence"),
+    );
+    expect(report.indexOf("## Squad lists")).toBeLessThan(
+      report.indexOf("## Left out of the pool"),
+    );
+  });
+
+  it("counts agreeing and differing votes per field", () => {
+    expect(squadSummary(lists, sightings, withFlag).votes).toEqual({
+      clubId: { agree: 1, differ: 1 },
+      caps: { agree: 1, differ: 1 },
+    });
+    expect(render(squadSummary(lists, sightings, withFlag))).toContain(
+      "Club: a squad list agrees with 1 footballers' club and differs for 1 (flag club-squad-list-differs). Caps: the national table agrees with 1 and differs for 1.",
+    );
+  });
+
+  it("names stale and undated lists", () => {
+    const report = render(squadSummary(lists, sightings, withFlag));
+    expect(report).toContain(
+      "- Stale, no vote (1): en:CA Bizertin (2025-01-13)",
+    );
+    expect(report).toContain(
+      "- Undated, no vote (1): en:Espérance Sportive de Tunis",
+    );
+    expect(report).toContain("- No list on the page (1): en:ES Hammam Sousse");
+  });
+
+  it("the squads source row appears in the source table", () => {
+    expect(render(squadSummary(lists, sightings, withFlag))).toContain(
+      "| squads | fresh | 2026-10-04 |  |",
+    );
+  });
+
+  it("says so when no list was read, and has no section when not asked", () => {
+    expect(render(null)).toContain(
+      "No squad list was read in this build: the squads source failed or has no cached copy.",
+    );
+    expect(render(undefined)).not.toContain("Squad lists");
   });
 });

@@ -9,7 +9,12 @@ import { buildClubIndex, chosenClubOf } from "./merge.ts";
 import type { MergeContext } from "./merge.ts";
 import { validateOverrides } from "./overrides.ts";
 import { buildPool, emptyRegistry } from "./pool.ts";
-import { diffPools, guardChange, renderReport } from "./report.ts";
+import {
+  diffPools,
+  guardChange,
+  renderReport,
+  squadSummary,
+} from "./report.ts";
 import type { HonoursReading } from "./report.ts";
 import { RESULTS_URL, tunisiaMatches } from "./results.ts";
 import { plainLatin } from "./places.ts";
@@ -1066,6 +1071,15 @@ async function build(deps: RunDeps): Promise<RunResult> {
         honoursReading: wikidata.honoursReading,
         overrideWarnings: checked.warnings,
         offline: deps.offline === true,
+        squads:
+          squadLists && squadMatch
+            ? squadSummary(
+                squadLists,
+                squadMatch.sightings,
+                pool,
+                squadMatch.notes,
+              )
+            : null,
       }),
     ],
   ]);
