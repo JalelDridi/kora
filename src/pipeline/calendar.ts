@@ -25,10 +25,10 @@ export type SqlClient = {
 export const CALENDAR_DAYS = 30;
 /** The draw must see this far back to keep the repeat window (D-S2-5). */
 export const HISTORY_DAYS = 120;
-/** A deploy that cannot fill today and the next two days fails (stop rule). */
-export const MUST_FILL_DAYS = 3;
-
-/** A refusal the build prints and exits 1 on. Its message names no footballer. */
+/**
+ * A refusal the build prints and exits 1 on: only a missing seed (P50). Its
+ * message names no footballer.
+ */
 export class CalendarRefusal extends Error {}
 
 /**
@@ -61,6 +61,18 @@ ON CONFLICT (game, day) DO UPDATE
   WHERE puzzles.source = 'generator'
     AND puzzles.player_id IS DISTINCT FROM EXCLUDED.player_id`;
 
+/** Why some days stay empty, in a few words; no footballer named. */
+async function shortage(db: SqlClient, eligible: number): Promise<string> {
+  if (eligible > 0)
+    return `only ${eligible} eligible footballer${eligible === 1 ? "" : "s"} (answer-ready, tiers A to C), too few for every day's tiers and the repeat window`;
+  const { rows } = await db.query(
+    "SELECT count(*)::int AS n FROM players WHERE pool_active AND fame_tier IS NOT NULL",
+  );
+  return Number(rows[0]?.n ?? 0) === 0
+    ? "no footballer has a fame tier yet"
+    : "no answer-ready footballer has a tier A to C";
+}
+
 export async function readCandidates(db: SqlClient): Promise<Candidate[]> {
   const { rows } = await db.query(CANDIDATES_SQL);
   return rows.map((r) => ({ id: String(r.id), tier: String(r.tier) }));
@@ -80,9 +92,10 @@ export async function readCalendar(
 }
 
 /**
- * Tops the calendar up to `days` days from `today` (a Tunis date). Refuses,
- * writing nothing, without a seed or when one of the first three days would
- * stay empty.
+ * Tops the calendar up to `days` days from `today` (a Tunis date). Refuses
+ * only without a seed. A data shortage never fails it (P50): it writes the
+ * days it can and prints one line saying how many of the `days` are filled
+ * and why not all.
  */
 export async function topUpCalendar(input: {
   db: SqlClient;
@@ -90,7 +103,12 @@ export async function topUpCalendar(input: {
   today: Day;
   days?: number;
   log: (line: string) => void;
-}): Promise<{ written: number; window: number; notes: string[] }> {
+}): Promise<{
+  written: number;
+  filled: number;
+  window: number;
+  notes: string[];
+}> {
   const { db, today, log } = input;
   const days = input.days ?? CALENDAR_DAYS;
   if (!input.seed)
@@ -110,17 +128,6 @@ export async function topUpCalendar(input: {
     candidates,
     existing,
   });
-  const filled = new Set([
-    ...existing.map((r) => r.day),
-    ...out.write.map((r) => r.day),
-  ]);
-  const empty = Array.from({ length: MUST_FILL_DAYS }, (_, i) =>
-    addDays(today, i),
-  ).filter((d) => !filled.has(d));
-  if (empty.length > 0)
-    throw new CalendarRefusal(
-      `the Chkoun? calendar cannot fill ${empty.join(", ")}: ${candidates.length} eligible footballers (answer-ready, tiers A to C); nothing written`,
-    );
   const counts = { A: 0, B: 0, C: 0 } as Record<string, number>;
   for (const c of candidates) counts[c.tier]++;
   log(
@@ -146,5 +153,15 @@ export async function topUpCalendar(input: {
   log(
     `calendar: ${written} day${written === 1 ? "" : "s"} written, ${today} to ${addDays(today, days - 1)}`,
   );
-  return { written, window: out.window, notes: out.notes };
+  const filledDays = new Set([
+    ...existing.map((r) => r.day),
+    ...out.write.map((r) => r.day),
+  ]);
+  const filled = Array.from({ length: days }, (_, i) =>
+    addDays(today, i),
+  ).filter((d) => filledDays.has(d)).length;
+  log(
+    `chkoun calendar: ${filled} of ${days} days filled${filled < days ? `: ${await shortage(db, candidates.length)}` : ""}`,
+  );
+  return { written, filled, window: out.window, notes: out.notes };
 }

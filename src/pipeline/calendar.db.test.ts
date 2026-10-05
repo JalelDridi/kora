@@ -140,13 +140,66 @@ describe("topUpCalendar", () => {
     expect((await calendar()).size).toBe(0);
   });
 
-  it("it refuses when one of the next 3 days cannot be filled", async () => {
-    // Only C footballers: no weekday can be filled.
-    await sync(eligible.filter((p) => p.fame?.tier === "C"));
-    await expect(topUp()).rejects.toThrow(
-      /the Chkoun\? calendar cannot fill .*15 eligible footballers/,
+  // P50: a data shortage never fails the deploy.
+  it("with no eligible footballer it writes nothing, says why, and succeeds", async () => {
+    // No fame measured yet: nobody has a tier.
+    await sync(eligible.map((p) => ({ ...p, fame: null })));
+    const lines: string[] = [];
+    const out = await topUpCalendar({
+      db: client,
+      seed,
+      today: today(),
+      log: (l) => lines.push(l),
+    });
+    expect(out).toMatchObject({ written: 0, filled: 0 });
+    expect(lines).toContain(
+      "chkoun calendar: 0 of 30 days filled: no footballer has a fame tier yet",
     );
     expect((await calendar()).size).toBe(0);
+  });
+
+  it("with too few eligible footballers it fills what it can and says so", async () => {
+    // Only C footballers: weekends only.
+    await sync(eligible.filter((p) => p.fame?.tier === "C"));
+    const lines: string[] = [];
+    const out = await topUpCalendar({
+      db: client,
+      seed,
+      today: today(),
+      log: (l) => lines.push(l),
+    });
+    expect(out.filled).toBeGreaterThan(0);
+    expect(out.filled).toBeLessThan(30);
+    expect((await calendar()).size).toBe(out.filled);
+    expect(lines).toContain(
+      `chkoun calendar: ${out.filled} of 30 days filled: only 15 eligible footballers (answer-ready, tiers A to C), too few for every day's tiers and the repeat window`,
+    );
+  });
+
+  it("says when footballers have tiers but none is answer-ready", async () => {
+    await sync(eligible.map((p) => footballer(p.id, p.fame!.tier!, false)));
+    const lines: string[] = [];
+    await topUpCalendar({
+      db: client,
+      seed,
+      today: today(),
+      log: (l) => lines.push(l),
+    });
+    expect(lines).toContain(
+      "chkoun calendar: 0 of 30 days filled: no answer-ready footballer has a tier A to C",
+    );
+  });
+
+  it("says all days are filled when they are", async () => {
+    await sync(eligible);
+    const lines: string[] = [];
+    await topUpCalendar({
+      db: client,
+      seed,
+      today: today(),
+      log: (l) => lines.push(l),
+    });
+    expect(lines).toContain("chkoun calendar: 30 of 30 days filled");
   });
 });
 
@@ -170,10 +223,12 @@ describe("node src/pipeline/sync-cli.ts calendar", () => {
     expect(r.stderr).toMatch(/CHKOUN_SEED is not set/);
   });
 
-  it("exits 1 when the next 3 days cannot be filled", async () => {
+  it("exits 0 with no eligible footballer, saying so (P50)", () => {
     const r = cli({ CHKOUN_SEED: seed });
-    expect(r.status).toBe(1);
-    expect(r.stderr).toMatch(/cannot fill/);
+    expect(r.status).toBe(0);
+    expect(r.stdout).toContain(
+      "chkoun calendar: 0 of 30 days filled: no footballer has a fame tier yet",
+    );
   });
 
   it("tops the calendar up and prints no footballer", async () => {
