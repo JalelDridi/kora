@@ -21,5 +21,9 @@ step "apply migrations" prisma migrate deploy
 # data/pool.json into this environment's database, in one transaction; it
 # refuses an empty or invalid pool before connecting.
 step "sync data/pool.json" node src/pipeline/sync-cli.ts
+# The next 30 days of Chkoun? from the secret CHKOUN_SEED (D-S2-2). Without
+# the seed, or when today and the next two days cannot be filled, the build
+# fails here, naming why; it never prints the seed or a footballer.
+step "top up the Chkoun? calendar" node src/pipeline/sync-cli.ts calendar
 step "build the app" next build
 echo "vercel-build: done"
