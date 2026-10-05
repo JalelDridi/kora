@@ -137,7 +137,7 @@
           "agreeing": [
             "enwiki"
           ],
-          "confidenceNote": "one source, as of 2025-09-17"
+          "confidenceNote": "enwiki-squad Q290540 (2026-09-15) is newer; frwiki-squad Q290540 (2026-07-01) is newer"
         },
         "history": {
           "source": "enwiki",
@@ -1295,11 +1295,11 @@
           "source": "enwiki",
           "retrievedAt": "2026-10-04",
           "ref": "Abdessalem Hallaoui",
-          "confidence": "low",
+          "confidence": "high",
           "agreeing": [
-            "enwiki"
-          ],
-          "confidenceNote": "one undated source"
+            "enwiki",
+            "enwiki-squad"
+          ]
         },
         "history": {
           "source": "enwiki",
@@ -2079,7 +2079,8 @@
           "confidence": "high",
           "agreeing": [
             "frwiki",
-            "wikidata"
+            "wikidata",
+            "frwiki-squad"
           ]
         },
         "history": {
@@ -3100,7 +3101,8 @@
           "confidence": "high",
           "agreeing": [
             "enwiki",
-            "frwiki"
+            "frwiki",
+            "enwiki-national"
           ]
         },
         "history": {
@@ -3119,11 +3121,11 @@
           "retrievedAt": "2026-10-04",
           "asOf": "2026-09-28",
           "ref": "Adem Arous",
-          "confidence": "medium",
+          "confidence": "high",
           "agreeing": [
-            "frwiki"
-          ],
-          "confidenceNote": "one fresh source; the others are explained by their dates"
+            "frwiki",
+            "enwiki-national"
+          ]
         },
         "goals": {
           "source": "frwiki",
@@ -3133,7 +3135,8 @@
           "confidence": "high",
           "agreeing": [
             "enwiki",
-            "frwiki"
+            "frwiki",
+            "enwiki-national"
           ]
         }
       }
@@ -4107,7 +4110,8 @@
           "agreeing": [
             "enwiki",
             "frwiki",
-            "wikidata"
+            "wikidata",
+            "enwiki-national"
           ]
         },
         "history": {
@@ -4126,11 +4130,11 @@
           "retrievedAt": "2026-10-04",
           "asOf": "2026-09-28",
           "ref": "Aïssa Laïdouni",
-          "confidence": "medium",
+          "confidence": "high",
           "agreeing": [
-            "frwiki"
-          ],
-          "confidenceNote": "one fresh source; the others are explained by their dates"
+            "frwiki",
+            "enwiki-national"
+          ]
         },
         "goals": {
           "source": "frwiki",
@@ -4141,7 +4145,8 @@
           "agreeing": [
             "enwiki",
             "frwiki",
-            "wikidata"
+            "wikidata",
+            "enwiki-national"
           ]
         },
         "photo": {
@@ -4172,7 +4177,7 @@
       "clubId": "fc-shakhtar-donetsk",
       "caps": 7,
       "goals": 0,
-      "capsAsOf": "2026-09-14",
+      "capsAsOf": "2026-09-28",
       "history": [
         {
           "clubId": "cs-sfaxien",
@@ -4286,7 +4291,8 @@
           "confidence": "high",
           "agreeing": [
             "enwiki",
-            "frwiki"
+            "frwiki",
+            "enwiki-national"
           ]
         },
         "history": {
@@ -4301,25 +4307,27 @@
           ]
         },
         "caps": {
-          "source": "frwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-14",
-          "ref": "Alaa Ghram",
+          "source": "enwiki-national",
+          "retrievedAt": "2026-10-05",
+          "asOf": "2026-09-28",
+          "ref": "Tunisia national football team",
           "confidence": "high",
           "agreeing": [
             "enwiki",
-            "frwiki"
+            "frwiki",
+            "enwiki-national"
           ]
         },
         "goals": {
-          "source": "frwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-14",
-          "ref": "Alaa Ghram",
+          "source": "enwiki-national",
+          "retrievedAt": "2026-10-05",
+          "asOf": "2026-09-28",
+          "ref": "Tunisia national football team",
           "confidence": "high",
           "agreeing": [
             "enwiki",
-            "frwiki"
+            "frwiki",
+            "enwiki-national"
           ]
         }
       }
@@ -6733,9 +6741,9 @@
       "birthCountry": "TN",
       "governorate": "sfax",
       "clubId": "cs-sfaxien",
-      "caps": 91,
+      "caps": 96,
       "goals": 3,
-      "capsAsOf": "2026-07-25",
+      "capsAsOf": "2026-09-28",
       "history": [
         {
           "clubId": "cs-sfaxien",
@@ -6868,7 +6876,9 @@
           "confidence": "high",
           "agreeing": [
             "enwiki",
-            "frwiki"
+            "frwiki",
+            "enwiki-national",
+            "enwiki-squad"
           ]
         },
         "history": {
@@ -6884,25 +6894,26 @@
           ]
         },
         "caps": {
-          "source": "frwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-07-25",
-          "ref": "Ali Maaloul",
+          "source": "enwiki-national",
+          "retrievedAt": "2026-10-05",
+          "asOf": "2026-09-28",
+          "ref": "Tunisia national football team",
           "confidence": "medium",
           "agreeing": [
-            "frwiki"
+            "enwiki-national"
           ],
           "confidenceNote": "one fresh source; the others are explained by their dates"
         },
         "goals": {
-          "source": "frwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-07-25",
-          "ref": "Ali Maaloul",
+          "source": "enwiki-national",
+          "retrievedAt": "2026-10-05",
+          "asOf": "2026-09-28",
+          "ref": "Tunisia national football team",
           "confidence": "high",
           "agreeing": [
             "enwiki",
-            "frwiki"
+            "frwiki",
+            "enwiki-national"
           ]
         },
         "photo": {
@@ -7627,7 +7638,8 @@
           "confidence": "high",
           "agreeing": [
             "enwiki",
-            "frwiki"
+            "frwiki",
+            "frwiki-squad"
           ]
         },
         "history": {
@@ -7815,7 +7827,8 @@
           "confidence": "high",
           "agreeing": [
             "enwiki",
-            "frwiki"
+            "frwiki",
+            "enwiki-national"
           ]
         },
         "history": {
@@ -7834,11 +7847,11 @@
           "retrievedAt": "2026-10-04",
           "asOf": "2026-09-28",
           "ref": "Amin Cherni",
-          "confidence": "medium",
+          "confidence": "low",
           "agreeing": [
             "frwiki"
           ],
-          "confidenceNote": "one fresh source; the others are explained by their dates"
+          "confidenceNote": "enwiki-national 5 (2026-09-28) has the same date"
         },
         "goals": {
           "source": "frwiki",
@@ -7848,7 +7861,8 @@
           "confidence": "high",
           "agreeing": [
             "enwiki",
-            "frwiki"
+            "frwiki",
+            "enwiki-national"
           ]
         }
       }
@@ -8265,7 +8279,8 @@
           "ref": "Amine Haboubi",
           "confidence": "low",
           "agreeing": [
-            "enwiki"
+            "enwiki",
+            "enwiki-squad"
           ],
           "confidenceNote": "frwiki none (2025-08-19) is within 90 days"
         },
@@ -10329,7 +10344,8 @@
           "confidence": "high",
           "agreeing": [
             "enwiki",
-            "frwiki"
+            "frwiki",
+            "enwiki-national"
           ]
         },
         "history": {
@@ -10348,11 +10364,11 @@
           "retrievedAt": "2026-10-04",
           "asOf": "2026-09-28",
           "ref": "Anis Ben Slimane",
-          "confidence": "medium",
+          "confidence": "high",
           "agreeing": [
-            "frwiki"
-          ],
-          "confidenceNote": "one fresh source; the others are explained by their dates"
+            "frwiki",
+            "enwiki-national"
+          ]
         },
         "goals": {
           "source": "frwiki",
@@ -10362,7 +10378,8 @@
           "confidence": "high",
           "agreeing": [
             "enwiki",
-            "frwiki"
+            "frwiki",
+            "enwiki-national"
           ]
         },
         "photo": {
@@ -11319,7 +11336,8 @@
           "confidence": "high",
           "agreeing": [
             "enwiki",
-            "frwiki"
+            "frwiki",
+            "enwiki-squad"
           ]
         },
         "history": {
@@ -11758,7 +11776,8 @@
           "confidence": "high",
           "agreeing": [
             "enwiki",
-            "frwiki"
+            "frwiki",
+            "enwiki-squad"
           ]
         },
         "history": {
@@ -12302,9 +12321,9 @@
       "birthCountry": "TN",
       "governorate": "sfax",
       "clubId": "cs-sfaxien",
-      "caps": 40,
+      "caps": 41,
       "goals": 0,
-      "capsAsOf": "2026-09-26",
+      "capsAsOf": "2026-09-28",
       "history": [
         {
           "clubId": "cs-sfaxien",
@@ -12428,7 +12447,9 @@
           "agreeing": [
             "enwiki",
             "frwiki",
-            "wikidata"
+            "wikidata",
+            "enwiki-national",
+            "enwiki-squad"
           ]
         },
         "history": {
@@ -12443,26 +12464,27 @@
           "confidenceNote": "one fresh source; the others are explained by their dates"
         },
         "caps": {
-          "source": "frwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-26",
-          "ref": "Aymen Dahmen",
+          "source": "enwiki-national",
+          "retrievedAt": "2026-10-05",
+          "asOf": "2026-09-28",
+          "ref": "Tunisia national football team",
           "confidence": "medium",
           "agreeing": [
-            "frwiki"
+            "enwiki-national"
           ],
           "confidenceNote": "one fresh source; the others are explained by their dates"
         },
         "goals": {
-          "source": "frwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-26",
-          "ref": "Aymen Dahmen",
+          "source": "enwiki-national",
+          "retrievedAt": "2026-10-05",
+          "asOf": "2026-09-28",
+          "ref": "Tunisia national football team",
           "confidence": "high",
           "agreeing": [
             "enwiki",
             "frwiki",
-            "wikidata"
+            "wikidata",
+            "enwiki-national"
           ]
         }
       }
@@ -12643,7 +12665,9 @@
           "confidence": "high",
           "agreeing": [
             "enwiki",
-            "frwiki"
+            "frwiki",
+            "enwiki-squad",
+            "frwiki-squad"
           ]
         },
         "history": {
@@ -13425,11 +13449,12 @@
           "retrievedAt": "2026-10-04",
           "asOf": "2026-09-12",
           "ref": "Azmi Ghouma",
-          "confidence": "medium",
+          "confidence": "high",
           "agreeing": [
-            "frwiki"
-          ],
-          "confidenceNote": "one fresh source; the others are explained by their dates"
+            "frwiki",
+            "enwiki-squad",
+            "frwiki-squad"
+          ]
         },
         "history": {
           "source": "frwiki",
@@ -13642,7 +13667,9 @@
           "confidence": "high",
           "agreeing": [
             "enwiki",
-            "frwiki"
+            "frwiki",
+            "enwiki-squad",
+            "frwiki-squad"
           ]
         },
         "history": {
@@ -13829,7 +13856,8 @@
           "confidence": "high",
           "agreeing": [
             "enwiki",
-            "frwiki"
+            "frwiki",
+            "frwiki-squad"
           ]
         },
         "history": {
@@ -14230,7 +14258,9 @@
           "agreeing": [
             "enwiki",
             "frwiki",
-            "wikidata"
+            "wikidata",
+            "enwiki-squad",
+            "frwiki-squad"
           ]
         },
         "history": {
@@ -17541,7 +17571,8 @@
           "confidence": "high",
           "agreeing": [
             "enwiki",
-            "frwiki"
+            "frwiki",
+            "enwiki-national"
           ]
         },
         "history": {
@@ -17560,11 +17591,11 @@
           "retrievedAt": "2026-10-04",
           "asOf": "2026-09-28",
           "ref": "Elias Achouri",
-          "confidence": "medium",
+          "confidence": "high",
           "agreeing": [
-            "frwiki"
-          ],
-          "confidenceNote": "one fresh source; the others are explained by their dates"
+            "frwiki",
+            "enwiki-national"
+          ]
         },
         "goals": {
           "source": "frwiki",
@@ -17573,7 +17604,8 @@
           "ref": "Elias Achouri",
           "confidence": "low",
           "agreeing": [
-            "frwiki"
+            "frwiki",
+            "enwiki-national"
           ],
           "confidenceNote": "enwiki 5 (2026-06-26) is higher"
         },
@@ -19274,7 +19306,8 @@
           "agreeing": [
             "enwiki",
             "frwiki",
-            "wikidata"
+            "wikidata",
+            "enwiki-squad"
           ]
         },
         "history": {
@@ -20966,7 +20999,8 @@
           "agreeing": [
             "enwiki",
             "frwiki",
-            "wikidata"
+            "wikidata",
+            "enwiki-national"
           ]
         },
         "history": {
@@ -20985,11 +21019,11 @@
           "retrievedAt": "2026-10-04",
           "asOf": "2026-09-28",
           "ref": "Ferjani Sassi",
-          "confidence": "medium",
+          "confidence": "high",
           "agreeing": [
-            "frwiki"
-          ],
-          "confidenceNote": "one fresh source; the others are explained by their dates"
+            "frwiki",
+            "enwiki-national"
+          ]
         },
         "goals": {
           "source": "frwiki",
@@ -21000,7 +21034,8 @@
           "agreeing": [
             "enwiki",
             "frwiki",
-            "wikidata"
+            "wikidata",
+            "enwiki-national"
           ]
         },
         "photo": {
@@ -22417,7 +22452,8 @@
           "confidence": "high",
           "agreeing": [
             "frwiki",
-            "wikidata"
+            "wikidata",
+            "frwiki-squad"
           ]
         },
         "history": {
@@ -22539,11 +22575,11 @@
           "retrievedAt": "2026-10-04",
           "asOf": "2026-07-12",
           "ref": "Ghaith Zaalouni",
-          "confidence": "medium",
+          "confidence": "high",
           "agreeing": [
-            "frwiki"
-          ],
-          "confidenceNote": "one fresh source"
+            "frwiki",
+            "frwiki-squad"
+          ]
         },
         "history": {
           "source": "frwiki",
@@ -22710,11 +22746,11 @@
           "retrievedAt": "2026-10-04",
           "asOf": "2026-09-09",
           "ref": "Ghassen Mahersi",
-          "confidence": "medium",
+          "confidence": "high",
           "agreeing": [
-            "frwiki"
-          ],
-          "confidenceNote": "one fresh source"
+            "frwiki",
+            "frwiki-squad"
+          ]
         },
         "history": {
           "source": "frwiki",
@@ -23521,7 +23557,8 @@
           "confidence": "high",
           "agreeing": [
             "enwiki",
-            "frwiki"
+            "frwiki",
+            "enwiki-squad"
           ]
         },
         "history": {
@@ -24848,7 +24885,8 @@
           "agreeing": [
             "enwiki",
             "frwiki",
-            "wikidata"
+            "wikidata",
+            "frwiki-squad"
           ]
         },
         "history": {
@@ -24988,11 +25026,11 @@
           "retrievedAt": "2026-10-04",
           "asOf": "2026-08-19",
           "ref": "Hamza Khadhraoui",
-          "confidence": "medium",
+          "confidence": "high",
           "agreeing": [
-            "frwiki"
-          ],
-          "confidenceNote": "one fresh source"
+            "frwiki",
+            "frwiki-squad"
+          ]
         },
         "history": {
           "source": "frwiki",
@@ -25373,7 +25411,8 @@
           "confidence": "high",
           "agreeing": [
             "enwiki",
-            "frwiki"
+            "frwiki",
+            "enwiki-squad"
           ]
         },
         "history": {
@@ -25437,9 +25476,9 @@
       "birthCountry": "TN",
       "governorate": "kef",
       "clubId": "esperance-sportive-de-tunis",
-      "caps": 37,
+      "caps": 38,
       "goals": 4,
-      "capsAsOf": "2026-09-13",
+      "capsAsOf": "2026-09-28",
       "history": [
         {
           "clubId": "olympique-lyonnais-reserves-and-academy",
@@ -25618,7 +25657,9 @@
           "agreeing": [
             "enwiki",
             "frwiki",
-            "wikidata"
+            "wikidata",
+            "enwiki-national",
+            "frwiki-squad"
           ]
         },
         "history": {
@@ -25633,27 +25674,27 @@
           "confidenceNote": "frwiki 6 clubs (2026-09-13) is within 90 days"
         },
         "caps": {
-          "source": "frwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-13",
-          "ref": "Hamza Rafia",
-          "confidence": "high",
+          "source": "enwiki-national",
+          "retrievedAt": "2026-10-05",
+          "asOf": "2026-09-28",
+          "ref": "Tunisia national football team",
+          "confidence": "medium",
           "agreeing": [
-            "enwiki",
-            "frwiki",
-            "wikidata"
-          ]
+            "enwiki-national"
+          ],
+          "confidenceNote": "one fresh source; the others are explained by their dates"
         },
         "goals": {
-          "source": "frwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-13",
-          "ref": "Hamza Rafia",
+          "source": "enwiki-national",
+          "retrievedAt": "2026-10-05",
+          "asOf": "2026-09-28",
+          "ref": "Tunisia national football team",
           "confidence": "high",
           "agreeing": [
             "enwiki",
             "frwiki",
-            "wikidata"
+            "wikidata",
+            "enwiki-national"
           ]
         },
         "photo": {
@@ -27001,7 +27042,9 @@
           "ref": "Haykeul Chikhaoui",
           "confidence": "low",
           "agreeing": [
-            "frwiki"
+            "frwiki",
+            "enwiki-squad",
+            "frwiki-squad"
           ],
           "confidenceNote": "enwiki none (2026-07-20) is within 90 days"
         },
@@ -27684,7 +27727,7 @@
           "agreeing": [
             "enwiki"
           ],
-          "confidenceNote": "one undated source"
+          "confidenceNote": "enwiki-squad Q1103140 (2026-09-27) is dated, the chosen value is not"
         },
         "history": {
           "source": "enwiki",
@@ -28089,7 +28132,9 @@
           "confidence": "high",
           "agreeing": [
             "enwiki",
-            "frwiki"
+            "frwiki",
+            "enwiki-national",
+            "frwiki-squad"
           ]
         },
         "history": {
@@ -28111,7 +28156,8 @@
           "confidence": "high",
           "agreeing": [
             "enwiki",
-            "frwiki"
+            "frwiki",
+            "enwiki-national"
           ]
         },
         "goals": {
@@ -28122,7 +28168,8 @@
           "confidence": "high",
           "agreeing": [
             "enwiki",
-            "frwiki"
+            "frwiki",
+            "enwiki-national"
           ]
         },
         "photo": {
@@ -28603,11 +28650,11 @@
           "retrievedAt": "2026-10-04",
           "asOf": "2025-07-01",
           "ref": "Hedi Khalfa",
-          "confidence": "low",
+          "confidence": "high",
           "agreeing": [
-            "enwiki"
-          ],
-          "confidenceNote": "one source, as of 2025-07-01"
+            "enwiki",
+            "enwiki-squad"
+          ]
         },
         "history": {
           "source": "enwiki",
@@ -29003,11 +29050,11 @@
           "retrievedAt": "2026-10-04",
           "asOf": "2026-07-08",
           "ref": "Houssem Ben Ali",
-          "confidence": "medium",
+          "confidence": "high",
           "agreeing": [
-            "frwiki"
-          ],
-          "confidenceNote": "one fresh source; the others are explained by their dates"
+            "frwiki",
+            "frwiki-squad"
+          ]
         },
         "history": {
           "source": "frwiki",
@@ -29324,11 +29371,12 @@
           "retrievedAt": "2026-10-04",
           "asOf": "2025-02-20",
           "ref": "Houssem Dagdoug",
-          "confidence": "low",
+          "confidence": "high",
           "agreeing": [
-            "enwiki"
-          ],
-          "confidenceNote": "one source, as of 2025-02-20"
+            "enwiki",
+            "enwiki-squad",
+            "frwiki-squad"
+          ]
         },
         "history": {
           "source": "enwiki",
@@ -29838,11 +29886,11 @@
           "retrievedAt": "2026-10-04",
           "asOf": "2025-10-27",
           "ref": "Houssem Hassen Romdhane",
-          "confidence": "medium",
+          "confidence": "high",
           "agreeing": [
-            "frwiki"
-          ],
-          "confidenceNote": "one fresh source"
+            "frwiki",
+            "frwiki-squad"
+          ]
         },
         "history": {
           "source": "frwiki",
@@ -31289,7 +31337,8 @@
           "confidence": "high",
           "agreeing": [
             "enwiki",
-            "frwiki"
+            "frwiki",
+            "enwiki-national"
           ]
         },
         "history": {
@@ -31308,11 +31357,11 @@
           "retrievedAt": "2026-10-04",
           "asOf": "2026-10-03",
           "ref": "Ismaël Gharbi",
-          "confidence": "medium",
+          "confidence": "high",
           "agreeing": [
-            "frwiki"
-          ],
-          "confidenceNote": "one fresh source; the others are explained by their dates"
+            "frwiki",
+            "enwiki-national"
+          ]
         },
         "goals": {
           "source": "frwiki",
@@ -31322,7 +31371,8 @@
           "confidence": "high",
           "agreeing": [
             "enwiki",
-            "frwiki"
+            "frwiki",
+            "enwiki-national"
           ]
         },
         "photo": {
@@ -32157,7 +32207,8 @@
           "confidence": "high",
           "agreeing": [
             "enwiki",
-            "frwiki"
+            "frwiki",
+            "enwiki-squad"
           ]
         },
         "history": {
@@ -34416,7 +34467,7 @@
       "clubId": "a-s-d-albalonga",
       "caps": 2,
       "goals": 0,
-      "capsAsOf": "2026-09-30",
+      "capsAsOf": "2026-10-05",
       "history": [
         {
           "clubId": "palermo-f-c",
@@ -34576,7 +34627,7 @@
           "clubName": "A.S.D. Albalonga",
           "from": 2026,
           "to": null,
-          "apps": 6,
+          "apps": 7,
           "goals": 2,
           "loan": false
         }
@@ -34669,7 +34720,7 @@
         "clubId": {
           "source": "frwiki",
           "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-30",
+          "asOf": "2026-10-05",
           "ref": "Karim Laribi",
           "confidence": "medium",
           "agreeing": [
@@ -34679,8 +34730,8 @@
         },
         "history": {
           "source": "frwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-30",
+          "retrievedAt": "2026-10-05",
+          "asOf": "2026-10-05",
           "ref": "Karim Laribi",
           "confidence": "medium",
           "agreeing": [
@@ -34690,8 +34741,8 @@
         },
         "caps": {
           "source": "frwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-30",
+          "retrievedAt": "2026-10-05",
+          "asOf": "2026-10-05",
           "ref": "Karim Laribi",
           "confidence": "high",
           "agreeing": [
@@ -34702,7 +34753,7 @@
         "goals": {
           "source": "frwiki",
           "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-30",
+          "asOf": "2026-10-05",
           "ref": "Karim Laribi",
           "confidence": "high",
           "agreeing": [
@@ -35927,7 +35978,7 @@
       "clubId": "usl-dunkerque",
       "caps": 5,
       "goals": 0,
-      "capsAsOf": "2026-09-24",
+      "capsAsOf": "2026-09-28",
       "history": [
         {
           "clubId": "stade-tunisien",
@@ -36059,7 +36110,8 @@
           "confidence": "high",
           "agreeing": [
             "enwiki",
-            "frwiki"
+            "frwiki",
+            "enwiki-national"
           ]
         },
         "history": {
@@ -36075,26 +36127,27 @@
           ]
         },
         "caps": {
-          "source": "frwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-24",
-          "ref": "Khalil Ayari",
-          "confidence": "medium",
+          "source": "enwiki-national",
+          "retrievedAt": "2026-10-05",
+          "asOf": "2026-09-28",
+          "ref": "Tunisia national football team",
+          "confidence": "high",
           "agreeing": [
-            "frwiki"
-          ],
-          "confidenceNote": "one fresh source; the others are explained by their dates"
+            "frwiki",
+            "enwiki-national"
+          ]
         },
         "goals": {
-          "source": "frwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-24",
-          "ref": "Khalil Ayari",
+          "source": "enwiki-national",
+          "retrievedAt": "2026-10-05",
+          "asOf": "2026-09-28",
+          "ref": "Tunisia national football team",
           "confidence": "high",
           "agreeing": [
             "enwiki",
             "frwiki",
-            "wikidata"
+            "wikidata",
+            "enwiki-national"
           ]
         }
       }
@@ -40108,7 +40161,8 @@
           "confidence": "high",
           "agreeing": [
             "enwiki",
-            "frwiki"
+            "frwiki",
+            "frwiki-squad"
           ]
         },
         "history": {
@@ -40261,7 +40315,8 @@
           "confidence": "high",
           "agreeing": [
             "enwiki",
-            "wikidata"
+            "wikidata",
+            "enwiki-squad"
           ]
         },
         "history": {
@@ -41711,7 +41766,8 @@
           "confidence": "high",
           "agreeing": [
             "enwiki",
-            "frwiki"
+            "frwiki",
+            "enwiki-squad"
           ]
         },
         "history": {
@@ -41889,11 +41945,11 @@
           "retrievedAt": "2026-10-04",
           "asOf": "2026-09-13",
           "ref": "Moez Haj Ali",
-          "confidence": "medium",
+          "confidence": "high",
           "agreeing": [
-            "frwiki"
-          ],
-          "confidenceNote": "one fresh source"
+            "frwiki",
+            "frwiki-squad"
+          ]
         },
         "history": {
           "source": "frwiki",
@@ -42725,11 +42781,11 @@
           "retrievedAt": "2026-10-04",
           "asOf": "2026-09-28",
           "ref": "Mohamed Ali Ben Romdhane",
-          "confidence": "medium",
+          "confidence": "high",
           "agreeing": [
-            "frwiki"
-          ],
-          "confidenceNote": "one fresh source; the others are explained by their dates"
+            "frwiki",
+            "enwiki-national"
+          ]
         },
         "history": {
           "source": "frwiki",
@@ -42747,11 +42803,11 @@
           "retrievedAt": "2026-10-04",
           "asOf": "2026-09-28",
           "ref": "Mohamed Ali Ben Romdhane",
-          "confidence": "medium",
+          "confidence": "high",
           "agreeing": [
-            "frwiki"
-          ],
-          "confidenceNote": "one fresh source; the others are explained by their dates"
+            "frwiki",
+            "enwiki-national"
+          ]
         },
         "goals": {
           "source": "frwiki",
@@ -42761,7 +42817,8 @@
           "confidence": "high",
           "agreeing": [
             "enwiki",
-            "frwiki"
+            "frwiki",
+            "enwiki-national"
           ]
         },
         "photo": {
@@ -43759,7 +43816,7 @@
       "clubId": "al-hazem-sc",
       "caps": 16,
       "goals": 0,
-      "capsAsOf": "2026-09-08",
+      "capsAsOf": "2026-09-28",
       "history": [
         {
           "clubId": "esperance-sportive-de-tunis",
@@ -43901,7 +43958,8 @@
           "confidence": "high",
           "agreeing": [
             "enwiki",
-            "frwiki"
+            "frwiki",
+            "enwiki-national"
           ]
         },
         "history": {
@@ -43916,26 +43974,28 @@
           ]
         },
         "caps": {
-          "source": "frwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-08",
-          "ref": "Mohamed Amine Ben Hmida",
-          "confidence": "high",
-          "agreeing": [
-            "enwiki",
-            "frwiki"
-          ]
-        },
-        "goals": {
-          "source": "frwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-08",
-          "ref": "Mohamed Amine Ben Hmida",
+          "source": "enwiki-national",
+          "retrievedAt": "2026-10-05",
+          "asOf": "2026-09-28",
+          "ref": "Tunisia national football team",
           "confidence": "high",
           "agreeing": [
             "enwiki",
             "frwiki",
-            "wikidata"
+            "enwiki-national"
+          ]
+        },
+        "goals": {
+          "source": "enwiki-national",
+          "retrievedAt": "2026-10-05",
+          "asOf": "2026-09-28",
+          "ref": "Tunisia national football team",
+          "confidence": "high",
+          "agreeing": [
+            "enwiki",
+            "frwiki",
+            "wikidata",
+            "enwiki-national"
           ]
         },
         "photo": {
@@ -44527,7 +44587,8 @@
           "confidence": "high",
           "agreeing": [
             "enwiki",
-            "frwiki"
+            "frwiki",
+            "frwiki-squad"
           ]
         },
         "history": {
@@ -44704,7 +44765,8 @@
           "confidence": "high",
           "agreeing": [
             "enwiki",
-            "frwiki"
+            "frwiki",
+            "frwiki-squad"
           ]
         },
         "history": {
@@ -45905,7 +45967,8 @@
           "confidence": "high",
           "agreeing": [
             "enwiki",
-            "frwiki"
+            "frwiki",
+            "frwiki-squad"
           ]
         },
         "history": {
@@ -46477,11 +46540,11 @@
           "retrievedAt": "2026-10-04",
           "asOf": "2022-04-13",
           "ref": "Mohamed Hedi Gaaloul",
-          "confidence": "low",
+          "confidence": "high",
           "agreeing": [
-            "enwiki"
-          ],
-          "confidenceNote": "one source, as of 2022-04-13"
+            "enwiki",
+            "enwiki-squad"
+          ]
         },
         "history": {
           "source": "enwiki",
@@ -46875,9 +46938,9 @@
       "birthCountry": "TN",
       "governorate": null,
       "clubId": "nk-istra-1961",
-      "caps": 0,
+      "caps": 1,
       "goals": 0,
-      "capsAsOf": null,
+      "capsAsOf": "2026-09-28",
       "history": [
         {
           "clubId": "cs-sfaxien",
@@ -46984,11 +47047,11 @@
           "retrievedAt": "2026-10-04",
           "asOf": "2026-06-01",
           "ref": "Mohamed Nasraoui",
-          "confidence": "medium",
+          "confidence": "high",
           "agreeing": [
-            "enwiki"
-          ],
-          "confidenceNote": "one fresh source; the others are explained by their dates"
+            "enwiki",
+            "enwiki-national"
+          ]
         },
         "history": {
           "source": "enwiki",
@@ -47002,26 +47065,26 @@
           "confidenceNote": "one fresh source; the others are explained by their dates"
         },
         "caps": {
-          "source": "enwiki",
-          "retrievedAt": "2026-10-04",
-          "ref": "Mohamed Nasraoui",
+          "source": "enwiki-national",
+          "retrievedAt": "2026-10-05",
+          "asOf": "2026-09-28",
+          "ref": "Tunisia national football team",
           "confidence": "medium",
           "agreeing": [
-            "enwiki",
-            "wikidata"
+            "enwiki-national"
           ],
-          "confidenceNote": "no senior national row"
+          "confidenceNote": "one fresh source"
         },
         "goals": {
-          "source": "enwiki",
-          "retrievedAt": "2026-10-04",
-          "ref": "Mohamed Nasraoui",
+          "source": "enwiki-national",
+          "retrievedAt": "2026-10-05",
+          "asOf": "2026-09-28",
+          "ref": "Tunisia national football team",
           "confidence": "medium",
           "agreeing": [
-            "enwiki",
-            "wikidata"
+            "enwiki-national"
           ],
-          "confidenceNote": "no senior national row"
+          "confidenceNote": "one fresh source"
         },
         "photo": {
           "source": "commons",
@@ -49102,7 +49165,8 @@
           "agreeing": [
             "enwiki",
             "frwiki",
-            "wikidata"
+            "wikidata",
+            "enwiki-national"
           ]
         },
         "history": {
@@ -49122,11 +49186,11 @@
           "retrievedAt": "2026-10-04",
           "asOf": "2026-09-28",
           "ref": "Montassar Talbi",
-          "confidence": "medium",
+          "confidence": "high",
           "agreeing": [
-            "frwiki"
-          ],
-          "confidenceNote": "one fresh source; the others are explained by their dates"
+            "frwiki",
+            "enwiki-national"
+          ]
         },
         "goals": {
           "source": "frwiki",
@@ -49136,7 +49200,8 @@
           "confidence": "high",
           "agreeing": [
             "enwiki",
-            "frwiki"
+            "frwiki",
+            "enwiki-national"
           ]
         },
         "photo": {
@@ -49345,7 +49410,9 @@
           "confidence": "high",
           "agreeing": [
             "enwiki",
-            "frwiki"
+            "frwiki",
+            "enwiki-squad",
+            "frwiki-squad"
           ]
         },
         "history": {
@@ -50107,7 +50174,7 @@
       "clubId": "club-africain",
       "caps": 4,
       "goals": 0,
-      "capsAsOf": "2026-08-08",
+      "capsAsOf": "2026-09-28",
       "history": [
         {
           "clubId": "co-medenine",
@@ -50230,7 +50297,10 @@
           "confidence": "high",
           "agreeing": [
             "enwiki",
-            "frwiki"
+            "frwiki",
+            "enwiki-national",
+            "enwiki-squad",
+            "frwiki-squad"
           ]
         },
         "history": {
@@ -50245,25 +50315,26 @@
           ]
         },
         "caps": {
-          "source": "frwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-08-08",
-          "ref": "Mouhib Chamakh",
-          "confidence": "medium",
+          "source": "enwiki-national",
+          "retrievedAt": "2026-10-05",
+          "asOf": "2026-09-28",
+          "ref": "Tunisia national football team",
+          "confidence": "high",
           "agreeing": [
-            "frwiki"
-          ],
-          "confidenceNote": "one fresh source; the others are explained by their dates"
+            "frwiki",
+            "enwiki-national"
+          ]
         },
         "goals": {
-          "source": "frwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-08-08",
-          "ref": "Mouhib Chamakh",
+          "source": "enwiki-national",
+          "retrievedAt": "2026-10-05",
+          "asOf": "2026-09-28",
+          "ref": "Tunisia national football team",
           "confidence": "high",
           "agreeing": [
             "enwiki",
-            "frwiki"
+            "frwiki",
+            "enwiki-national"
           ]
         }
       }
@@ -51093,7 +51164,7 @@
       "clubId": "ifk-norrkoping",
       "caps": 5,
       "goals": 0,
-      "capsAsOf": "2026-09-19",
+      "capsAsOf": "2026-09-28",
       "history": [
         {
           "clubId": "ifk-norrkoping",
@@ -51206,7 +51277,8 @@
           "confidence": "high",
           "agreeing": [
             "enwiki",
-            "frwiki"
+            "frwiki",
+            "enwiki-national"
           ]
         },
         "history": {
@@ -51221,25 +51293,27 @@
           ]
         },
         "caps": {
-          "source": "frwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-19",
-          "ref": "Moutaz Neffati",
+          "source": "enwiki-national",
+          "retrievedAt": "2026-10-05",
+          "asOf": "2026-09-28",
+          "ref": "Tunisia national football team",
           "confidence": "high",
           "agreeing": [
             "enwiki",
-            "frwiki"
+            "frwiki",
+            "enwiki-national"
           ]
         },
         "goals": {
-          "source": "frwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-19",
-          "ref": "Moutaz Neffati",
+          "source": "enwiki-national",
+          "retrievedAt": "2026-10-05",
+          "asOf": "2026-09-28",
+          "ref": "Tunisia national football team",
           "confidence": "high",
           "agreeing": [
             "enwiki",
-            "frwiki"
+            "frwiki",
+            "enwiki-national"
           ]
         }
       }
@@ -54723,7 +54797,9 @@
           "confidence": "high",
           "agreeing": [
             "enwiki",
-            "frwiki"
+            "frwiki",
+            "enwiki-squad",
+            "frwiki-squad"
           ]
         },
         "history": {
@@ -55622,9 +55698,9 @@
       "nameArabic": "راضي الجعايدي",
       "nameFrench": "Radhi Jaïdi",
       "aliases": [
+        "Radhi Ben Abdelmajid Jaïdi",
         "Radhi Jaidi",
-        "Rahdi Jaïdi",
-        "Radhi Ben Abdelmajid Jaïdi"
+        "Rahdi Jaïdi"
       ],
       "position": "defender",
       "positionDetail": "Centre back",
@@ -56155,11 +56231,11 @@
           "retrievedAt": "2026-10-04",
           "asOf": "2026-08-21",
           "ref": "Raed Bouchniba",
-          "confidence": "medium",
+          "confidence": "high",
           "agreeing": [
-            "enwiki"
-          ],
-          "confidenceNote": "one fresh source"
+            "enwiki",
+            "enwiki-squad"
+          ]
         },
         "history": {
           "source": "enwiki",
@@ -56335,7 +56411,8 @@
           "confidence": "high",
           "agreeing": [
             "enwiki",
-            "frwiki"
+            "frwiki",
+            "frwiki-squad"
           ]
         },
         "history": {
@@ -58016,7 +58093,8 @@
           "confidence": "high",
           "agreeing": [
             "enwiki",
-            "frwiki"
+            "frwiki",
+            "enwiki-national"
           ]
         },
         "history": {
@@ -58035,11 +58113,11 @@
           "retrievedAt": "2026-10-04",
           "asOf": "2026-09-28",
           "ref": "Rayan Elloumi",
-          "confidence": "medium",
+          "confidence": "high",
           "agreeing": [
-            "frwiki"
-          ],
-          "confidenceNote": "one fresh source; the others are explained by their dates"
+            "frwiki",
+            "enwiki-national"
+          ]
         },
         "goals": {
           "source": "frwiki",
@@ -58049,7 +58127,8 @@
           "confidence": "high",
           "agreeing": [
             "enwiki",
-            "frwiki"
+            "frwiki",
+            "enwiki-national"
           ]
         },
         "photo": {
@@ -60273,9 +60352,9 @@
       "birthCountry": "TN",
       "governorate": "sfax",
       "clubId": "etoile-sportive-du-sahel",
-      "caps": 2,
+      "caps": 1,
       "goals": 0,
-      "capsAsOf": "2026-05-15",
+      "capsAsOf": "2026-09-28",
       "history": [
         {
           "clubId": "cs-sfaxien",
@@ -60391,11 +60470,13 @@
           "retrievedAt": "2026-10-04",
           "asOf": "2026-05-15",
           "ref": "Sabri Ben Hessen",
-          "confidence": "medium",
+          "confidence": "high",
           "agreeing": [
-            "enwiki"
-          ],
-          "confidenceNote": "one fresh source"
+            "enwiki",
+            "enwiki-national",
+            "enwiki-squad",
+            "frwiki-squad"
+          ]
         },
         "history": {
           "source": "enwiki",
@@ -60409,26 +60490,26 @@
           "confidenceNote": "one fresh source"
         },
         "caps": {
-          "source": "enwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-05-15",
-          "ref": "Sabri Ben Hessen",
-          "confidence": "medium",
+          "source": "enwiki-national",
+          "retrievedAt": "2026-10-05",
+          "asOf": "2026-09-28",
+          "ref": "Tunisia national football team",
+          "confidence": "low",
           "agreeing": [
-            "enwiki"
+            "enwiki-national"
           ],
-          "confidenceNote": "one fresh source"
+          "confidenceNote": "enwiki 2 (2026-05-15) is higher"
         },
         "goals": {
-          "source": "enwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-05-15",
-          "ref": "Sabri Ben Hessen",
-          "confidence": "medium",
+          "source": "enwiki-national",
+          "retrievedAt": "2026-10-05",
+          "asOf": "2026-09-28",
+          "ref": "Tunisia national football team",
+          "confidence": "high",
           "agreeing": [
-            "enwiki"
-          ],
-          "confidenceNote": "one fresh source"
+            "enwiki",
+            "enwiki-national"
+          ]
         }
       }
     },
@@ -60655,9 +60736,9 @@
       "birthCountry": null,
       "governorate": null,
       "clubId": "club-africain",
-      "caps": 0,
+      "caps": 1,
       "goals": 0,
-      "capsAsOf": null,
+      "capsAsOf": "2026-09-28",
       "history": [
         {
           "clubId": "stade-tunisien",
@@ -60743,11 +60824,12 @@
           "retrievedAt": "2026-10-04",
           "asOf": "2026-09-21",
           "ref": "Sadok Kadida",
-          "confidence": "medium",
+          "confidence": "high",
           "agreeing": [
-            "frwiki"
-          ],
-          "confidenceNote": "one fresh source"
+            "frwiki",
+            "enwiki-national",
+            "frwiki-squad"
+          ]
         },
         "history": {
           "source": "frwiki",
@@ -60761,24 +60843,26 @@
           "confidenceNote": "one fresh source"
         },
         "caps": {
-          "source": "frwiki",
-          "retrievedAt": "2026-10-04",
-          "ref": "Sadok Kadida",
-          "confidence": "low",
+          "source": "enwiki-national",
+          "retrievedAt": "2026-10-05",
+          "asOf": "2026-09-28",
+          "ref": "Tunisia national football team",
+          "confidence": "medium",
           "agreeing": [
-            "frwiki"
+            "enwiki-national"
           ],
-          "confidenceNote": "no senior national row"
+          "confidenceNote": "one fresh source"
         },
         "goals": {
-          "source": "frwiki",
-          "retrievedAt": "2026-10-04",
-          "ref": "Sadok Kadida",
-          "confidence": "low",
+          "source": "enwiki-national",
+          "retrievedAt": "2026-10-05",
+          "asOf": "2026-09-28",
+          "ref": "Tunisia national football team",
+          "confidence": "medium",
           "agreeing": [
-            "frwiki"
+            "enwiki-national"
           ],
-          "confidenceNote": "no senior national row"
+          "confidenceNote": "one fresh source"
         }
       }
     },
@@ -62804,7 +62888,7 @@
       "clubId": "dijon-fco",
       "caps": 0,
       "goals": 0,
-      "capsAsOf": null,
+      "capsAsOf": "2026-09-28",
       "history": [
         {
           "clubId": "athletic-club-de-boulogne-billancourt",
@@ -62919,11 +63003,11 @@
           "retrievedAt": "2026-10-04",
           "asOf": "2026-06-22",
           "ref": "Samy Chouchane",
-          "confidence": "medium",
+          "confidence": "high",
           "agreeing": [
-            "enwiki"
-          ],
-          "confidenceNote": "one fresh source"
+            "enwiki",
+            "enwiki-national"
+          ]
         },
         "history": {
           "source": "enwiki",
@@ -62937,24 +63021,26 @@
           "confidenceNote": "one fresh source"
         },
         "caps": {
-          "source": "enwiki",
-          "retrievedAt": "2026-10-04",
-          "ref": "Samy Chouchane",
-          "confidence": "low",
+          "source": "enwiki-national",
+          "retrievedAt": "2026-10-05",
+          "asOf": "2026-09-28",
+          "ref": "Tunisia national football team",
+          "confidence": "medium",
           "agreeing": [
-            "enwiki"
+            "enwiki-national"
           ],
-          "confidenceNote": "no senior national row"
+          "confidenceNote": "one fresh source"
         },
         "goals": {
-          "source": "enwiki",
-          "retrievedAt": "2026-10-04",
-          "ref": "Samy Chouchane",
-          "confidence": "low",
+          "source": "enwiki-national",
+          "retrievedAt": "2026-10-05",
+          "asOf": "2026-09-28",
+          "ref": "Tunisia national football team",
+          "confidence": "medium",
           "agreeing": [
-            "enwiki"
+            "enwiki-national"
           ],
-          "confidenceNote": "no senior national row"
+          "confidenceNote": "one fresh source"
         }
       }
     },
@@ -63133,7 +63219,8 @@
           "confidence": "high",
           "agreeing": [
             "enwiki",
-            "frwiki"
+            "frwiki",
+            "enwiki-national"
           ]
         },
         "history": {
@@ -63155,7 +63242,8 @@
           "confidence": "high",
           "agreeing": [
             "enwiki",
-            "frwiki"
+            "frwiki",
+            "enwiki-national"
           ]
         },
         "goals": {
@@ -63166,7 +63254,8 @@
           "confidence": "high",
           "agreeing": [
             "enwiki",
-            "frwiki"
+            "frwiki",
+            "enwiki-national"
           ]
         },
         "photo": {
@@ -63347,7 +63436,8 @@
           "agreeing": [
             "enwiki",
             "frwiki",
-            "wikidata"
+            "wikidata",
+            "enwiki-national"
           ]
         },
         "history": {
@@ -63366,11 +63456,11 @@
           "retrievedAt": "2026-10-04",
           "asOf": "2026-09-28",
           "ref": "Sebastian Tounekti",
-          "confidence": "medium",
+          "confidence": "high",
           "agreeing": [
-            "frwiki"
-          ],
-          "confidenceNote": "one fresh source; the others are explained by their dates"
+            "frwiki",
+            "enwiki-national"
+          ]
         },
         "goals": {
           "source": "frwiki",
@@ -63380,7 +63470,8 @@
           "confidence": "high",
           "agreeing": [
             "enwiki",
-            "frwiki"
+            "frwiki",
+            "enwiki-national"
           ]
         }
       }
@@ -67966,7 +68057,9 @@
           "confidence": "high",
           "agreeing": [
             "enwiki",
-            "frwiki"
+            "frwiki",
+            "enwiki-squad",
+            "frwiki-squad"
           ]
         },
         "history": {
@@ -68386,7 +68479,7 @@
       "clubId": "sheffield-wednesday-f-c",
       "caps": 26,
       "goals": 0,
-      "capsAsOf": "2026-09-25",
+      "capsAsOf": "2026-09-28",
       "history": [
         {
           "clubId": "southampton-f-c",
@@ -68527,7 +68620,8 @@
           "confidence": "high",
           "agreeing": [
             "enwiki",
-            "frwiki"
+            "frwiki",
+            "enwiki-national"
           ]
         },
         "history": {
@@ -68542,25 +68636,27 @@
           ]
         },
         "caps": {
-          "source": "enwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-25",
-          "ref": "Yan Valery",
+          "source": "enwiki-national",
+          "retrievedAt": "2026-10-05",
+          "asOf": "2026-09-28",
+          "ref": "Tunisia national football team",
           "confidence": "high",
           "agreeing": [
             "enwiki",
-            "frwiki"
+            "frwiki",
+            "enwiki-national"
           ]
         },
         "goals": {
-          "source": "enwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-25",
-          "ref": "Yan Valery",
+          "source": "enwiki-national",
+          "retrievedAt": "2026-10-05",
+          "asOf": "2026-09-28",
+          "ref": "Tunisia national football team",
           "confidence": "high",
           "agreeing": [
             "enwiki",
-            "frwiki"
+            "frwiki",
+            "enwiki-national"
           ]
         },
         "photo": {
@@ -69119,11 +69215,11 @@
           "retrievedAt": "2026-10-04",
           "asOf": "2026-08-19",
           "ref": "Yassine Bouabid",
-          "confidence": "medium",
+          "confidence": "high",
           "agreeing": [
-            "frwiki"
-          ],
-          "confidenceNote": "one fresh source"
+            "frwiki",
+            "frwiki-squad"
+          ]
         },
         "history": {
           "source": "frwiki",
@@ -69504,7 +69600,7 @@
           "agreeing": [
             "frwiki"
           ],
-          "confidenceNote": "enwiki none (2025-07-25) is within 90 days"
+          "confidenceNote": "enwiki none (2025-07-25) is within 90 days; enwiki-squad Q1103140 (2026-09-27) is newer"
         },
         "history": {
           "source": "frwiki",
@@ -70734,11 +70830,11 @@
           "retrievedAt": "2026-10-04",
           "asOf": "2026-06-26",
           "ref": "Youssef Snana",
-          "confidence": "medium",
+          "confidence": "low",
           "agreeing": [
             "enwiki"
           ],
-          "confidenceNote": "one fresh source"
+          "confidenceNote": "enwiki-squad Q1368447 (2026-09-22) is newer"
         },
         "history": {
           "source": "enwiki",
@@ -71100,7 +71196,7 @@
           "agreeing": [
             "enwiki"
           ],
-          "confidenceNote": "one source, as of 2024-12-29"
+          "confidenceNote": "enwiki-squad Q1851954 (2026-09-15) is newer"
         },
         "history": {
           "source": "enwiki",
@@ -81219,11 +81315,6 @@
       "detail": "enwiki as of 2025-12-21; Tunisia has played 11 matches since"
     },
     {
-      "subject": "Q139815184",
-      "kind": "caps-maybe-stale",
-      "detail": "enwiki as of 2026-05-15; Tunisia has played 5 matches since"
-    },
-    {
       "subject": "Q20991569",
       "kind": "caps-maybe-stale",
       "detail": "frwiki as of 2026-06-06; Tunisia has played 3 matches since"
@@ -81257,6 +81348,11 @@
       "subject": "Q126231513",
       "kind": "caps-newer-but-lower",
       "detail": "frwiki 3 (2026-09-06) < enwiki 5 (2024-11-14)"
+    },
+    {
+      "subject": "Q139815184",
+      "kind": "caps-newer-but-lower",
+      "detail": "enwiki-national 1 (2026-09-28) < enwiki 2 (2026-05-15)"
     },
     {
       "subject": "Q17442694",
@@ -81392,6 +81488,11 @@
       "subject": "Q967841",
       "kind": "caps-row-skipped",
       "detail": "frwiki sélection nationale (no-club): |[[2010 en football|2010]]-[[2011 en football|2011]]|{{TUN-d}} Tunisie A'|{{0}}{{0}}7 {{0}}(2)"
+    },
+    {
+      "subject": "Q121832277",
+      "kind": "caps-sources-disagree",
+      "detail": "frwiki 6 (2026-09-28) vs enwiki-national 5 (2026-09-28)"
     },
     {
       "subject": "Q12190598",
@@ -81559,6 +81660,171 @@
       "detail": "frwiki parcours senior (years): ||{{TUN-d}} [[Club sportif sfaxien (football)|Club sportif sfaxien]]|"
     },
     {
+      "subject": "Q100252023",
+      "kind": "club-not-on-squad-list",
+      "detail": "enwiki-squad Club Africain (2026-09-27) and frwiki-squad Club africain (football) (2026-07-01) does not list him at Club Africain"
+    },
+    {
+      "subject": "Q100626510",
+      "kind": "club-not-on-squad-list",
+      "detail": "frwiki-squad Espérance sportive de Tunis (football) (2026-07-01) does not list him at Espérance Sportive de Tunis"
+    },
+    {
+      "subject": "Q104440602",
+      "kind": "club-not-on-squad-list",
+      "detail": "enwiki-squad US Monastir (football) (2026-09-15) does not list him at US Monastir"
+    },
+    {
+      "subject": "Q105675305",
+      "kind": "club-not-on-squad-list",
+      "detail": "enwiki-squad US Monastir (football) (2026-09-15) does not list him at US Monastir"
+    },
+    {
+      "subject": "Q105737050",
+      "kind": "club-not-on-squad-list",
+      "detail": "enwiki-squad CS Sfaxien (2026-09-15) does not list him at CS Sfaxien"
+    },
+    {
+      "subject": "Q106353139",
+      "kind": "club-not-on-squad-list",
+      "detail": "enwiki-squad US Monastir (football) (2026-09-15) does not list him at US Monastir"
+    },
+    {
+      "subject": "Q106353192",
+      "kind": "club-not-on-squad-list",
+      "detail": "enwiki-squad Olympique Béja (2026-09-15) does not list him at Olympique Béja"
+    },
+    {
+      "subject": "Q109710185",
+      "kind": "club-not-on-squad-list",
+      "detail": "frwiki-squad Espérance sportive de Tunis (football) (2026-07-01) does not list him at Espérance Sportive de Tunis"
+    },
+    {
+      "subject": "Q113272697",
+      "kind": "club-not-on-squad-list",
+      "detail": "frwiki-squad Espérance sportive de Tunis (football) (2026-07-01) does not list him at Espérance Sportive de Tunis"
+    },
+    {
+      "subject": "Q113955868",
+      "kind": "club-not-on-squad-list",
+      "detail": "enwiki-squad US Monastir (football) (2026-09-15) does not list him at US Monastir"
+    },
+    {
+      "subject": "Q11891887",
+      "kind": "club-not-on-squad-list",
+      "detail": "enwiki-squad Étoile Sportive du Sahel (2026-09-15) and frwiki-squad Étoile sportive du Sahel (football) (2026-07-01) does not list him at Étoile Sportive du Sahel"
+    },
+    {
+      "subject": "Q123336254",
+      "kind": "club-not-on-squad-list",
+      "detail": "enwiki-squad JS El Omrane (2026-09-27) does not list him at Jeunesse sportive d'El Omrane"
+    },
+    {
+      "subject": "Q130241890",
+      "kind": "club-not-on-squad-list",
+      "detail": "enwiki-squad US Monastir (football) (2026-09-15) does not list him at US Monastir"
+    },
+    {
+      "subject": "Q133130622",
+      "kind": "club-not-on-squad-list",
+      "detail": "enwiki-squad AS Marsa (2026-09-15) does not list him at AS Marsa"
+    },
+    {
+      "subject": "Q16382870",
+      "kind": "club-not-on-squad-list",
+      "detail": "enwiki-squad ES Métlaoui (2026-10-02) does not list him at Etoile Sportive de Metlaoui"
+    },
+    {
+      "subject": "Q16635642",
+      "kind": "club-not-on-squad-list",
+      "detail": "enwiki-squad Club Africain (2026-09-27) and frwiki-squad Club africain (football) (2026-07-01) does not list him at Club Africain"
+    },
+    {
+      "subject": "Q16664913",
+      "kind": "club-not-on-squad-list",
+      "detail": "enwiki-squad US Monastir (football) (2026-09-15) does not list him at US Monastir"
+    },
+    {
+      "subject": "Q17350654",
+      "kind": "club-not-on-squad-list",
+      "detail": "enwiki-squad AS Marsa (2026-09-15) does not list him at AS Marsa"
+    },
+    {
+      "subject": "Q20127327",
+      "kind": "club-not-on-squad-list",
+      "detail": "enwiki-squad JS El Omrane (2026-09-27) does not list him at Jeunesse sportive d'El Omrane"
+    },
+    {
+      "subject": "Q20751695",
+      "kind": "club-not-on-squad-list",
+      "detail": "enwiki-squad Stade Tunisien (2026-09-15) does not list him at Stade Tunisien"
+    },
+    {
+      "subject": "Q24151009",
+      "kind": "club-not-on-squad-list",
+      "detail": "enwiki-squad ES Métlaoui (2026-10-02) does not list him at Etoile Sportive de Metlaoui"
+    },
+    {
+      "subject": "Q24951507",
+      "kind": "club-not-on-squad-list",
+      "detail": "enwiki-squad CS Hammam-Lif (2026-09-27) does not list him at CS Hammam-Lif"
+    },
+    {
+      "subject": "Q25390813",
+      "kind": "club-not-on-squad-list",
+      "detail": "enwiki-squad CS Hammam-Lif (2026-09-27) does not list him at CS Hammam-Lif"
+    },
+    {
+      "subject": "Q30729319",
+      "kind": "club-not-on-squad-list",
+      "detail": "enwiki-squad Olympique Béja (2026-09-15) does not list him at Olympique Béja"
+    },
+    {
+      "subject": "Q3126597",
+      "kind": "club-not-on-squad-list",
+      "detail": "enwiki-squad Club Africain (2026-09-27) and frwiki-squad Club africain (football) (2026-07-01) does not list him at Club Africain"
+    },
+    {
+      "subject": "Q3126608",
+      "kind": "club-not-on-squad-list",
+      "detail": "enwiki-squad Stade Tunisien (2026-09-15) does not list him at Stade Tunisien"
+    },
+    {
+      "subject": "Q3304526",
+      "kind": "club-not-on-squad-list",
+      "detail": "enwiki-squad Club Africain (2026-09-27) and frwiki-squad Club africain (football) (2026-07-01) does not list him at Club Africain"
+    },
+    {
+      "subject": "Q599802",
+      "kind": "club-not-on-squad-list",
+      "detail": "enwiki-squad Club Africain (2026-09-27) and frwiki-squad Club africain (football) (2026-07-01) does not list him at Club Africain"
+    },
+    {
+      "subject": "Q61342214",
+      "kind": "club-not-on-squad-list",
+      "detail": "enwiki-squad Olympique Béja (2026-09-15) does not list him at Olympique Béja"
+    },
+    {
+      "subject": "Q62929773",
+      "kind": "club-not-on-squad-list",
+      "detail": "enwiki-squad JS El Omrane (2026-09-27) does not list him at Jeunesse sportive d'El Omrane"
+    },
+    {
+      "subject": "Q64593963",
+      "kind": "club-not-on-squad-list",
+      "detail": "enwiki-squad ES Métlaoui (2026-10-02) does not list him at Etoile Sportive de Metlaoui"
+    },
+    {
+      "subject": "Q66779637",
+      "kind": "club-not-on-squad-list",
+      "detail": "enwiki-squad CS Hammam-Lif (2026-09-27) does not list him at CS Hammam-Lif"
+    },
+    {
+      "subject": "Q85873925",
+      "kind": "club-not-on-squad-list",
+      "detail": "enwiki-squad CS Sfaxien (2026-09-15) does not list him at CS Sfaxien"
+    },
+    {
       "subject": "Q724024",
       "kind": "club-override-disagrees",
       "detail": "override none, frwiki Q290540"
@@ -81706,12 +81972,42 @@
     {
       "subject": "Q723767",
       "kind": "club-sources-disagree",
-      "detail": "frwiki A.S.D. Albalonga (2026-09-30) vs enwiki Anzio (undated)"
+      "detail": "frwiki A.S.D. Albalonga (2026-10-05) vs enwiki Anzio (undated)"
     },
     {
       "subject": "Q90820356",
       "kind": "club-sources-disagree",
       "detail": "frwiki ES Hammam-Sousse (2026-08-30) vs enwiki Étoile Sportive du Sahel (2022-02-27)"
+    },
+    {
+      "subject": "Q104184413",
+      "kind": "club-squad-list-differs",
+      "detail": "enwiki-squad CS Hammam-Lif (2026-09-27) lists him at CS Hammam-Lif; chosen: the White S.C."
+    },
+    {
+      "subject": "Q121289354",
+      "kind": "club-squad-list-differs",
+      "detail": "enwiki-squad Stade Tunisien (2026-09-15) lists him at Stade Tunisien; chosen: AS Soliman"
+    },
+    {
+      "subject": "Q128545284",
+      "kind": "club-squad-list-differs",
+      "detail": "enwiki-squad Étoile Sportive du Sahel (2026-09-15) lists him at Étoile Sportive du Sahel; frwiki-squad Étoile sportive du Sahel (football) (2026-07-01) lists him at Étoile Sportive du Sahel; chosen: US Ben Guerdane"
+    },
+    {
+      "subject": "Q131100765",
+      "kind": "club-squad-list-differs",
+      "detail": "enwiki-squad ES Zarzis (2026-09-22) lists him at ES Zarzis; chosen: Al-Shamal Sports Club"
+    },
+    {
+      "subject": "Q19956607",
+      "kind": "club-squad-list-differs",
+      "detail": "frwiki-squad Club africain (football) (2026-07-01) lists him at Club Africain; chosen: none"
+    },
+    {
+      "subject": "Q53575255",
+      "kind": "club-squad-list-differs",
+      "detail": "enwiki-squad CS Hammam-Lif (2026-09-27) lists him at CS Hammam-Lif; chosen: Sitra Club"
     },
     {
       "subject": "Q221789",
@@ -82687,6 +82983,11 @@
       "subject": "Q96337717",
       "kind": "position-disagrees",
       "detail": "wikidata midfielder against enwiki, frwiki forward"
+    },
+    {
+      "subject": "Q22948792",
+      "kind": "squad-namesake",
+      "detail": "enwiki-squad JS El Omrane (2026-09-27) lists him at Jeunesse sportive d'El Omrane, the club of his namesake Q123336254; no vote"
     }
   ],
   "dropped": [
@@ -82778,6 +83079,11 @@
       "name": "Mohamed Ali Nafkha",
       "reason": "no-pool",
       "flags": [
+        {
+          "subject": "Q180690",
+          "kind": "club-not-on-squad-list",
+          "detail": "enwiki-squad Étoile Sportive du Sahel (2026-09-15) and frwiki-squad Étoile sportive du Sahel (football) (2026-07-01) does not list him at Étoile Sportive du Sahel"
+        },
         {
           "subject": "Q180690",
           "kind": "caps-closed-career-disagree",
@@ -82946,6 +83252,11 @@
           "subject": "Q582815",
           "kind": "birthdate-sources-disagree",
           "detail": "enwiki 1987-12-01 against frwiki, wikidata 1987-02-01"
+        },
+        {
+          "subject": "Q582815",
+          "kind": "club-not-on-squad-list",
+          "detail": "enwiki-squad Club Africain (2026-09-27) and frwiki-squad Club africain (football) (2026-07-01) does not list him at Club Africain"
         },
         {
           "subject": "Q582815",
@@ -83435,6 +83746,11 @@
           "subject": "Q2632796",
           "kind": "club-unresolved",
           "detail": "frwiki: Étoile sportive alaouite"
+        },
+        {
+          "subject": "Q2632796",
+          "kind": "club-not-on-squad-list",
+          "detail": "enwiki-squad Club Africain (2026-09-27) and frwiki-squad Club africain (football) (2026-07-01) does not list him at Club Africain"
         },
         {
           "subject": "Q2632796",
@@ -83935,7 +84251,13 @@
       "wikidataId": "Q2887376",
       "name": "Bassem Boulaâbi",
       "reason": "no-pool",
-      "flags": []
+      "flags": [
+        {
+          "subject": "Q2887376",
+          "kind": "club-not-on-squad-list",
+          "detail": "enwiki-squad AS Marsa (2026-09-15) does not list him at AS Marsa"
+        }
+      ]
     },
     {
       "wikidataId": "Q2887382",
@@ -84071,6 +84393,11 @@
           "subject": "Q2955935",
           "kind": "club-staff-role",
           "detail": "enwiki: Chamseddine Dhaouadi"
+        },
+        {
+          "subject": "Q2955935",
+          "kind": "club-not-on-squad-list",
+          "detail": "enwiki-squad CS Hammam-Lif (2026-09-27) does not list him at CS Hammam-Lif"
         }
       ]
     },
@@ -84127,6 +84454,11 @@
       "name": "Salema Kasdaoui",
       "reason": "no-pool",
       "flags": [
+        {
+          "subject": "Q3041292",
+          "kind": "club-not-on-squad-list",
+          "detail": "enwiki-squad Club Africain (2026-09-27) and frwiki-squad Club africain (football) (2026-07-01) does not list him at Club Africain"
+        },
         {
           "subject": "Q3041292",
           "kind": "caps-row-skipped",
@@ -84434,6 +84766,11 @@
       "flags": [
         {
           "subject": "Q3135203",
+          "kind": "club-not-on-squad-list",
+          "detail": "enwiki-squad Stade Tunisien (2026-09-15) does not list him at Stade Tunisien"
+        },
+        {
+          "subject": "Q3135203",
           "kind": "caps-maybe-stale",
           "detail": "enwiki as of 2018-05-30; Tunisia has played 114 matches since"
         }
@@ -84526,7 +84863,13 @@
       "wikidataId": "Q3157087",
       "name": "Jassem Khalloufi",
       "reason": "no-pool",
-      "flags": []
+      "flags": [
+        {
+          "subject": "Q3157087",
+          "kind": "club-not-on-squad-list",
+          "detail": "enwiki-squad Stade Tunisien (2026-09-15) does not list him at Stade Tunisien"
+        }
+      ]
     },
     {
       "wikidataId": "Q3160735",
@@ -84772,7 +85115,13 @@
       "wikidataId": "Q3277681",
       "name": "Maher Ameur",
       "reason": "no-pool",
-      "flags": []
+      "flags": [
+        {
+          "subject": "Q3277681",
+          "kind": "club-not-on-squad-list",
+          "detail": "enwiki-squad ES Métlaoui (2026-10-02) does not list him at Etoile Sportive de Metlaoui"
+        }
+      ]
     },
     {
       "wikidataId": "Q3277689",
@@ -86495,6 +86844,11 @@
           "subject": "Q46243946",
           "kind": "governorate-unresolved",
           "detail": "Tunisia"
+        },
+        {
+          "subject": "Q46243946",
+          "kind": "club-not-on-squad-list",
+          "detail": "enwiki-squad ES Métlaoui (2026-10-02) does not list him at Etoile Sportive de Metlaoui"
         }
       ]
     },
@@ -86763,6 +87117,11 @@
           "subject": "Q60564620",
           "kind": "governorate-unresolved",
           "detail": "Tunisia"
+        },
+        {
+          "subject": "Q60564620",
+          "kind": "club-squad-list-differs",
+          "detail": "frwiki-squad Espérance sportive de Tunis (football) (2026-07-01) lists him at Espérance Sportive de Tunis; chosen: none"
         }
       ]
     },
@@ -88279,6 +88638,11 @@
           "subject": "Q141495931",
           "kind": "governorate-unresolved",
           "detail": "no birthplace"
+        },
+        {
+          "subject": "Q141495931",
+          "kind": "club-squad-list-differs",
+          "detail": "frwiki-squad Espérance sportive de Tunis (football) (2026-07-01) lists him at Espérance Sportive de Tunis; chosen: none"
         }
       ]
     },
@@ -88291,6 +88655,11 @@
           "subject": "Q141496083",
           "kind": "governorate-unresolved",
           "detail": "no birthplace"
+        },
+        {
+          "subject": "Q141496083",
+          "kind": "club-squad-list-differs",
+          "detail": "frwiki-squad Espérance sportive de Tunis (football) (2026-07-01) lists him at Espérance Sportive de Tunis; chosen: none"
         }
       ]
     },
@@ -88303,6 +88672,11 @@
           "subject": "Q141496141",
           "kind": "governorate-unresolved",
           "detail": "no birthplace"
+        },
+        {
+          "subject": "Q141496141",
+          "kind": "club-squad-list-differs",
+          "detail": "frwiki-squad Étoile sportive du Sahel (football) (2026-07-01) lists him at Étoile Sportive du Sahel; chosen: none"
         }
       ]
     },
