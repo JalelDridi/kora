@@ -34,8 +34,13 @@ export const emptyState = (): WitnessState => ({
 
 export type Store = {
   dir: string;
-  /** Saves a page under pages/<site>/<name>.html as it arrives; returns its path. */
-  savePage(site: string, name: string, text: string): Promise<string>;
+  /** Saves a page under pages/<site>/<name>.<ext> as it arrives; returns its path. */
+  savePage(
+    site: string,
+    name: string,
+    text: string,
+    ext?: "html" | "txt",
+  ): Promise<string>;
   readJson<T>(name: string): Promise<T | null>;
   writeJson(name: string, value: unknown): Promise<void>;
   readState(): Promise<WitnessState>;
@@ -65,12 +70,12 @@ export async function openStore(input: {
   await mkdir(dir, { recursive: true });
   const store: Store = {
     dir,
-    async savePage(site, name, text) {
+    async savePage(site, name, text, ext = "html") {
       const file = path.join(
         dir,
         "pages",
         safeName(site),
-        `${safeName(name)}.html`,
+        `${safeName(name)}.${ext}`,
       );
       await atomic(file, text);
       return file;

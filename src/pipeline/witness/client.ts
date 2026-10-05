@@ -42,6 +42,8 @@ export type SiteClient = {
   requests(): number;
   /** robots.txt as read (after the first `get`). */
   robots(): Robots | null;
+  /** robots.txt as sent, for the private folder; null before the first `get` or when missing. */
+  robotsText(): string | null;
 };
 
 export function createSiteClient(options: {
@@ -69,6 +71,7 @@ export function createSiteClient(options: {
     now,
   });
   let robots: Robots | null = null;
+  let robotsText: string | null = null;
   let stopped: string | null = null;
   let sent = 0;
   let lastStart = Number.NEGATIVE_INFINITY;
@@ -103,6 +106,7 @@ export function createSiteClient(options: {
     async get(path) {
       if (robots === null) {
         const answer = await fetchText("/robots.txt");
+        robotsText = answer.status === 404 ? null : answer.text;
         robots =
           answer.status === 404
             ? NO_ROBOTS
@@ -125,5 +129,6 @@ export function createSiteClient(options: {
     stopped: () => stopped,
     requests: () => sent,
     robots: () => robots,
+    robotsText: () => robotsText,
   };
 }

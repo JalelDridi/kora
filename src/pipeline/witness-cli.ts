@@ -2,13 +2,21 @@ import { readFile } from "node:fs/promises";
 import { homedir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { describePlan, SITE_NAMES } from "./witness/plan.ts";
+import { createSiteClient } from "./witness/client.ts";
+import {
+  describePlan,
+  SITE_NAMES,
+  SITES,
+  WITNESS_USER_AGENT,
+} from "./witness/plan.ts";
 import type { Mode, SiteName } from "./witness/plan.ts";
 import {
   environmentRefusal,
   insideRepo,
   witnessDir,
 } from "./witness/safety.ts";
+import { runSample } from "./witness/run.ts";
+import { openStore } from "./witness/store.ts";
 
 // The private witness (decisions P43, P44, P48): an entry point only, with
 // nothing to import. Run by hand on Jalel's PC:
@@ -95,4 +103,30 @@ if (!argv.includes("--live")) {
   process.exit(0);
 }
 
-fail("live runs are not built yet (Task B8)");
+// Live. Every guard above has passed: only now are clients created.
+const store = await openStore({ env, home: where.home, repoRoot });
+const today = new Date().toISOString().slice(0, 10);
+const siteClient = (name: SiteName, maxRequests: number) =>
+  createSiteClient({
+    host: SITES[name].host,
+    gapMs: SITES[name].gapMs,
+    maxRequests: Math.min(maxRequests, SITES[name].maxRequests),
+    userAgent: WITNESS_USER_AGENT,
+  });
+const log = (line: string) => console.log(line);
+
+if (mode.kind === "sample") {
+  const result = await runSample({
+    sites: Object.fromEntries(sites.map((s) => [s, siteClient(s, 3)])),
+    store,
+    log,
+    today,
+  });
+  for (const [name, why] of Object.entries(result.stopped))
+    console.log(
+      `${name} refused or stopped: ${why}. Tell Jalel; build nothing more for that site.`,
+    );
+  process.exit(0);
+}
+
+fail("weekly and backfill runs are not built yet (Task B8)");

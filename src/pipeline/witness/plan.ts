@@ -46,6 +46,20 @@ export const TM_SAMPLE_SQUAD_PATH =
 export const nftCountryPath = (year: number) =>
   `/country/190/${year}/Tunisia.html`;
 
+/** Where the sample run (B5) saves each page, under pages/<site>/ in the private folder. */
+export const SAMPLE_PAGES = {
+  transfermarkt: {
+    robots: "sample-robots",
+    squad: "sample-squad",
+    profile: "sample-profile",
+  },
+  "national-football-teams": {
+    robots: "sample-robots",
+    country: "sample-country",
+    player: "sample-player",
+  },
+} as const;
+
 export type Mode =
   { kind: "weekly" } | { kind: "sample" } | { kind: "backfill"; pages: number };
 
