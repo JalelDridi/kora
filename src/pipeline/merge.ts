@@ -1176,6 +1176,8 @@ export function mergePlayer(
       entry.confidenceNote = scored
         ? `no senior national row; martj42 lists ${floor} goals by him`
         : "no senior national row";
+      // P34 rates these; the band rule (D-S2-6) does not apply.
+      delete entry.bandAgreed;
     }
   }
 
@@ -1194,6 +1196,8 @@ export function mergePlayer(
     if (entry && entry.source !== "override") {
       entry.confidence = "low";
       entry.confidenceNote = `${d.site} checked on ${d.checkedOn}: differs (P48)`;
+      // A "differs" waits for Jalel even at band level (S21 = b).
+      delete entry.bandAgreed;
     }
   }
 

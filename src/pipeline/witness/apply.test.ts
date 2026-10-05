@@ -195,6 +195,37 @@ describe("the merge with verdicts (B7)", () => {
     expect(merged.flags.map((f) => f.kind)).toContain("caps-witness-differs");
   });
 
+  // D-S2-6: a "differs" waits for Jalel even when the counts share a band.
+  it("differs also takes away caps agreed at band level", () => {
+    const both = { ...player, titles: { ...player.titles, fr: "Joueur Test" } };
+    const frBox: Infobox = {
+      ...box,
+      lang: "fr",
+      title: "Joueur Test",
+      caps: 32,
+    };
+    const withFrench = (witness?: WitnessFile): MergeContext => ({
+      ...context(witness),
+      infoboxes: {
+        en: new Map([["Test Player", box]]),
+        fr: new Map([["Joueur Test", frBox]]),
+      },
+    });
+    const agreed = mergePlayer(both, withFrench())!;
+    expect(agreed.draft.provenance.caps?.bandAgreed).toBe(true);
+    const checked = mergePlayer(
+      both,
+      withFrench(
+        file({
+          Q1: { caps: { ...differs("caps"), checked: agreed.draft.caps } },
+        }),
+      ),
+    )!;
+    expect(checked.draft.provenance.caps?.confidence).toBe("low");
+    expect(checked.draft.provenance.caps?.bandAgreed).toBeUndefined();
+    expect(checked.flags.map((f) => f.kind)).toContain("caps-witness-differs");
+  });
+
   it("an empty file changes nothing", () => {
     expect(JSON.stringify(mergePlayer(player, context(emptyWitness())))).toBe(
       JSON.stringify(mergePlayer(player, context())),

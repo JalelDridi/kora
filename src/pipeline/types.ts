@@ -80,6 +80,12 @@ export type Provenance = {
   agreeing?: SourceId[];
   /** Why the level is what it is, in a few words. */
   confidenceNote?: string;
+  /**
+   * Caps only, D-S2-6: every source falls in the same caps band and nothing
+   * else contradicts the count, so the game's caps tile is right even when
+   * P26 rates the exact count low. Written only when true.
+   */
+  bandAgreed?: boolean;
 };
 
 /** A senior club spell as an infobox writes it. */

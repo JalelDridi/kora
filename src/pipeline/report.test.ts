@@ -276,6 +276,46 @@ describe("renderReport", () => {
     );
   });
 
+  // D-S2-6: the band rule's gain is shown on its own line.
+  it("counts the footballers ready only through the band rule", () => {
+    const sure = {
+      source: "enwiki" as const,
+      retrievedAt: "2026-10-04",
+      confidence: "medium" as const,
+      agreeing: ["enwiki" as const],
+    };
+    const fields = {
+      clubId: sure,
+      position: sure,
+      birthDate: sure,
+      governorate: sure,
+    };
+    const byBand = player("by-band", {
+      governorate: "tunis",
+      provenance: {
+        ...fields,
+        caps: { ...sure, confidence: "low", bandAgreed: true },
+      },
+    });
+    const plain = player("plain", {
+      governorate: "tunis",
+      provenance: { ...fields, caps: sure },
+    });
+    const p = pool([byBand, plain]);
+    const report = renderReport({
+      pool: p,
+      diff: diffPools(null, p),
+      statuses: {},
+      today: "2026-10-04",
+    });
+    expect(report).toContain(
+      "Active footballers ready to be a daily answer (P27): 2 of 2.",
+    );
+    expect(report).toContain(
+      "Of them, ready through caps agreed at band level (D-S2-6): 1.",
+    );
+  });
+
   it("lists the seasons without a winner", () => {
     expect(
       missingSeasons(

@@ -433,7 +433,14 @@ export function renderReport(input: {
       : saved.length === 1
         ? saved[0]
         : `${saved[0]} to ${saved.at(-1)}`;
-  const answerReady = pool.players.filter(isAnswerReady).length;
+  const ready = pool.players.filter(isAnswerReady);
+  const answerReady = ready.length;
+  // D-S2-6: ready only because every caps source falls in one band.
+  const byBand = ready.filter(
+    (p) =>
+      p.provenance.caps?.confidence === "low" &&
+      p.provenance.caps.bandAgreed === true,
+  ).length;
   const out = [
     `# Nightly pool, ${today}`,
     "",
@@ -460,6 +467,7 @@ export function renderReport(input: {
     `**${pool.players.length} footballers** (${active} active, ${legend} legends, ${both} in both), ${pool.clubs.length} clubs, ${pool.honours.length} honours.`,
     "",
     `Active footballers ready to be a daily answer (P27): ${answerReady} of ${active}.`,
+    `Of them, ready through caps agreed at band level (D-S2-6): ${byBand}.`,
     "",
     `## Low confidence, review first (${low.length})`,
     "",

@@ -469,25 +469,45 @@ describe("ANSWER_READY_SQL against synced rows (P27, for Sprint 2)", () => {
       wikidataId: "Q5",
       pools: { active: false, legend: true },
     };
-    await syncPool(
-      sql,
-      pool([
-        sure,
-        doubtful,
-        unrated,
-        abroad,
-        abroadLow,
-        missingCaps,
-        legendOnly,
-      ]),
-      governorates,
-    );
+    // D-S2-6: low caps whose sources all fall in one band are ready.
+    const byBand: PoolPlayer = {
+      ...sure,
+      id: "by-band",
+      wikidataId: "Q7",
+      provenance: {
+        ...sure.provenance,
+        caps: { ...rated("low"), bandAgreed: true },
+      },
+    };
+    // The band flag frees caps only.
+    const bandElsewhere: PoolPlayer = {
+      ...sure,
+      id: "band-elsewhere",
+      wikidataId: "Q8",
+      provenance: {
+        ...sure.provenance,
+        caps: rated("low"),
+        position: { ...rated("low"), bandAgreed: true },
+      },
+    };
+    const all = [
+      sure,
+      doubtful,
+      unrated,
+      abroad,
+      abroadLow,
+      missingCaps,
+      legendOnly,
+      byBand,
+      bandElsewhere,
+    ];
+    await syncPool(sql, pool(all), governorates);
 
     const { rows } = await client.query<{ id: string }>(ANSWER_READY_SQL);
-    expect(rows.map((r) => r.id)).toEqual(["abroad", "ali-maaloul"]);
+    expect(rows.map((r) => r.id)).toEqual(["abroad", "ali-maaloul", "by-band"]);
     // Final wave, B9: the TypeScript twin the report and the stop rule use.
     expect(
-      [sure, doubtful, unrated, abroad, abroadLow, missingCaps, legendOnly]
+      all
         .filter(isAnswerReady)
         .map((p) => p.id)
         .sort(),
