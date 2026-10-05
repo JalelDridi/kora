@@ -3,11 +3,20 @@ import path from "node:path";
 import { knownIds } from "./check.ts";
 import { commonsUrl, parseCommons } from "./commons.ts";
 import { GOALSCORERS_URL, goalsFloors, tunisiaScorers } from "./goalscorers.ts";
+import { fameOf } from "./fame.ts";
 import { createPoliteClient } from "./http.ts";
 import type { FetchLike, PoliteClient } from "./http.ts";
 import { buildClubIndex, chosenClubOf } from "./merge.ts";
 import type { MergeContext } from "./merge.ts";
 import { validateOverrides } from "./overrides.ts";
+import {
+  addToCache,
+  fetchViews,
+  monthWindow,
+  planPageviews,
+  viewsOf,
+} from "./pageviews.ts";
+import type { Measured, ViewLang, ViewsCache } from "./pageviews.ts";
 import { buildPool, emptyRegistry } from "./pool.ts";
 import {
   diffPools,
@@ -226,6 +235,8 @@ const SHAPES: Record<string, (v: unknown) => boolean> = {
   // P42: whole squad pages, and the link lookups (pageprops), as sent.
   squads: (v) => isObject(v) && batches(v.en) && batches(v.fr),
   "squad-links": (v) => isObject(v) && batches(v.en) && batches(v.fr),
+  // D-S2-4: page view counts per window, per article.
+  pageviews: (v) => isObject(v) && Object.values(v).every(isObject),
 };
 
 /** Wikitext before the first section heading: the lead, where the infobox is. */
@@ -628,6 +639,8 @@ async function build(deps: RunDeps): Promise<RunResult> {
     squads: squadPages,
   });
   const budget = deps.maxRequests ?? MAX_REQUESTS;
+  // The most requests planned so far; page views get what the budget leaves.
+  let planned = plan.total;
   deps.log(
     `${players.length} footballers on Wikidata, ${wanted.length} men: ${titles.en.length} English and ${titles.fr.length} French articles, ${files.length} photos`,
   );
@@ -739,6 +752,7 @@ async function build(deps: RunDeps): Promise<RunResult> {
         `with ${exact.wikimedia - plan.wikimedia} redirect lookups the run would make up to ${exact.total} requests, over the budget of ${budget}`,
       );
   }
+  planned = exact.total;
   // The answer's `normalized` and `redirects` lists, as from → to pairs.
   // B8: each answer kept as sent; the moves are read from it on every build.
   type Moves = { en: [string, string][]; fr: [string, string][] };
@@ -959,6 +973,7 @@ async function build(deps: RunDeps): Promise<RunResult> {
         throw new Refusal(
           `with ${targets.en.length + targets.fr.length} squad link targets to look up the run would make up to ${withLinks.total} requests, over the budget of ${budget}`,
         );
+      planned = withLinks.total;
     }
     type LinksRaw = { en: RawBatch[]; fr: RawBatch[] };
     const looked = await optionalSource<LinksRaw, Map<string, string>>(
@@ -1054,7 +1069,89 @@ async function build(deps: RunDeps): Promise<RunResult> {
       `the pool could not be built: ${error instanceof Error ? error.message : String(error)}`,
     );
   }
-  const { pool, ids } = built;
+  const { ids } = built;
+
+  // D-S2-4: fame from Wikipedia page views. The API answers one article per
+  // request, so each run measures the footballers it can within what the
+  // budget leaves (never measured first, then the oldest counts), and keeps
+  // every count in data/cache/pageviews.json and in the pool. A failure
+  // keeps the counts already known.
+  const viewsWindow = monthWindow(today);
+  const cachedViews = await readCache<ViewsCache>("pageviews");
+  let views: ViewsCache = cachedViews?.value ?? {};
+  const previousFame = new Map(
+    (previous?.players ?? []).map((p) => [p.id, p.fame ?? null]),
+  );
+  const measured: Measured[] = built.pool.players
+    .filter((p) => p.pools.active)
+    .map((p) => ({
+      id: p.id,
+      wiki: p.wiki,
+      previous: previousFame.get(p.id) ?? null,
+    }));
+  if (deps.offline) {
+    statuses.pageviews = cachedViews
+      ? { status: "cached", retrievedAt: cachedViews.savedAt }
+      : {
+          status: "failed",
+          retrievedAt: null,
+          note: "no cached copy; the last pool's counts are kept",
+        };
+  } else {
+    const room = Math.max(0, budget - planned);
+    const asked = planPageviews({
+      players: measured,
+      cache: views,
+      window: viewsWindow,
+      max: room,
+    });
+    deps.log(
+      `pageviews: ${asked.length} articles this run, ${room} requests left in the budget of ${budget}`,
+    );
+    const got: { lang: ViewLang; title: string; views: number }[] = [];
+    let failure: string | null = null;
+    for (const a of asked) {
+      try {
+        got.push({
+          ...a,
+          views: await fetchViews(wikimedia, a.lang, a.title, viewsWindow),
+        });
+      } catch (error) {
+        failure = error instanceof Error ? error.message : String(error);
+        break;
+      }
+    }
+    if (got.length > 0) {
+      views = addToCache(views, viewsWindow, got);
+      const file = path.join(data, "cache", "pageviews.json");
+      await mkdir(path.dirname(file), { recursive: true });
+      const entry: CacheEntry<ViewsCache> = {
+        version: CACHE_VERSION,
+        savedAt: today,
+        source: "pageviews",
+        value: views,
+      };
+      await writeFile(file, JSON.stringify(entry));
+    }
+    const waiting = measured.filter((m) => viewsOf(m, views) === null).length;
+    const note = `${got.length} of ${asked.length} articles read${failure ? ` (then: ${failure})` : ""}; ${waiting} active footballers not measured yet`;
+    statuses.pageviews =
+      failure !== null && got.length === 0
+        ? { status: "failed", retrievedAt: cachedViews?.savedAt ?? null, note }
+        : { status: "fresh", retrievedAt: today, note };
+  }
+  const pool = {
+    ...built.pool,
+    players: built.pool.players.map((p) => {
+      if (!p.pools.active) return { ...p, fame: null };
+      const m = measured.find((x) => x.id === p.id)!;
+      const found = viewsOf(m, views);
+      return {
+        ...p,
+        fame: fameOf(found?.views ?? null, found?.window ?? null, false),
+      };
+    }),
+  };
   const attempts = deps.attempts?.() ?? null;
   deps.log(
     attempts

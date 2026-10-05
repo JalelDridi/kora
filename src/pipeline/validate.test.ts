@@ -229,6 +229,56 @@ describe("validatePool", () => {
   });
 });
 
+describe("fame (D-S2-4)", () => {
+  const withFame = (fame: unknown, pools = { active: true, legend: true }) =>
+    validatePool(
+      { ...pool, players: [{ ...player, pools, fame }] },
+      new Set(["sfax"]),
+    );
+  const measured = {
+    score: 5.41,
+    tier: "A",
+    views: { en: 258284, fr: 0, ar: 0 },
+    window: "202510-202609",
+    localStar: false,
+  };
+
+  it("accepts a measured fame, an unmeasured one, and none before Sprint 2", () => {
+    expect(withFame(measured)).toEqual([]);
+    expect(
+      withFame({
+        score: null,
+        tier: null,
+        views: null,
+        window: null,
+        localStar: true,
+      }),
+    ).toEqual([]);
+    expect(validatePool(pool, new Set(["sfax"]))).toEqual([]);
+    expect(withFame(null, { active: false, legend: true })).toEqual([]);
+  });
+
+  it("checks the shape: score 0 to 10, tier A to D and matching the score, views, window", () => {
+    for (const bad of [
+      { ...measured, score: 11 },
+      { ...measured, tier: "E" },
+      { ...measured, tier: "B" },
+      { ...measured, views: { en: -1, fr: 0, ar: 0 } },
+      { ...measured, window: "last year" },
+      { ...measured, localStar: "yes" },
+      { ...measured, score: null },
+      "A",
+    ])
+      expect(withFame(bad)).toEqual(["player ali-maaloul: fame is malformed"]);
+  });
+
+  it("an active footballer's fame may be absent, a legend's must be null", () => {
+    expect(withFame(measured, { active: false, legend: true })).toEqual([
+      "player ali-maaloul: a legend only has no fame",
+    ]);
+  });
+});
+
 describe("the id registry (fix round 1 finding 2, fix round 2 item 1)", () => {
   const registry = (
     players: Record<string, string>,
