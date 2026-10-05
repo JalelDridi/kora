@@ -289,3 +289,40 @@ describe("createPoliteClient limits", () => {
     expect(starts).toHaveLength(1);
   });
 });
+
+describe("createPoliteClient options for other sites (B2)", () => {
+  it("keeps both Wikimedia headers by default", async () => {
+    const seen: Headers[] = [];
+    const client = createPoliteClient({
+      minGapMs: 0,
+      maxRetries: 0,
+      fetch: async (_url, init) => {
+        seen.push(new Headers(init?.headers));
+        return new Response("{}");
+      },
+    });
+    await client.getJson("https://en.wikipedia.org/w/api.php");
+    expect(seen[0].get("user-agent")).toBe(USER_AGENT);
+    expect(seen[0].get("api-user-agent")).toBe(USER_AGENT);
+  });
+
+  it("sends its own User-Agent, no Api-User-Agent, and asks for manual redirects", async () => {
+    const calls: RequestInit[] = [];
+    const client = createPoliteClient({
+      minGapMs: 0,
+      maxRetries: 0,
+      userAgent: "Test/1",
+      apiUserAgent: false,
+      redirect: "manual",
+      fetch: async (_url, init) => {
+        calls.push(init ?? {});
+        return new Response("ok");
+      },
+    });
+    await client.getText("https://example.org/");
+    const headers = new Headers(calls[0].headers);
+    expect([...headers.keys()]).toEqual(["user-agent"]);
+    expect(headers.get("user-agent")).toBe("Test/1");
+    expect(calls[0].redirect).toBe("manual");
+  });
+});

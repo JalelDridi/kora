@@ -53,6 +53,12 @@ export type PoliteOptions = {
   fetch?: FetchLike;
   sleep?: (ms: number) => Promise<void>;
   now?: () => number;
+  /** The User-Agent sent; default USER_AGENT. */
+  userAgent?: string;
+  /** false: no Api-User-Agent header (a site that is not Wikimedia). */
+  apiUserAgent?: false;
+  /** How fetch treats a redirect; "manual" hands the 3xx back as the answer. */
+  redirect?: RequestRedirect;
 };
 
 export type PoliteClient = {
@@ -126,9 +132,14 @@ export function createPoliteClient(options: PoliteOptions): PoliteClient {
       attempts++;
 
       const headers = new Headers(init.headers);
-      headers.set("User-Agent", USER_AGENT);
-      headers.set("Api-User-Agent", USER_AGENT);
-      const response = await doFetch(url, { ...init, headers });
+      const agent = options.userAgent ?? USER_AGENT;
+      headers.set("User-Agent", agent);
+      if (options.apiUserAgent !== false) headers.set("Api-User-Agent", agent);
+      const response = await doFetch(url, {
+        ...init,
+        headers,
+        ...(options.redirect ? { redirect: options.redirect } : {}),
+      });
 
       if (STOP.has(response.status)) {
         await response.body?.cancel();
