@@ -152,7 +152,7 @@ describe("open-data-pr.sh: is there anything to propose", () => {
     expect(git(dir, "branch", "--list", "data/nightly")).toBe("");
   });
 
-  it("proposes the three files when the ids changed, and the dry run writes nothing", async () => {
+  it("proposes the three files and the photos when the ids changed, and the dry run writes nothing", async () => {
     const dir = await repo();
     await writeFile(path.join(dir, "data", "ids.json"), "ids.json 2\n");
     const head = git(dir, "rev-parse", "HEAD");
@@ -160,7 +160,7 @@ describe("open-data-pr.sh: is there anything to propose", () => {
     const r = dryRun(dir);
     expect(r.status).toBe(0);
     expect(r.out).toMatch(
-      /^dry run: would commit data\/pool\.json data\/ids\.json data\/report\.md to data\/nightly as "data: nightly pool \d{4}-\d{2}-\d{2}" with a \d+-byte description$/,
+      /^dry run: would commit data\/pool\.json data\/ids\.json data\/report\.md public\/photos to data\/nightly as "data: nightly pool \d{4}-\d{2}-\d{2}" with a \d+-byte description$/,
     );
     expect(git(dir, "rev-parse", "HEAD")).toBe(head);
     expect(git(dir, "branch", "--list", "data/nightly")).toBe("");
@@ -169,6 +169,14 @@ describe("open-data-pr.sh: is there anything to propose", () => {
   it("proposes when the pool changed", async () => {
     const dir = await repo();
     await writeFile(path.join(dir, "data", "pool.json"), "pool.json 2\n");
+    expect(dryRun(dir).out).toMatch(/^dry run: would commit/);
+  });
+
+  // P30: a new or replaced thumbnail is a change to propose.
+  it("proposes when a photo was added", async () => {
+    const dir = await repo();
+    await mkdir(path.join(dir, "public", "photos"), { recursive: true });
+    await writeFile(path.join(dir, "public", "photos", "x.jpg"), "jpeg");
     expect(dryRun(dir).out).toMatch(/^dry run: would commit/);
   });
 });

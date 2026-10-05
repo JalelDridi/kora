@@ -9,17 +9,18 @@
 set -euo pipefail
 
 readonly branch="data/nightly"
-# The id registry travels with the pool, or data:check fails on the branch.
-readonly files=(data/pool.json data/ids.json data/report.md)
+# The id registry travels with the pool, or data:check fails on the branch;
+# the copied photos (P30) travel with the pool that points at them.
+readonly files=(data/pool.json data/ids.json data/report.md public/photos)
 # GitHub refuses a description over 65,536 characters; bytes are never fewer.
 readonly body_limit=65000
 readonly truncated_note=$'\n\n_The report is longer than a pull request description allows; the rest is in data/report.md on this branch._'
 readonly footer=$'\n\n---\nOpened by the nightly data job; it never merges by itself. How to review it: data/README.md. Corrections go in data/overrides.json on main, never on this branch, which is rebuilt every night.\n'
 
-# The report changes every night (it carries the date); the pool and the ids
-# change only when the data does.
+# The report changes every night (it carries the date); the pool, the ids
+# and the photos change only when the data does.
 data_changed() {
-  [ -n "$(git status --porcelain -- data/pool.json data/ids.json)" ]
+  [ -n "$(git status --porcelain -- data/pool.json data/ids.json public/photos)" ]
 }
 
 # pr_body REPORT OUT: the report, cut at a line when too long, then the footer.
@@ -83,6 +84,8 @@ main() {
   git config user.name "github-actions[bot]"
   git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
   git switch --force-create "$branch"
+  # A night with no photo yet: git add refuses a path that does not exist.
+  mkdir -p public/photos
   git add -- "${files[@]}"
   git commit --quiet -m "$title"
   # Checkout keeps no token; gh lends GH_TOKEN to this push only.

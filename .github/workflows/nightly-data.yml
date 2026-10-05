@@ -53,6 +53,8 @@ jobs:
           key: data-cache-${{ github.run_id }}-${{ github.run_attempt }}
       - name: Check the data as CI will
         run: pnpm data:check
+      # The artifact's root is the paths' common folder, the repository root
+      # since the photos (P30) travel too: the propose job downloads it there.
       - uses: actions/upload-artifact@v4
         with:
           name: nightly-data
@@ -60,11 +62,12 @@ jobs:
             data/pool.json
             data/ids.json
             data/report.md
+            public/photos/
           if-no-files-found: error
           retention-days: 7
 
-  # Runs no project code: copies the three files over main and opens or
-  # updates the pull request.
+  # Runs no project code: copies the three files and the photos over main
+  # and opens or updates the pull request.
   propose:
     needs: build
     if: github.ref == 'refs/heads/main'
@@ -82,7 +85,7 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           name: nightly-data
-          path: data
+          path: .
       - name: Open or update the pull request
         env:
           GH_TOKEN: ${{ github.token }}

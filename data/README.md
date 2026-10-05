@@ -17,7 +17,7 @@ Nothing here reaches the database until a pull request is merged: the deploy tha
 
 ## The nightly pull request
 
-Every night at 01:17 UTC (02:17 in Tunis) the `Nightly data` workflow (`.github/workflows/nightly-data.yml`) runs `pnpm data:build` online, then `pnpm data:check`. If the build refuses or a check fails, the run fails in the Actions tab and no pull request is opened. Otherwise, when `pool.json` or `ids.json` changed, it commits `pool.json`, `ids.json` and `report.md` to the branch `data/nightly` as `github-actions[bot]`, force-pushes it, and opens or updates one pull request into `main`, whose description is `report.md`. It never merges by itself. When nothing changed it does nothing (`report.md` alone changes every night: it carries the date). It can also be started by hand: Actions → Nightly data → Run workflow, on `main`.
+Every night at 01:17 UTC (02:17 in Tunis) the `Nightly data` workflow (`.github/workflows/nightly-data.yml`) runs `pnpm data:build` online, then `pnpm data:check`. If the build refuses or a check fails, the run fails in the Actions tab and no pull request is opened. Otherwise, when `pool.json`, `ids.json` or the copied photos changed, it commits `pool.json`, `ids.json`, `report.md` and `public/photos/` to the branch `data/nightly` as `github-actions[bot]`, force-pushes it, and opens or updates one pull request into `main`, whose description is `report.md`. It never merges by itself. When nothing changed it does nothing (`report.md` alone changes every night: it carries the date). It can also be started by hand: Actions → Nightly data → Run workflow, on `main`.
 
 ### Once, in the repository settings (Jalel)
 
