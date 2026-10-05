@@ -1,33 +1,44 @@
 <!DOCTYPE html>
-<!-- Synthetic (decision S28): invented players, ids and numbers. No Transfermarkt squad page has been fetched yet: this follows the site's usual squad-page markup as best known (a "items" table, one row per player with a nested inline table for the name and position, a birth-date cell, a loan icon). UNVERIFIED until the sample run (B5). -->
+<!-- Synthetic (decision S28): invented players, clubs, ids and numbers. The shapes follow a real Transfermarkt squad page (the sample run of 5 October 2026, the compact view): one "items" table whose header is "# | Player | Age | Nat. | Contract | Market value" (no birth-date column: the only date is the contract's end, "-" when unknown); a nested inline table for the name and position; a transfer badge (span.wechsel-kader-wappen, a[title="Joined from ...; date: ...; fee: ..."] or "Returned after loan spell ...; fee: End of loan"). The sample showed no player on loan at the club, so the "on loan from" badge of row 2 is a guess, UNVERIFIED. -->
 <html><head><title>Invented FC - Squad</title>
 <link rel="canonical" href="https://www.transfermarkt.com/invented-fc/kader/verein/90001/saison_id/2026" /></head><body>
 <div class="responsive-table"><div class="grid-view">
 <table class="items">
 <thead>
-<tr><th>#</th><th>Player</th><th>Date of birth/Age</th><th>Nat.</th><th>Market value</th></tr>
+<tr><th id="yw1_c0">#</th><th id="yw1_c1">Player</th><th class="zentriert" id="yw1_c2">Age</th><th class="zentriert" id="yw1_c3">Nat.</th><th class="zentriert" id="yw1_c4">Contract</th><th class="rechts" id="yw1_c5">Market value</th></tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td class="zentriert rueckennummer bg_Torwart"><div class="rn_nummer">1</div></td>
-<td class="posrela"><table class="inline-table"><tr><td rowspan="2"><img src="https://img.example.invalid/portrait/small/700001.jpg" title="Ali Inventé" alt="Ali Inventé" class="bilderrahmen-fixed" /></td><td class="hauptlink"><a href="/ali-invente/profil/spieler/700001">Ali Inventé</a></td></tr><tr><td>Goalkeeper</td></tr></table></td>
-<td class="zentriert">Mar 3, 1999 (27)</td>
-<td class="zentriert"><img src="https://img.example.invalid/flagge/verysmall/190.png" title="Tunisia" alt="Tunisia" class="flaggenrahmen" /></td>
+<td class="zentriert rueckennummer bg_Torwart" title="Goalkeeper"><div class=rn_nummer>1</div></td>
+<td class="posrela"><span class="wechsel-kader-wappen hide-for-small"><a title="Joined from Club Imaginaire; date: 01/07/2025; fee: free transfer" href="/club-imaginaire/startseite/verein/90002/saison_id/2025"><img src="https://img.example.invalid/wappen/90002.png" title="Club Imaginaire" alt="Club Imaginaire" class="" /></a></span><a title="Joined from Club Imaginaire; date: 01/07/2025; fee: free transfer" class="hide-for-small" href="/club-imaginaire/startseite/verein/90002/saison_id/2025"><img src="/images/icons/x.png" class="x" /></a> <table class="inline-table"> <tr> <td rowspan="2"> <img src="data:image/gif;base64,R0lGODlhAQABAAAAACw=" data-src="https://img.example.invalid/portrait/700001.jpg" title="Ali Inventé" alt="Ali Inventé" class="bilderrahmen-fixed lazy lazy" /> </td> <td class="hauptlink"> <a href="/ali-invente/profil/spieler/700001"> Ali Inventé </a> </td> </tr> <tr> <td> Goalkeeper </td> </tr> </table> </td>
+<td class="zentriert">27</td>
+<td class="zentriert"><img src="https://img.example.invalid/flagge/999.png" title="Invented Land" alt="Invented Land" class="flaggenrahmen" /></td>
+<td class="zentriert">30/06/2027</td>
 <td class="rechts hauptlink"><a href="/ali-invente/marktwertverlauf/spieler/700001">€100k</a></td>
 </tr>
 <tr class="even">
-<td class="zentriert rueckennummer bg_Abwehr"><div class="rn_nummer">4</div></td>
-<td class="posrela"><table class="inline-table"><tr><td rowspan="2"><img src="https://img.example.invalid/portrait/small/700002.jpg" title="Sami Exemple" alt="Sami Exemple" class="bilderrahmen-fixed" /></td><td class="hauptlink"><a href="/sami-exemple/profil/spieler/700002">Sami Exemple</a><a class="hide-for-small" title="on loan from Club Imaginaire; loan contract until 30/06/2027"><img src="https://img.example.invalid/icons/ausgeliehen.png" alt="" /></a></td></tr><tr><td>Centre-Back</td></tr></table></td>
-<td class="zentriert">Nov 21, 2002 (23)</td>
-<td class="zentriert"><img src="https://img.example.invalid/flagge/verysmall/190.png" title="Tunisia" alt="Tunisia" class="flaggenrahmen" /></td>
+<td class="zentriert rueckennummer bg_Abwehr" title="Defender"><div class=rn_nummer>4</div></td>
+<td class="posrela"><span class="wechsel-kader-wappen hide-for-small"><a title="on loan from Club Imaginaire; date: 01/08/2026; fee: loan fee" href="/club-imaginaire/startseite/verein/90002/saison_id/2026"><img src="https://img.example.invalid/wappen/90002.png" title="Club Imaginaire" alt="Club Imaginaire" class="" /></a></span> <table class="inline-table"> <tr> <td rowspan="2"> <img src="data:image/gif;base64,R0lGODlhAQABAAAAACw=" data-src="https://img.example.invalid/portrait/700002.jpg" title="Sami Exemple" alt="Sami Exemple" class="bilderrahmen-fixed lazy lazy" /> </td> <td class="hauptlink"> <a href="/sami-exemple/profil/spieler/700002"> Sami Exemple </a> </td> </tr> <tr> <td> Centre-Back </td> </tr> </table> </td>
+<td class="zentriert">23</td>
+<td class="zentriert"><img src="https://img.example.invalid/flagge/999.png" title="Invented Land" alt="Invented Land" class="flaggenrahmen" /></td>
+<td class="zentriert">30/06/2027</td>
 <td class="rechts hauptlink"><a href="/sami-exemple/marktwertverlauf/spieler/700002">€50k</a></td>
 </tr>
 <tr class="odd">
-<td class="zentriert rueckennummer bg_Sturm"><div class="rn_nummer">9</div></td>
-<td class="posrela"><table class="inline-table"><tr><td rowspan="2"><img src="https://img.example.invalid/portrait/small/700003.jpg" title="Karim Fictif" alt="Karim Fictif" class="bilderrahmen-fixed" /></td><td class="hauptlink"><a href="/karim-fictif/profil/spieler/700003">Karim Fictif</a></td></tr><tr><td>Centre-Forward</td></tr></table></td>
-<td class="zentriert">Jul 14, 1997 (29)</td>
-<td class="zentriert"><img src="https://img.example.invalid/flagge/verysmall/50.png" title="Invented Land" alt="Invented Land" class="flaggenrahmen" /></td>
+<td class="zentriert rueckennummer bg_Sturm" title="Forward"><div class=rn_nummer>9</div></td>
+<td class="posrela"><span class="wechsel-kader-wappen hide-for-small"><a title="Returned after loan spell with Union Fictive; date: 30/06/2026; fee: End of loan" href="/union-fictive/startseite/verein/90004/saison_id/2025"><img src="https://img.example.invalid/wappen/90004.png" title="Union Fictive" alt="Union Fictive" class="" /></a></span> <table class="inline-table"> <tr> <td rowspan="2"> <img src="data:image/gif;base64,R0lGODlhAQABAAAAACw=" data-src="https://img.example.invalid/portrait/700003.jpg" title="Karim Fictif" alt="Karim Fictif" class="bilderrahmen-fixed lazy lazy" /> </td> <td class="hauptlink"> <a href="/karim-fictif/profil/spieler/700003"> Karim Fictif </a> </td> </tr> <tr> <td> Centre-Forward </td> </tr> </table> </td>
+<td class="zentriert">29</td>
+<td class="zentriert"><img src="https://img.example.invalid/flagge/998.png" title="Other Land" alt="Other Land" class="flaggenrahmen" /></td>
+<td class="zentriert">30/06/2028</td>
 <td class="rechts hauptlink"><a href="/karim-fictif/marktwertverlauf/spieler/700003">€75k</a></td>
+</tr>
+<tr class="even">
+<td class="zentriert rueckennummer bg_Mittelfeld" title="Midfield"><div class=rn_nummer>-</div></td>
+<td class="posrela"> <table class="inline-table"> <tr> <td rowspan="2"> <img src="data:image/gif;base64,R0lGODlhAQABAAAAACw=" data-src="https://img.example.invalid/portrait/700004.jpg" title="Nabil Exemplaire" alt="Nabil Exemplaire" class="bilderrahmen-fixed lazy lazy" /> </td> <td class="hauptlink"> <a href="/nabil-exemplaire/profil/spieler/700004"> Nabil Exemplaire </a> </td> </tr> <tr> <td> Central Midfield </td> </tr> </table> </td>
+<td class="zentriert">19</td>
+<td class="zentriert"><img src="https://img.example.invalid/flagge/999.png" title="Invented Land" alt="Invented Land" class="flaggenrahmen" /></td>
+<td class="zentriert">-</td>
+<td class="rechts hauptlink">-</td>
 </tr>
 </tbody>
 </table>

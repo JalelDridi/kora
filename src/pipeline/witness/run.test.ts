@@ -6,7 +6,13 @@ import { createSiteClient } from "./client.ts";
 import type { SiteClient } from "./client.ts";
 import type { Pool } from "../types.ts";
 import { parseMapping } from "./mapping.ts";
-import { playerPath, runBackfill, runSample, runWeekly } from "./run.ts";
+import {
+  knownPlayerPaths,
+  playerPath,
+  runBackfill,
+  runSample,
+  runWeekly,
+} from "./run.ts";
 import type { CheckInput } from "./run.ts";
 import { parseLeague } from "./transfermarkt.ts";
 import { emptyWitness, mergeChecks, validateWitness } from "./verdicts.ts";
@@ -336,6 +342,7 @@ describe("the weekly run (B8)", () => {
     // Q3's page was never read: no caps verdict.
     expect(file.checks.Q3).toBeUndefined();
     expect((await store.readState()).nft["800002"]).toEqual({
+      path: "/player/800002/Sami_Exemple.html",
       careerFifa: 21,
       yearMatches: 3,
       readOn: "2026-10-05",
@@ -523,5 +530,69 @@ describe("unmapped and mismatched clubs in the weekly run (fix round 1)", () => 
     expect(second.lines).toContain(
       "transfermarkt: Wikidata's id is not a club of the league page for Our Club (mismatch): 1 footballers left unjudged",
     );
+  });
+});
+
+describe("backfill links (fix round 2)", () => {
+  it("uses the exact href a country page gave (the state, or a saved country page), and a guessed name only as a last resort", async () => {
+    const store = await tempStore();
+    // Q1 (800001) is on the country page saved by an earlier run; Q2
+    // (800002) has its link in the state; Q3 (800003) has neither.
+    await store.savePage(
+      "national-football-teams",
+      "country-2026",
+      await fixture("nft-country.html"),
+    );
+    await store.writeState({
+      version: 1,
+      nft: { "800002": { path: "/player/800002/Exact_Link.html" } },
+      backfill: { done: {} },
+    });
+    const nft = fakeSite("www.national-football-teams.com", {
+      "/robots.txt": "",
+      "/player/800001/Ali_Invente.html": await fixture("nft-player.html"),
+      "/player/800002/Exact_Link.html": await fixture("nft-player.html"),
+      [playerPath("800003", "Player Q3")]: await fixture("nft-player.html"),
+    });
+    const { input, lines } = checkInput(store, {
+      "national-football-teams": nft.client,
+    });
+    await runBackfill({ ...input, pages: 3 });
+    expect(nft.asked.map((a) => a.path).sort()).toEqual([
+      "/player/800001/Ali_Invente.html",
+      "/player/800002/Exact_Link.html",
+      "/player/800003/Player_Q3.html",
+      "/robots.txt",
+    ]);
+    expect(lines).toContain(
+      "national-football-teams: backfill of 3 player pages, 2 by the link a country page gave, 1 by a guessed name (UNVERIFIED)",
+    );
+  });
+
+  it("knownPlayerPaths: the state's link wins over a saved page's", async () => {
+    const paths = knownPlayerPaths(
+      {
+        version: 1,
+        nft: { "800001": { path: "/player/800001/Newer.html" } },
+        backfill: { done: {} },
+      },
+      [await fixture("nft-country.html"), "<html>not a country page</html>"],
+    );
+    expect(Object.fromEntries(paths)).toEqual({
+      "800001": "/player/800001/Newer.html",
+      "800002": "/player/800002/Sami_Exemple.html",
+    });
+  });
+
+  it("the weekly run keeps every listed player's exact link in the state", async () => {
+    const store = await tempStore();
+    const nft = fakeSite("www.national-football-teams.com", await nftPages());
+    const { input } = checkInput(store, {
+      "national-football-teams": nft.client,
+    });
+    await runWeekly(input);
+    const state = await store.readState();
+    expect(state.nft["800001"].path).toBe("/player/800001/Ali_Invente.html");
+    expect(state.nft["800002"].path).toBe("/player/800002/Sami_Exemple.html");
   });
 });

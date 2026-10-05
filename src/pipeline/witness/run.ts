@@ -239,7 +239,24 @@ async function finish(
 }
 
 /**
- * UNVERIFIED path form: a player page from his id and a name (the country
+ * Each player's page path exactly as a country page links it: from the
+ * private state, then from the country pages saved in the private folder
+ * (any saved page that parses as one; other pages give nothing).
+ */
+export function knownPlayerPaths(
+  state: WitnessState,
+  savedPages: string[],
+): Map<string, string> {
+  const out = new Map<string, string>();
+  for (const html of savedPages)
+    for (const p of parseCountryPage(html).players) out.set(p.id, p.path);
+  for (const [id, s] of Object.entries(state.nft))
+    if (s.path) out.set(id, s.path);
+  return out;
+}
+
+/**
+ * Last resort, UNVERIFIED path form: a player page from his id and a name (the country
  * page links each player as /player/<id>/<Given_Family>.html).
  */
 export function playerPath(id: string, name: string): string {
@@ -331,6 +348,11 @@ export async function runWeekly(input: CheckInput): Promise<CheckResult> {
           .map((m) => m.nft)
           .filter((id): id is string => Boolean(id)),
       );
+      // Fix round 2: keep each player's exact link for later backfills.
+      for (const p of country.players)
+        if (wanted.has(p.id))
+          state.nft[p.id] = { ...state.nft[p.id], path: p.path };
+      await input.store.writeState(state);
       const due = country.players.filter(
         (p) =>
           wanted.has(p.id) &&
@@ -351,6 +373,7 @@ export async function runWeekly(input: CheckInput): Promise<CheckResult> {
           page,
         );
         state.nft[p.id] = {
+          path: p.path,
           careerFifa: parsePlayerPage(page).careerFifa ?? undefined,
           yearMatches: p.fifaMatches ?? undefined,
           readOn: input.today,
@@ -407,8 +430,16 @@ export async function runBackfill(
         Number(a.p.wikidataId.slice(1)) - Number(b.p.wikidataId.slice(1)),
     )
     .slice(0, input.pages);
+  // Fix round 2: the exact link a country page gave him (this run's state,
+  // or a country page saved in the private folder); a guessed name only
+  // as a last resort.
+  const known = knownPlayerPaths(
+    state,
+    await input.store.readPages("national-football-teams", ""),
+  );
+  const guessed = queue.filter(({ id }) => !known.has(id)).length;
   input.log(
-    `national-football-teams: backfill of ${queue.length} player pages`,
+    `national-football-teams: backfill of ${queue.length} player pages, ${queue.length - guessed} by the link a country page gave, ${guessed} by a guessed name (UNVERIFIED)`,
   );
   const stopped: Partial<Record<SiteName, string>> = {};
   const why = await forSite(
@@ -417,7 +448,9 @@ export async function runBackfill(
     async (client) => {
       for (const { p, id } of queue) {
         checkAbort(input);
-        const page = await client.get(playerPath(id, p.nameLatin));
+        const page = await client.get(
+          known.get(id) ?? playerPath(id, p.nameLatin),
+        );
         await input.store.savePage(
           "national-football-teams",
           `player-${id}`,

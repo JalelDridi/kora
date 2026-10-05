@@ -29,3 +29,23 @@ describe("the dry-run plan lists the unmapped clubs (fix round 1)", () => {
     );
   });
 });
+
+describe("the backfill plan counts the guessed links (fix round 2)", () => {
+  it("says how many pages have the exact link and how many need a guess", () => {
+    const backfill = { ...base, mode: { kind: "backfill" as const, pages: 5 } };
+    expect(
+      describePlan({ ...backfill, backfillPaths: { known: 30, guessed: 4 } }),
+    ).toContain(
+      "backfill links: 30 player pages not read yet have the exact link a country page gave; 4 would need a guessed name (UNVERIFIED form)",
+    );
+    expect(describePlan({ ...backfill, backfillPaths: null })).toContain(
+      "backfill links: unknown until the Wikidata query",
+    );
+    // Not a backfill: no such line.
+    expect(
+      describePlan({ ...base, backfillPaths: { known: 1, guessed: 1 } }).some(
+        (l) => l.startsWith("backfill links"),
+      ),
+    ).toBe(false);
+  });
+});

@@ -1,18 +1,113 @@
 <!DOCTYPE html>
-<!-- Synthetic (decision S28): an invented player. No national-football-teams.com player page has been fetched yet: the career table below (one row per year, the country page's "stats matches" cells, a total row) is a guess. UNVERIFIED until the sample run (B5). -->
-<html><head><title>Ali Inventé - national team career</title></head><body>
-<h1>Ali Inventé</h1>
-<table class="table player-career table-sm">
+<!-- Synthetic (decision S28): an invented player, invented numbers. The shapes follow a real national-football-teams.com player page (the sample run of 5 October 2026): a chart script whose "dataProvider" lists "fifa", "nonfifa" and "club" entries, and a career table with a "FIFA" / "Non FIFA" header pair whose rows carry td.country[data-order] (Tunisia_A_... for the senior team) and the FIFA "matches" cell first. A youth row is invented to show it is left out. -->
+<html><head><title>Ali Inventé</title></head><body>
+<div id="player_performance_chart"></div>
+<script nonce="synthetic">
+	jQuery(document).ready(function(){
+		var player_performance_chart = AmCharts.makeChart( "player_performance_chart", {
+			"type": "serial",
+			"theme": "nft",
+			"dataProvider": [
+								{
+					"type": "fifa",
+					"goals": 1,
+					"matches": 21,
+					"goalsPerMatches": 0.05
+				}, {
+					"type": "nonfifa",
+					"goals": 0,
+					"matches": 2,
+					"goalsPerMatches": 0
+				}, {
+					"type": "club",
+					"goals": 4,
+					"matches": 150,
+					"goalsPerMatches": 0.03
+				}
+							],
+			"graphs": [{ "title": "Goals", "type": "column" }]
+		});
+	});
+</script>
+<table class="table countries table-hover table-sm table-striped sortable data-table" data-order='[[0,"desc"]]' style="width:100%">
 	<thead>
-		<tr><th class="year">Year</th><th class="team">Team</th><th class="stats matches">M</th><th class="stats exchanges">S</th><th class="stats goals">G</th></tr>
+		<tr>
+			<th colspan="2"></th>
+			<th colspan="3" class="text-center">FIFA</th>
+			<th colspan="3" class="text-center">Non FIFA</th>
+		</tr>
+		<tr>
+			<th class="season">Season</th>
+			<th>Country</th>
+			<th class="stats matches"><abbr title="# of Matches">M</abbr></th>
+			<th class="stats exchanges"><abbr title="# of Substitutions">S</abbr></th>
+			<th class="stats goals"><abbr title="# of Goals">G</abbr></th>
+			<th class="stats matches"><abbr title="# of Matches">M</abbr></th>
+			<th class="stats exchanges"><abbr title="# of Substitutions">S</abbr></th>
+			<th class="stats goals"><abbr title="# of Goals">G</abbr></th>
+		</tr>
 	</thead>
 	<tbody>
-		<tr><td class="year">2024</td><td class="team">Invented</td><td class="stats matches">5</td><td class="stats exchanges">1</td><td class="stats goals">0</td></tr>
-		<tr><td class="year">2025</td><td class="team">Invented</td><td class="stats matches">9</td><td class="stats exchanges">0</td><td class="stats goals">1</td></tr>
-		<tr><td class="year">2026</td><td class="team">Invented</td><td class="stats matches">7</td><td class="stats exchanges">0</td><td class="stats goals">0</td></tr>
+		<tr>
+			<td class="season" data-order="2026">
+				2026
+			</td>
+			<td class="country" data-order="Tunisia_A_M_2">
+				<div class="team"><a href="/country/190/2026/Tunisia.html">Tunisia</a></div>
+			</td>
+			<td class="stats matches" data-order="7">
+				7
+			</td>
+			<td class="stats exchanges" data-order="0">0</td>
+			<td class="stats goals" data-order="0">0</td>
+			<td class="stats matches" data-order="0">0</td>
+			<td class="stats exchanges" data-order="0">0</td>
+			<td class="stats goals" data-order="0">0</td>
+		</tr>
+		<tr>
+			<td class="season" data-order="2025">
+				2025
+			</td>
+			<td class="country" data-order="Tunisia_A_M_2">
+				<div class="team"><a href="/country/190/2025/Tunisia.html">Tunisia</a></div>
+			</td>
+			<td class="stats matches" data-order="14">
+				14
+			</td>
+			<td class="stats exchanges" data-order="1">1</td>
+			<td class="stats goals" data-order="1">1</td>
+			<td class="stats matches" data-order="2">2</td>
+			<td class="stats exchanges" data-order="0">0</td>
+			<td class="stats goals" data-order="0">0</td>
+		</tr>
+		<tr>
+			<td class="season" data-order="2019">
+				2019
+			</td>
+			<td class="country" data-order="Tunisia_U23_M_2">
+				<div class="team"><a href="/country/999/2019/Invented_U23.html">Invented U23</a></div>
+			</td>
+			<td class="stats matches" data-order="5">
+				5
+			</td>
+			<td class="stats exchanges" data-order="0">0</td>
+			<td class="stats goals" data-order="2">2</td>
+			<td class="stats matches" data-order="0">0</td>
+			<td class="stats exchanges" data-order="0">0</td>
+			<td class="stats goals" data-order="0">0</td>
+		</tr>
 	</tbody>
 	<tfoot>
-		<tr class="total"><td class="year">Total</td><td class="team"></td><td class="stats matches">21</td><td class="stats exchanges">1</td><td class="stats goals">1</td></tr>
+		<tr>
+			<td></td>
+			<td></td>
+			<td class="stats matches"><strong>26</strong></td>
+			<td class="stats exchanges"><strong>1</strong></td>
+			<td class="stats goals"><strong>3</strong></td>
+			<td class="stats matches"><strong>2</strong></td>
+			<td class="stats exchanges"><strong>0</strong></td>
+			<td class="stats goals"><strong>0</strong></td>
+		</tr>
 	</tfoot>
 </table>
 </body></html>
