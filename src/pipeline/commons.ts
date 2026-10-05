@@ -1,6 +1,6 @@
 import type { Photo } from "./types.ts";
 
-/** One request for up to 50 files: licence, author, size, a 400 px thumbnail. */
+/** One request for up to 50 files: licence, author, size, a 330 px thumbnail (P30). */
 export function commonsUrl(files: string[]): string {
   const params = new URLSearchParams({
     action: "query",
@@ -8,7 +8,7 @@ export function commonsUrl(files: string[]): string {
     formatversion: "2",
     prop: "imageinfo",
     iiprop: "extmetadata|size|url",
-    iiurlwidth: "400",
+    iiurlwidth: "330",
     iiextmetadatafilter:
       "LicenseShortName|LicenseUrl|Artist|AttributionRequired",
     maxlag: "5",

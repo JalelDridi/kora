@@ -223,6 +223,11 @@ export type Photo = {
   author: string | null;
   sourceUrl: string;
   attributionRequired: boolean;
+  /**
+   * P30: where the copied thumbnail is served ("/photos/<id>.jpg"); null
+   * until it is copied. Absent in a pool built before Sprint 2.
+   */
+  path?: string | null;
 };
 
 export type Match = {

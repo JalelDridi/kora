@@ -143,6 +143,7 @@ function wikimedia(calls: Calls = { urls: [], queries: [] }) {
                       "https://commons.wikimedia.org/wiki/File:Test.jpg",
                     extmetadata: {
                       LicenseShortName: { value: "CC BY-SA 4.0" },
+                      Artist: { value: "Someone" },
                     },
                   },
                 ],
@@ -1893,7 +1894,10 @@ describe("fame from page views in the run (D-S2-4)", () => {
       false,
     );
     expect(lines).toContain(
-      "pageviews: 0 articles this run, 0 requests left in the budget of 14",
+      "0 requests left in the budget of 14 for page views and photos",
+    );
+    expect(lines).toContain(
+      "pageviews: 0 of 0 articles read; 1 active footballers not measured yet",
     );
     expect((await readPool(root)).players[0].fame).toMatchObject({
       score: null,
@@ -1935,5 +1939,145 @@ describe("fame from page views in the run (D-S2-4)", () => {
     expect((await readPool(root)).players[0].fame?.score).toBe(5.41);
     const report = await readFile(file(root, "report.md"), "utf8");
     expect(report).toContain("| pageviews | cached | 2026-10-04 |");
+  });
+});
+
+describe("photos copied into the repo in the run (P30)", () => {
+  const jpeg = () =>
+    new Response(new Uint8Array(2000), {
+      status: 200,
+      headers: { "content-type": "image/jpeg" },
+    });
+  const views = {
+    items: [{ views: 120000 }],
+  };
+  function withViews(calls: string[] = []): PoliteClient {
+    const base = wikimedia();
+    return {
+      async getJson(url, init) {
+        if (url.startsWith("https://wikimedia.org/api/rest_v1/")) {
+          calls.push(url);
+          return views;
+        }
+        return base.getJson(url, init);
+      },
+      getText: base.getText,
+    };
+  }
+  const photoFetch = (asked: string[]) => async (url: string) => {
+    asked.push(url);
+    return jpeg();
+  };
+
+  it("copies the thumbnail into public/photos/ and the pool names its path", async () => {
+    const root = await setup();
+    const asked: string[] = [];
+    expect(
+      await run(
+        deps(root, {
+          wikimedia: withViews(),
+          photoFetch: photoFetch(asked),
+          sleep: async () => {},
+        }),
+      ),
+    ).toMatchObject({ ok: true });
+    expect(asked).toEqual([
+      "https://upload.wikimedia.org/t.jpg?utm_source=commons",
+    ]);
+    const pool = await readPool(root);
+    expect(pool.players[0].photo?.path).toBe("/photos/test-footballer.jpg");
+    const copied = await readFile(
+      path.join(root, "public", "photos", "test-footballer.jpg"),
+    );
+    expect(copied.byteLength).toBe(2000);
+    const report = await readFile(file(root, "report.md"), "utf8");
+    expect(report).toContain(
+      "1 of the 1 footballers with a Commons photo have a copy in public/photos/. Tonight: 1 downloaded, 0 waiting for a later night's budget.",
+    );
+
+    // The next night: the same Commons file, already copied, is not asked again.
+    asked.length = 0;
+    await run(
+      deps(root, {
+        wikimedia: withViews(),
+        photoFetch: photoFetch(asked),
+        sleep: async () => {},
+      }),
+    );
+    expect(asked).toEqual([]);
+    expect((await readPool(root)).players[0].photo?.path).toBe(
+      "/photos/test-footballer.jpg",
+    );
+  });
+
+  it("spends the budget on unmeasured page views first, then photos", async () => {
+    const root = await setup();
+    const asked: string[] = [];
+    const viewCalls: string[] = [];
+    // 14 planned with the redirects (see above): one request left.
+    const night = () =>
+      run(
+        deps(root, {
+          wikimedia: withViews(viewCalls),
+          photoFetch: photoFetch(asked),
+          sleep: async () => {},
+          maxRequests: 15,
+        }),
+      );
+    await night();
+    expect([viewCalls.length, asked.length]).toEqual([1, 0]);
+    expect((await readPool(root)).players[0].photo?.path).toBeNull();
+    await night();
+    expect([viewCalls.length, asked.length]).toEqual([1, 1]);
+    expect((await readPool(root)).players[0].photo?.path).toBe(
+      "/photos/test-footballer.jpg",
+    );
+  });
+
+  it("a refused build copies no photo", async () => {
+    const root = await setup();
+    const asked: string[] = [];
+    // The shrink guard refuses: the last pool had 50 footballers.
+    await writeFile(
+      file(root, "pool.json"),
+      JSON.stringify({
+        version: 1,
+        players: Array.from({ length: 50 }, (_, i) => ({
+          id: `p${i}`,
+          wikidataId: `Q${9000 + i}`,
+          provenance: {},
+        })),
+        clubs: [],
+        honours: [],
+        flags: [],
+        dropped: [],
+      }),
+    );
+    const outcome = await run(
+      deps(root, {
+        wikimedia: withViews(),
+        photoFetch: photoFetch(asked),
+        sleep: async () => {},
+      }),
+    );
+    expect(outcome.ok).toBe(false);
+    expect(await exists(path.join(root, "public", "photos"))).toBe(false);
+  });
+
+  it("offline, downloads no photo and keeps the copies already made", async () => {
+    const root = await setup();
+    await run(
+      deps(root, {
+        wikimedia: withViews(),
+        photoFetch: photoFetch([]),
+        sleep: async () => {},
+      }),
+    );
+    expect(
+      await run({ root, today: "2026-10-04", offline: true, log: () => {} }),
+    ).toMatchObject({ ok: true });
+    expect((await readPool(root)).players[0].photo?.path).toBe(
+      "/photos/test-footballer.jpg",
+    );
   });
 });

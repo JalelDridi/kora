@@ -344,6 +344,36 @@ function squadSection(squads: SquadSummary | null): string[] {
   ];
 }
 
+export type PhotoSummary = {
+  downloaded: number;
+  waiting: number;
+  notes: string[];
+  /** Files in public/photos/ no footballer uses any more. */
+  unused: string[];
+};
+
+function photoSection(p: PhotoSummary, pool: Pool): string[] {
+  const copied = pool.players.filter((x) => x.photo?.path).length;
+  const withPhoto = pool.players.filter((x) => x.photo).length;
+  return [
+    `## Photos (P30)`,
+    "",
+    `${copied} of the ${withPhoto} footballers with a Commons photo have a copy in public/photos/. Tonight: ${p.downloaded} downloaded, ${p.waiting} waiting for a later night's budget.`,
+    "",
+    `### Not copied (${p.notes.length})`,
+    "",
+    ...(p.notes.length === 0 ? ["None."] : p.notes.map((n) => `- ${n}`)),
+    "",
+    `### Copies no footballer uses any more (${p.unused.length})`,
+    "",
+    "Kept: deleting a file is Jalel's call.",
+    "",
+    ...(p.unused.length === 0
+      ? ["None."]
+      : p.unused.map((n) => `- public/photos/${n}`)),
+  ];
+}
+
 function witnessSection(w: WitnessSummary): string[] {
   const total = w.counts.reduce(
     (n, c) => n + Object.values(c.verdicts).reduce((a, b) => a + b, 0),
@@ -409,6 +439,8 @@ export function renderReport(input: {
   squads?: SquadSummary | null;
   /** P43: the private witness's verdicts; absent: no section. */
   witness?: WitnessSummary;
+  /** P30: the thumbnails copied into public/photos/; absent: no section. */
+  photos?: PhotoSummary;
 }): string {
   const { pool, diff, statuses, today } = input;
   const clubName = new Map(pool.clubs.map((c) => [c.id, c.nameLatin]));
@@ -547,6 +579,9 @@ export function renderReport(input: {
     ...(input.witness === undefined
       ? []
       : [...witnessSection(input.witness), ""]),
+    ...(input.photos === undefined
+      ? []
+      : [...photoSection(input.photos, pool), ""]),
     `## Left out of the pool (${pool.dropped.length})`,
     "",
     ...droppedReasons.map(

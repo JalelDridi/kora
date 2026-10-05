@@ -150,6 +150,13 @@ export function validatePool(
     }
     if (p.photo && (!p.photo.file || !p.photo.licence || !p.photo.sourceUrl))
       errors.push(`${at}: photo without licence or source page`);
+    // P30, as the database checks (players_photo_path_shape).
+    if (
+      p.photo?.path != null &&
+      p.photo.path !== `/photos/${p.id}.jpg` &&
+      p.photo.path !== `/photos/${p.id}.png`
+    )
+      errors.push(`${at}: photo path ${p.photo.path}`);
     if (ids.has(p.id)) errors.push(`${at}: duplicate id`);
     ids.add(p.id);
     if (!QID.test(p.wikidataId) || qids.has(p.wikidataId))

@@ -229,6 +229,41 @@ describe("validatePool", () => {
   });
 });
 
+describe("photo paths (P30)", () => {
+  const photo = {
+    file: "File:A.jpg",
+    thumbUrl: "https://upload.wikimedia.org/a.jpg",
+    width: 1,
+    height: 1,
+    licence: "CC BY-SA 4.0",
+    licenceUrl: null,
+    author: "Someone",
+    sourceUrl: "https://commons.wikimedia.org/wiki/File:A.jpg",
+    attributionRequired: true,
+  };
+  const check = (path: unknown) =>
+    validatePool(
+      { ...pool, players: [{ ...player, photo: { ...photo, path } }] },
+      new Set(["sfax"]),
+    );
+
+  it("accepts /photos/<id>.jpg or .png, null, or no path", () => {
+    expect(check("/photos/ali-maaloul.jpg")).toEqual([]);
+    expect(check("/photos/ali-maaloul.png")).toEqual([]);
+    expect(check(null)).toEqual([]);
+    expect(check(undefined)).toEqual([]);
+  });
+
+  it("refuses any other path", () => {
+    for (const bad of [
+      "/photos/someone-else.jpg",
+      "/photos/ali-maaloul.webp",
+      "https://upload.wikimedia.org/a.jpg",
+    ])
+      expect(check(bad)).toEqual([`player ali-maaloul: photo path ${bad}`]);
+  });
+});
+
 describe("fame (D-S2-4)", () => {
   const withFame = (fame: unknown, pools = { active: true, legend: true }) =>
     validatePool(

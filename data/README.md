@@ -40,6 +40,10 @@ Every night at 01:17 UTC (02:17 in Tunis) the `Nightly data` workflow (`.github/
 
 A run plans its requests before sending any and refuses over its budget of 70 (all clients together, retries aside): it checks once before the first request, again exactly before the redirect lookups, and again before the squad link lookups.
 
+## Photos (P30)
+
+The nightly job copies a 330 px Commons thumbnail per footballer with a photo into `public/photos/<id>.jpg` (or `.png`), and the pool records it as `photo.path` next to the credit. The site serves these files as they are: no hotlinking, no image optimization, no crop and no re-encoding, so the credit needs no "modified" note. A photo is copied only when it has a licence and a file page and, when its licence asks for attribution, an author; a response that is not a JPEG or PNG, or is over 120 KB, is not kept. A footballer whose Commons file is unchanged and already copied is not asked again; one whose file changed is copied again. Downloads count in the run's budget: after the page views of footballers never measured, before the refreshing of older page views; the rest wait for the next night, and the report says how many. The photos are written only when the build succeeds. A copy no footballer uses any more is kept and listed in the report: deleting it is Jalel's call. The nightly pull request carries `public/photos/` with the three data files.
+
 ## Fame (D-S2-4)
 
 Each active footballer's `fame` is `log10(en + 1.5·fr + 3·ar + 1)` from 12 full months of Wikipedia page views by people (the Wikimedia Pageviews API, user agents only), plus 0.5 when Jalel tags him a local star; its tier is A (5.0 and up), B (4.5 to 5.0), C (4.0 to 4.5) or D. D is never a daily answer, C only on Saturdays and Sundays. A legend who is not active has `fame: null`.
@@ -101,5 +105,5 @@ The pool data and the hints written from it are under [CC BY-SA 4.0](LICENSE) (d
 - **Wikidata**: identity, names, birth, position, clubs. CC0.
 - **English and French Wikipedia**: current club, career and caps, read from infoboxes. Wikipedia's text is CC BY-SA 4.0; the pool records which article each value came from, so the site can credit it.
 - **Wikipedia squad lists** (decision P42): the English and French squad lists of this season's Ligue 1 clubs and the English national team's current squad table, a dated witness for the club and the caps. CC BY-SA 4.0, like the infoboxes; a caps value taken from the national table names its article in `ref`.
-- **Wikimedia Commons**: photos, each under its own file's licence. Each keeps its author, licence, licence link and file page, shown wherever the photo appears. Sprint 1 stores the thumbnail address as Commons gives it and downloads no image; photos are copied into the repository in Sprint 2 (decision P30).
+- **Wikimedia Commons**: photos, each under its own file's licence. Each keeps its author, licence, licence link and file page, shown wherever the photo appears. The nightly job copies each one into the repository (decision P30, below).
 - **martj42/international_results**: Tunisia's results and goalscorers, to tell when caps are out of date and to catch impossible caps or goals. CC0. The scorer list covers about a third of Tunisia's goals, so it is only a lower bound.

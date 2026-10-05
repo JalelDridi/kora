@@ -321,6 +321,35 @@ describe("syncPool", () => {
     ).toBeNull();
   });
 
+  // P30: the copied thumbnail's path, beside its credit.
+  it("sync writes the photo path, and the database refuses a path without a credited photo", async () => {
+    const copied: PoolPlayer = {
+      ...maaloul,
+      photo: { ...maaloul.photo!, path: "/photos/ali-maaloul.jpg" },
+    };
+    await syncPool(sql, pool([copied, msakni]), governorates);
+    expect(
+      (await db.player.findUniqueOrThrow({ where: { id: "ali-maaloul" } }))
+        .photoPath,
+    ).toBe("/photos/ali-maaloul.jpg");
+    expect(await syncPool(sql, pool([copied, msakni]), governorates)).toEqual(
+      NOTHING,
+    );
+    await expect(
+      syncPool(
+        sql,
+        pool([
+          {
+            ...copied,
+            photo: { ...copied.photo!, path: "/photos/elsewhere/x.jpg" },
+          },
+          msakni,
+        ]),
+        governorates,
+      ),
+    ).rejects.toThrow(/players_photo_path_shape/);
+  });
+
   it("updates only what changed", async () => {
     await syncPool(sql, pool([maaloul, msakni]), governorates);
     const counts = await syncPool(

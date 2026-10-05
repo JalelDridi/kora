@@ -1,4 +1,12 @@
-import { mkdir, readFile, rename, rm, writeFile } from "node:fs/promises";
+import {
+  access,
+  mkdir,
+  readdir,
+  readFile,
+  rename,
+  rm,
+  writeFile,
+} from "node:fs/promises";
 import path from "node:path";
 import { knownIds } from "./check.ts";
 import { commonsUrl, parseCommons } from "./commons.ts";
@@ -17,6 +25,7 @@ import {
   viewsOf,
 } from "./pageviews.ts";
 import type { Measured, ViewLang, ViewsCache } from "./pageviews.ts";
+import { syncPhotos } from "./photos.ts";
 import { buildPool, emptyRegistry } from "./pool.ts";
 import {
   diffPools,
@@ -114,6 +123,13 @@ export type RunDeps = {
   maxRequests?: number;
   /** HTTP attempts per client so far, retries included (createClients gives it); without it the run counts calls. */
   attempts?: () => Record<ClientName, number>;
+  /**
+   * P30: downloads the Commons thumbnails (binary, so not a PoliteClient);
+   * without it no photo is downloaded and the copies already made are kept.
+   */
+  photoFetch?: FetchLike;
+  /** The wait between two photo downloads (tests make it instant). */
+  sleep?: (ms: number) => Promise<void>;
 };
 
 export type ClientName = "wdqs" | "wikimedia" | "github";
@@ -126,6 +142,7 @@ export function createClients(
   options: { fetch?: FetchLike; sleep?: (ms: number) => Promise<void> } = {},
 ): Record<ClientName, PoliteClient> & {
   attempts: () => Record<ClientName, number>;
+  photoFetch: FetchLike;
 } {
   const counts: Record<ClientName, number> = {
     wdqs: 0,
@@ -164,6 +181,9 @@ export function createClients(
     ),
     github: make("github", 1_000, 2, 2 * GITHUB_DOWNLOADS),
     attempts: () => ({ ...counts }),
+    // P30: thumbnails from upload.wikimedia.org; syncPhotos sends them one at
+    // a time, a second apart, within the run's budget.
+    photoFetch: (url, init) => (options.fetch ?? globalThis.fetch)(url, init),
   };
 }
 
@@ -1071,11 +1091,20 @@ async function build(deps: RunDeps): Promise<RunResult> {
   }
   const { ids } = built;
 
+  // What the budget leaves after every other source goes, in this order, to
+  // the page views of footballers never measured (D-S2-4: without them he
+  // cannot be a daily answer), then to new photos (P30), then to refreshing
+  // the oldest page views. Never more than the budget.
+  let room = deps.offline ? 0 : Math.max(0, budget - planned);
+  if (!deps.offline)
+    deps.log(
+      `${room} requests left in the budget of ${budget} for page views and photos`,
+    );
+
   // D-S2-4: fame from Wikipedia page views. The API answers one article per
-  // request, so each run measures the footballers it can within what the
-  // budget leaves (never measured first, then the oldest counts), and keeps
-  // every count in data/cache/pageviews.json and in the pool. A failure
-  // keeps the counts already known.
+  // request, so each run measures the footballers it can, and keeps every
+  // count in data/cache/pageviews.json and in the pool. A failure keeps the
+  // counts already known.
   const viewsWindow = monthWindow(today);
   const cachedViews = await readCache<ViewsCache>("pageviews");
   let views: ViewsCache = cachedViews?.value ?? {};
@@ -1089,6 +1118,63 @@ async function build(deps: RunDeps): Promise<RunResult> {
       wiki: p.wiki,
       previous: previousFame.get(p.id) ?? null,
     }));
+  const viewRun = { asked: 0, read: 0, failure: null as string | null };
+  /** Reads the articles planned for these footballers, within `room`. */
+  async function measure(players: Measured[]): Promise<void> {
+    if (viewRun.failure !== null) return;
+    const asked = planPageviews({
+      players,
+      cache: views,
+      window: viewsWindow,
+      max: room,
+    });
+    const got: { lang: ViewLang; title: string; views: number }[] = [];
+    for (const a of asked) {
+      room--;
+      try {
+        got.push({
+          ...a,
+          views: await fetchViews(wikimedia, a.lang, a.title, viewsWindow),
+        });
+      } catch (error) {
+        viewRun.failure =
+          error instanceof Error ? error.message : String(error);
+        break;
+      }
+    }
+    viewRun.asked += asked.length;
+    viewRun.read += got.length;
+    if (got.length > 0) views = addToCache(views, viewsWindow, got);
+  }
+  if (!deps.offline)
+    await measure(measured.filter((m) => viewsOf(m, views) === null));
+
+  // P30: the thumbnails, kept in memory until the outputs are written, so a
+  // refused build copies nothing.
+  const photoDir = path.join(deps.root, "public", "photos");
+  const pending = new Map<string, Uint8Array>();
+  const previousPhotos = new Map(
+    (previous?.players ?? []).map((p) => [p.id, p.photo]),
+  );
+  const photoRun = await syncPhotos({
+    players: built.pool.players,
+    previous: previousPhotos,
+    max: room,
+    offline: deps.offline === true || deps.photoFetch === undefined,
+    fetch: deps.photoFetch ?? (() => Promise.reject(new Error("no client"))),
+    exists: (name) =>
+      access(path.join(photoDir, name)).then(
+        () => true,
+        () => false,
+      ),
+    write: async (name, bytes) => {
+      pending.set(name, bytes);
+    },
+    sleep: deps.sleep,
+  });
+  room -= photoRun.downloaded;
+  if (!deps.offline) await measure(measured);
+
   if (deps.offline) {
     statuses.pageviews = cachedViews
       ? { status: "cached", retrievedAt: cachedViews.savedAt }
@@ -1098,31 +1184,7 @@ async function build(deps: RunDeps): Promise<RunResult> {
           note: "no cached copy; the last pool's counts are kept",
         };
   } else {
-    const room = Math.max(0, budget - planned);
-    const asked = planPageviews({
-      players: measured,
-      cache: views,
-      window: viewsWindow,
-      max: room,
-    });
-    deps.log(
-      `pageviews: ${asked.length} articles this run, ${room} requests left in the budget of ${budget}`,
-    );
-    const got: { lang: ViewLang; title: string; views: number }[] = [];
-    let failure: string | null = null;
-    for (const a of asked) {
-      try {
-        got.push({
-          ...a,
-          views: await fetchViews(wikimedia, a.lang, a.title, viewsWindow),
-        });
-      } catch (error) {
-        failure = error instanceof Error ? error.message : String(error);
-        break;
-      }
-    }
-    if (got.length > 0) {
-      views = addToCache(views, viewsWindow, got);
+    if (viewRun.read > 0) {
       const file = path.join(data, "cache", "pageviews.json");
       await mkdir(path.dirname(file), { recursive: true });
       const entry: CacheEntry<ViewsCache> = {
@@ -1134,22 +1196,31 @@ async function build(deps: RunDeps): Promise<RunResult> {
       await writeFile(file, JSON.stringify(entry));
     }
     const waiting = measured.filter((m) => viewsOf(m, views) === null).length;
-    const note = `${got.length} of ${asked.length} articles read${failure ? ` (then: ${failure})` : ""}; ${waiting} active footballers not measured yet`;
+    const note = `${viewRun.read} of ${viewRun.asked} articles read${viewRun.failure ? ` (then: ${viewRun.failure})` : ""}; ${waiting} active footballers not measured yet`;
+    deps.log(`pageviews: ${note}`);
     statuses.pageviews =
-      failure !== null && got.length === 0
+      viewRun.failure !== null && viewRun.read === 0
         ? { status: "failed", retrievedAt: cachedViews?.savedAt ?? null, note }
         : { status: "fresh", retrievedAt: today, note };
   }
+  deps.log(
+    `photos: ${photoRun.downloaded} downloaded, ${photoRun.waiting} waiting for a later run, ${photoRun.notes.length} not copied`,
+  );
   const pool = {
     ...built.pool,
     players: built.pool.players.map((p) => {
-      if (!p.pools.active) return { ...p, fame: null };
+      const photo = p.photo && {
+        ...p.photo,
+        path: photoRun.paths.get(p.id) ?? null,
+      };
+      if (!p.pools.active) return { ...p, photo, fame: null };
       const m = measured.find((x) => x.id === p.id)!;
       const found = viewsOf(m, views);
       const localStar =
         checked.overrides.players[p.wikidataId]?.localStar?.value === true;
       return {
         ...p,
+        photo,
         fame: fameOf(found?.views ?? null, found?.window ?? null, localStar),
       };
     }),
@@ -1172,7 +1243,23 @@ async function build(deps: RunDeps): Promise<RunResult> {
   if (refusal) throw new Refusal(refusal);
 
   const diff = diffPools(previous, pool);
-  // Everything is rendered before anything is written.
+  // P30: copies no footballer uses any more stay; deleting is Jalel's call.
+  const used = new Set(
+    pool.players
+      .map((p) => p.photo?.path?.replace(/^\/photos\//, ""))
+      .filter(present),
+  );
+  const onDisk = await readdir(photoDir).catch(() => [] as string[]);
+  const unused = onDisk
+    .filter((name) => /\.(jpg|png)$/.test(name) && !used.has(name))
+    .sort();
+  // Everything is rendered before anything is written. The photos go first:
+  // a photo with no pool pointing at it yet is harmless.
+  if (pending.size > 0) {
+    await mkdir(photoDir, { recursive: true });
+    for (const [name, bytes] of pending)
+      await writeFile(path.join(photoDir, name), bytes);
+  }
   await commit(data, deps.writeFile ?? ((f, t) => writeFile(f, t)), [
     ["ids.json", stableJson(ids)],
     ["pool.json", JSON.stringify(pool, null, 2) + "\n"],
@@ -1187,6 +1274,12 @@ async function build(deps: RunDeps): Promise<RunResult> {
         overrideWarnings: checked.warnings,
         offline: deps.offline === true,
         witness: witnessSummary(witness, pool, today),
+        photos: {
+          downloaded: photoRun.downloaded,
+          waiting: photoRun.waiting,
+          notes: photoRun.notes,
+          unused,
+        },
         squads:
           squadLists && squadMatch
             ? squadSummary(

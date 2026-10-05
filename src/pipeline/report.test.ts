@@ -380,6 +380,44 @@ describe("renderReport", () => {
     expect(report).not.toContain("- far: clubId (low)");
   });
 
+  it("says how many photos were copied, which were not and why, and which copies are unused", () => {
+    const withPhoto = (id: string, path: string | null) =>
+      player(id, {
+        photo: {
+          file: `File:${id}.jpg`,
+          thumbUrl: "https://upload.wikimedia.org/x.jpg",
+          width: 1,
+          height: 1,
+          licence: "CC BY-SA 4.0",
+          licenceUrl: null,
+          author: "Someone",
+          sourceUrl: `https://commons.wikimedia.org/wiki/File:${id}.jpg`,
+          attributionRequired: true,
+          path,
+        },
+      });
+    const p = pool([withPhoto("a", "/photos/a.jpg"), withPhoto("b", null)]);
+    const report = renderReport({
+      pool: p,
+      diff: diffPools(null, p),
+      statuses: {},
+      today: "2026-10-04",
+      photos: {
+        downloaded: 1,
+        waiting: 0,
+        notes: ["b: not copied, HTTP 404 from upload.wikimedia.org"],
+        unused: ["gone.jpg"],
+      },
+    });
+    expect(report).toContain(
+      "1 of the 2 footballers with a Commons photo have a copy in public/photos/. Tonight: 1 downloaded, 0 waiting for a later night's budget.",
+    );
+    expect(report).toContain(
+      "- b: not copied, HTTP 404 from upload.wikimedia.org",
+    );
+    expect(report).toContain("- public/photos/gone.jpg");
+  });
+
   it("lists the seasons without a winner", () => {
     expect(
       missingSeasons(

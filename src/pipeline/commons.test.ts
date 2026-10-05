@@ -102,11 +102,11 @@ describe("parseCommons", () => {
 });
 
 describe("commonsUrl and stripHtml", () => {
-  it("asks for 50 files' licences and a 400 px thumbnail", () => {
+  it("asks for 50 files' licences and a 330 px thumbnail (commonsUrl asks for 330 px)", () => {
     const url = new URL(commonsUrl(["File:A.jpg", "File:B.jpg"]));
     expect(url.host).toBe("commons.wikimedia.org");
     expect(url.searchParams.get("titles")).toBe("File:A.jpg|File:B.jpg");
-    expect(url.searchParams.get("iiurlwidth")).toBe("400");
+    expect(url.searchParams.get("iiurlwidth")).toBe("330");
     expect(url.searchParams.get("maxlag")).toBe("5");
   });
 
