@@ -1,0 +1,4397 @@
+[
+  {
+    "variant": "لسعد النويوى",
+    "expected": ["Q368345"],
+    "source": "wikidata-label-arz"
+  },
+  {
+    "variant": "Lassad Hassen Nouioui",
+    "expected": ["Q368345"],
+    "source": "wikidata-alias-fr"
+  },
+  {
+    "variant": "Lassad",
+    "expected": ["Q368345"],
+    "source": "wikidata-alias-es"
+  },
+  {
+    "variant": "أسعد النويوي",
+    "expected": ["Q368345"],
+    "source": "wikidata-alias-ar"
+  },
+  {
+    "variant": "Lassad Hassan Houioui",
+    "expected": ["Q368345"],
+    "source": "wikidata-alias-de"
+  },
+  {
+    "variant": "وهبى خزرى",
+    "expected": ["Q27794"],
+    "source": "wikidata-label-arz"
+  },
+  {
+    "variant": "فرجانى ساسى",
+    "expected": ["Q16636036"],
+    "source": "wikidata-label-arz"
+  },
+  {
+    "variant": "الفرجاني ساسي",
+    "expected": ["Q16636036"],
+    "source": "wikidata-alias-ar"
+  },
+  {
+    "variant": "ايمن عبد النور",
+    "expected": ["Q60597"],
+    "source": "wikidata-label-arz"
+  },
+  {
+    "variant": "Abdennour",
+    "expected": ["Q60597"],
+    "source": "wikidata-alias-de"
+  },
+  {
+    "variant": "أيمن عبدالنور",
+    "expected": ["Q60597"],
+    "source": "wikidata-alias-ar"
+  },
+  {
+    "variant": "يوسف المساكنى",
+    "expected": ["Q2409513"],
+    "source": "wikidata-label-arz"
+  },
+  {
+    "variant": "Youssef Msekni",
+    "expected": ["Q2409513"],
+    "source": "wikidata-alias-fi"
+  },
+  {
+    "variant": "Youssef al-Msakni",
+    "expected": ["Q2409513"],
+    "source": "wikidata-alias-fi"
+  },
+  {
+    "variant": "حاتم الطرابلسى",
+    "expected": ["Q265654"],
+    "source": "wikidata-label-arz"
+  },
+  {
+    "variant": "Dylan Daniel Mahmoud Bronn",
+    "expected": ["Q26405549"],
+    "source": "wikidata-alias-de"
+  },
+  {
+    "variant": "Radhi Jaidi",
+    "expected": ["Q331918"],
+    "source": "wikidata-alias-fr"
+  },
+  {
+    "variant": "راضى الجعايدى",
+    "expected": ["Q331918"],
+    "source": "wikidata-label-arz"
+  },
+  {
+    "variant": "Radhi Ben Abdelmajid Jaïdi",
+    "expected": ["Q331918"],
+    "source": "wikidata-alias-en"
+  },
+  {
+    "variant": "Rahdi Jaïdi",
+    "expected": ["Q331918"],
+    "source": "wikidata-alias-fr"
+  },
+  {
+    "variant": "Radhi Ben Abdelmajid Jaidi",
+    "expected": ["Q331918"],
+    "source": "wikidata-alias-de"
+  },
+  {
+    "variant": "Jaidi",
+    "expected": ["Q331918"],
+    "source": "wikidata-alias-de"
+  },
+  {
+    "variant": "Jaïdi",
+    "expected": ["Q331918"],
+    "source": "wikidata-alias-de"
+  },
+  {
+    "variant": "Rahidi Jaidi",
+    "expected": ["Q331918"],
+    "source": "wikidata-alias-sv"
+  },
+  {
+    "variant": "ايمن المثلوثى",
+    "expected": ["Q793138"],
+    "source": "wikidata-label-arz"
+  },
+  {
+    "variant": "أيمن مثلوثي",
+    "expected": ["Q793138"],
+    "source": "wikidata-alias-ar"
+  },
+  {
+    "variant": "Balbouli",
+    "expected": ["Q793138"],
+    "source": "wikidata-alias-en"
+  },
+  {
+    "variant": "Aymen Balbouli",
+    "expected": ["Q793138"],
+    "source": "wikidata-alias-en"
+  },
+  {
+    "variant": "Aymen Mathlouthi Balbouli",
+    "expected": ["Q793138"],
+    "source": "wikidata-alias-pl"
+  },
+  {
+    "variant": "Yohan Ben Alouane",
+    "expected": ["Q2517101"],
+    "source": "wikidata-alias-en"
+  },
+  {
+    "variant": "Ali Maaloul",
+    "expected": ["Q2836275"],
+    "source": "wikidata-alias-en"
+  },
+  {
+    "variant": "على معلول",
+    "expected": ["Q2836275"],
+    "source": "wikidata-label-arz"
+  },
+  {
+    "variant": "Francileudo dos Santos",
+    "expected": ["Q431320"],
+    "source": "wikidata-label-pl"
+  },
+  {
+    "variant": "Francileudo Silva dos Santos",
+    "expected": ["Q431320"],
+    "source": "wikidata-alias-en"
+  },
+  {
+    "variant": "Francileudo Dos Santos Silva",
+    "expected": ["Q431320"],
+    "source": "wikidata-label-nl"
+  },
+  {
+    "variant": "Francileudo silva dos santos",
+    "expected": ["Q431320"],
+    "source": "wikidata-alias-pt"
+  },
+  {
+    "variant": "Francileudo Silva dos Santos Lima",
+    "expected": ["Q431320"],
+    "source": "wikidata-alias-fi"
+  },
+  {
+    "variant": "فرانسويلدو دوس سانتوس",
+    "expected": ["Q431320"],
+    "source": "wikidata-alias-ar"
+  },
+  {
+    "variant": "فرانسلويدو سانتوس",
+    "expected": ["Q431320"],
+    "source": "wikidata-alias-ar"
+  },
+  {
+    "variant": "انيس بين هاتيرا",
+    "expected": ["Q62082"],
+    "source": "wikidata-label-arz"
+  },
+  {
+    "variant": "Anis Ben-Hatira",
+    "expected": ["Q62082"],
+    "source": "wikidata-alias-fr"
+  },
+  {
+    "variant": "Aenis Ben-Hatira",
+    "expected": ["Q62082"],
+    "source": "wikidata-alias-nl"
+  },
+  {
+    "variant": "انيس بن حتيره",
+    "expected": ["Q62082"],
+    "source": "sitelink-arz"
+  },
+  {
+    "variant": "Karim Hagui",
+    "expected": ["Q362296"],
+    "source": "wikidata-alias-fr"
+  },
+  {
+    "variant": "كريم حڨي",
+    "expected": ["Q362296"],
+    "source": "wikidata-alias-ar"
+  },
+  {
+    "variant": "Naim Sliti",
+    "expected": ["Q20641502"],
+    "source": "wikidata-alias-nl"
+  },
+  {
+    "variant": "نعيم سليتى",
+    "expected": ["Q20641502"],
+    "source": "sitelink-arz"
+  },
+  {
+    "variant": "مونتاسار تالبى",
+    "expected": ["Q30118244"],
+    "source": "wikidata-label-arz"
+  },
+  {
+    "variant": "Montassar Omar Talbi",
+    "expected": ["Q30118244"],
+    "source": "wikidata-alias-en"
+  },
+  {
+    "variant": "منتصر الطالبى",
+    "expected": ["Q30118244"],
+    "source": "sitelink-arz"
+  },
+  {
+    "variant": "Saber Khalifa",
+    "expected": ["Q44689"],
+    "source": "sitelink-en"
+  },
+  {
+    "variant": "Saber Khlifa",
+    "expected": ["Q44689"],
+    "source": "wikidata-alias-fr"
+  },
+  {
+    "variant": "صابر خليفه",
+    "expected": ["Q44689"],
+    "source": "wikidata-label-arz"
+  },
+  {
+    "variant": "Khelifa",
+    "expected": ["Q44689"],
+    "source": "wikidata-alias-de"
+  },
+  {
+    "variant": "Khlifa",
+    "expected": ["Q44689"],
+    "source": "wikidata-alias-de"
+  },
+  {
+    "variant": "Syam Habib Ben Youssef",
+    "expected": ["Q3506741"],
+    "source": "wikidata-alias-de"
+  },
+  {
+    "variant": "اسامه الحدادى",
+    "expected": ["Q3358527"],
+    "source": "wikidata-label-arz"
+  },
+  {
+    "variant": "Anis Slimane",
+    "expected": ["Q85410990"],
+    "source": "wikidata-label-nb"
+  },
+  {
+    "variant": "Farouk Ben Mostfa",
+    "expected": ["Q2759083"],
+    "source": "wikidata-alias-fi"
+  },
+  {
+    "variant": "مهدى النفطى",
+    "expected": ["Q380173"],
+    "source": "wikidata-label-arz"
+  },
+  {
+    "variant": "Mehdi Ben Sadok Nafti",
+    "expected": ["Q380173"],
+    "source": "wikidata-alias-de"
+  },
+  {
+    "variant": "على عبدى",
+    "expected": ["Q17350507"],
+    "source": "wikidata-label-arz"
+  },
+  {
+    "variant": "رامى بدوى",
+    "expected": ["Q3418475"],
+    "source": "wikidata-label-arz"
+  },
+  {
+    "variant": "سيف الدين خاوى",
+    "expected": ["Q17580135"],
+    "source": "wikidata-label-arz"
+  },
+  {
+    "variant": "Saif-Eddine Khaoui",
+    "expected": ["Q17580135"],
+    "source": "wikidata-alias-nl"
+  },
+  {
+    "variant": "عمر رقيق",
+    "expected": ["Q96678415"],
+    "source": "wikidata-alias-tr"
+  },
+  {
+    "variant": "عمر الرقيق",
+    "expected": ["Q96678415"],
+    "source": "sitelink-ar"
+  },
+  {
+    "variant": "Zied Jaziri",
+    "expected": ["Q198291"],
+    "source": "wikidata-label-lt"
+  },
+  {
+    "variant": "زياد الجزيرى",
+    "expected": ["Q198291"],
+    "source": "wikidata-label-arz"
+  },
+  {
+    "variant": "Ziad Ben Mactouf Jaziri",
+    "expected": ["Q198291"],
+    "source": "wikidata-alias-fi"
+  },
+  {
+    "variant": "عادل الشاذلى",
+    "expected": ["Q353681"],
+    "source": "wikidata-label-arz"
+  },
+  {
+    "variant": "Adel chedli",
+    "expected": ["Q353681"],
+    "source": "wikidata-alias-pt"
+  },
+  {
+    "variant": "Adel Ben-Bechir Chedli",
+    "expected": ["Q353681"],
+    "source": "wikidata-alias-de"
+  },
+  {
+    "variant": "سامى العلاقى",
+    "expected": ["Q61377"],
+    "source": "wikidata-label-arz"
+  },
+  {
+    "variant": "Samuel Allagui",
+    "expected": ["Q61377"],
+    "source": "wikidata-alias-es"
+  },
+  {
+    "variant": "Allagui",
+    "expected": ["Q61377"],
+    "source": "wikidata-alias-de"
+  },
+  {
+    "variant": "انيس بدرى",
+    "expected": ["Q17442694"],
+    "source": "wikidata-label-arz"
+  },
+  {
+    "variant": "Anis Badri",
+    "expected": ["Q17442694"],
+    "source": "wikidata-alias-en"
+  },
+  {
+    "variant": "Jaouhar Mnari",
+    "expected": ["Q504413"],
+    "source": "wikidata-label-pt"
+  },
+  {
+    "variant": "جوهر المنارى",
+    "expected": ["Q504413"],
+    "source": "wikidata-label-arz"
+  },
+  {
+    "variant": "Yaouhar Mnari",
+    "expected": ["Q504413"],
+    "source": "wikidata-alias-es"
+  },
+  {
+    "variant": "Mnari",
+    "expected": ["Q504413"],
+    "source": "wikidata-alias-de"
+  },
+  {
+    "variant": "Mohamed Ben Amor",
+    "expected": ["Q22948792"],
+    "source": "wikidata-alias-en"
+  },
+  {
+    "variant": "محمد امين بن عمر",
+    "expected": ["Q22948792"],
+    "source": "wikidata-label-arz"
+  },
+  {
+    "variant": "بسام الصرارفى",
+    "expected": ["Q28655133"],
+    "source": "wikidata-label-arz"
+  },
+  {
+    "variant": "عصام الجبالى",
+    "expected": ["Q2375716"],
+    "source": "wikidata-label-arz"
+  },
+  {
+    "variant": "Zoubaier Baya",
+    "expected": ["Q227025"],
+    "source": "wikidata-label-fr"
+  },
+  {
+    "variant": "Zoubaïer Baya",
+    "expected": ["Q227025"],
+    "source": "wikidata-label-fi"
+  },
+  {
+    "variant": "زبير بيه",
+    "expected": ["Q227025"],
+    "source": "wikidata-label-arz"
+  },
+  {
+    "variant": "Ahmed Akaichi",
+    "expected": ["Q401119"],
+    "source": "wikidata-alias-en"
+  },
+  {
+    "variant": "احمد العكايشى",
+    "expected": ["Q401119"],
+    "source": "wikidata-label-arz"
+  },
+  {
+    "variant": "أحمد عكايشي",
+    "expected": ["Q401119"],
+    "source": "wikidata-alias-ar"
+  },
+  {
+    "variant": "Akaïchi",
+    "expected": ["Q401119"],
+    "source": "wikidata-alias-de"
+  },
+  {
+    "variant": "Yassine Khenissi",
+    "expected": ["Q3513869"],
+    "source": "wikidata-label-fi"
+  },
+  {
+    "variant": "طه ياسين الخنيسى",
+    "expected": ["Q3513869"],
+    "source": "wikidata-label-arz"
+  },
+  {
+    "variant": "رياض البوعزيزى",
+    "expected": ["Q725781"],
+    "source": "wikidata-label-arz"
+  },
+  {
+    "variant": "Riad Bouazizi",
+    "expected": ["Q725781"],
+    "source": "wikidata-alias-nl"
+  },
+  {
+    "variant": "Riadh Ben Khemais Bouazizi",
+    "expected": ["Q725781"],
+    "source": "wikidata-alias-de"
+  },
+  {
+    "variant": "عصام جمعه",
+    "expected": ["Q533507"],
+    "source": "wikidata-alias-ar"
+  },
+  {
+    "variant": "Issam Jomâa",
+    "expected": ["Q533507"],
+    "source": "wikidata-alias-fr"
+  },
+  {
+    "variant": "Issam Jomaa",
+    "expected": ["Q533507"],
+    "source": "wikidata-alias-fr"
+  },
+  {
+    "variant": "Issam Jemaa",
+    "expected": ["Q533507"],
+    "source": "wikidata-alias-en"
+  },
+  {
+    "variant": "Jemaa",
+    "expected": ["Q533507"],
+    "source": "wikidata-alias-de"
+  },
+  {
+    "variant": "Jemâa",
+    "expected": ["Q533507"],
+    "source": "wikidata-alias-de"
+  },
+  {
+    "variant": "Issam Jemaan",
+    "expected": ["Q533507"],
+    "source": "wikidata-alias-de"
+  },
+  {
+    "variant": "بلال العيفه",
+    "expected": ["Q2698761"],
+    "source": "wikidata-label-arz"
+  },
+  {
+    "variant": "Ben Saada",
+    "expected": ["Q381387"],
+    "source": "wikidata-alias-ro"
+  },
+  {
+    "variant": "شوقي بن سعاده",
+    "expected": ["Q381387"],
+    "source": "wikidata-alias-ar"
+  },
+  {
+    "variant": "Kaïs Ghodhbane",
+    "expected": ["Q709488"],
+    "source": "wikidata-label-fr"
+  },
+  {
+    "variant": "Ghodbhane",
+    "expected": ["Q709488"],
+    "source": "wikidata-alias-de"
+  },
+  {
+    "variant": "Ghodhbane",
+    "expected": ["Q709488"],
+    "source": "wikidata-alias-de"
+  },
+  {
+    "variant": "Kais Ghodhbane",
+    "expected": ["Q709488"],
+    "source": "wikidata-alias-fr"
+  },
+  {
+    "variant": "Kaies Biu Bannour Ghodhbane",
+    "expected": ["Q709488"],
+    "source": "wikidata-alias-fi"
+  },
+  {
+    "variant": "قيس غضبان",
+    "expected": ["Q709488"],
+    "source": "wikidata-alias-ar"
+  },
+  {
+    "variant": "جمال السايحى",
+    "expected": ["Q1878438"],
+    "source": "wikidata-label-arz"
+  },
+  {
+    "variant": "Anis Boussaidi",
+    "expected": ["Q221789"],
+    "source": "wikidata-label-pt"
+  },
+  {
+    "variant": "انيس بوسعيدى",
+    "expected": ["Q221789"],
+    "source": "wikidata-label-arz"
+  },
+  {
+    "variant": "Karim Saïdi",
+    "expected": ["Q385235"],
+    "source": "wikidata-label-fr"
+  },
+  {
+    "variant": "كريم سعيدى",
+    "expected": ["Q385235"],
+    "source": "wikidata-label-arz"
+  },
+  {
+    "variant": "Selim Ben Achour",
+    "expected": ["Q724024"],
+    "source": "wikidata-label-pl"
+  },
+  {
+    "variant": "حمدي الكسراوي",
+    "expected": ["Q726340"],
+    "source": "wikidata-alias-ar"
+  },
+  {
+    "variant": "Allaedine Yahia",
+    "expected": ["Q726639"],
+    "source": "wikidata-alias-fr"
+  },
+  {
+    "variant": "عادل السليمى",
+    "expected": ["Q353717"],
+    "source": "wikidata-label-arz"
+  },
+  {
+    "variant": "Sellimi",
+    "expected": ["Q353717"],
+    "source": "wikidata-alias-de"
+  },
+  {
+    "variant": "ديفيد جمالى",
+    "expected": ["Q464137"],
+    "source": "wikidata-label-arz"
+  },
+  {
+    "variant": "ديفيد الجمالي",
+    "expected": ["Q464137"],
+    "source": "wikidata-alias-ar"
+  },
+  {
+    "variant": "كريم السديرى",
+    "expected": ["Q1335199"],
+    "source": "wikidata-label-arz"
+  },
+  {
+    "variant": "نادر الجندرى",
+    "expected": ["Q20089300"],
+    "source": "wikidata-label-arz"
+  },
+  {
+    "variant": "نادر الغندرى",
+    "expected": ["Q20089300"],
+    "source": "sitelink-arz"
+  },
+  {
+    "variant": "المهدى بن سليمان",
+    "expected": ["Q1384758"],
+    "source": "wikidata-label-arz"
+  },
+  {
+    "variant": "مهدي بن سليماني",
+    "expected": ["Q1384758"],
+    "source": "wikidata-alias-ar"
+  },
+  {
+    "variant": "Mahdi Ben Slimane",
+    "expected": ["Q1384758"],
+    "source": "wikidata-alias-en"
+  },
+  {
+    "variant": "حمدى الحرباوى",
+    "expected": ["Q2704377"],
+    "source": "wikidata-label-arz"
+  },
+  {
+    "variant": "احمد خليل",
+    "expected": ["Q22928576"],
+    "source": "sitelink-arz"
+  },
+  {
+    "variant": "فابين كاموس",
+    "expected": ["Q60534"],
+    "source": "wikidata-label-arz"
+  },
+  {
+    "variant": "Fabien Bachir Camus",
+    "expected": ["Q60534"],
+    "source": "wikidata-alias-en"
+  },
+  {
+    "variant": "Moez Ben Chérifa",
+    "expected": ["Q3044485"],
+    "source": "wikidata-label-fi"
+  },
+  {
+    "variant": "معز بن شريفيه",
+    "expected": ["Q3044485"],
+    "source": "wikidata-label-arz"
+  },
+  {
+    "variant": "Moez Ben Chrifa",
+    "expected": ["Q3044485"],
+    "source": "wikidata-alias-fr"
+  },
+  {
+    "variant": "Moez Ben Chrifia",
+    "expected": ["Q3044485"],
+    "source": "wikidata-alias-en"
+  },
+  {
+    "variant": "ياسين الشيخاوى",
+    "expected": ["Q710223"],
+    "source": "wikidata-label-arz"
+  },
+  {
+    "variant": "Chikhaoui",
+    "expected": ["Q710223"],
+    "source": "wikidata-alias-de"
+  },
+  {
+    "variant": "Mohamed Amine Chermiti",
+    "expected": ["Q471579"],
+    "source": "wikidata-alias-en"
+  },
+  {
+    "variant": "امين الشرميطى",
+    "expected": ["Q471579"],
+    "source": "wikidata-alias-ar"
+  },
+  {
+    "variant": "Chermiti",
+    "expected": ["Q471579"],
+    "source": "wikidata-alias-fr"
+  },
+  {
+    "variant": "الشرميطي",
+    "expected": ["Q471579"],
+    "source": "wikidata-alias-ar"
+  },
+  {
+    "variant": "محمد الشرميطي",
+    "expected": ["Q471579"],
+    "source": "wikidata-alias-ar"
+  },
+  {
+    "variant": "Mohammed Amine Chermiti",
+    "expected": ["Q471579"],
+    "source": "wikidata-alias-de"
+  },
+  {
+    "variant": "Mohamed Chermiti",
+    "expected": ["Q471579"],
+    "source": "wikidata-alias-it"
+  },
+  {
+    "variant": "Ammar Jmal",
+    "expected": ["Q472831"],
+    "source": "wikidata-alias-fr"
+  },
+  {
+    "variant": "Jemal",
+    "expected": ["Q472831"],
+    "source": "wikidata-alias-de"
+  },
+  {
+    "variant": "حمزة المثلولي",
+    "expected": ["Q17154230"],
+    "source": "wikidata-label-arz"
+  },
+  {
+    "variant": "حمزه المثلوثى",
+    "expected": ["Q17154230"],
+    "source": "sitelink-arz"
+  },
+  {
+    "variant": "اسكندر السويح",
+    "expected": ["Q2420819"],
+    "source": "wikidata-alias-ar"
+  },
+  {
+    "variant": "Skander Souayeh",
+    "expected": ["Q2420819"],
+    "source": "wikidata-alias-sv"
+  },
+  {
+    "variant": "Skandar Souayah",
+    "expected": ["Q2420819"],
+    "source": "wikidata-alias-fi"
+  },
+  {
+    "variant": "على الزيتونى",
+    "expected": ["Q918983"],
+    "source": "wikidata-label-arz"
+  },
+  {
+    "variant": "علي زيتوني",
+    "expected": ["Q918983"],
+    "source": "wikidata-alias-ar"
+  },
+  {
+    "variant": "Ali Al-Zitouni",
+    "expected": ["Q918983"],
+    "source": "wikidata-alias-nl"
+  },
+  {
+    "variant": "Raouf Bouzaiène",
+    "expected": ["Q2707274"],
+    "source": "wikidata-alias-fr"
+  },
+  {
+    "variant": "Bouzaiene",
+    "expected": ["Q2707274"],
+    "source": "wikidata-alias-sv"
+  },
+  {
+    "variant": "Khlil Chamam",
+    "expected": ["Q2697130"],
+    "source": "wikidata-alias-fr"
+  },
+  {
+    "variant": "Khalil Chammam",
+    "expected": ["Q2697130"],
+    "source": "wikidata-alias-fi"
+  },
+  {
+    "variant": "Ahmed Mortadha Ben Ouanes",
+    "expected": ["Q105082472"],
+    "source": "wikidata-alias-en"
+  },
+  {
+    "variant": "أحمد مرتضى بن وناس",
+    "expected": ["Q105082472"],
+    "source": "wikidata-alias-ar"
+  },
+  {
+    "variant": "حمزه رفيعه",
+    "expected": ["Q64736331"],
+    "source": "wikidata-label-arz"
+  },
+  {
+    "variant": "Zouhaier Dhaouadi",
+    "expected": ["Q44651"],
+    "source": "wikidata-label-fr"
+  },
+  {
+    "variant": "Zuhaier Dhaouadi",
+    "expected": ["Q44651"],
+    "source": "wikidata-label-fi"
+  },
+  {
+    "variant": "زهير الذوادى",
+    "expected": ["Q44651"],
+    "source": "wikidata-label-arz"
+  },
+  {
+    "variant": "Souheil Dhaouadi",
+    "expected": ["Q44651"],
+    "source": "wikidata-alias-pl"
+  },
+  {
+    "variant": "Zouhair Dhaouedi",
+    "expected": ["Q44651"],
+    "source": "wikidata-alias-fr"
+  },
+  {
+    "variant": "زهير الدوادي",
+    "expected": ["Q44651"],
+    "source": "wikidata-alias-ar"
+  },
+  {
+    "variant": "حامد النموشى",
+    "expected": ["Q288910"],
+    "source": "wikidata-label-arz"
+  },
+  {
+    "variant": "حامد نعموشي",
+    "expected": ["Q288910"],
+    "source": "wikidata-alias-ar"
+  },
+  {
+    "variant": "حميد النموشي",
+    "expected": ["Q288910"],
+    "source": "wikidata-alias-ar"
+  },
+  {
+    "variant": "Haykel Gmamdia",
+    "expected": ["Q725275"],
+    "source": "wikidata-label-de"
+  },
+  {
+    "variant": "Haikel Gmamdia",
+    "expected": ["Q725275"],
+    "source": "wikidata-label-fr"
+  },
+  {
+    "variant": "Gmamdia",
+    "expected": ["Q725275"],
+    "source": "wikidata-alias-de"
+  },
+  {
+    "variant": "Haikel Guemamdia",
+    "expected": ["Q725275"],
+    "source": "wikidata-alias-fr"
+  },
+  {
+    "variant": "عادل النفزى",
+    "expected": ["Q353703"],
+    "source": "wikidata-label-arz"
+  },
+  {
+    "variant": "عادل نفزي",
+    "expected": ["Q353703"],
+    "source": "wikidata-alias-ar"
+  },
+  {
+    "variant": "Adel nefzi",
+    "expected": ["Q353703"],
+    "source": "wikidata-alias-pt"
+  },
+  {
+    "variant": "Tijani Belaid",
+    "expected": ["Q940263"],
+    "source": "wikidata-alias-en"
+  },
+  {
+    "variant": "التيجاني بلعيد",
+    "expected": ["Q940263"],
+    "source": "wikidata-label-aeb-arab"
+  },
+  {
+    "variant": "تيجانى بلعيد",
+    "expected": ["Q940263"],
+    "source": "wikidata-label-arz"
+  },
+  {
+    "variant": "لاري أزوني",
+    "expected": ["Q10558287"],
+    "source": "wikidata-label-arz"
+  },
+  {
+    "variant": "Larry Francis Abdel Azouni",
+    "expected": ["Q10558287"],
+    "source": "wikidata-alias-es"
+  },
+  {
+    "variant": "Larry Francis Abdel El-Azouni",
+    "expected": ["Q10558287"],
+    "source": "wikidata-alias-en"
+  },
+  {
+    "variant": "Larry El-Azouni",
+    "expected": ["Q10558287"],
+    "source": "wikidata-alias-en"
+  },
+  {
+    "variant": "لاري عزوني",
+    "expected": ["Q10558287"],
+    "source": "wikidata-alias-ar"
+  },
+  {
+    "variant": "لاري فرانسيس عبد العزوني",
+    "expected": ["Q10558287"],
+    "source": "wikidata-alias-ar"
+  },
+  {
+    "variant": "لارى ازونى",
+    "expected": ["Q10558287"],
+    "source": "sitelink-arz"
+  },
+  {
+    "variant": "Mohamed Ali Moncer",
+    "expected": ["Q3318351"],
+    "source": "sitelink-en"
+  },
+  {
+    "variant": "Mohamed Manser",
+    "expected": ["Q3318351"],
+    "source": "wikidata-label-nl"
+  },
+  {
+    "variant": "محمد على منصر",
+    "expected": ["Q3318351"],
+    "source": "wikidata-label-arz"
+  },
+  {
+    "variant": "Majdi Traoui",
+    "expected": ["Q937102"],
+    "source": "wikidata-alias-fr"
+  },
+  {
+    "variant": "مجدى تراوى",
+    "expected": ["Q937102"],
+    "source": "wikidata-label-arz"
+  },
+  {
+    "variant": "Traoui",
+    "expected": ["Q937102"],
+    "source": "wikidata-alias-de"
+  },
+  {
+    "variant": "Mejdi Al-Traoui",
+    "expected": ["Q937102"],
+    "source": "wikidata-alias-nl"
+  },
+  {
+    "variant": "مجدي التراوي",
+    "expected": ["Q937102"],
+    "source": "wikidata-alias-nl"
+  },
+  {
+    "variant": "خالد بدره",
+    "expected": ["Q2733769"],
+    "source": "wikidata-alias-ar"
+  },
+  {
+    "variant": "Béchir Ben Saïd",
+    "expected": ["Q104440763"],
+    "source": "wikidata-label-fr"
+  },
+  {
+    "variant": "Ali Ben Romdhane",
+    "expected": ["Q64593906"],
+    "source": "wikidata-alias-en"
+  },
+  {
+    "variant": "ياسين الميكارى",
+    "expected": ["Q678558"],
+    "source": "wikidata-label-arz"
+  },
+  {
+    "variant": "Mikari",
+    "expected": ["Q678558"],
+    "source": "wikidata-alias-de"
+  },
+  {
+    "variant": "Yassine Mikari",
+    "expected": ["Q678558"],
+    "source": "wikidata-alias-fr"
+  },
+  {
+    "variant": "ياسين مكاري",
+    "expected": ["Q678558"],
+    "source": "wikidata-alias-ar"
+  },
+  {
+    "variant": "Yassin Salim Mikari",
+    "expected": ["Q678558"],
+    "source": "wikidata-alias-fi"
+  },
+  {
+    "variant": "Anïs Ayari",
+    "expected": ["Q954283"],
+    "source": "wikidata-label-fi"
+  },
+  {
+    "variant": "انيس العيارى",
+    "expected": ["Q954283"],
+    "source": "wikidata-label-arz"
+  },
+  {
+    "variant": "أنيس العياري",
+    "expected": ["Q954283"],
+    "source": "sitelink-ar"
+  },
+  {
+    "variant": "يوهان توزجار",
+    "expected": ["Q3572373"],
+    "source": "wikidata-label-arz"
+  },
+  {
+    "variant": "سيف الدين الچزيرى",
+    "expected": ["Q17486017"],
+    "source": "wikidata-label-arz"
+  },
+  {
+    "variant": "اسامه الدراجى",
+    "expected": ["Q967841"],
+    "source": "wikidata-label-arz"
+  },
+  {
+    "variant": "José Clayton Menezes Ribeiro",
+    "expected": ["Q1342632"],
+    "source": "wikidata-alias-fr"
+  },
+  {
+    "variant": "Jose Clayton",
+    "expected": ["Q1342632"],
+    "source": "wikidata-alias-en"
+  },
+  {
+    "variant": "خوسيه كلايتون",
+    "expected": ["Q1342632"],
+    "source": "wikidata-alias-ar"
+  },
+  {
+    "variant": "Josè Clayton",
+    "expected": ["Q1342632"],
+    "source": "wikidata-alias-it"
+  },
+  {
+    "variant": "جوزيه كلايتون مينيزيس ريبيرو",
+    "expected": ["Q1342632"],
+    "source": "wikidata-alias-nl"
+  },
+  {
+    "variant": "خالد المولهى",
+    "expected": ["Q1740495"],
+    "source": "wikidata-label-arz"
+  },
+  {
+    "variant": "Mouelhi",
+    "expected": ["Q1740495"],
+    "source": "wikidata-alias-de"
+  },
+  {
+    "variant": "Sofiène Melliti",
+    "expected": ["Q473584"],
+    "source": "wikidata-label-fr"
+  },
+  {
+    "variant": "سفيان المليتى",
+    "expected": ["Q473584"],
+    "source": "wikidata-label-arz"
+  },
+  {
+    "variant": "Radhouane Felhi",
+    "expected": ["Q375644"],
+    "source": "wikidata-label-fr"
+  },
+  {
+    "variant": "رادهوين فيلهى",
+    "expected": ["Q375644"],
+    "source": "wikidata-label-arz"
+  },
+  {
+    "variant": "Radhouene Felhi",
+    "expected": ["Q375644"],
+    "source": "wikidata-alias-en"
+  },
+  {
+    "variant": "رضوان الفالحى",
+    "expected": ["Q375644"],
+    "source": "sitelink-arz"
+  },
+  {
+    "variant": "Wissem Yahia",
+    "expected": ["Q1354973"],
+    "source": "wikidata-alias-fr"
+  },
+  {
+    "variant": "Ouissen Ben Yahia",
+    "expected": ["Q1354973"],
+    "source": "wikidata-alias-it"
+  },
+  {
+    "variant": "وسيم بن يحيى",
+    "expected": ["Q1354973"],
+    "source": "wikidata-alias-ar"
+  },
+  {
+    "variant": "وسام يحيى",
+    "expected": ["Q1354973"],
+    "source": "wikidata-alias-ar"
+  },
+  {
+    "variant": "Imed Mhadhebi",
+    "expected": ["Q2517420"],
+    "source": "wikidata-label-pt"
+  },
+  {
+    "variant": "Imed Mhadhbi",
+    "expected": ["Q2517420"],
+    "source": "wikidata-label-fr"
+  },
+  {
+    "variant": "عماد المهذبى",
+    "expected": ["Q2517420"],
+    "source": "wikidata-label-arz"
+  },
+  {
+    "variant": "إلياس السخيري",
+    "expected": ["Q20641500"],
+    "source": "wikidata-label-arz"
+  },
+  {
+    "variant": "Ellyes Joris Skhiri",
+    "expected": ["Q20641500"],
+    "source": "wikidata-alias-en"
+  },
+  {
+    "variant": "الياس الصخيرى",
+    "expected": ["Q20641500"],
+    "source": "sitelink-arz"
+  },
+  {
+    "variant": "Aissa Laidouni",
+    "expected": ["Q26838702"],
+    "source": "wikidata-label-sq"
+  },
+  {
+    "variant": "ايسا لايدونى",
+    "expected": ["Q26838702"],
+    "source": "wikidata-label-arz"
+  },
+  {
+    "variant": "Aïssa Bilal Laïdouni",
+    "expected": ["Q26838702"],
+    "source": "wikidata-alias-en"
+  },
+  {
+    "variant": "عيسى العيدونى",
+    "expected": ["Q26838702"],
+    "source": "sitelink-arz"
+  },
+  {
+    "variant": "Mohamed Elias Achouri",
+    "expected": ["Q64740426"],
+    "source": "wikidata-alias-en"
+  },
+  {
+    "variant": "محمد دراجر",
+    "expected": ["Q40272807"],
+    "source": "wikidata-label-arz"
+  },
+  {
+    "variant": "Mohamed Drager",
+    "expected": ["Q40272807"],
+    "source": "wikidata-alias-nl"
+  },
+  {
+    "variant": "يان فاليرى",
+    "expected": ["Q59268317"],
+    "source": "wikidata-label-arz"
+  },
+  {
+    "variant": "nouioui",
+    "expected": ["Q368345"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "نويوي",
+    "expected": ["Q368345"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "نوي",
+    "expected": ["Q368345"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "noui",
+    "expected": ["Q368345"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "lassad nuioui",
+    "expected": ["Q368345"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "khazri",
+    "expected": ["Q27794"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "wahbi 5azri",
+    "expected": ["Q27794"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "5azri",
+    "expected": ["Q27794"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "خزر",
+    "expected": ["Q27794"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "khaz",
+    "expected": ["Q27794"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "wahbi khazre",
+    "expected": ["Q27794"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "sassi",
+    "expected": ["Q16636036"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "ساس",
+    "expected": ["Q16636036"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "sass",
+    "expected": ["Q16636036"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "ferjani sasi",
+    "expected": ["Q16636036"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "abdennour",
+    "expected": ["Q60597"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "نور",
+    "expected": ["Q60597"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "abde",
+    "expected": ["Q60597"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "aymen abdenour",
+    "expected": ["Q60597"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "mejbri",
+    "expected": ["Q96755704"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "7annibal mejbri",
+    "expected": ["Q96755704"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "مجبري",
+    "expected": ["Q96755704"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "مجب",
+    "expected": ["Q96755704"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "mejb",
+    "expected": ["Q96755704"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "hannibal majbri",
+    "expected": ["Q96755704"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "msakni",
+    "expected": ["Q2409513"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "مساكني",
+    "expected": ["Q2409513"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "مسا",
+    "expected": ["Q2409513"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "msak",
+    "expected": ["Q2409513"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "youssef msakne",
+    "expected": ["Q2409513"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "trabelsi",
+    "expected": ["Q265654"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "7atem trabelsi",
+    "expected": ["Q265654"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "طرابلسي",
+    "expected": ["Q265654"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "طرا",
+    "expected": ["Q265654"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "trab",
+    "expected": ["Q265654"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "hatem trabalsi",
+    "expected": ["Q265654"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "meriah",
+    "expected": ["Q19956607"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "yassine meria7",
+    "expected": ["Q19956607"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "meria7",
+    "expected": ["Q19956607"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "مري",
+    "expected": ["Q19956607"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "meri",
+    "expected": ["Q19956607"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "yassine mariah",
+    "expected": ["Q19956607"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "bronn",
+    "expected": ["Q26405549"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "برو",
+    "expected": ["Q26405549"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "bron",
+    "expected": ["Q26405549"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "dylan bron",
+    "expected": ["Q26405549"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "jaidi",
+    "expected": ["Q331918"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "radhi ja3idi",
+    "expected": ["Q331918"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "ja3idi",
+    "expected": ["Q331918"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "جعايدي",
+    "expected": ["Q331918"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "جعا",
+    "expected": ["Q331918"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "jaid",
+    "expected": ["Q331918"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "radhi jaedi",
+    "expected": ["Q331918"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "mathlouthi",
+    "expected": ["Q793138"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "مثلوثي",
+    "expected": ["Q793138"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "مثل",
+    "expected": ["Q793138"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "math",
+    "expected": ["Q793138"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "aymen mathluthi",
+    "expected": ["Q793138"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "youssef",
+    "expected": ["Q3064692"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "يوس",
+    "expected": ["Q3064692"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "yous",
+    "expected": ["Q3064692"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "fakhreddine ben yousef",
+    "expected": ["Q3064692"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "benalouane",
+    "expected": ["Q2517101"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "علو",
+    "expected": ["Q2517101"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "bena",
+    "expected": ["Q2517101"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "yohan benaluane",
+    "expected": ["Q2517101"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "maaloul",
+    "expected": ["Q2836275"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "3ali ma3loul",
+    "expected": ["Q2836275"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "ma3loul",
+    "expected": ["Q2836275"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "معل",
+    "expected": ["Q2836275"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "maal",
+    "expected": ["Q2836275"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "ali maloul",
+    "expected": ["Q2836275"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "santos",
+    "expected": ["Q431320"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "سان",
+    "expected": ["Q431320"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "sant",
+    "expected": ["Q431320"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "hatira",
+    "expected": ["Q62082"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "حتيرة",
+    "expected": ["Q62082"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "حتي",
+    "expected": ["Q62082"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "hati",
+    "expected": ["Q62082"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "anis ben hatera",
+    "expected": ["Q62082"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "haggui",
+    "expected": ["Q362296"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "karim 7a9ui",
+    "expected": ["Q362296"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "7a9ui",
+    "expected": ["Q362296"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "حقي",
+    "expected": ["Q362296"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "hagg",
+    "expected": ["Q362296"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "karim hagui",
+    "expected": ["Q362296"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "sliti",
+    "expected": ["Q20641502"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "na3im sliti",
+    "expected": ["Q20641502"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "سلي",
+    "expected": ["Q20641502"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "slit",
+    "expected": ["Q20641502"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "naim sleti",
+    "expected": ["Q20641502"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "talbi",
+    "expected": ["Q30118244"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "طالبي",
+    "expected": ["Q30118244"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "طال",
+    "expected": ["Q30118244"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "talb",
+    "expected": ["Q30118244"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "montassar talbe",
+    "expected": ["Q30118244"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "khelifa",
+    "expected": ["Q44689"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "saber 5elifa",
+    "expected": ["Q44689"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "5elifa",
+    "expected": ["Q44689"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "خليفة",
+    "expected": ["Q44689"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "خلي",
+    "expected": ["Q44689"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "khel",
+    "expected": ["Q44689"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "saber khalifa",
+    "expected": ["Q44689"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "youssef",
+    "expected": ["Q3506741"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "يوس",
+    "expected": ["Q3506741"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "yous",
+    "expected": ["Q3506741"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "syam ben yousef",
+    "expected": ["Q3506741"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "haddadi",
+    "expected": ["Q3358527"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "oussama 7addadi",
+    "expected": ["Q3358527"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "7addadi",
+    "expected": ["Q3358527"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "حدادي",
+    "expected": ["Q3358527"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "حدا",
+    "expected": ["Q3358527"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "hadd",
+    "expected": ["Q3358527"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "oussama hadadi",
+    "expected": ["Q3358527"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "slimane",
+    "expected": ["Q85410990"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "سلي",
+    "expected": ["Q85410990"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "slim",
+    "expected": ["Q85410990"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "anis ben slimana",
+    "expected": ["Q85410990"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "mustapha",
+    "expected": ["Q2759083"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "farou9 ben mustapha",
+    "expected": ["Q2759083"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "مصط",
+    "expected": ["Q2759083"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "must",
+    "expected": ["Q2759083"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "nafti",
+    "expected": ["Q380173"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "نفطي",
+    "expected": ["Q380173"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "نفط",
+    "expected": ["Q380173"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "naft",
+    "expected": ["Q380173"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "mehdi nafte",
+    "expected": ["Q380173"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "abdi",
+    "expected": ["Q17350507"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "3ali 3abdi",
+    "expected": ["Q17350507"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "3abdi",
+    "expected": ["Q17350507"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "عابدي",
+    "expected": ["Q17350507"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "عاب",
+    "expected": ["Q17350507"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "ali abde",
+    "expected": ["Q17350507"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "bedoui",
+    "expected": ["Q3418475"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "بدو",
+    "expected": ["Q3418475"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "bedo",
+    "expected": ["Q3418475"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "rami bedui",
+    "expected": ["Q3418475"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "khaoui",
+    "expected": ["Q17580135"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "saif eddine 5aoui",
+    "expected": ["Q17580135"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "5aoui",
+    "expected": ["Q17580135"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "خاو",
+    "expected": ["Q17580135"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "khao",
+    "expected": ["Q17580135"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "saif eddine khaui",
+    "expected": ["Q17580135"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "nagguez",
+    "expected": ["Q20666647"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "7amdi na9uez",
+    "expected": ["Q20666647"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "na9uez",
+    "expected": ["Q20666647"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "نقاز",
+    "expected": ["Q20666647"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "نقا",
+    "expected": ["Q20666647"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "nagg",
+    "expected": ["Q20666647"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "hamdi naguez",
+    "expected": ["Q20666647"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "rekik",
+    "expected": ["Q96678415"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "3omar rekik",
+    "expected": ["Q96678415"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "ريك",
+    "expected": ["Q96678415"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "reki",
+    "expected": ["Q96678415"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "omar rakik",
+    "expected": ["Q96678415"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "jaziri",
+    "expected": ["Q198291"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "جزيري",
+    "expected": ["Q198291"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "جزي",
+    "expected": ["Q198291"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "jazi",
+    "expected": ["Q198291"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "ziad jazeri",
+    "expected": ["Q198291"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "chedli",
+    "expected": ["Q353681"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "3adel chedli",
+    "expected": ["Q353681"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "شاذلي",
+    "expected": ["Q353681"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "شاذ",
+    "expected": ["Q353681"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "ched",
+    "expected": ["Q353681"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "adel shedli",
+    "expected": ["Q353681"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "allagui",
+    "expected": ["Q61377"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "sami 3alla9i",
+    "expected": ["Q61377"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "3alla9i",
+    "expected": ["Q61377"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "علاقي",
+    "expected": ["Q61377"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "علا",
+    "expected": ["Q61377"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "alla",
+    "expected": ["Q61377"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "sami alagui",
+    "expected": ["Q61377"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "badri",
+    "expected": ["Q17442694"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "بدر",
+    "expected": ["Q17442694"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "badr",
+    "expected": ["Q17442694"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "anice badre",
+    "expected": ["Q17442694"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "mnari",
+    "expected": ["Q504413"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "مناري",
+    "expected": ["Q504413"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "منا",
+    "expected": ["Q504413"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "mnar",
+    "expected": ["Q504413"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "jawhar mnare",
+    "expected": ["Q504413"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "hassen",
+    "expected": ["Q15087461"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "mouez 7assen",
+    "expected": ["Q15087461"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "7assen",
+    "expected": ["Q15087461"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "حسن",
+    "expected": ["Q15087461"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "hass",
+    "expected": ["Q15087461"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "mouez hasen",
+    "expected": ["Q15087461"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "amor",
+    "expected": ["Q22948792"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "mo7amed amine ben 3amor",
+    "expected": ["Q22948792"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "3amor",
+    "expected": ["Q22948792"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "عمر",
+    "expected": ["Q22948792"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "srarfi",
+    "expected": ["Q28655133"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "صرارفي",
+    "expected": ["Q28655133"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "صرا",
+    "expected": ["Q28655133"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "srar",
+    "expected": ["Q28655133"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "bassem srarfe",
+    "expected": ["Q28655133"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "jebali",
+    "expected": ["Q2375716"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "3issam jebali",
+    "expected": ["Q2375716"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "جبالي",
+    "expected": ["Q2375716"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "جبا",
+    "expected": ["Q2375716"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "jeba",
+    "expected": ["Q2375716"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "issam jabali",
+    "expected": ["Q2375716"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "dahmen",
+    "expected": ["Q64520753"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "aymen da7men",
+    "expected": ["Q64520753"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "da7men",
+    "expected": ["Q64520753"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "دحم",
+    "expected": ["Q64520753"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "dahm",
+    "expected": ["Q64520753"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "aymen dahman",
+    "expected": ["Q64520753"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "baya",
+    "expected": ["Q227025"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "بية",
+    "expected": ["Q227025"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "بيه",
+    "expected": ["Q227025"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "akaichi",
+    "expected": ["Q401119"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "a7med 3akaichi",
+    "expected": ["Q401119"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "3akaichi",
+    "expected": ["Q401119"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "عكايشي",
+    "expected": ["Q401119"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "عكا",
+    "expected": ["Q401119"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "akai",
+    "expected": ["Q401119"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "ahmed akaishi",
+    "expected": ["Q401119"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "khenissi",
+    "expected": ["Q3513869"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "taha yassine 5enissi",
+    "expected": ["Q3513869"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "5enissi",
+    "expected": ["Q3513869"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "خنيسي",
+    "expected": ["Q3513869"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "خني",
+    "expected": ["Q3513869"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "khen",
+    "expected": ["Q3513869"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "taha yassine khenisi",
+    "expected": ["Q3513869"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "bouazizi",
+    "expected": ["Q725781"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "بوعزيزي",
+    "expected": ["Q725781"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "بوع",
+    "expected": ["Q725781"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "boua",
+    "expected": ["Q725781"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "riadh buazizi",
+    "expected": ["Q725781"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "jemaa",
+    "expected": ["Q533507"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "3issam jema3",
+    "expected": ["Q533507"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "jema3",
+    "expected": ["Q533507"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "جمعة",
+    "expected": ["Q533507"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "جمع",
+    "expected": ["Q533507"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "jema",
+    "expected": ["Q533507"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "issam jema",
+    "expected": ["Q533507"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "ifa",
+    "expected": ["Q2698761"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "bilel 3ifa",
+    "expected": ["Q2698761"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "3ifa",
+    "expected": ["Q2698761"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "عيفة",
+    "expected": ["Q2698761"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "عيف",
+    "expected": ["Q2698761"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "bilel efa",
+    "expected": ["Q2698761"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "saada",
+    "expected": ["Q381387"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "chaou9i ben sa3da",
+    "expected": ["Q381387"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "sa3da",
+    "expected": ["Q381387"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "سعادة",
+    "expected": ["Q381387"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "سعا",
+    "expected": ["Q381387"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "saad",
+    "expected": ["Q381387"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "chaouki ben sada",
+    "expected": ["Q381387"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "ghodhbane",
+    "expected": ["Q709488"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "9aies ghodhbane",
+    "expected": ["Q709488"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "غضبان",
+    "expected": ["Q709488"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "غضب",
+    "expected": ["Q709488"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "ghod",
+    "expected": ["Q709488"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "kaies ghodhbana",
+    "expected": ["Q709488"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "saihi",
+    "expected": ["Q1878438"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "jamel sai7i",
+    "expected": ["Q1878438"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "sai7i",
+    "expected": ["Q1878438"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "سايحي",
+    "expected": ["Q1878438"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "ساي",
+    "expected": ["Q1878438"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "saih",
+    "expected": ["Q1878438"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "jamel saehi",
+    "expected": ["Q1878438"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "boussaidi",
+    "expected": ["Q221789"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "anis boussa3idi",
+    "expected": ["Q221789"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "boussa3idi",
+    "expected": ["Q221789"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "بوس",
+    "expected": ["Q221789"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "bous",
+    "expected": ["Q221789"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "anis bousaidi",
+    "expected": ["Q221789"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "saidi",
+    "expected": ["Q385235"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "karim sa3idi",
+    "expected": ["Q385235"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "sa3idi",
+    "expected": ["Q385235"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "سعي",
+    "expected": ["Q385235"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "said",
+    "expected": ["Q385235"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "karim saedi",
+    "expected": ["Q385235"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "benachour",
+    "expected": ["Q724024"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "عاش",
+    "expected": ["Q724024"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "bena",
+    "expected": ["Q724024"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "selim benashour",
+    "expected": ["Q724024"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "kasraoui",
+    "expected": ["Q726340"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "7amdi 9asraoui",
+    "expected": ["Q726340"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "9asraoui",
+    "expected": ["Q726340"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "قصراوي",
+    "expected": ["Q726340"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "قصر",
+    "expected": ["Q726340"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "kasr",
+    "expected": ["Q726340"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "hamdi kasraui",
+    "expected": ["Q726340"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "yahia",
+    "expected": ["Q726639"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "ya7ia",
+    "expected": ["Q726639"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "يحي",
+    "expected": ["Q726639"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "yahi",
+    "expected": ["Q726639"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "alaeddine yahea",
+    "expected": ["Q726639"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "sellimi",
+    "expected": ["Q353717"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "3adel sellimi",
+    "expected": ["Q353717"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "سليمي",
+    "expected": ["Q353717"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "سلي",
+    "expected": ["Q353717"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "sell",
+    "expected": ["Q353717"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "adel selimi",
+    "expected": ["Q353717"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "jemmali",
+    "expected": ["Q464137"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "جما",
+    "expected": ["Q464137"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "jemm",
+    "expected": ["Q464137"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "david jemali",
+    "expected": ["Q464137"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "essediri",
+    "expected": ["Q1335199"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "سديري",
+    "expected": ["Q1335199"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "سدي",
+    "expected": ["Q1335199"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "esse",
+    "expected": ["Q1335199"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "karim esediri",
+    "expected": ["Q1335199"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "ghandri",
+    "expected": ["Q20089300"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "غندري",
+    "expected": ["Q20089300"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "غند",
+    "expected": ["Q20089300"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "ghan",
+    "expected": ["Q20089300"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "nader ghandre",
+    "expected": ["Q20089300"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "slimane",
+    "expected": ["Q1384758"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "سلي",
+    "expected": ["Q1384758"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "slim",
+    "expected": ["Q1384758"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "mehdi ben slimana",
+    "expected": ["Q1384758"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "harbaoui",
+    "expected": ["Q2704377"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "7amdi 7arbaoui",
+    "expected": ["Q2704377"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "7arbaoui",
+    "expected": ["Q2704377"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "حرباوي",
+    "expected": ["Q2704377"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "حرب",
+    "expected": ["Q2704377"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "harb",
+    "expected": ["Q2704377"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "hamdi harbaui",
+    "expected": ["Q2704377"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "khalil",
+    "expected": ["Q22928576"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "a7med 5alil",
+    "expected": ["Q22928576"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "5alil",
+    "expected": ["Q22928576"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "خلي",
+    "expected": ["Q22928576"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "khal",
+    "expected": ["Q22928576"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "ahmed khalel",
+    "expected": ["Q22928576"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "camus",
+    "expected": ["Q60534"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "كام",
+    "expected": ["Q60534"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "camu",
+    "expected": ["Q60534"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "cherifia",
+    "expected": ["Q3044485"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "شريفية",
+    "expected": ["Q3044485"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "شري",
+    "expected": ["Q3044485"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "cher",
+    "expected": ["Q3044485"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "moez ben sherifia",
+    "expected": ["Q3044485"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "chikhaoui",
+    "expected": ["Q710223"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "yassine chi5aoui",
+    "expected": ["Q710223"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "chi5aoui",
+    "expected": ["Q710223"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "شيخاوي",
+    "expected": ["Q710223"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "شيخ",
+    "expected": ["Q710223"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "chik",
+    "expected": ["Q710223"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "yassine shikhaoui",
+    "expected": ["Q710223"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "chahed",
+    "expected": ["Q61800"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "شاه",
+    "expected": ["Q61800"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "chah",
+    "expected": ["Q61800"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "sofian shahed",
+    "expected": ["Q61800"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "chermiti",
+    "expected": ["Q471579"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "شرميطي",
+    "expected": ["Q471579"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "شرم",
+    "expected": ["Q471579"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "cher",
+    "expected": ["Q471579"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "amine shermiti",
+    "expected": ["Q471579"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "jemal",
+    "expected": ["Q472831"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "3ammar jemal",
+    "expected": ["Q472831"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "جمل",
+    "expected": ["Q472831"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "jema",
+    "expected": ["Q472831"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "ammar jamal",
+    "expected": ["Q472831"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "mathlouthi",
+    "expected": ["Q17154230"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "مثلوثي",
+    "expected": ["Q17154230"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "مثل",
+    "expected": ["Q17154230"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "math",
+    "expected": ["Q17154230"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "hamza mathluthi",
+    "expected": ["Q17154230"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "souayah",
+    "expected": ["Q2420819"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "skander souaya7",
+    "expected": ["Q2420819"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "souaya7",
+    "expected": ["Q2420819"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "سويح",
+    "expected": ["Q2420819"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "سوي",
+    "expected": ["Q2420819"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "soua",
+    "expected": ["Q2420819"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "skander suayah",
+    "expected": ["Q2420819"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "zitouni",
+    "expected": ["Q918983"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "3ali zitouni",
+    "expected": ["Q918983"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "زيتوني",
+    "expected": ["Q918983"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "زيت",
+    "expected": ["Q918983"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "zito",
+    "expected": ["Q918983"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "ali zituni",
+    "expected": ["Q918983"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "bouzaiene",
+    "expected": ["Q2707274"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "بوز",
+    "expected": ["Q2707274"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "bouz",
+    "expected": ["Q2707274"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "raouf buzaiene",
+    "expected": ["Q2707274"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "tounekti",
+    "expected": ["Q96337717"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "تون",
+    "expected": ["Q96337717"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "toun",
+    "expected": ["Q96337717"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "sebastian tunekti",
+    "expected": ["Q96337717"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "chemmam",
+    "expected": ["Q2697130"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "5alil chemmam",
+    "expected": ["Q2697130"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "شما",
+    "expected": ["Q2697130"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "chem",
+    "expected": ["Q2697130"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "khalil chemam",
+    "expected": ["Q2697130"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "ouanes",
+    "expected": ["Q105082472"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "ونا",
+    "expected": ["Q105082472"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "ouan",
+    "expected": ["Q105082472"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "mortadha ben uanes",
+    "expected": ["Q105082472"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "rafia",
+    "expected": ["Q64736331"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "رفيعة",
+    "expected": ["Q64736331"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "رفي",
+    "expected": ["Q64736331"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "rafi",
+    "expected": ["Q64736331"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "hamza rafea",
+    "expected": ["Q64736331"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "khalfallah",
+    "expected": ["Q31972"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "لة",
+    "expected": ["Q31972"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "له",
+    "expected": ["Q31972"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "khal",
+    "expected": ["Q31972"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "fahid ben khalfalah",
+    "expected": ["Q31972"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "dhaouadi",
+    "expected": ["Q44651"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "ذوادي",
+    "expected": ["Q44651"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "ذوا",
+    "expected": ["Q44651"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "dhao",
+    "expected": ["Q44651"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "zouheir dhauadi",
+    "expected": ["Q44651"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "namouchi",
+    "expected": ["Q288910"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "7amed namouchi",
+    "expected": ["Q288910"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "نموشي",
+    "expected": ["Q288910"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "نمو",
+    "expected": ["Q288910"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "namo",
+    "expected": ["Q288910"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "hamed namoushi",
+    "expected": ["Q288910"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "guemamdia",
+    "expected": ["Q725275"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "haykel 9emamdia",
+    "expected": ["Q725275"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "9emamdia",
+    "expected": ["Q725275"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "قمامدية",
+    "expected": ["Q725275"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "قما",
+    "expected": ["Q725275"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "guem",
+    "expected": ["Q725275"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "haykel guamamdia",
+    "expected": ["Q725275"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "nefzi",
+    "expected": ["Q353703"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "3adel nefzi",
+    "expected": ["Q353703"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "نفزي",
+    "expected": ["Q353703"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "نفز",
+    "expected": ["Q353703"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "nefz",
+    "expected": ["Q353703"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "adel nafzi",
+    "expected": ["Q353703"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "belaid",
+    "expected": ["Q940263"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "tijani bela3id",
+    "expected": ["Q940263"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "bela3id",
+    "expected": ["Q940263"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "بلع",
+    "expected": ["Q940263"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "bela",
+    "expected": ["Q940263"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "tijani balaid",
+    "expected": ["Q940263"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "azouni",
+    "expected": ["Q10558287"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "larry 3azouni",
+    "expected": ["Q10558287"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "3azouni",
+    "expected": ["Q10558287"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "عزوني",
+    "expected": ["Q10558287"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "عزو",
+    "expected": ["Q10558287"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "azou",
+    "expected": ["Q10558287"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "larry azuni",
+    "expected": ["Q10558287"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "manser",
+    "expected": ["Q3318351"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "mo7amed 3ali manser",
+    "expected": ["Q3318351"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "منص",
+    "expected": ["Q3318351"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "mans",
+    "expected": ["Q3318351"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "mohamed ali mansar",
+    "expected": ["Q3318351"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "traoui",
+    "expected": ["Q937102"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "ترا",
+    "expected": ["Q937102"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "trao",
+    "expected": ["Q937102"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "mejdi traui",
+    "expected": ["Q937102"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "badra",
+    "expected": ["Q2733769"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "5aled badra",
+    "expected": ["Q2733769"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "بدرة",
+    "expected": ["Q2733769"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "بدر",
+    "expected": ["Q2733769"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "badr",
+    "expected": ["Q2733769"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "said",
+    "expected": ["Q104440763"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "bechir ben sa3id",
+    "expected": ["Q104440763"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "sa3id",
+    "expected": ["Q104440763"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "سعي",
+    "expected": ["Q104440763"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "bechir ben saed",
+    "expected": ["Q104440763"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "romdhane",
+    "expected": ["Q64593906"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "mo7amed 3ali ben romdhane",
+    "expected": ["Q64593906"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "رمض",
+    "expected": ["Q64593906"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "romd",
+    "expected": ["Q64593906"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "mohamed ali ben romdhana",
+    "expected": ["Q64593906"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "mikari",
+    "expected": ["Q678558"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "ميكاري",
+    "expected": ["Q678558"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "ميك",
+    "expected": ["Q678558"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "mika",
+    "expected": ["Q678558"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "yassin mekari",
+    "expected": ["Q678558"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "ayari",
+    "expected": ["Q954283"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "anis 3ayari",
+    "expected": ["Q954283"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "3ayari",
+    "expected": ["Q954283"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "عياري",
+    "expected": ["Q954283"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "عيا",
+    "expected": ["Q954283"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "ayar",
+    "expected": ["Q954283"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "anis ayare",
+    "expected": ["Q954283"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "touzghar",
+    "expected": ["Q3572373"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "توز",
+    "expected": ["Q3572373"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "touz",
+    "expected": ["Q3572373"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "yoann tuzghar",
+    "expected": ["Q3572373"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "jaziri",
+    "expected": ["Q17486017"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "جزيري",
+    "expected": ["Q17486017"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "جزي",
+    "expected": ["Q17486017"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "jazi",
+    "expected": ["Q17486017"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "seifeddine jazeri",
+    "expected": ["Q17486017"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "darragi",
+    "expected": ["Q967841"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "دراجي",
+    "expected": ["Q967841"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "درا",
+    "expected": ["Q967841"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "darr",
+    "expected": ["Q967841"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "oussama daragi",
+    "expected": ["Q967841"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "clayton",
+    "expected": ["Q1342632"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "كلا",
+    "expected": ["Q1342632"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "clay",
+    "expected": ["Q1342632"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "mouelhi",
+    "expected": ["Q1740495"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "5aled mouelhi",
+    "expected": ["Q1740495"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "مولهي",
+    "expected": ["Q1740495"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "مول",
+    "expected": ["Q1740495"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "moue",
+    "expected": ["Q1740495"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "khaled muelhi",
+    "expected": ["Q1740495"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "kechrida",
+    "expected": ["Q62721946"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "كشريدة",
+    "expected": ["Q62721946"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "كشر",
+    "expected": ["Q62721946"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "kech",
+    "expected": ["Q62721946"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "wajdi keshrida",
+    "expected": ["Q62721946"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "melliti",
+    "expected": ["Q473584"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "مليتي",
+    "expected": ["Q473584"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "ملي",
+    "expected": ["Q473584"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "mell",
+    "expected": ["Q473584"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "sofiane meliti",
+    "expected": ["Q473584"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "felhi",
+    "expected": ["Q375644"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "radhouene fel7i",
+    "expected": ["Q375644"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "fel7i",
+    "expected": ["Q375644"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "فالحي",
+    "expected": ["Q375644"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "فال",
+    "expected": ["Q375644"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "felh",
+    "expected": ["Q375644"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "radhouene falhi",
+    "expected": ["Q375644"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "yahia",
+    "expected": ["Q1354973"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "wissem ben ya7ia",
+    "expected": ["Q1354973"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "ya7ia",
+    "expected": ["Q1354973"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "يحي",
+    "expected": ["Q1354973"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "yahi",
+    "expected": ["Q1354973"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "wissem ben yahea",
+    "expected": ["Q1354973"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "mhedhebi",
+    "expected": ["Q2517420"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "3imed mhedhebi",
+    "expected": ["Q2517420"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "مهذبي",
+    "expected": ["Q2517420"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "مهذ",
+    "expected": ["Q2517420"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "mhed",
+    "expected": ["Q2517420"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "imed mhadhebi",
+    "expected": ["Q2517420"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "ragued",
+    "expected": ["Q937043"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "7ocine ra9ed",
+    "expected": ["Q937043"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "ra9ed",
+    "expected": ["Q937043"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "راقد",
+    "expected": ["Q937043"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "راق",
+    "expected": ["Q937043"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "ragu",
+    "expected": ["Q937043"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "hocine raguad",
+    "expected": ["Q937043"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "skhiri",
+    "expected": ["Q20641500"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "ellyes s5iri",
+    "expected": ["Q20641500"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "s5iri",
+    "expected": ["Q20641500"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "صخيري",
+    "expected": ["Q20641500"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "صخي",
+    "expected": ["Q20641500"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "skhi",
+    "expected": ["Q20641500"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "ellyes skheri",
+    "expected": ["Q20641500"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "chaouat",
+    "expected": ["Q58815643"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "شوا",
+    "expected": ["Q58815643"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "chao",
+    "expected": ["Q58815643"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "firas shaouat",
+    "expected": ["Q58815643"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "laidouni",
+    "expected": ["Q26838702"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "3aissa la3idouni",
+    "expected": ["Q26838702"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "la3idouni",
+    "expected": ["Q26838702"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "عيدوني",
+    "expected": ["Q26838702"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "عيد",
+    "expected": ["Q26838702"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "laid",
+    "expected": ["Q26838702"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "aissa laiduni",
+    "expected": ["Q26838702"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "achouri",
+    "expected": ["Q64740426"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "elias 3achouri",
+    "expected": ["Q64740426"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "3achouri",
+    "expected": ["Q64740426"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "عاش",
+    "expected": ["Q64740426"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "acho",
+    "expected": ["Q64740426"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "elias ashouri",
+    "expected": ["Q64740426"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "drager",
+    "expected": ["Q40272807"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "mo7amed drager",
+    "expected": ["Q40272807"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "درا",
+    "expected": ["Q40272807"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "drag",
+    "expected": ["Q40272807"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "mohamed dragar",
+    "expected": ["Q40272807"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "jemal",
+    "expected": ["Q52008358"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "3ali jemal",
+    "expected": ["Q52008358"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "جمل",
+    "expected": ["Q52008358"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "jema",
+    "expected": ["Q52008358"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "ali jamal",
+    "expected": ["Q52008358"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "valery",
+    "expected": ["Q59268317"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "فال",
+    "expected": ["Q59268317"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "vale",
+    "expected": ["Q59268317"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "yan valary",
+    "expected": ["Q59268317"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "hannibal",
+    "expected": ["Q96755704"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "hanibal",
+    "expected": ["Q96755704"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "7annibal",
+    "expected": ["Q96755704"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "حنبعل",
+    "expected": ["Q96755704"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "majbri",
+    "expected": ["Q96755704"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "m3loul",
+    "expected": ["Q2836275"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "msekni",
+    "expected": ["Q2409513"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "يوسف مساكني",
+    "expected": ["Q2409513"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "youssef el msakni",
+    "expected": ["Q2409513"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "ben youssef",
+    "expected": ["Q3064692", "Q3506741"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "بن يوسف",
+    "expected": ["Q3064692", "Q3506741"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "benyoussef",
+    "expected": ["Q3064692", "Q3506741"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "syam",
+    "expected": ["Q3506741"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "fakhri ben youssef",
+    "expected": ["Q3064692"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "mathlouthi",
+    "expected": ["Q793138", "Q17154230"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "matlouthi",
+    "expected": ["Q793138", "Q17154230"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "المثلوثي",
+    "expected": ["Q793138", "Q17154230"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "hamza mathlouthi",
+    "expected": ["Q17154230"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "jaziri",
+    "expected": ["Q198291", "Q17486017"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "zied jaziri",
+    "expected": ["Q198291"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "seif jaziri",
+    "expected": ["Q17486017"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "ben slimane",
+    "expected": ["Q85410990", "Q1384758"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "anis ben slimane",
+    "expected": ["Q85410990"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "ben romdhane",
+    "expected": ["Q64593906"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "mohamed ali ben romdhane",
+    "expected": ["Q64593906"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "dali ben romdhane",
+    "expected": ["Q64593906"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "benromdhane",
+    "expected": ["Q64593906"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "بن رمضان",
+    "expected": ["Q64593906"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "mohamed ali",
+    "expected": ["Q64593906", "Q3318351"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "ferjani",
+    "expected": ["Q16636036"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "فرجاني",
+    "expected": ["Q16636036"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "ferjeni sassi",
+    "expected": ["Q16636036"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "5nissi",
+    "expected": ["Q3513869"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "taha",
+    "expected": ["Q3513869"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "الخنيسي",
+    "expected": ["Q3513869"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "السخيري",
+    "expected": ["Q20641500"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "elyes skhiri",
+    "expected": ["Q20641500"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "shawat",
+    "expected": ["Q58815643"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "شواط",
+    "expected": ["Q58815643"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "mériah",
+    "expected": ["Q19956607"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "مرياح",
+    "expected": ["Q19956607"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "العيدوني",
+    "expected": ["Q26838702"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "abdenour",
+    "expected": ["Q60597"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "3abdennour",
+    "expected": ["Q60597"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "عبدالنور",
+    "expected": ["Q60597"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "ben alouane",
+    "expected": ["Q2517101"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "ben achour",
+    "expected": ["Q724024"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "bou3zizi",
+    "expected": ["Q725781"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "sediri",
+    "expected": ["Q1335199"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "حڨي",
+    "expected": ["Q362296"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "ha99i",
+    "expected": ["Q362296"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "na99az",
+    "expected": ["Q20666647"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "re9i9",
+    "expected": ["Q96678415"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "الرقيق",
+    "expected": ["Q96678415"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "8andri",
+    "expected": ["Q20089300"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "jem3a",
+    "expected": ["Q533507"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "jomaa",
+    "expected": ["Q533507"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "ghodbane",
+    "expected": ["Q709488"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "kais",
+    "expected": ["Q709488"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "9ais ghodhbane",
+    "expected": ["Q709488"],
+    "source": "generated-rule"
+  },
+  {
+    "variant": "shikhaoui",
+    "expected": ["Q710223"],
+    "source": "generated-rule"
+  }
+]
