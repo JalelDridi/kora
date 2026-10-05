@@ -109,6 +109,21 @@ export function compare(
   answer: TileFacts,
   day: Day,
 ): TileRow {
+  // The right guess is a win row, even when one of his values is unknown
+  // (a free agent has no club): his own values, all green, no arrows.
+  if (guess.id === answer.id) {
+    const row = {
+      club: clubTile(guess, answer),
+      country: countryTile(guess, answer),
+      position: positionTile(guess, answer),
+      age: ageTile(guess, answer, day),
+      caps: capsTile(guess, answer),
+      governorate: governorateTile(guess, answer),
+    };
+    for (const key of Object.keys(row) as (keyof TileRow)[])
+      row[key] = tile("green", row[key].value);
+    return row;
+  }
   return {
     club: clubTile(guess, answer),
     country: countryTile(guess, answer),
