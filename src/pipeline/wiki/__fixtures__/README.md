@@ -46,3 +46,5 @@ Squad-list sections (decision P42), recorded on 2026-10-04 by the squad-list res
 | squads/en/tunisia-current-squad.wikitext | https://en.wikipedia.org/wiki/Tunisia_national_football_team | 2026-10-01T15:57:39Z | 26 `{{nat fs g player}}` rows, "correct as of 28 September 2026", then "Recent call-ups" |
 | squads/fr/club-africain-effectif.wikitext | https://fr.wikipedia.org/wiki/Club_africain_(football) | 2026-09-13T18:41:46Z | 2026-2027, `{{Feff joueur}}` with `jour/mois/an`, `nolink`, `dab`, `{{Feff staff}}` |
 | squads/fr/cs-sfaxien-effectif.wikitext | https://fr.wikipedia.org/wiki/Club_sportif_sfaxien_(football) | 2026-09-29T17:03:00Z | 2024-2025: stale |
+
+`squads/pageprops-fr.json`: a recorded `prop=pageprops` answer of French Wikipedia (squad-list research, 4 October 2026), cut to four pages: one reached through a redirect, one missing. Page titles and Wikidata ids only.

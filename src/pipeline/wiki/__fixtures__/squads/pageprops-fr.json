@@ -1,0 +1,42 @@
+{
+  "batchcomplete": true,
+  "query": {
+    "redirects": [
+      {
+        "from": "Jesús Castillo",
+        "to": "Jesús Castillo (football, 2001)"
+      }
+    ],
+    "pages": [
+      {
+        "pageid": 4857649,
+        "ns": 0,
+        "title": "Bassem Boulaabi",
+        "pageprops": {
+          "wikibase_item": "Q2887376"
+        }
+      },
+      {
+        "pageid": 6246438,
+        "ns": 0,
+        "title": "Youcef Belaïli",
+        "pageprops": {
+          "wikibase_item": "Q3572787"
+        }
+      },
+      {
+        "pageid": 15451281,
+        "ns": 0,
+        "title": "Jesús Castillo (football, 2001)",
+        "pageprops": {
+          "wikibase_item": "Q110321491"
+        }
+      },
+      {
+        "ns": 0,
+        "title": "Namory Keita",
+        "missing": true
+      }
+    ]
+  }
+}
