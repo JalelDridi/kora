@@ -157,18 +157,33 @@ const PATRONYMIC = new Set(["ben", "bin", "ibn", "بن", "ابن"]);
 
 /** Query tokens matched in order against a name's tokens, with one unit skipped at most. */
 function inOrder(q: Query, tokens: string[]): boolean {
-  if (q.tokens.length < 2) return false;
+  const n = q.tokens.length;
+  if (n < 2) return false;
   const tKeys = keysOf(tokens);
+  // starts[i][j]: query token i starts name token j. Computed once, then
+  // every way of skipping a unit reads it.
+  // Every query token but one unit (at most two tokens) must start some name
+  // token, and at least two must: give up as soon as too many miss.
+  const allowedMisses = Math.min(2, n - 2);
+  const starts: boolean[][] = [];
+  let misses = 0;
+  for (let i = 0; i < n; i++) {
+    const row: boolean[] = [];
+    let any = false;
+    for (let j = 0; j < tokens.length; j++) {
+      const hit = startsToken(q.tokens[i], q.tokenKeys[i], tokens[j], tKeys[j]);
+      row.push(hit);
+      any ||= hit;
+    }
+    if (!any && ++misses > allowedMisses) return false;
+    starts.push(row);
+  }
   const tryFrom = (skipAt: number, skipLength: number): boolean => {
     let j = 0;
     let matched = 0;
-    for (let i = 0; i < q.tokens.length; i++) {
+    for (let i = 0; i < n; i++) {
       if (i >= skipAt && i < skipAt + skipLength) continue;
-      while (
-        j < tokens.length &&
-        !startsToken(q.tokens[i], q.tokenKeys[i], tokens[j], tKeys[j])
-      )
-        j++;
+      while (j < tokens.length && !starts[i][j]) j++;
       if (j === tokens.length) return false;
       j++;
       matched++;
@@ -176,7 +191,7 @@ function inOrder(q: Query, tokens: string[]): boolean {
     return skipLength === 0 || matched >= 2;
   };
   if (tryFrom(-1, 0)) return true;
-  for (let i = 0; i < q.tokens.length; i++) {
+  for (let i = 0; i < n; i++) {
     if (tryFrom(i, 1)) return true;
     if (PATRONYMIC.has(q.tokens[i]) && tryFrom(i, 2)) return true;
   }
