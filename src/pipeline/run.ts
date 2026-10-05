@@ -41,6 +41,9 @@ import type {
   WdPlayer,
 } from "./types.ts";
 import { validateIdRegistry, validatePool } from "./validate.ts";
+import { witnessSummary } from "./witness/apply.ts";
+import { emptyWitness, validateWitness } from "./witness/verdicts.ts";
+import type { WitnessFile } from "./witness/verdicts.ts";
 import {
   chunk,
   pagepropsUrl,
@@ -535,6 +538,18 @@ async function build(deps: RunDeps): Promise<RunResult> {
     knownIds(null, overridesJson),
   );
   if (!shape.ok) return refuseOverrides(shape.errors);
+  // P48: the private witness's verdicts, committed by Jalel; read with no
+  // request, and a broken file refuses like the overrides.
+  const witnessJson = await readJson<unknown>(path.join(data, "witness.json"));
+  const witnessErrors =
+    witnessJson === null ? [] : validateWitness(witnessJson);
+  if (witnessErrors.length > 0) {
+    for (const e of witnessErrors) deps.log(`data/witness.json: ${e}`);
+    throw new Refusal(
+      `data/witness.json has ${witnessErrors.length} error${witnessErrors.length === 1 ? "" : "s"}`,
+    );
+  }
+  const witness = (witnessJson ?? emptyWitness()) as WitnessFile;
   const ligue1 = (await readJson<{ clubs: string[] }>(
     path.join(data, "curated", "ligue1-clubs.json"),
   )) ?? { clubs: [] };
@@ -1010,6 +1025,7 @@ async function build(deps: RunDeps): Promise<RunResult> {
     goalsFloor: goalsFloors(scorers, players),
     overrides: checked.overrides,
     governorateIds,
+    witness,
   };
   // P42: absent when no squad list was read, and the merge is as before.
   const squads: SquadContext | undefined =
@@ -1071,6 +1087,7 @@ async function build(deps: RunDeps): Promise<RunResult> {
         honoursReading: wikidata.honoursReading,
         overrideWarnings: checked.warnings,
         offline: deps.offline === true,
+        witness: witnessSummary(witness, pool, today),
         squads:
           squadLists && squadMatch
             ? squadSummary(

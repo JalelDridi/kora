@@ -54,6 +54,9 @@ export type SourceId =
   | "frwiki-squad"
   /** The English national team's current squad table: caps, goals and a club vote. */
   | "enwiki-national"
+  /** Decision P43 (P48): the private witness, named as it agrees (S23); never its value. */
+  | "transfermarkt"
+  | "national-football-teams"
   /** No source gives the value; the merge stores a placeholder rated low. */
   | "none";
 
@@ -375,7 +378,11 @@ export type FlagKind =
   /** S11: the current lists of two clubs both name him; neither votes. */
   | "squad-lists-disagree"
   /** S12: the row links to him but names the club a namesake already has; no vote. */
-  | "squad-namesake";
+  | "squad-namesake"
+  /** P48 (S21 = b): Transfermarkt, checked lately, does not list him at the published club; the club is rated low. */
+  | "club-witness-differs"
+  /** P48 (S21 = b): national-football-teams.com, checked lately, has another count; the caps are rated low. */
+  | "caps-witness-differs";
 
 /** Something for Jalel to look at. `subject` is a Wikidata id or a title. */
 export type Flag = { subject: string; kind: FlagKind; detail: string };

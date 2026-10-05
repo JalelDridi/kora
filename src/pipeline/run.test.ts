@@ -1369,6 +1369,62 @@ describe("the squad lists in the run (P42)", () => {
   });
 });
 
+describe("the private witness's verdicts in the run (P48, B7)", () => {
+  it("reads data/witness.json with no request; a broken file refuses like overrides", async () => {
+    const root = await setup();
+    await writeFile(
+      file(root, "witness.json"),
+      JSON.stringify({
+        version: 1,
+        checks: { Q1001: { caps: { site: "x" } } },
+      }),
+    );
+    const calls: Calls = { urls: [], queries: [] };
+    const lines: string[] = [];
+    const outcome = await run(
+      deps(root, {
+        wdqs: wdqs(calls),
+        wikimedia: wikimedia(calls),
+        log: (l) => lines.push(l),
+      }),
+    );
+    expect(outcome).toEqual({
+      ok: false,
+      reason: "data/witness.json has 4 errors",
+    });
+    expect(calls.urls).toEqual([]);
+    expect(lines).toContain(
+      "data/witness.json: checks.Q1001.caps: unknown site x",
+    );
+
+    // A good file: an agreeing verdict on the club we publish is one more source.
+    await writeFile(
+      file(root, "witness.json"),
+      JSON.stringify({
+        version: 1,
+        checks: {
+          Q1001: {
+            clubId: {
+              site: "transfermarkt",
+              checkedOn: "2026-10-01",
+              verdict: "agrees",
+              checked: "Q2001",
+            },
+          },
+        },
+      }),
+    );
+    expect(await run(deps(root))).toMatchObject({ ok: true });
+    const player = (await readPool(root)).players[0];
+    expect(player.provenance.clubId?.agreeing).toEqual([
+      "enwiki",
+      "transfermarkt",
+    ]);
+    const report = await readFile(file(root, "report.md"), "utf8");
+    expect(report).toContain("| clubId | transfermarkt | 1 | 0 | 0 | 0 |");
+  });
+});
+
 describe("planRequests", () => {
   it("counts batches of 50 per site, and redirects once they are known", () => {
     // en 3 + fr 2 + Commons 1.

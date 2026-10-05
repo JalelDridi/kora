@@ -10,6 +10,8 @@ import type { BirthPlaceKind } from "./confidence.ts";
 import { firstPosition, lineFromLabel } from "./positions.ts";
 import { playedAfter } from "./results.ts";
 import { squadEvidence } from "./squads/evidence.ts";
+import { witnessEvidence } from "./witness/apply.ts";
+import type { WitnessFile } from "./witness/verdicts.ts";
 import type { SquadContext } from "./squads/evidence.ts";
 import type { OverrideValue, Overrides, PlayerOverride } from "./overrides.ts";
 import type {
@@ -94,6 +96,8 @@ const SOURCE_ORDER: SourceId[] = [
   "enwiki-national",
   "enwiki-squad",
   "frwiki-squad",
+  "transfermarkt",
+  "national-football-teams",
 ];
 
 /** Newest "as of" first; undated last; English before French on a tie. */
@@ -709,6 +713,11 @@ export type MergeContext = {
    * what it was before the squad lists.
    */
   squads?: SquadContext;
+  /**
+   * Decision P48: data/witness.json, the private witness's verdicts. Absent
+   * or empty, the merge is what it was before them.
+   */
+  witness?: WitnessFile;
 };
 
 export type Draft = {
@@ -1009,6 +1018,14 @@ export function mergePlayer(
     ...new Set([...p.aliases, ...(o.aliases?.value ?? [])]),
   ].filter((a) => !names.has(a));
 
+  // P48: the private witness's fresh verdicts on the values chosen now.
+  const witness = witnessEvidence(
+    ctx.witness,
+    p.qid,
+    { clubQid: club.club?.qid ?? null, caps },
+    ctx.today,
+  );
+
   // Decision P26: every field's confidence, from the votes each source gives.
   const boxes = [en, frCareer].filter((b): b is Infobox => b !== null);
   const lineOf = (b: Infobox) =>
@@ -1032,11 +1049,14 @@ export function mergePlayer(
     p.positions.map((label) => lineFromLabel(label)).find((l) => l !== null) ??
     null;
   const evidence: Evidence = {
-    caps: candidates.map((c) => ({
-      source: c.source,
-      value: c.caps,
-      asOf: c.asOf,
-    })),
+    caps: [
+      ...candidates.map((c) => ({
+        source: c.source,
+        value: c.caps,
+        asOf: c.asOf,
+      })),
+      ...witness.capsVotes,
+    ],
     goals: candidates.flatMap((c) => some(c.source, c.goals, c.asOf)),
     goalsFloor: ctx.goalsFloor?.get(p.qid) ?? null,
     // A7: both pages show a closed senior career; the later end year.
@@ -1073,6 +1093,7 @@ export function mergePlayer(
         ? some<string | null>("wikidata", openClubs[0].teamQid)
         : []),
       ...(squad?.clubVotes ?? []),
+      ...witness.clubVotes,
     ],
     history: [
       ...boxes
@@ -1155,6 +1176,24 @@ export function mergePlayer(
       entry.confidenceNote = scored
         ? `no senior national row; martj42 lists ${floor} goals by him`
         : "no senior national row";
+    }
+  }
+
+  // S21 = b: a fresh "differs" is a flag, and the field is rated low until
+  // Jalel settles it; an override is his decision and stays high.
+  for (const d of witness.differs) {
+    const ours =
+      d.field === "caps"
+        ? String(caps)
+        : (club.club?.nameEn ?? club.club?.qid ?? "none");
+    flags.push({
+      kind: d.kind,
+      detail: `${d.site} checked on ${d.checkedOn}: differs from ${ours}`,
+    });
+    const entry = rated.provenance[d.field];
+    if (entry && entry.source !== "override") {
+      entry.confidence = "low";
+      entry.confidenceNote = `${d.site} checked on ${d.checkedOn}: differs (P48)`;
     }
   }
 

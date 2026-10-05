@@ -1,5 +1,7 @@
 import { CROSS_CHECKED, isAnswerReady, SINGLE_SOURCE } from "./confidence.ts";
 import type { Sighting } from "./squads/match.ts";
+import { WITNESS_FRESH_DAYS } from "./witness/apply.ts";
+import type { WitnessSummary } from "./witness/apply.ts";
 import { droppedReasons } from "./types.ts";
 import type { SquadList } from "./wiki/squads.ts";
 import type {
@@ -308,6 +310,39 @@ function squadSection(squads: SquadSummary | null): string[] {
   ];
 }
 
+function witnessSection(w: WitnessSummary): string[] {
+  const total = w.counts.reduce(
+    (n, c) => n + Object.values(c.verdicts).reduce((a, b) => a + b, 0),
+    0,
+  );
+  return [
+    `## Private checks (P43): ${total} verdicts in use`,
+    "",
+    `Verdicts of the private witness (data/witness.json): which site was checked on which day, and whether it agrees with our published value. The sites' values are never stored or shown. A verdict counts for ${WITNESS_FRESH_DAYS} days and only while we publish the value it was made on; an "agrees" is one more agreeing source, a "differs" is flagged and rates the field low until Jalel settles it with an override.`,
+    "",
+    ...(w.counts.length === 0
+      ? ["No verdict in use."]
+      : [
+          "| Field | Site | Agrees | Differs | Not found | Not comparable |",
+          "| --- | --- | --- | --- | --- | --- |",
+          ...w.counts.map(
+            (c) =>
+              `| ${c.field} | ${c.site} | ${c.verdicts.agrees} | ${c.verdicts.differs} | ${c.verdicts["not-found"]} | ${c.verdicts["not-comparable"]} |`,
+          ),
+        ]),
+    "",
+    `Stale (over ${WITNESS_FRESH_DAYS} days): ${w.stale}. Unused (our value changed, or no longer in the pool): ${w.unused}.`,
+    ...(w.differs.length === 0
+      ? []
+      : [
+          "",
+          `Each "differs", with our value only (${w.differs.length}):`,
+          "",
+          ...w.differs.map((d) => `- ${d}`),
+        ]),
+  ];
+}
+
 /** What parseHonoursReport corrected or dropped while reading Wikidata's honours. */
 export type HonoursReading = {
   issues: HonourIssue[];
@@ -338,6 +373,8 @@ export function renderReport(input: {
   offline?: boolean;
   /** P42: the squad lists; null when none was read; absent: no section. */
   squads?: SquadSummary | null;
+  /** P43: the private witness's verdicts; absent: no section. */
+  witness?: WitnessSummary;
 }): string {
   const { pool, diff, statuses, today } = input;
   const clubName = new Map(pool.clubs.map((c) => [c.id, c.nameLatin]));
@@ -455,6 +492,9 @@ export function renderReport(input: {
     ...flagList(undatedSpells),
     "",
     ...(input.squads === undefined ? [] : [...squadSection(input.squads), ""]),
+    ...(input.witness === undefined
+      ? []
+      : [...witnessSection(input.witness), ""]),
     `## Left out of the pool (${pool.dropped.length})`,
     "",
     ...droppedReasons.map(
