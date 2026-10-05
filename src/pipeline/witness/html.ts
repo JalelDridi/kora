@@ -51,22 +51,27 @@ export function elements(html: string, tag: string, open?: RegExp): string[] {
 }
 
 /** The cells of a row, each with its opening tag's class. */
-export function cells(row: string): { cls: string; html: string }[] {
-  const out: { cls: string; html: string }[] = [];
+export function cells(
+  row: string,
+): { cls: string; html: string; attrs: string }[] {
+  const out: { cls: string; html: string; attrs: string }[] = [];
   const re = /<td\b([^>]*)>|<\/td\s*>/gi;
   let depth = 0;
   let start = -1;
   let cls = "";
+  let attrs = "";
   for (let m = re.exec(row); m; m = re.exec(row)) {
     if (!m[0].startsWith("</")) {
       if (depth === 0) {
-        cls = /class\s*=\s*"([^"]*)"/i.exec(m[1] ?? "")?.[1] ?? "";
+        attrs = m[1] ?? "";
+        cls = /class\s*=\s*"([^"]*)"/i.exec(attrs)?.[1] ?? "";
         start = m.index + m[0].length;
       }
       depth++;
     } else if (depth > 0) {
       depth--;
-      if (depth === 0) out.push({ cls, html: row.slice(start, m.index) });
+      if (depth === 0)
+        out.push({ cls, html: row.slice(start, m.index), attrs });
     }
   }
   return out;

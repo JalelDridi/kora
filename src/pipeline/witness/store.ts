@@ -1,4 +1,4 @@
-import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
+import { mkdir, readdir, readFile, rename, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { insideRepo, witnessDir } from "./safety.ts";
 
@@ -20,6 +20,8 @@ export type WitnessState = {
       yearMatches?: number;
       /** The day his page was read. */
       readOn?: string;
+      /** His page's path exactly as a country page links it. */
+      path?: string;
     }
   >;
   /** Backfill (B8): player ids whose page was read, with the day. */
@@ -41,6 +43,8 @@ export type Store = {
     text: string,
     ext?: "html" | "txt",
   ): Promise<string>;
+  /** The saved pages of a site whose name starts with `prefix`, oldest name first. */
+  readPages(site: string, prefix: string): Promise<string[]>;
   readJson<T>(name: string): Promise<T | null>;
   writeJson(name: string, value: unknown): Promise<void>;
   readState(): Promise<WitnessState>;
@@ -79,6 +83,16 @@ export async function openStore(input: {
       );
       await atomic(file, text);
       return file;
+    },
+    async readPages(site, prefix) {
+      const folder = path.join(dir, "pages", safeName(site));
+      const names = await readdir(folder).catch(() => [] as string[]);
+      return Promise.all(
+        names
+          .filter((n) => n.startsWith(prefix) && n.endsWith(".html"))
+          .sort()
+          .map((n) => readFile(path.join(folder, n), "utf8")),
+      );
     },
     async readJson<T>(name: string) {
       try {
