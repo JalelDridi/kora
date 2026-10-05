@@ -158,7 +158,7 @@ describe("compare", () => {
   });
 
   it("position amber only for the neighbouring line", () => {
-    const keeper = { ...meriah, line: "goalkeeper" as const };
+    const keeper = { ...meriah, id: "a-keeper", line: "goalkeeper" as const };
     expect(compare(keeper, meriah, day).position.colour).toBe("amber");
     expect(compare(keeper, skhiri, day).position.colour).toBe("grey");
     expect(compare(chaouat, msakni, day).position).toEqual({
