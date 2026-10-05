@@ -1,4 +1,4 @@
-import pg from "pg";
+import type pg from "pg";
 import { copyResults } from "@/chkoun/copy";
 import { toResponse } from "@/chkoun/http";
 import { getKv, kvEnv } from "@/chkoun/kv";
@@ -9,45 +9,24 @@ import {
   topUpCalendar,
   tunisToday,
 } from "@/pipeline/calendar.ts";
-import { describeError, withConnectionRetry } from "@/pipeline/wake.ts";
+import { describeError } from "@/pipeline/wake.ts";
+import { openPg } from "@/db/pg";
 
 // Vercel Cron, once a day at 02:40 UTC (vercel.json, N2 (a)): the copy of
 // finished games to Postgres, then the calendar top-up. The work and the
 // CRON_SECRET check are in src/chkoun/nightly.ts. One pg connection for both
-// steps, opened only after the secret matched, with the same wait for a
-// suspended Neon compute as the build.
+// steps (src/db/pg.ts), opened only after the secret matched.
 
 export const dynamic = "force-dynamic";
 
-async function connect(url: string): Promise<pg.Client> {
-  const client = new pg.Client({
-    connectionString: url,
-    connectionTimeoutMillis: 10_000,
-  });
-  client.on("error", () => {});
-  try {
-    await client.connect();
-    return client;
-  } catch (error) {
-    await client.end().catch(() => {});
-    throw error;
-  }
-}
-
 export async function GET(request: Request) {
   const now = new Date();
-  const url = process.env.DATABASE_URL_UNPOOLED || process.env.DATABASE_URL;
-  let client: pg.Client | null = null;
-  const db = async () => {
-    if (!url) throw new Error("no database");
-    client ??= await withConnectionRetry(() => connect(url), {
-      attempts: 3,
-      delayMs: 3000,
-    });
-    return client;
-  };
   const kv = getKv();
   const env = kvEnv();
+  // Opened only once the secret matched: runNightly calls copy and topUp
+  // after the check, and they share this one connection.
+  let opened: Promise<pg.Client> | null = null;
+  const db = () => (opened ??= openPg());
   try {
     const result = await runNightly({
       authorization: request.headers.get("authorization"),
@@ -58,11 +37,11 @@ export async function GET(request: Request) {
       copy: async () =>
         copyResults({ kv, db: await db(), env, today: tunisDay(now) }),
       topUp: async () => {
-        const c = await db();
+        const client = await db();
         return topUpCalendar({
-          db: c,
+          db: client,
           seed: process.env.CHKOUN_SEED,
-          today: await tunisToday(c),
+          today: await tunisToday(client),
           log: (line) => console.log(line),
         });
       },
@@ -73,7 +52,9 @@ export async function GET(request: Request) {
     });
     return toResponse(result);
   } finally {
-    const open = client as pg.Client | null;
-    if (open) await open.end().catch(() => {});
+    const client = await (opened as Promise<pg.Client> | null)?.catch(
+      () => null,
+    );
+    await client?.end().catch(() => {});
   }
 }
