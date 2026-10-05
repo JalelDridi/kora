@@ -119,13 +119,21 @@ model Player {
   clubId           String?   @map("club_id")
   /// Commons file name, for example "File:Wahbi Khazri 2018.jpg".
   photoFile        String?   @map("photo_file")
-  /// A 400 px thumbnail.
+  /// The Commons thumbnail address the photo was copied from (330 px).
   photoUrl         String?   @map("photo_url")
   photoAuthor      String?   @map("photo_author")
   photoLicence     String?   @map("photo_licence")
   photoLicenceUrl  String?   @map("photo_licence_url")
   /// The file's page on Commons, which credits the author.
   photoSourceUrl   String?   @map("photo_source_url")
+  /// The copied thumbnail under public/, for example "/photos/wahbi-khazri.jpg".
+  photoPath        String?   @map("photo_path")
+  /// log10 of weighted Wikipedia page views, plus the local star boost (D-S2-4).
+  fame             Float?    @db.Real
+  /// A to D from the fame score; D is never a Chkoun? answer.
+  fameTier         String?   @map("fame_tier") @db.Char(1)
+  /// Tagged by Jalel in the overrides: known at home beyond his page views.
+  localStar        Boolean   @default(false) @map("local_star")
   wikiEn           String?   @map("wiki_en")
   wikiFr           String?   @map("wiki_fr")
   wikiAr           String?   @map("wiki_ar")
@@ -198,6 +206,10 @@ model Puzzle {
   day       DateTime @db.Date
   /// The answer, for games whose puzzle is one player.
   playerId  String?  @map("player_id")
+  /// How the day was chosen: "generator", "pin" or "reserve".
+  source    String   @default("generator")
+  /// Why a day was swapped or pinned, for /admin.
+  note      String?
   createdAt DateTime @default(now()) @map("created_at")
 
   player  Player?  @relation(fields: [playerId], references: [id])
