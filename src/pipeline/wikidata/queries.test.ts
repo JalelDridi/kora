@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { clubsQuery, PLAYERS_QUERY, sparqlRequest } from "./queries.ts";
+import {
+  ALIASES_QUERY,
+  clubsQuery,
+  PLAYERS_QUERY,
+  sparqlRequest,
+} from "./queries.ts";
 
 describe("queries", () => {
   it("ask for article titles, not article URLs (the probe's bug)", () => {
@@ -20,6 +25,19 @@ describe("queries", () => {
       "(SAMPLE(COALESCE(?selfIso, ?countryIso)) AS ?birthCountry)",
     );
     expect(PLAYERS_QUERY).not.toContain("?pobCountry");
+  });
+
+  // Name-search recommendation 7 (D-S2-12): ar aliases, and the Tunisian and
+  // Moroccan Arabic labels; never the Egyptian or Persian-script ones.
+  it("asks for en, fr and ar aliases and the aeb and ary labels, never arz, fa or azb", () => {
+    expect(ALIASES_QUERY).toContain(
+      '?p skos:altLabel ?alt FILTER(LANG(?alt) IN ("en", "fr", "ar"))',
+    );
+    expect(ALIASES_QUERY).toContain(
+      '?p rdfs:label ?alt FILTER(LANG(?alt) IN ("aeb", "aeb-arab", "ary"))',
+    );
+    for (const lang of ['"arz"', '"fa"', '"azb"'])
+      expect(ALIASES_QUERY).not.toContain(lang);
   });
 
   it("look clubs up by id and by English and French title, escaping quotes", () => {

@@ -1014,8 +1014,15 @@ export function mergePlayer(
   const names = new Set(
     [nameLatin, nameArabic, p.nameFr].filter((n): n is string => n !== null),
   );
+  // Recommendation 7 (D-S2-12): the Arabic article's title, without its
+  // qualifier, is one more spelling people type.
+  const arTitle = p.titles.ar ? titleName(p.titles.ar) : null;
   const aliases = [
-    ...new Set([...p.aliases, ...(o.aliases?.value ?? [])]),
+    ...new Set([
+      ...p.aliases,
+      ...(arTitle ? [arTitle] : []),
+      ...(o.aliases?.value ?? []),
+    ]),
   ].filter((a) => !names.has(a));
 
   // P48: the private witness's fresh verdicts on the values chosen now.

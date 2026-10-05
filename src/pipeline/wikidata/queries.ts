@@ -35,9 +35,13 @@ WHERE {
 }
 GROUP BY ?p`;
 
+// Name-search recommendation 7 (D-S2-12): the en, fr and ar aliases, and the
+// Tunisian and Moroccan Arabic labels. Never the Egyptian or Persian-script
+// labels: they re-spell the Latin name (research: sprint-2-name-search §1).
 export const ALIASES_QUERY = `SELECT ?p (GROUP_CONCAT(DISTINCT ?alt; separator="|") AS ?aliases) WHERE {
   ${BASE}
-  ?p skos:altLabel ?alt FILTER(LANG(?alt) IN ("en", "fr", "ar"))
+  { ?p skos:altLabel ?alt FILTER(LANG(?alt) IN ("en", "fr", "ar")) }
+  UNION { ?p rdfs:label ?alt FILTER(LANG(?alt) IN ("aeb", "aeb-arab", "ary")) }
 }
 GROUP BY ?p`;
 

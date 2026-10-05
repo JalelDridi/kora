@@ -833,6 +833,26 @@ describe("mergePlayer", () => {
     });
   });
 
+  // Name-search recommendation 7: the Arabic article's title is a spelling
+  // people type (Omar Rekik: label عمر ريكيك, article عمر الرقيق).
+  it("adds the Arabic article title to the aliases, without its qualifier, once", () => {
+    const withTitle = (ar: string | null, aliases: string[] = []) =>
+      mergePlayer(
+        wdPlayer({
+          aliases,
+          titles: { en: "Yassine Meriah", fr: null, ar },
+        }),
+        context(),
+      )?.draft.aliases;
+    expect(withTitle("ياسين المرياحي (لاعب كرة قدم)")).toEqual([
+      "ياسين المرياحي",
+    ]);
+    // The same as the Arabic name, or already an alias: not repeated.
+    expect(withTitle("ياسين مرياح")).toEqual([]);
+    expect(withTitle("مرياح", ["مرياح"])).toEqual(["مرياح"]);
+    expect(withTitle(null)).toEqual([]);
+  });
+
   it("builds a draft with every field's source, and the flags to review", () => {
     const merged = mergePlayer(wdPlayer(), context());
     expect(merged?.draft).toMatchObject({
