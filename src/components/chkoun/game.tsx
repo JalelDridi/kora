@@ -13,7 +13,9 @@ import {
 } from "@/chkoun/device";
 import { format, localName, type Labels } from "@/chkoun/labels";
 import { unpackNames, type PackedName } from "@/chkoun/search-index";
+import { shareText } from "@/engine/chkoun/share";
 import type { Stats } from "@/engine/chkoun/stats";
+import { colourKey } from "@/engine/chkoun/tiles";
 import type { TileRow as Row } from "@/engine/chkoun/types";
 import { buildEntries } from "@/engine/names";
 import type { Locale } from "@/i18n/locales";
@@ -21,6 +23,7 @@ import type fr from "../../../messages/fr.json";
 import { Countdown } from "./countdown";
 import { Legend } from "./legend";
 import { Result } from "./result";
+import { ShareButton } from "./share-button";
 import { SearchBox } from "./search-box";
 import { TileHeaders, TileRow, type RowStrings } from "./tile-row";
 
@@ -369,7 +372,25 @@ export function Game({
           sourcesHref={sourcesHref}
           endsAt={phase.today.endsAt}
           onNextDay={() => void loadToday()}
-        />
+        >
+          <ShareButton
+            text={shareText({
+              locale,
+              header: t.share.header,
+              number: game.n,
+              guesses: game.rows.length || (game.grid?.length ?? 0),
+              solved: game.status === "won",
+              grid:
+                game.rows.length > 0
+                  ? game.rows.map((r) => colourKey(r.row))
+                  : (game.grid ?? []),
+              streak: stats && stats.last === game.n ? stats.streak : null,
+              streakLabel: t.stats.streak,
+              url: shareUrl,
+            })}
+            strings={t.share}
+          />
+        </Result>
       ) : null}
 
       {phase.kind === "open" && playing ? (
