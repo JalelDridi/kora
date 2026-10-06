@@ -26,6 +26,12 @@ async function copyOfData(): Promise<{
   await cp(path.join(process.cwd(), "data"), path.join(root, "data"), {
     recursive: true,
   });
+  // The real verdicts name real footballers; the fixture pools below do not
+  // hold them, so start every copy from an empty witness file.
+  await writeFile(
+    path.join(root, "data", "witness.json"),
+    JSON.stringify({ version: 1, checks: {} }),
+  );
   return {
     root,
     write: (name, value) =>

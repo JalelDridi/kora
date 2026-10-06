@@ -26,7 +26,7 @@ A hub of Tunisian football games in Derja. Public portfolio project with real us
 ## Rules
 
 - **Jalel decides wording and architecture.** Propose with a recommendation, then wait. Record the outcome in `docs/decisions.md`.
-- **Derja copy is his.** No machine translation in the UI, no Modern Standard Arabic. New strings go to him before they ship.
+- **Derja copy: drafted by Claude, corrected by Jalel** (since 6 October 2026, P51). Research the Tunisian form (Wikidata `aeb` labels, Tunisian usage); no machine translation, no Modern Standard Arabic where a Derja form exists; mark new strings DRAFT in `docs/strings-for-jalel.md` so he can skim and correct them after they ship.
 - **Western digits everywhere.** No letter-spacing or uppercase on translated text. Logical CSS properties only.
 - **Vocabulary:** a player is a footballer; the person playing is a visitor.
 - **No secrets in the repo.** `.env.example` documents variables; real keys live in `.env.local` and Vercel, and the hosted database values only in Vercel. Never print them.
