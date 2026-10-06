@@ -56,35 +56,50 @@ describe("national-football-teams.com pages (synthetic fixtures, S28)", () => {
     expect(page.lastUpdate).toBe("2026-09-27");
   });
 
-  it("player page gives career FIFA matches from the chart data, and the career table agrees", () => {
-    // Chart: "fifa" matches 21. Table: Tunisia A rows 7 + 14; the U23 row
-    // (5) and the footer total (26) are not counted.
+  it("player page gives his A matches, FIFA plus non-FIFA, from the chart data, and the career table agrees", () => {
+    // Chart: "fifa" 21 + "nonfifa" 2. Table, Tunisia A rows only: FIFA
+    // 7 + 14, non-FIFA 0 + 2; the U23 row and the footer are not counted.
     expect(parsePlayerPage(fixture("nft-player.html"))).toEqual({
+      careerA: 23,
       careerFifa: 21,
       chartFifa: 21,
+      chartNonFifa: 2,
       tableFifa: 21,
+      tableNonFifa: 2,
+      latestMatch: "2026-09-20",
     });
   });
 
   it("falls back to the career table without the chart block, and gives null with neither", () => {
     const html = fixture("nft-player.html");
     const noChart = html.replace(/<script[\s\S]*?<\/script>/, "");
-    expect(parsePlayerPage(noChart)).toEqual({
+    expect(parsePlayerPage(noChart)).toMatchObject({
+      careerA: 23,
       careerFifa: 21,
       chartFifa: null,
+      chartNonFifa: null,
       tableFifa: 21,
+      tableNonFifa: 2,
     });
     const noTable = html.replace(/<table[\s\S]*<\/table>/, "");
     expect(parsePlayerPage(noTable)).toEqual({
+      careerA: 23,
       careerFifa: 21,
       chartFifa: 21,
+      chartNonFifa: 2,
       tableFifa: null,
+      tableNonFifa: null,
+      latestMatch: null,
     });
     const neither = noChart.replace(/<table[\s\S]*<\/table>/, "");
     expect(parsePlayerPage(neither)).toEqual({
+      careerA: null,
       careerFifa: null,
       chartFifa: null,
+      chartNonFifa: null,
       tableFifa: null,
+      tableNonFifa: null,
+      latestMatch: null,
     });
     // Youth rows only: no senior count from the table.
     expect(
@@ -132,9 +147,12 @@ describe("local real pages (the private sample, when present)", () => {
         ),
       );
       expect(page.careerFifa).not.toBeNull();
-      // Both shapes are on the real page, and they agree.
+      // Both shapes are on the real page, and they agree, FIFA and non-FIFA.
       expect(page.chartFifa).not.toBeNull();
       expect(page.tableFifa).toBe(page.chartFifa);
+      expect(page.tableNonFifa).toBe(page.chartNonFifa ?? 0);
+      expect(page.careerA).not.toBeNull();
+      expect(page.latestMatch).toMatch(/^\d{4}-\d{2}-\d{2}$/);
     },
   );
 });

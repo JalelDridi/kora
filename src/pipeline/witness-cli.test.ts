@@ -126,4 +126,31 @@ describe("pnpm data:witness (node src/pipeline/witness-cli.ts)", () => {
       "--backfill takes a number of pages from 1 to 39",
     );
   });
+
+  it("--rejudge refuses under CI, and without a saved mapping changes nothing", async () => {
+    const cwd = await mkdtemp(path.join(tmpdir(), "kora-witness-cwd-"));
+    const dir = await mkdtemp(path.join(tmpdir(), "kora-witness-dir-"));
+    const ci = await witness(
+      ["--rejudge"],
+      plainEnv({ CI: "1", KORA_WITNESS_DIR: dir }),
+      cwd,
+    );
+    expect(ci.code).toBe(2);
+    expect(ci.stderr).toContain("refused: CI is set");
+    const empty = await witness(
+      ["--rejudge"],
+      plainEnv({ KORA_WITNESS_DIR: dir }),
+      cwd,
+    );
+    expect(empty.code).toBe(2);
+    expect(empty.stderr).toContain("no mapping.json");
+    expect(empty.stdout + empty.stderr).not.toContain(NO_NETWORK);
+    const other = await witness(
+      ["--rejudge", "--sample"],
+      plainEnv({ KORA_WITNESS_DIR: dir }),
+      cwd,
+    );
+    expect(other.code).toBe(2);
+    expect(other.stderr).toContain("--rejudge takes no other option");
+  });
 });

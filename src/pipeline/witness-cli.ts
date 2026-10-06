@@ -29,6 +29,7 @@ import {
 import {
   knownPlayerPaths,
   runBackfill,
+  runRejudge,
   runSample,
   runWeekly,
 } from "./witness/run.ts";
@@ -74,7 +75,13 @@ const value = (flag: string) => {
   const i = argv.indexOf(flag);
   return i === -1 ? undefined : argv[i + 1];
 };
-const known = new Set(["--live", "--sample", "--backfill", "--site"]);
+const known = new Set([
+  "--live",
+  "--sample",
+  "--backfill",
+  "--site",
+  "--rejudge",
+]);
 for (const [i, arg] of argv.entries())
   if (arg.startsWith("--") && !known.has(arg)) fail(`unknown option ${arg}`);
   else if (
@@ -106,6 +113,47 @@ const sites: SiteName[] =
 
 const privateDir = witnessDir(env, where.home);
 const year = new Date().getUTCFullYear();
+
+// Fix round 3, --rejudge: the verdicts made again from the pages already in
+// the private folder. No client is created on this path, so no request is
+// possible, with or without --live.
+if (argv.includes("--rejudge")) {
+  if (argv.some((a) => a !== "--rejudge" && a !== "--live"))
+    fail("--rejudge takes no other option");
+  const store = await openStore({ env, home: where.home, repoRoot });
+  const savedIds =
+    await store.readJson<Parameters<typeof mappingFromJson>[0]>("mapping.json");
+  if (!savedIds)
+    fail(
+      `no mapping.json in ${privateDir}: run a live weekly check first; nothing was changed`,
+    );
+  const dataDir = path.join(repoRoot, "data");
+  const pool = JSON.parse(
+    await readFile(path.join(dataDir, "pool.json"), "utf8"),
+  ) as Pool;
+  const current = await readFile(path.join(dataDir, "witness.json"), "utf8")
+    .then((t) => JSON.parse(t) as WitnessFile)
+    .catch(() => emptyWitness());
+  const errors = validateWitness(current);
+  if (errors.length > 0)
+    fail(`data/witness.json is broken: ${errors.join("; ")}`);
+  console.log(`rejudge: no request; the pages saved in ${privateDir}`);
+  await runRejudge({
+    store,
+    log: (line) => console.log(line),
+    today: new Date().toISOString().slice(0, 10),
+    pool,
+    mapping: mappingFromJson(savedIds),
+    witness: current,
+    writeWitness: async (text) => {
+      const file = path.join(dataDir, "witness.json");
+      const temp = `${file}.${process.pid}.tmp`;
+      await writeFile(temp, text);
+      await rename(temp, file);
+    },
+  });
+  process.exit(0);
+}
 const mapping = await readFile(path.join(privateDir, "mapping.json"), "utf8")
   .then((text) => {
     const m = JSON.parse(text) as {

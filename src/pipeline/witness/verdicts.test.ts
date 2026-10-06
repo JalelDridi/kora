@@ -315,7 +315,7 @@ describe("data/witness.json (B6, S18)", () => {
       "checks.Q1.caps: unknown verdict maybe",
       "checks.Q1.caps: checked must be our caps, a whole number",
       "checks.Q1.clubId: checked must be our club's Wikidata id or null",
-      'checks.Q1.clubId: a reason goes only with a caps "differs"',
+      'checks.Q1.clubId: a reason goes only with a caps "differs" or "not-comparable"',
       "checks.Q1.goals: unknown field",
     ]);
   });
@@ -380,5 +380,87 @@ describe("club verdicts need a Ligue 1 club tied to the league page (fix round 1
     });
     expect(tally.checks).toEqual([]);
     expect(tally.unjudged).toBe(1);
+  });
+});
+
+describe("caps verdicts on A matches (fix round 3)", () => {
+  // The site's A matches (FIFA plus non-FIFA): 30 for 800001.
+  const careers = new Map<string, number | null>([["800001", 30]]);
+  const judge = (
+    caps: number,
+    capsAsOf: string | null,
+    site: { player?: string | null; country?: string | null },
+  ) =>
+    capsVerdicts({
+      players: [{ qid: "Q1", caps, capsAsOf }],
+      mapping,
+      careers,
+      latestMatch: "2026-09-10",
+      siteAsOf: new Map([["800001", site.player ?? null]]),
+      lastUpdate: site.country ?? null,
+      today,
+    }).checks[0].check;
+
+  it("ours one higher, the site last updated before our date: not-comparable, site-older", () => {
+    expect(judge(31, "2026-09-28", { player: "2026-09-10" })).toEqual({
+      site: "national-football-teams",
+      checkedOn: today,
+      verdict: "not-comparable",
+      reason: "site-older",
+      checked: 31,
+    });
+    // Without his page's date, the country page's "Last update" decides.
+    expect(judge(31, "2026-09-28", { country: "2026-09-20" })).toMatchObject({
+      verdict: "not-comparable",
+      reason: "site-older",
+    });
+  });
+
+  it("otherwise a difference stays a differs", () => {
+    // The site is as recent as our count.
+    expect(judge(31, "2026-09-28", { player: "2026-09-28" })).toMatchObject({
+      verdict: "differs",
+      reason: "same-date",
+    });
+    // Two more, or one fewer, is no missing match.
+    expect(judge(32, "2026-09-28", { player: "2026-09-10" }).verdict).toBe(
+      "differs",
+    );
+    expect(judge(29, "2026-09-28", { player: "2026-09-10" }).verdict).toBe(
+      "differs",
+    );
+    // No date of ours to compare with.
+    expect(judge(31, null, { player: "2026-09-10" })).toMatchObject({
+      verdict: "differs",
+      reason: "older",
+    });
+    expect(judge(30, "2026-09-28", { player: "2026-09-10" }).verdict).toBe(
+      "agrees",
+    );
+  });
+
+  it("validates the new reason only on a caps not-comparable", () => {
+    const v = (verdict: string, reason: string) =>
+      validateWitness({
+        version: 1,
+        checks: {
+          Q1: {
+            caps: {
+              site: "national-football-teams",
+              checkedOn: "2026-10-06",
+              verdict,
+              checked: 3,
+              reason,
+            },
+          },
+        },
+      });
+    expect(v("not-comparable", "site-older")).toEqual([]);
+    expect(v("differs", "site-older")).toEqual([
+      'checks.Q1.caps: a "differs" reason must be same-date or older',
+    ]);
+    expect(v("not-comparable", "older")).toEqual([
+      'checks.Q1.caps: a "not-comparable" reason must be site-older',
+    ]);
   });
 });

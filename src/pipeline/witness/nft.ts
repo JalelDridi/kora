@@ -90,20 +90,31 @@ export function latestFifaMatch(page: NftCountryPage): string | null {
 }
 
 export type NftPlayerPage = {
-  /** Career FIFA matches for the senior national team; null when unreadable. */
+  /**
+   * Fix round 3: his senior Tunisia A matches, FIFA and non-FIFA together,
+   * the count Wikipedia's caps are compared with; null when unreadable.
+   */
+  careerA: number | null;
+  /** FIFA matches only (kept privately, for later). */
   careerFifa: number | null;
-  /** The chart data's "fifa" entry, when the page has it. */
+  /** The chart data's "fifa" and "nonfifa" entries, when the page has them. */
   chartFifa: number | null;
-  /** The career table's Tunisia "A" rows, summed, when the page has them. */
+  chartNonFifa: number | null;
+  /** The career table's Tunisia "A" rows, summed per column, when the page has them. */
   tableFifa: number | null;
+  tableNonFifa: number | null;
+  /** The newest match date in his match list: how far the site has him. */
+  latestMatch: string | null;
 };
 
-/** The chart script's `"dataProvider": [...]`: its "fifa" entry's matches. */
-function chartFifa(html: string): number | null {
+/** The chart script's `"dataProvider": [...]`: an entry's matches by its type. */
+function chartMatches(html: string, type: "fifa" | "nonfifa"): number | null {
   const block = /"dataProvider"\s*:\s*\[([\s\S]*?)\]/.exec(html)?.[1];
   if (!block) return null;
   for (const entry of block.match(/\{[^{}]*\}/g) ?? []) {
-    if (!/"type"\s*:\s*"fifa"/.test(entry)) continue;
+    const typed =
+      type === "fifa" ? /"type"\s*:\s*"fifa"/ : /"type"\s*:\s*"nonfifa"/;
+    if (!typed.test(entry)) continue;
     const m = /"matches"\s*:\s*(\d+)/.exec(entry);
     return m ? Number(m[1]) : null;
   }
@@ -113,38 +124,64 @@ function chartFifa(html: string): number | null {
 /**
  * The career table: the one whose header has a "FIFA" and a "Non FIFA"
  * group. Each row of the senior team (td.country[data-order^="Tunisia_A_"])
- * counts its first "matches" cell, the FIFA one; youth rows carry other
- * codes and are left out. The footer, which adds them all, is not read.
+ * counts its first "matches" cell (FIFA) and its second (Non FIFA); youth
+ * rows carry other codes and are left out. The footer, which adds them
+ * all, is not read.
  */
-function tableFifa(html: string): number | null {
+function tableMatches(html: string): { fifa: number; nonFifa: number } | null {
   for (const table of elements(html, "table")) {
     const head = elements(elements(table, "thead")[0] ?? "", "th").map((h) =>
       text(h),
     );
     if (!head.includes("FIFA") || !head.includes("Non FIFA")) continue;
-    let sum = 0;
+    let fifa = 0;
+    let nonFifa = 0;
     let rows = 0;
     for (const row of elements(elements(table, "tbody")[0] ?? "", "tr")) {
       const row_ = cells(row);
       const country = row_.find((c) => hasClass(c.cls, "country"));
       if (!/data-order="Tunisia_A_/.test(country?.attrs ?? "")) continue;
-      const matches = row_.find((c) => hasClass(c.cls, "stats", "matches"));
-      const n = matches ? count(matches.html) : null;
-      if (n === null) continue;
-      sum += n;
+      const [f, n] = row_.filter((c) => hasClass(c.cls, "stats", "matches"));
+      const a = f ? count(f.html) : null;
+      if (a === null) continue;
+      fifa += a;
+      nonFifa += (n ? count(n.html) : null) ?? 0;
       rows++;
     }
-    return rows > 0 ? sum : null;
+    return rows > 0 ? { fifa, nonFifa } : null;
   }
   return null;
 }
 
+/** The newest date of the page's match list (a table of class "matches"). */
+function latestListedMatch(html: string): string | null {
+  let latest: string | null = null;
+  for (const table of elements(html, "table", /class="[^"]* matches[ "]/))
+    for (const row of elements(elements(table, "tbody")[0] ?? "", "tr")) {
+      const date = cells(row).find((c) => hasClass(c.cls, "date"));
+      const iso = date ? isoDate(text(date.html)) : null;
+      if (iso && (latest === null || iso > latest)) latest = iso;
+    }
+  return latest;
+}
+
 /**
- * A player page (checked on the sample of 5 October 2026): his career FIFA
- * matches for Tunisia, from the chart data, else from the career table.
+ * A player page (checked on the sample of 5 October 2026 and the first
+ * weekly run): his senior Tunisia matches from the chart data, else from
+ * the career table; FIFA and non-FIFA apart and together.
  */
 export function parsePlayerPage(html: string): NftPlayerPage {
-  const chart = chartFifa(html);
-  const table = tableFifa(html);
-  return { careerFifa: chart ?? table, chartFifa: chart, tableFifa: table };
+  const chartFifa = chartMatches(html, "fifa");
+  const chartNonFifa = chartMatches(html, "nonfifa");
+  const table = tableMatches(html);
+  const fromChart = chartFifa === null ? null : chartFifa + (chartNonFifa ?? 0);
+  return {
+    careerA: fromChart ?? (table ? table.fifa + table.nonFifa : null),
+    careerFifa: chartFifa ?? table?.fifa ?? null,
+    chartFifa,
+    chartNonFifa,
+    tableFifa: table?.fifa ?? null,
+    tableNonFifa: table?.nonFifa ?? null,
+    latestMatch: latestListedMatch(html),
+  };
 }

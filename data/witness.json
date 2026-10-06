@@ -1,1 +1,1068 @@
-{ "version": 1, "checks": {} }
+{
+  "checks": {
+    "Q86312": {
+      "caps": {
+        "checked": 6,
+        "checkedOn": "2026-10-06",
+        "site": "national-football-teams",
+        "verdict": "agrees"
+      }
+    },
+    "Q599802": {
+      "clubId": {
+        "checked": "Q1102938",
+        "checkedOn": "2026-10-06",
+        "site": "transfermarkt",
+        "verdict": "not-found"
+      }
+    },
+    "Q2366395": {
+      "clubId": {
+        "checked": "Q3058489",
+        "checkedOn": "2026-10-06",
+        "site": "transfermarkt",
+        "verdict": "agrees"
+      }
+    },
+    "Q2836275": {
+      "clubId": {
+        "checked": "Q1024482",
+        "checkedOn": "2026-10-06",
+        "site": "transfermarkt",
+        "verdict": "agrees"
+      }
+    },
+    "Q2868801": {
+      "clubId": {
+        "checked": "Q1851954",
+        "checkedOn": "2026-10-06",
+        "site": "transfermarkt",
+        "verdict": "agrees"
+      }
+    },
+    "Q3044485": {
+      "clubId": {
+        "checked": "Q1103140",
+        "checkedOn": "2026-10-06",
+        "site": "transfermarkt",
+        "verdict": "agrees"
+      }
+    },
+    "Q3064692": {
+      "clubId": {
+        "checked": "Q1851954",
+        "checkedOn": "2026-10-06",
+        "site": "transfermarkt",
+        "verdict": "agrees"
+      }
+    },
+    "Q3126597": {
+      "clubId": {
+        "checked": "Q1102938",
+        "checkedOn": "2026-10-06",
+        "site": "transfermarkt",
+        "verdict": "not-found"
+      }
+    },
+    "Q3126608": {
+      "clubId": {
+        "checked": "Q1851954",
+        "checkedOn": "2026-10-06",
+        "site": "transfermarkt",
+        "verdict": "not-found"
+      }
+    },
+    "Q3128337": {
+      "clubId": {
+        "checked": "Q1102961",
+        "checkedOn": "2026-10-06",
+        "site": "transfermarkt",
+        "verdict": "not-found"
+      }
+    },
+    "Q3147916": {
+      "clubId": {
+        "checked": "Q3550543",
+        "checkedOn": "2026-10-06",
+        "site": "transfermarkt",
+        "verdict": "agrees"
+      }
+    },
+    "Q3304526": {
+      "clubId": {
+        "checked": "Q1102938",
+        "checkedOn": "2026-10-06",
+        "site": "transfermarkt",
+        "verdict": "not-found"
+      }
+    },
+    "Q11891887": {
+      "clubId": {
+        "checked": "Q290540",
+        "checkedOn": "2026-10-06",
+        "site": "transfermarkt",
+        "verdict": "not-found"
+      }
+    },
+    "Q16382870": {
+      "clubId": {
+        "checked": "Q3592516",
+        "checkedOn": "2026-10-06",
+        "site": "transfermarkt",
+        "verdict": "not-found"
+      }
+    },
+    "Q16635642": {
+      "clubId": {
+        "checked": "Q1102938",
+        "checkedOn": "2026-10-06",
+        "site": "transfermarkt",
+        "verdict": "not-found"
+      }
+    },
+    "Q16636036": {
+      "caps": {
+        "checked": 104,
+        "checkedOn": "2026-10-06",
+        "reason": "same-date",
+        "site": "national-football-teams",
+        "verdict": "differs"
+      }
+    },
+    "Q16664913": {
+      "clubId": {
+        "checked": "Q2145744",
+        "checkedOn": "2026-10-06",
+        "site": "transfermarkt",
+        "verdict": "not-found"
+      }
+    },
+    "Q17154230": {
+      "clubId": {
+        "checked": "Q1024482",
+        "checkedOn": "2026-10-06",
+        "site": "transfermarkt",
+        "verdict": "agrees"
+      }
+    },
+    "Q17350507": {
+      "caps": {
+        "checked": 49,
+        "checkedOn": "2026-10-06",
+        "site": "national-football-teams",
+        "verdict": "agrees"
+      }
+    },
+    "Q17350654": {
+      "clubId": {
+        "checked": "Q2167815",
+        "checkedOn": "2026-10-06",
+        "site": "transfermarkt",
+        "verdict": "agrees"
+      }
+    },
+    "Q18002271": {
+      "clubId": {
+        "checked": "Q1102938",
+        "checkedOn": "2026-10-06",
+        "site": "transfermarkt",
+        "verdict": "agrees"
+      }
+    },
+    "Q19956607": {
+      "caps": {
+        "checked": 93,
+        "checkedOn": "2026-10-06",
+        "reason": "same-date",
+        "site": "national-football-teams",
+        "verdict": "differs"
+      }
+    },
+    "Q20127327": {
+      "clubId": {
+        "checked": "Q101096459",
+        "checkedOn": "2026-10-06",
+        "site": "transfermarkt",
+        "verdict": "agrees"
+      }
+    },
+    "Q20641500": {
+      "caps": {
+        "checked": 86,
+        "checkedOn": "2026-10-06",
+        "site": "national-football-teams",
+        "verdict": "agrees"
+      }
+    },
+    "Q20751695": {
+      "clubId": {
+        "checked": "Q1851954",
+        "checkedOn": "2026-10-06",
+        "site": "transfermarkt",
+        "verdict": "not-found"
+      }
+    },
+    "Q24151009": {
+      "clubId": {
+        "checked": "Q3592516",
+        "checkedOn": "2026-10-06",
+        "site": "transfermarkt",
+        "verdict": "not-found"
+      }
+    },
+    "Q24951507": {
+      "clubId": {
+        "checked": "Q1103140",
+        "checkedOn": "2026-10-06",
+        "site": "transfermarkt",
+        "verdict": "agrees"
+      }
+    },
+    "Q25390813": {
+      "clubId": {
+        "checked": "Q1103140",
+        "checkedOn": "2026-10-06",
+        "site": "transfermarkt",
+        "verdict": "not-found"
+      }
+    },
+    "Q26405549": {
+      "caps": {
+        "checked": 53,
+        "checkedOn": "2026-10-06",
+        "site": "national-football-teams",
+        "verdict": "agrees"
+      }
+    },
+    "Q28655133": {
+      "clubId": {
+        "checked": "Q1102938",
+        "checkedOn": "2026-10-06",
+        "site": "transfermarkt",
+        "verdict": "agrees"
+      }
+    },
+    "Q28872594": {
+      "clubId": {
+        "checked": "Q3550543",
+        "checkedOn": "2026-10-06",
+        "site": "transfermarkt",
+        "verdict": "agrees"
+      }
+    },
+    "Q29052504": {
+      "clubId": {
+        "checked": "Q44897",
+        "checkedOn": "2026-10-06",
+        "site": "transfermarkt",
+        "verdict": "agrees"
+      }
+    },
+    "Q30118244": {
+      "caps": {
+        "checked": 69,
+        "checkedOn": "2026-10-06",
+        "reason": "site-older",
+        "site": "national-football-teams",
+        "verdict": "not-comparable"
+      }
+    },
+    "Q30728878": {
+      "clubId": {
+        "checked": "Q1102961",
+        "checkedOn": "2026-10-06",
+        "site": "transfermarkt",
+        "verdict": "agrees"
+      }
+    },
+    "Q30729319": {
+      "clubId": {
+        "checked": "Q1530211",
+        "checkedOn": "2026-10-06",
+        "site": "transfermarkt",
+        "verdict": "agrees"
+      }
+    },
+    "Q36696885": {
+      "clubId": {
+        "checked": "Q3550543",
+        "checkedOn": "2026-10-06",
+        "site": "transfermarkt",
+        "verdict": "agrees"
+      }
+    },
+    "Q40272807": {
+      "clubId": {
+        "checked": "Q44897",
+        "checkedOn": "2026-10-06",
+        "site": "transfermarkt",
+        "verdict": "agrees"
+      }
+    },
+    "Q46019586": {
+      "clubId": {
+        "checked": "Q3550543",
+        "checkedOn": "2026-10-06",
+        "site": "transfermarkt",
+        "verdict": "differs"
+      }
+    },
+    "Q53575255": {
+      "clubId": {
+        "checked": "Q3480681",
+        "checkedOn": "2026-10-06",
+        "site": "transfermarkt",
+        "verdict": "differs"
+      }
+    },
+    "Q53576512": {
+      "clubId": {
+        "checked": "Q1102938",
+        "checkedOn": "2026-10-06",
+        "site": "transfermarkt",
+        "verdict": "agrees"
+      }
+    },
+    "Q55806704": {
+      "clubId": {
+        "checked": "Q3550543",
+        "checkedOn": "2026-10-06",
+        "site": "transfermarkt",
+        "verdict": "differs"
+      }
+    },
+    "Q56877154": {
+      "clubId": {
+        "checked": "Q1102938",
+        "checkedOn": "2026-10-06",
+        "site": "transfermarkt",
+        "verdict": "agrees"
+      }
+    },
+    "Q56878248": {
+      "clubId": {
+        "checked": "Q2145744",
+        "checkedOn": "2026-10-06",
+        "site": "transfermarkt",
+        "verdict": "agrees"
+      }
+    },
+    "Q58469424": {
+      "clubId": {
+        "checked": "Q3550543",
+        "checkedOn": "2026-10-06",
+        "site": "transfermarkt",
+        "verdict": "not-found"
+      }
+    },
+    "Q58815643": {
+      "caps": {
+        "checked": 31,
+        "checkedOn": "2026-10-06",
+        "site": "national-football-teams",
+        "verdict": "not-comparable"
+      }
+    },
+    "Q59268317": {
+      "caps": {
+        "checked": 26,
+        "checkedOn": "2026-10-06",
+        "site": "national-football-teams",
+        "verdict": "agrees"
+      }
+    },
+    "Q59589882": {
+      "clubId": {
+        "checked": "Q44897",
+        "checkedOn": "2026-10-06",
+        "site": "transfermarkt",
+        "verdict": "agrees"
+      }
+    },
+    "Q60578936": {
+      "clubId": {
+        "checked": "Q1102938",
+        "checkedOn": "2026-10-06",
+        "site": "transfermarkt",
+        "verdict": "agrees"
+      }
+    },
+    "Q60605592": {
+      "clubId": {
+        "checked": "Q1102938",
+        "checkedOn": "2026-10-06",
+        "site": "transfermarkt",
+        "verdict": "agrees"
+      }
+    },
+    "Q60648668": {
+      "clubId": {
+        "checked": "Q1102961",
+        "checkedOn": "2026-10-06",
+        "site": "transfermarkt",
+        "verdict": "agrees"
+      }
+    },
+    "Q61342214": {
+      "clubId": {
+        "checked": "Q1530211",
+        "checkedOn": "2026-10-06",
+        "site": "transfermarkt",
+        "verdict": "not-found"
+      }
+    },
+    "Q62721946": {
+      "clubId": {
+        "checked": "Q290540",
+        "checkedOn": "2026-10-06",
+        "site": "transfermarkt",
+        "verdict": "agrees"
+      }
+    },
+    "Q62929773": {
+      "clubId": {
+        "checked": "Q101096459",
+        "checkedOn": "2026-10-06",
+        "site": "transfermarkt",
+        "verdict": "not-found"
+      }
+    },
+    "Q64520753": {
+      "caps": {
+        "checked": 41,
+        "checkedOn": "2026-10-06",
+        "reason": "site-older",
+        "site": "national-football-teams",
+        "verdict": "not-comparable"
+      },
+      "clubId": {
+        "checked": "Q1024482",
+        "checkedOn": "2026-10-06",
+        "site": "transfermarkt",
+        "verdict": "agrees"
+      }
+    },
+    "Q64532207": {
+      "caps": {
+        "checked": 3,
+        "checkedOn": "2026-10-06",
+        "site": "national-football-teams",
+        "verdict": "not-comparable"
+      },
+      "clubId": {
+        "checked": "Q44897",
+        "checkedOn": "2026-10-06",
+        "site": "transfermarkt",
+        "verdict": "agrees"
+      }
+    },
+    "Q64593906": {
+      "caps": {
+        "checked": 61,
+        "checkedOn": "2026-10-06",
+        "reason": "site-older",
+        "site": "national-football-teams",
+        "verdict": "not-comparable"
+      }
+    },
+    "Q64593963": {
+      "clubId": {
+        "checked": "Q3592516",
+        "checkedOn": "2026-10-06",
+        "site": "transfermarkt",
+        "verdict": "not-found"
+      }
+    },
+    "Q64736331": {
+      "caps": {
+        "checked": 38,
+        "checkedOn": "2026-10-06",
+        "site": "national-football-teams",
+        "verdict": "agrees"
+      },
+      "clubId": {
+        "checked": "Q44897",
+        "checkedOn": "2026-10-06",
+        "site": "transfermarkt",
+        "verdict": "agrees"
+      }
+    },
+    "Q64740426": {
+      "caps": {
+        "checked": 35,
+        "checkedOn": "2026-10-06",
+        "reason": "site-older",
+        "site": "national-football-teams",
+        "verdict": "not-comparable"
+      }
+    },
+    "Q64746218": {
+      "clubId": {
+        "checked": "Q1851954",
+        "checkedOn": "2026-10-06",
+        "site": "transfermarkt",
+        "verdict": "agrees"
+      }
+    },
+    "Q66779637": {
+      "clubId": {
+        "checked": "Q1103140",
+        "checkedOn": "2026-10-06",
+        "site": "transfermarkt",
+        "verdict": "agrees"
+      }
+    },
+    "Q68169135": {
+      "clubId": {
+        "checked": "Q3550543",
+        "checkedOn": "2026-10-06",
+        "site": "transfermarkt",
+        "verdict": "not-found"
+      }
+    },
+    "Q85410990": {
+      "caps": {
+        "checked": 46,
+        "checkedOn": "2026-10-06",
+        "reason": "site-older",
+        "site": "national-football-teams",
+        "verdict": "not-comparable"
+      }
+    },
+    "Q85873925": {
+      "clubId": {
+        "checked": "Q1024482",
+        "checkedOn": "2026-10-06",
+        "site": "transfermarkt",
+        "verdict": "agrees"
+      }
+    },
+    "Q90816875": {
+      "clubId": {
+        "checked": "Q1102961",
+        "checkedOn": "2026-10-06",
+        "site": "transfermarkt",
+        "verdict": "agrees"
+      }
+    },
+    "Q90820356": {
+      "clubId": {
+        "checked": "Q3058489",
+        "checkedOn": "2026-10-06",
+        "site": "transfermarkt",
+        "verdict": "agrees"
+      }
+    },
+    "Q96337717": {
+      "caps": {
+        "checked": 17,
+        "checkedOn": "2026-10-06",
+        "reason": "site-older",
+        "site": "national-football-teams",
+        "verdict": "not-comparable"
+      }
+    },
+    "Q96678415": {
+      "caps": {
+        "checked": 8,
+        "checkedOn": "2026-10-06",
+        "site": "national-football-teams",
+        "verdict": "agrees"
+      }
+    },
+    "Q96755704": {
+      "caps": {
+        "checked": 48,
+        "checkedOn": "2026-10-06",
+        "site": "national-football-teams",
+        "verdict": "agrees"
+      }
+    },
+    "Q100252023": {
+      "clubId": {
+        "checked": "Q1102938",
+        "checkedOn": "2026-10-06",
+        "site": "transfermarkt",
+        "verdict": "not-found"
+      }
+    },
+    "Q100626510": {
+      "clubId": {
+        "checked": "Q44897",
+        "checkedOn": "2026-10-06",
+        "site": "transfermarkt",
+        "verdict": "not-found"
+      }
+    },
+    "Q101064617": {
+      "caps": {
+        "checked": 16,
+        "checkedOn": "2026-10-06",
+        "site": "national-football-teams",
+        "verdict": "agrees"
+      }
+    },
+    "Q104216556": {
+      "clubId": {
+        "checked": "Q1024482",
+        "checkedOn": "2026-10-06",
+        "site": "transfermarkt",
+        "verdict": "agrees"
+      }
+    },
+    "Q104406546": {
+      "clubId": {
+        "checked": "Q25450596",
+        "checkedOn": "2026-10-06",
+        "site": "transfermarkt",
+        "verdict": "differs"
+      }
+    },
+    "Q104440602": {
+      "clubId": {
+        "checked": "Q2145744",
+        "checkedOn": "2026-10-06",
+        "site": "transfermarkt",
+        "verdict": "not-found"
+      }
+    },
+    "Q104440763": {
+      "clubId": {
+        "checked": "Q44897",
+        "checkedOn": "2026-10-06",
+        "site": "transfermarkt",
+        "verdict": "agrees"
+      }
+    },
+    "Q104440780": {
+      "clubId": {
+        "checked": "Q1851954",
+        "checkedOn": "2026-10-06",
+        "site": "transfermarkt",
+        "verdict": "agrees"
+      }
+    },
+    "Q105082472": {
+      "caps": {
+        "checked": 19,
+        "checkedOn": "2026-10-06",
+        "site": "national-football-teams",
+        "verdict": "agrees"
+      }
+    },
+    "Q105675305": {
+      "clubId": {
+        "checked": "Q2145744",
+        "checkedOn": "2026-10-06",
+        "site": "transfermarkt",
+        "verdict": "not-found"
+      }
+    },
+    "Q105724881": {
+      "clubId": {
+        "checked": "Q1368447",
+        "checkedOn": "2026-10-06",
+        "site": "transfermarkt",
+        "verdict": "agrees"
+      }
+    },
+    "Q105737050": {
+      "clubId": {
+        "checked": "Q1024482",
+        "checkedOn": "2026-10-06",
+        "site": "transfermarkt",
+        "verdict": "not-found"
+      }
+    },
+    "Q106353139": {
+      "clubId": {
+        "checked": "Q2145744",
+        "checkedOn": "2026-10-06",
+        "site": "transfermarkt",
+        "verdict": "not-found"
+      }
+    },
+    "Q106353192": {
+      "clubId": {
+        "checked": "Q1530211",
+        "checkedOn": "2026-10-06",
+        "site": "transfermarkt",
+        "verdict": "not-found"
+      }
+    },
+    "Q107625996": {
+      "clubId": {
+        "checked": "Q3550543",
+        "checkedOn": "2026-10-06",
+        "site": "transfermarkt",
+        "verdict": "not-found"
+      }
+    },
+    "Q107746612": {
+      "caps": {
+        "checked": 22,
+        "checkedOn": "2026-10-06",
+        "reason": "site-older",
+        "site": "national-football-teams",
+        "verdict": "not-comparable"
+      }
+    },
+    "Q108653548": {
+      "caps": {
+        "checked": 11,
+        "checkedOn": "2026-10-06",
+        "site": "national-football-teams",
+        "verdict": "agrees"
+      },
+      "clubId": {
+        "checked": "Q44897",
+        "checkedOn": "2026-10-06",
+        "site": "transfermarkt",
+        "verdict": "agrees"
+      }
+    },
+    "Q109710185": {
+      "clubId": {
+        "checked": "Q44897",
+        "checkedOn": "2026-10-06",
+        "site": "transfermarkt",
+        "verdict": "not-found"
+      }
+    },
+    "Q109978980": {
+      "clubId": {
+        "checked": "Q1102938",
+        "checkedOn": "2026-10-06",
+        "site": "transfermarkt",
+        "verdict": "agrees"
+      }
+    },
+    "Q110062659": {
+      "clubId": {
+        "checked": "Q1024482",
+        "checkedOn": "2026-10-06",
+        "site": "transfermarkt",
+        "verdict": "agrees"
+      }
+    },
+    "Q110063582": {
+      "clubId": {
+        "checked": "Q290540",
+        "checkedOn": "2026-10-06",
+        "site": "transfermarkt",
+        "verdict": "agrees"
+      }
+    },
+    "Q110989845": {
+      "clubId": {
+        "checked": "Q4724477",
+        "checkedOn": "2026-10-06",
+        "site": "transfermarkt",
+        "verdict": "differs"
+      }
+    },
+    "Q111327993": {
+      "clubId": {
+        "checked": "Q3550543",
+        "checkedOn": "2026-10-06",
+        "site": "transfermarkt",
+        "verdict": "agrees"
+      }
+    },
+    "Q113133277": {
+      "caps": {
+        "checked": 25,
+        "checkedOn": "2026-10-06",
+        "reason": "site-older",
+        "site": "national-football-teams",
+        "verdict": "not-comparable"
+      }
+    },
+    "Q113272697": {
+      "clubId": {
+        "checked": "Q44897",
+        "checkedOn": "2026-10-06",
+        "site": "transfermarkt",
+        "verdict": "agrees"
+      }
+    },
+    "Q113955868": {
+      "clubId": {
+        "checked": "Q2145744",
+        "checkedOn": "2026-10-06",
+        "site": "transfermarkt",
+        "verdict": "agrees"
+      }
+    },
+    "Q115747976": {
+      "clubId": {
+        "checked": "Q1102961",
+        "checkedOn": "2026-10-06",
+        "site": "transfermarkt",
+        "verdict": "differs"
+      }
+    },
+    "Q115803591": {
+      "caps": {
+        "checked": 17,
+        "checkedOn": "2026-10-06",
+        "site": "national-football-teams",
+        "verdict": "agrees"
+      }
+    },
+    "Q116589994": {
+      "clubId": {
+        "checked": "Q290540",
+        "checkedOn": "2026-10-06",
+        "site": "transfermarkt",
+        "verdict": "agrees"
+      }
+    },
+    "Q116880431": {
+      "clubId": {
+        "checked": "Q3058489",
+        "checkedOn": "2026-10-06",
+        "site": "transfermarkt",
+        "verdict": "not-found"
+      }
+    },
+    "Q117748262": {
+      "clubId": {
+        "checked": "Q2145744",
+        "checkedOn": "2026-10-06",
+        "site": "transfermarkt",
+        "verdict": "agrees"
+      }
+    },
+    "Q120993438": {
+      "clubId": {
+        "checked": "Q1102938",
+        "checkedOn": "2026-10-06",
+        "site": "transfermarkt",
+        "verdict": "agrees"
+      }
+    },
+    "Q121289354": {
+      "clubId": {
+        "checked": "Q56301186",
+        "checkedOn": "2026-10-06",
+        "site": "transfermarkt",
+        "verdict": "differs"
+      }
+    },
+    "Q121832277": {
+      "caps": {
+        "checked": 6,
+        "checkedOn": "2026-10-06",
+        "reason": "same-date",
+        "site": "national-football-teams",
+        "verdict": "differs"
+      }
+    },
+    "Q122024030": {
+      "clubId": {
+        "checked": "Q1851954",
+        "checkedOn": "2026-10-06",
+        "site": "transfermarkt",
+        "verdict": "agrees"
+      }
+    },
+    "Q123336254": {
+      "clubId": {
+        "checked": "Q101096459",
+        "checkedOn": "2026-10-06",
+        "site": "transfermarkt",
+        "verdict": "agrees"
+      }
+    },
+    "Q126231513": {
+      "clubId": {
+        "checked": "Q44897",
+        "checkedOn": "2026-10-06",
+        "site": "transfermarkt",
+        "verdict": "agrees"
+      }
+    },
+    "Q128545284": {
+      "clubId": {
+        "checked": "Q3550543",
+        "checkedOn": "2026-10-06",
+        "site": "transfermarkt",
+        "verdict": "differs"
+      }
+    },
+    "Q130241890": {
+      "clubId": {
+        "checked": "Q2145744",
+        "checkedOn": "2026-10-06",
+        "site": "transfermarkt",
+        "verdict": "agrees"
+      }
+    },
+    "Q131736568": {
+      "clubId": {
+        "checked": "Q44897",
+        "checkedOn": "2026-10-06",
+        "site": "transfermarkt",
+        "verdict": "agrees"
+      }
+    },
+    "Q133130622": {
+      "clubId": {
+        "checked": "Q2167815",
+        "checkedOn": "2026-10-06",
+        "site": "transfermarkt",
+        "verdict": "agrees"
+      }
+    },
+    "Q134699960": {
+      "caps": {
+        "checked": 21,
+        "checkedOn": "2026-10-06",
+        "reason": "site-older",
+        "site": "national-football-teams",
+        "verdict": "not-comparable"
+      },
+      "clubId": {
+        "checked": "Q44897",
+        "checkedOn": "2026-10-06",
+        "site": "transfermarkt",
+        "verdict": "agrees"
+      }
+    },
+    "Q134711363": {
+      "caps": {
+        "checked": 5,
+        "checkedOn": "2026-10-06",
+        "site": "national-football-teams",
+        "verdict": "agrees"
+      }
+    },
+    "Q134932034": {
+      "caps": {
+        "checked": 6,
+        "checkedOn": "2026-10-06",
+        "site": "national-football-teams",
+        "verdict": "agrees"
+      }
+    },
+    "Q135299465": {
+      "clubId": {
+        "checked": "Q1102938",
+        "checkedOn": "2026-10-06",
+        "site": "transfermarkt",
+        "verdict": "agrees"
+      }
+    },
+    "Q135526387": {
+      "clubId": {
+        "checked": "Q75407",
+        "checkedOn": "2026-10-06",
+        "site": "transfermarkt",
+        "verdict": "differs"
+      }
+    },
+    "Q136092007": {
+      "caps": {
+        "checked": 4,
+        "checkedOn": "2026-10-06",
+        "reason": "site-older",
+        "site": "national-football-teams",
+        "verdict": "not-comparable"
+      }
+    },
+    "Q137970986": {
+      "clubId": {
+        "checked": "Q1102938",
+        "checkedOn": "2026-10-06",
+        "site": "transfermarkt",
+        "verdict": "agrees"
+      }
+    },
+    "Q139815184": {
+      "caps": {
+        "checked": 1,
+        "checkedOn": "2026-10-06",
+        "site": "national-football-teams",
+        "verdict": "agrees"
+      },
+      "clubId": {
+        "checked": "Q290540",
+        "checkedOn": "2026-10-06",
+        "site": "transfermarkt",
+        "verdict": "agrees"
+      }
+    },
+    "Q139815346": {
+      "caps": {
+        "checked": 4,
+        "checkedOn": "2026-10-06",
+        "site": "national-football-teams",
+        "verdict": "agrees"
+      },
+      "clubId": {
+        "checked": "Q1102938",
+        "checkedOn": "2026-10-06",
+        "site": "transfermarkt",
+        "verdict": "agrees"
+      }
+    },
+    "Q139816192": {
+      "clubId": {
+        "checked": "Q44897",
+        "checkedOn": "2026-10-06",
+        "site": "transfermarkt",
+        "verdict": "agrees"
+      }
+    },
+    "Q139853855": {
+      "clubId": {
+        "checked": "Q1102938",
+        "checkedOn": "2026-10-06",
+        "site": "transfermarkt",
+        "verdict": "agrees"
+      }
+    },
+    "Q141130531": {
+      "clubId": {
+        "checked": "Q1102938",
+        "checkedOn": "2026-10-06",
+        "site": "transfermarkt",
+        "verdict": "agrees"
+      }
+    },
+    "Q141131522": {
+      "clubId": {
+        "checked": "Q1102938",
+        "checkedOn": "2026-10-06",
+        "site": "transfermarkt",
+        "verdict": "agrees"
+      }
+    },
+    "Q141159171": {
+      "clubId": {
+        "checked": "Q44897",
+        "checkedOn": "2026-10-06",
+        "site": "transfermarkt",
+        "verdict": "agrees"
+      }
+    },
+    "Q141391810": {
+      "clubId": {
+        "checked": "Q1102938",
+        "checkedOn": "2026-10-06",
+        "site": "transfermarkt",
+        "verdict": "agrees"
+      }
+    },
+    "Q141442304": {
+      "clubId": {
+        "checked": "Q1024482",
+        "checkedOn": "2026-10-06",
+        "site": "transfermarkt",
+        "verdict": "agrees"
+      }
+    }
+  },
+  "version": 1
+}

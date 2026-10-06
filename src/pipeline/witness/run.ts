@@ -356,7 +356,7 @@ export async function runWeekly(input: CheckInput): Promise<CheckResult> {
       const due = country.players.filter(
         (p) =>
           wanted.has(p.id) &&
-          (state.nft[p.id]?.careerFifa === undefined ||
+          (state.nft[p.id]?.careerA === undefined ||
             state.nft[p.id]?.yearMatches !== (p.fifaMatches ?? undefined)),
       );
       const room =
@@ -373,8 +373,8 @@ export async function runWeekly(input: CheckInput): Promise<CheckResult> {
           page,
         );
         state.nft[p.id] = {
+          ...careerOf(parsePlayerPage(page)),
           path: p.path,
-          careerFifa: parsePlayerPage(page).careerFifa ?? undefined,
           yearMatches: p.fifaMatches ?? undefined,
           readOn: input.today,
         };
@@ -384,27 +384,140 @@ export async function runWeekly(input: CheckInput): Promise<CheckResult> {
   );
   if (nft) stopped["national-football-teams"] = nft;
   const country = read.country;
-  if (country) {
-    // A career read earlier still holds today when the country page, read
-    // today, shows no match of his since: same count this year, or absent.
-    const careers = new Map<string, number | null>();
-    for (const [id, s] of Object.entries(state.nft)) {
-      const row = country.players.find((p) => p.id === id);
-      const current =
-        !row ||
-        (s.yearMatches !== undefined &&
-          s.yearMatches === (row.fifaMatches ?? undefined));
-      if (s.careerFifa !== undefined && current) careers.set(id, s.careerFifa);
+  if (country)
+    tallies["national-football-teams"] = judgeCaps(
+      state,
+      country,
+      ours,
+      input.mapping,
+      input.today,
+    );
+  return finish(input, tallies, stopped);
+}
+
+/** What the private state keeps of a player page (fix round 3). */
+function careerOf(page: ReturnType<typeof parsePlayerPage>) {
+  return {
+    careerA: page.careerA ?? undefined,
+    careerFifa: page.careerFifa ?? undefined,
+    latestMatch: page.latestMatch ?? undefined,
+  };
+}
+
+/**
+ * Caps verdicts from the state and a country page. A career read earlier
+ * still holds when the country page shows no match of his since: same
+ * count this year, or absent from it.
+ */
+function judgeCaps(
+  state: WitnessState,
+  country: NftCountryPage,
+  ours: ReturnType<typeof published>,
+  mapping: Mapping,
+  today: string,
+): Tally {
+  const careers = new Map<string, number | null>();
+  const siteAsOf = new Map<string, string | null>();
+  for (const [id, s] of Object.entries(state.nft)) {
+    const row = country.players.find((p) => p.id === id);
+    const current =
+      !row ||
+      (s.yearMatches !== undefined &&
+        s.yearMatches === (row.fifaMatches ?? undefined));
+    if (s.careerA !== undefined && current) {
+      careers.set(id, s.careerA);
+      siteAsOf.set(id, s.latestMatch ?? null);
     }
-    tallies["national-football-teams"] = capsVerdicts({
+  }
+  return capsVerdicts({
+    players: ours,
+    mapping,
+    careers,
+    latestMatch: latestFifaMatch(country),
+    siteAsOf,
+    lastUpdate: country.lastUpdate,
+    today,
+  });
+}
+
+/**
+ * Fix round 3, `--rejudge`: every verdict made again from the pages already
+ * in the private folder, with no client at all (no request is possible).
+ * Transfermarkt from the saved league and squad pages; national-football-
+ * teams from the newest saved country page and the saved player pages,
+ * whose counts refresh the private state. Each verdict is dated by the day
+ * its pages were saved. The re-derived site's verdicts replace its old ones
+ * in data/witness.json; the rest stay.
+ */
+export async function runRejudge(
+  input: Omit<CheckInput, "sites" | "signal">,
+): Promise<CheckResult> {
+  const ours = published(input.pool);
+  const state = await input.store.readState();
+  const tallies: Partial<Record<SiteName, Tally>> = {};
+
+  const tmPages = await input.store.readPagesNamed("transfermarkt", "");
+  const league = tmPages.find((p) => p.name === "league");
+  if (league) {
+    const leagueIds = new Set(parseLeague(league.text).map((c) => c.id));
+    const squads = new Map<string, Set<string>>();
+    const loans = new Set<string>();
+    for (const page of tmPages) {
+      const id = /^squad-(\d+)$/.exec(page.name)?.[1];
+      if (!id || !leagueIds.has(id)) continue;
+      const players = parseSquad(page.text);
+      squads.set(id, new Set(players.map((p) => p.id)));
+      for (const p of players) if (p.loan) loans.add(p.id);
+    }
+    tallies.transfermarkt = clubVerdicts({
       players: ours,
       mapping: input.mapping,
-      careers,
-      latestMatch: latestFifaMatch(country),
-      today: input.today,
+      squads,
+      ligue1: new Set(
+        input.pool.clubs.filter((c) => c.ligue1).map((c) => c.wikidataId),
+      ),
+      leagueIds,
+      loans,
+      today: league.savedOn,
     });
   }
-  return finish(input, tallies, stopped);
+
+  const nftPages = await input.store.readPagesNamed(
+    "national-football-teams",
+    "",
+  );
+  const country = nftPages
+    .filter((p) => /^country-\d{4}$/.test(p.name))
+    .sort((a, b) => b.name.localeCompare(a.name))[0];
+  for (const page of nftPages) {
+    const id = /^player-(\d+)$/.exec(page.name)?.[1];
+    if (!id) continue;
+    state.nft[id] = {
+      ...state.nft[id],
+      ...careerOf(parsePlayerPage(page.text)),
+    };
+  }
+  await input.store.writeState(state);
+  if (country)
+    tallies["national-football-teams"] = judgeCaps(
+      state,
+      parseCountryPage(country.text),
+      ours,
+      input.mapping,
+      country.savedOn,
+    );
+
+  // The re-derived sites' verdicts replace their old ones.
+  const cleared: WitnessFile = { version: 1, checks: {} };
+  for (const [qid, fields] of Object.entries(input.witness.checks)) {
+    const kept = Object.fromEntries(
+      Object.entries(fields).filter(
+        ([, v]) => !(v && tallies[v.site] !== undefined),
+      ),
+    );
+    if (Object.keys(kept).length > 0) cleared.checks[qid] = kept;
+  }
+  return finish({ ...input, sites: {}, witness: cleared }, tallies, {});
 }
 
 /**
@@ -458,7 +571,7 @@ export async function runBackfill(
         );
         state.nft[id] = {
           ...state.nft[id],
-          careerFifa: parsePlayerPage(page).careerFifa ?? undefined,
+          ...careerOf(parsePlayerPage(page)),
           readOn: input.today,
         };
         state.backfill.done[id] = input.today;

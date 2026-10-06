@@ -1,4 +1,11 @@
-import { mkdir, readdir, readFile, rename, writeFile } from "node:fs/promises";
+import {
+  mkdir,
+  readdir,
+  readFile,
+  rename,
+  stat,
+  writeFile,
+} from "node:fs/promises";
 import path from "node:path";
 import { insideRepo, witnessDir } from "./safety.ts";
 
@@ -14,8 +21,12 @@ export type WitnessState = {
   nft: Record<
     string,
     {
-      /** Career FIFA matches from his player page. */
+      /** Career FIFA matches from his player page (kept for later; not compared). */
       careerFifa?: number;
+      /** Fix round 3: FIFA and non-FIFA A matches together, the count compared. */
+      careerA?: number;
+      /** The newest match his player page lists. */
+      latestMatch?: string;
       /** FIFA matches this year from the country page, when his page was read. */
       yearMatches?: number;
       /** The day his page was read. */
@@ -45,6 +56,11 @@ export type Store = {
   ): Promise<string>;
   /** The saved pages of a site whose name starts with `prefix`, oldest name first. */
   readPages(site: string, prefix: string): Promise<string[]>;
+  /** The same, with each file's name (no extension) and the day it was saved. */
+  readPagesNamed(
+    site: string,
+    prefix: string,
+  ): Promise<{ name: string; text: string; savedOn: string }[]>;
   readJson<T>(name: string): Promise<T | null>;
   writeJson(name: string, value: unknown): Promise<void>;
   readState(): Promise<WitnessState>;
@@ -92,6 +108,22 @@ export async function openStore(input: {
           .filter((n) => n.startsWith(prefix) && n.endsWith(".html"))
           .sort()
           .map((n) => readFile(path.join(folder, n), "utf8")),
+      );
+    },
+    async readPagesNamed(site, prefix) {
+      const folder = path.join(dir, "pages", safeName(site));
+      const names = await readdir(folder).catch(() => [] as string[]);
+      return Promise.all(
+        names
+          .filter((n) => n.startsWith(prefix) && n.endsWith(".html"))
+          .sort()
+          .map(async (n) => ({
+            name: n.replace(/\.html$/, ""),
+            text: await readFile(path.join(folder, n), "utf8"),
+            savedOn: (await stat(path.join(folder, n))).mtime
+              .toISOString()
+              .slice(0, 10),
+          })),
       );
     },
     async readJson<T>(name: string) {

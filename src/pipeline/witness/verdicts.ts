@@ -25,8 +25,13 @@ export type WitnessCheck = {
   verdict: Verdict;
   /** OUR published value at check time: the club's Wikidata id (or null for none), or the caps. */
   checked: string | number | null;
-  /** Caps "differs" only: our count dates on or after the site's latest A match (same-date), or has no date (older). */
-  reason?: "same-date" | "older";
+  /**
+   * Caps only. "differs": our count dates on or after the site's latest A
+   * match (same-date), or has no date (older). "not-comparable": the site
+   * is one match behind and was last updated before our count's date
+   * (site-older, fix round 3).
+   */
+  reason?: "same-date" | "older" | "site-older";
 };
 
 /** data/witness.json */
@@ -130,15 +135,29 @@ export function clubVerdicts(input: {
 }
 
 /**
- * Caps verdicts from national-football-teams.com (S19). `careers` holds,
- * per site player id, the career FIFA count of his page (null: the page
- * is missing). `latestMatch` is the newest A match on the country page.
+ * Caps verdicts from national-football-teams.com (S19, refined by the
+ * controller on 6 October 2026, fix round 3). `careers` holds, per site
+ * player id, his senior A matches on the site, FIFA and non-FIFA together
+ * (Wikipedia's caps count every A match; null: the page is missing).
+ * `latestMatch` is the newest A match on the country page.
+ * - equal: agrees;
+ * - ours higher by exactly one, and the site was last updated before our
+ *   count's date (his page's newest match, else the country page's "Last
+ *   update"): not-comparable, reason site-older (the site has not yet
+ *   added his latest match);
+ * - Tunisia played after our count's date: not-comparable;
+ * - otherwise: differs (same-date, or older when our count has no date).
+ * The site's number is never stored or printed.
  */
 export function capsVerdicts(input: {
   players: { qid: string; caps: number; capsAsOf: string | null }[];
   mapping: Mapping;
   careers: Map<string, number | null>;
   latestMatch: string | null;
+  /** Per site player id: the newest match his page lists. */
+  siteAsOf?: Map<string, string | null>;
+  /** The country page's "Last update", ISO. */
+  lastUpdate?: string | null;
   today: string;
 }): Tally {
   const tally: Tally = { checks: [], noId: 0, unjudged: 0 };
@@ -159,8 +178,17 @@ export function capsVerdicts(input: {
       verdict: "agrees",
       checked: p.caps,
     };
+    const siteDate = input.siteAsOf?.get(id) ?? input.lastUpdate ?? null;
     if (theirs === null) check.verdict = "not-found";
-    else if (theirs !== p.caps) {
+    else if (
+      p.caps === theirs + 1 &&
+      p.capsAsOf !== null &&
+      siteDate !== null &&
+      siteDate < p.capsAsOf
+    ) {
+      check.verdict = "not-comparable";
+      check.reason = "site-older";
+    } else if (theirs !== p.caps) {
       if (
         p.capsAsOf !== null &&
         input.latestMatch !== null &&
@@ -264,10 +292,21 @@ export function validateWitness(json: unknown): string[] {
       )
         errors.push(`${at}: checked must be our caps, a whole number`);
       if (v.reason !== undefined) {
-        if (field !== "caps" || v.verdict !== "differs")
-          errors.push(`${at}: a reason goes only with a caps "differs"`);
-        else if (v.reason !== "same-date" && v.reason !== "older")
-          errors.push(`${at}: reason must be same-date or older`);
+        if (
+          field !== "caps" ||
+          (v.verdict !== "differs" && v.verdict !== "not-comparable")
+        )
+          errors.push(
+            `${at}: a reason goes only with a caps "differs" or "not-comparable"`,
+          );
+        else if (
+          v.verdict === "differs" &&
+          v.reason !== "same-date" &&
+          v.reason !== "older"
+        )
+          errors.push(`${at}: a "differs" reason must be same-date or older`);
+        else if (v.verdict === "not-comparable" && v.reason !== "site-older")
+          errors.push(`${at}: a "not-comparable" reason must be site-older`);
       }
     }
   }

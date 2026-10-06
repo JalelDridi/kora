@@ -10,6 +10,7 @@ import {
   knownPlayerPaths,
   playerPath,
   runBackfill,
+  runRejudge,
   runSample,
   runWeekly,
 } from "./run.ts";
@@ -195,7 +196,7 @@ const poolPlayer = (
 const pool: Pool = {
   version: 1,
   players: [
-    poolPlayer("Q1", { clubId: "our-club", caps: 21, capsAsOf: "2026-09-28" }),
+    poolPlayer("Q1", { clubId: "our-club", caps: 23, capsAsOf: "2026-09-28" }),
     poolPlayer("Q2", {
       caps: 5,
       provenance: {
@@ -290,7 +291,12 @@ describe("the weekly run (B8)", () => {
     await store.writeState({
       version: 1,
       nft: {
-        "800001": { careerFifa: 21, yearMatches: 7, readOn: "2026-09-28" },
+        "800001": {
+          careerA: 23,
+          careerFifa: 21,
+          yearMatches: 7,
+          readOn: "2026-09-28",
+        },
       },
       backfill: { done: {} },
     });
@@ -327,7 +333,7 @@ describe("the weekly run (B8)", () => {
         site: "national-football-teams",
         checkedOn: "2026-10-05",
         verdict: "agrees",
-        checked: 21,
+        checked: 23,
       },
     });
     // Sami: listed by a Ligue 1 page while we give him no club, but his row
@@ -343,7 +349,9 @@ describe("the weekly run (B8)", () => {
     expect(file.checks.Q3).toBeUndefined();
     expect((await store.readState()).nft["800002"]).toEqual({
       path: "/player/800002/Sami_Exemple.html",
+      careerA: 23,
       careerFifa: 21,
+      latestMatch: "2026-09-20",
       yearMatches: 3,
       readOn: "2026-10-05",
     });
@@ -438,7 +446,9 @@ describe("the backfill (B8)", () => {
       "800003": "2026-10-05",
     });
     expect(state.nft["800003"]).toEqual({
+      careerA: 23,
       careerFifa: 21,
+      latestMatch: "2026-09-20",
       readOn: "2026-10-05",
     });
     // No verdict: the next weekly run makes them, with the latest match.
@@ -594,5 +604,108 @@ describe("backfill links (fix round 2)", () => {
     const state = await store.readState();
     expect(state.nft["800001"].path).toBe("/player/800001/Ali_Invente.html");
     expect(state.nft["800002"].path).toBe("/player/800002/Sami_Exemple.html");
+  });
+});
+
+describe("--rejudge (fix round 3)", () => {
+  it("re-derives every verdict from the saved pages, with no client at all, and replaces the old ones", async () => {
+    const store = await tempStore();
+    await store.savePage(
+      "transfermarkt",
+      "league",
+      await fixture("tm-league.html"),
+    );
+    await store.savePage(
+      "transfermarkt",
+      "squad-90001",
+      await fixture("tm-squad.html"),
+    );
+    await store.savePage(
+      "national-football-teams",
+      "country-2026",
+      await fixture("nft-country.html"),
+    );
+    for (const id of ["800001", "800002"])
+      await store.savePage(
+        "national-football-teams",
+        `player-${id}`,
+        await fixture("nft-player.html"),
+      );
+    // An earlier run compared FIFA matches only (21) and stored a
+    // differs; the rejudge compares A matches (23) and agrees.
+    await store.writeState({
+      version: 1,
+      nft: {
+        "800001": { careerFifa: 21, yearMatches: 7 },
+        "800002": { careerFifa: 21, yearMatches: 3 },
+      },
+      backfill: { done: {} },
+    });
+    const savedOn = new Date().toISOString().slice(0, 10);
+    const old = mergeChecks(emptyWitness(), [
+      {
+        qid: "Q1",
+        field: "caps",
+        check: {
+          site: "national-football-teams",
+          checkedOn: savedOn,
+          verdict: "differs",
+          reason: "same-date",
+          checked: 23,
+        },
+      },
+      {
+        qid: "Q9",
+        field: "clubId",
+        check: {
+          site: "transfermarkt",
+          checkedOn: savedOn,
+          verdict: "agrees",
+          checked: "Q900",
+        },
+      },
+    ]);
+    const written: string[] = [];
+    const lines: string[] = [];
+    const result = await runRejudge({
+      store,
+      log: (l) => lines.push(l),
+      today: "2026-10-06",
+      pool,
+      mapping,
+      witness: old,
+      writeWitness: async (t) => {
+        written.push(t);
+      },
+    });
+    expect(result.stopped).toEqual({});
+    const file = JSON.parse(written[0]) as WitnessFile;
+    expect(file.checks.Q1).toEqual({
+      clubId: {
+        site: "transfermarkt",
+        checkedOn: savedOn,
+        verdict: "agrees",
+        checked: "Q900",
+      },
+      caps: {
+        site: "national-football-teams",
+        checkedOn: savedOn,
+        verdict: "agrees",
+        checked: 23,
+      },
+    });
+    // The old verdict for a footballer the pages no longer judge is gone.
+    expect(file.checks.Q9).toBeUndefined();
+    expect(validateWitness(file)).toEqual([]);
+    expect(lines).toContain(
+      "national-football-teams: 2 verdicts (1 agree, 1 differ, 0 not found, 0 not comparable); 0 footballers without an id, 1 not judged",
+    );
+    expect(lines.join("\n")).not.toMatch(/Inventé|Invented FC|Exemple/);
+    // The state now holds the A matches, read from the saved pages.
+    expect((await store.readState()).nft["800001"]).toMatchObject({
+      careerA: 23,
+      careerFifa: 21,
+      latestMatch: "2026-09-20",
+    });
   });
 });
