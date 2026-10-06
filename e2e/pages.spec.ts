@@ -6,12 +6,18 @@ import fr from "../messages/fr.json";
 import { localeInfo, locales } from "../src/i18n/locales";
 import { photoCredits } from "../src/sources";
 import { footballer, pool } from "./chkoun-helpers";
-import { seedChkoun } from "./fixtures/chkoun";
+import { type ChkounFixture, seedChkoun } from "./fixtures/chkoun";
 
 // The Sources page and the privacy draft (plan Task 14), and the footer that
 // links to them from every page.
 
 const messages = { "ar-TN": arTN, "ar-Latn-TN": arLatnTN, fr };
+
+// Seeded before any page asks the server for today's puzzle.
+let fixture: ChkounFixture;
+test.beforeAll(async () => {
+  fixture = await seedChkoun();
+});
 
 for (const locale of locales) {
   const { prefix, dir } = localeInfo[locale];
@@ -105,7 +111,6 @@ test("/fr/sources credits every copied photo, one row each, changes 'none'", asy
 });
 
 test("the photo of a played answer has a row on /sources", async ({ page }) => {
-  const fixture = await seedChkoun();
   const answer = footballer(fixture.answers[0]);
   test.skip(
     !answer.photo?.path,
