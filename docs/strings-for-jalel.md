@@ -4,7 +4,7 @@ Every key added by the game page, the result, the Sources page, the privacy draf
 
 - **DRAFT**: drafted by Claude (an AI), modelled on the existing Derja strings, not run through a translation tool and with no Modern Standard Arabic on purpose, but not checked by a Derja speaker. They may ship for the soft launch (P13); Jalel rewrites or approves each one.
 - **French placeholder (needs Jalel)**: the long texts of the Sources and privacy pages carry the French draft in all three files, so the pages work; the Derja versions are his to write (legal-ish text, too risky to draft). The paragraphs use `dir="auto"`, so French reads left to right on `/ar` until then.
-- **Blocking**: the country names in `ar-TN` and `ar-Latn-TN` (last table). They must be his before the pull request merges (plan, Strings for Jalel). They live in `messages/countries/ar-TN.json` and `messages/countries/ar-Latn-TN.json` and carry the French name as a placeholder today. French needs no file: it comes from `Intl.DisplayNames`.
+- **Country names**: written on 6 October 2026 from Wikidata's Tunisian-Arabic (`aeb`) labels, as Jalel asked ("you can search for them surely"); he corrects any he dislikes. The doubtful ones are marked in the last table.
 
 Where to edit: `messages/ar-TN.json`, `messages/ar-Latn-TN.json`, `messages/fr.json` (and the two country files). Keep `{n}`, `{name}`, `{time}`, `{country}`, `{author}`, `{licence}` as they are; Western digits only; the tests check every key exists in every locale.
 
@@ -144,51 +144,53 @@ The French draft below is also what `ar-TN` and `ar-Latn-TN` ship today.
 | `privacy.contact.title`     | Contact                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   | Contact                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         | French: DRAFT. Derja: French placeholder, needs Jalel |
 | `privacy.contact.body`      | A question about this page? Write to us on GitHub                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         | Une question sur cette page ? Écris-nous sur GitHub.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            | French: DRAFT. Derja: French placeholder, needs Jalel |
 
-## Country names (blocking in both Derja locales)
+## Country names (written from Wikidata's Tunisian-Arabic labels, to be approved)
 
-Every country the game can show today: the current clubs' countries and the birth countries abroad of the active footballers, read from `data/pool.json` by `src/i18n/countries.test.ts` (it fails when a new code appears without a name). Fill in the two Derja columns; the French column is what `/fr` shows (from `Intl.DisplayNames`), and the two Derja files carry it as a placeholder until then.
+Every country the game can show today: the current clubs' countries and the birth countries abroad of the active footballers, read from `data/pool.json` by `src/i18n/countries.test.ts` (it fails when a new code appears without a name). Check the two Derja columns; the French column is what `/fr` shows (from `Intl.DisplayNames`); the two Derja files hold the drafts below.
 
-| Code | English              | French (`/fr`, and the placeholder) | `ar-TN` (Arabic script) | `ar-Latn-TN` (Arabizi) |
-| ---- | -------------------- | ----------------------------------- | ----------------------- | ---------------------- |
-| AE   | United Arab Emirates | Émirats arabes unis                 |                         |                        |
-| BE   | Belgium              | Belgique                            |                         |                        |
-| BG   | Bulgaria             | Bulgarie                            |                         |                        |
-| BH   | Bahrain              | Bahreïn                             |                         |                        |
-| CA   | Canada               | Canada                              |                         |                        |
-| CH   | Switzerland          | Suisse                              |                         |                        |
-| CN   | China                | Chine                               |                         |                        |
-| CY   | Cyprus               | Chypre                              |                         |                        |
-| DE   | Germany              | Allemagne                           |                         |                        |
-| DK   | Denmark              | Danemark                            |                         |                        |
-| DZ   | Algeria              | Algérie                             |                         |                        |
-| EG   | Egypt                | Égypte                              |                         |                        |
-| ES   | Spain                | Espagne                             |                         |                        |
-| FI   | Finland              | Finlande                            |                         |                        |
-| FR   | France               | France                              |                         |                        |
-| GB   | United Kingdom       | Royaume-Uni                         |                         |                        |
-| HR   | Croatia              | Croatie                             |                         |                        |
-| IQ   | Iraq                 | Irak                                |                         |                        |
-| IR   | Iran                 | Iran                                |                         |                        |
-| IT   | Italy                | Italie                              |                         |                        |
-| JO   | Jordan               | Jordanie                            |                         |                        |
-| JP   | Japan                | Japon                               |                         |                        |
-| KW   | Kuwait               | Koweït                              |                         |                        |
-| LU   | Luxembourg           | Luxembourg                          |                         |                        |
-| LV   | Latvia               | Lettonie                            |                         |                        |
-| LY   | Libya                | Libye                               |                         |                        |
-| MA   | Morocco              | Maroc                               |                         |                        |
-| MR   | Mauritania           | Mauritanie                          |                         |                        |
-| NO   | Norway               | Norvège                             |                         |                        |
-| PL   | Poland               | Pologne                             |                         |                        |
-| PT   | Portugal             | Portugal                            |                         |                        |
-| QA   | Qatar                | Qatar                               |                         |                        |
-| SA   | Saudi Arabia         | Arabie saoudite                     |                         |                        |
-| SE   | Sweden               | Suède                               |                         |                        |
-| TN   | Tunisia              | Tunisie                             |                         |                        |
-| TR   | Türkiye              | Turquie                             |                         |                        |
-| UA   | Ukraine              | Ukraine                             |                         |                        |
-| US   | United States        | États-Unis                          |                         |                        |
-| UZ   | Uzbekistan           | Ouzbékistan                         |                         |                        |
+| Code | English              | French (`/fr`)      | `ar-TN` (Arabic script) | `ar-Latn-TN` (Arabizi) |
+| ---- | -------------------- | ------------------- | ----------------------- | ---------------------- |
+| AE   | United Arab Emirates | Émirats arabes unis | الإمارات                | Emarat                 |
+| BE   | Belgium              | Belgique            | بلجيكيا                 | Beljikia               |
+| BG   | Bulgaria             | Bulgarie            | بلغاريا                 | Boulgharia             |
+| BH   | Bahrain              | Bahreïn             | البحرين                 | Ba7rayn                |
+| CA   | Canada               | Canada              | كندا                    | Canada                 |
+| CH   | Switzerland          | Suisse              | سويسرا                  | Swisra                 |
+| CN   | China                | Chine               | الصين                   | Chine                  |
+| CY   | Cyprus               | Chypre              | قبرص                    | 9obros                 |
+| DE   | Germany              | Allemagne           | ألمانيا                 | Almania                |
+| DK   | Denmark              | Danemark            | الدنمارك                | Danmark                |
+| DZ   | Algeria              | Algérie             | الدزاير                 | Dzayer                 |
+| EG   | Egypt                | Égypte              | مصر                     | Masr                   |
+| ES   | Spain                | Espagne             | إسبانيا                 | Sbanya                 |
+| FI   | Finland              | Finlande            | فنلندا                  | Finlanda               |
+| FR   | France               | France              | فرانسا                  | Fransa                 |
+| GB   | United Kingdom       | Royaume-Uni         | بريطانيا                | Britania               |
+| HR   | Croatia              | Croatie             | كرواتيا                 | Kroatia                |
+| IQ   | Iraq                 | Irak                | العراق                  | 3ira9                  |
+| IR   | Iran                 | Iran                | إيران                   | Iran                   |
+| IT   | Italy                | Italie              | إيطاليا                 | Italia                 |
+| JO   | Jordan               | Jordanie            | الأردن                  | Ordon                  |
+| JP   | Japan                | Japon               | اليابان                 | Yaben                  |
+| KW   | Kuwait               | Koweït              | الكويت                  | Kuwait                 |
+| LU   | Luxembourg           | Luxembourg          | لوكسمبورڨ               | Luxembourg             |
+| LV   | Latvia               | Lettonie            | لاتفيا                  | Latvia                 |
+| LY   | Libya                | Libye               | ليبيا                   | Libya                  |
+| MA   | Morocco              | Maroc               | المغرب                  | Maghreb                |
+| MR   | Mauritania           | Mauritanie          | موريتانيا               | Mouritania             |
+| NO   | Norway               | Norvège             | النرويج                 | Norvège                |
+| PL   | Poland               | Pologne             | بولونيا                 | Polonia                |
+| PT   | Portugal             | Portugal            | البرتڨال                | Portugal               |
+| QA   | Qatar                | Qatar               | قطر                     | 9atar                  |
+| SA   | Saudi Arabia         | Arabie saoudite     | السعودية                | Saoudia                |
+| SE   | Sweden               | Suède               | السويد                  | Swid                   |
+| TN   | Tunisia              | Tunisie             | تونس                    | Tounes                 |
+| TR   | Türkiye              | Turquie             | تركيا                   | Tourkia                |
+| UA   | Ukraine              | Ukraine             | أوكرانيا                | Oukrania               |
+| US   | United States        | États-Unis          | أمريكيا                 | Amrikia                |
+| UZ   | Uzbekistan           | Ouzbékistan         | أوزباكستان              | Ouzbakistan            |
+
+Sources (Wikidata, 6 Oct 2026): the Arabic script is Wikidata's `aeb-arab` (Tunisian Arabic) label for every code except these, which are our own choice: AE and SA shortened to the everyday form (the label is the full official name), GB بريطانيا (the label is the formal المملكة الموحّدة; انقلترا is the other option), PL and LV with ب and ف for the label's پ and ڥ. No code needed the `ar` fallback. The Arabizi follows Wikidata's `aeb-latn` label for DZ, FR and TN; the rest is our transliteration, with the French name kept where that is what is said (Canada, Chine, Luxembourg, Norvège, Portugal). Doubtful: GB, BE (بلجيكيا; بلجيكا is the standard form), LU and PT (written with ڨ), US (أمريكيا; أمريكا is the standard form), CN, JP, SE, NO in Arabizi.
 
 Existing strings now used in new places (no new wording): `games.chkoun.name` (page heading, preview images `public/og/chkoun-*-v1.png`, share header draft); `notFound.home` (the link back to the games on the game, Sources and privacy pages); `hub.language` (the language switcher on those pages, which now keeps the page); `hub.tagline` (the preview image alt text on Sources and privacy). If `games.chkoun.name` changes, re-render the previews with `pnpm images games` and bump `shareImageVersion` in `src/share.ts`.
 
@@ -196,7 +198,7 @@ Existing strings now used in new places (no new wording): `games.chkoun.name` (p
 
 The game page is reachable by its URL but hidden until all of these are done, in this order:
 
-1. **Strings in.** Jalel's Derja for every DRAFT key above, and the 39 country names in `messages/countries/ar-TN.json` and `messages/countries/ar-Latn-TN.json` (blocking).
+1. **Strings in.** Done on 6 October 2026 with Claude's Derja drafts and the 39 country names from Wikidata's `aeb` labels; Jalel corrects wording whenever he likes, no release waits on it.
 2. **Privacy settings on before any key is set.** In PostHog, turn on "Discard client IP data" in the project settings before `NEXT_PUBLIC_POSTHOG_KEY` is set in Vercel (the privacy draft says PostHog does not store the address). In Sentry, turn on "Prevent Storing of IP Addresses" before `SENTRY_DSN` is set.
 3. **Flip the switch.** `live: true` on Chkoun? in `src/games.ts`. This one change makes the hub card open the game, drops the page's `noindex` and adds it to the sitemap. The browser tests read the switch and check all three.
 4. **Restore the full SEO check.** In `lighthouserc.json`, replace the `/chkoun$` entry's per-audit SEO list with `"categories:seo": ["error", { "minScore": 0.95 }]`, like the hubs. It was split only because `noindex` fails `is-crawlable` on purpose.
