@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { defaultLocale, isLocale, localeInfo, locales } from "@/i18n/locales";
 import { webAnalyticsEnabled } from "@/analytics/web-analytics";
+import { SiteFooter } from "@/components/site-footer";
 import {
   alternateOpenGraphLocales,
   openGraphLocale,
@@ -88,6 +89,7 @@ export default async function LocaleLayout({
   const { locale } = await params;
   if (!isLocale(locale)) notFound();
   setRequestLocale(locale);
+  const t = await getTranslations({ locale, namespace: "footer" });
 
   return (
     <html
@@ -97,6 +99,14 @@ export default async function LocaleLayout({
     >
       <body className="font-sans antialiased">
         {children}
+        <SiteFooter
+          prefix={localeInfo[locale].prefix}
+          strings={{
+            unofficial: t("unofficial"),
+            sources: t("sources"),
+            privacy: t("privacy"),
+          }}
+        />
         {webAnalyticsEnabled(process.env.VERCEL) ? <Analytics /> : null}
       </body>
     </html>
