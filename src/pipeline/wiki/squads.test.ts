@@ -100,6 +100,33 @@ describe("parseSquadList: English club lists", () => {
     expect(list.rows.find((r) => r.part === "loan")).toBeDefined();
   });
 
+  it("reads {{Football squad player}}, the template {{Fs player}} redirects to, and never a retired-numbers list", () => {
+    const list = parseSquadList({
+      lang: "en",
+      page: "Some Club",
+      kind: "club",
+      today: TODAY,
+      wikitext: [
+        "==Players==",
+        "===Current squad===",
+        "{{updated|1 October 2026}}",
+        "{{Football squad start}}",
+        "{{Football squad player|no=1|nat=TUN|pos=GK|name=[[Amenallah Memmiche]]}}",
+        "{{fs player|no=2|nat=TUN|pos=DF|name=[[Mohamed Ben Ali]]}}",
+        "{{Football squad end}}",
+        "===Retired numbers===",
+        "{{football squad start}}",
+        "{{football squad player|no=5|pos=DF|nat=TUN|name=[[Hédi Berkhissa]]}}",
+        "{{football squad end}}",
+      ].join("\n"),
+    });
+    expect(list.status).toBe("current");
+    expect(list.rows.map((r) => [r.link, r.number, r.part])).toEqual([
+      ["Amenallah Memmiche", 1, "squad"],
+      ["Mohamed Ben Ali", 2, "squad"],
+    ]);
+  });
+
   it("keeps a row's link target, label, nat, pos and number; plain-text names have no link", () => {
     const list = en("esperance-squad", "Espérance Sportive de Tunis");
     expect(list.rows.find((r) => r.link === "Hadj Mahmoud")).toEqual({

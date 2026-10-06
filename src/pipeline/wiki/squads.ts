@@ -155,7 +155,10 @@ function englishClub(
     parts.push([body(text, all, i), part]);
   }
   const rows = parts.flatMap(([section, part]) =>
-    findTemplates(section, /^fs player$/i).map((b) =>
+    // {{Fs player}} and the template it redirects to, {{Football squad
+    // player}} (squad-lists review, L6). {{Football squad2 player}} appears
+    // only in the navbox templates of the recorded answers, never in a list.
+    findTemplates(section, /^(?:fs player|football squad player)$/i).map((b) =>
       enRow(splitParams(b), part),
     ),
   );
