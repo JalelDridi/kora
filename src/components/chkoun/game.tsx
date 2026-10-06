@@ -24,6 +24,7 @@ import { Countdown } from "./countdown";
 import { Legend } from "./legend";
 import { Result } from "./result";
 import { ShareButton } from "./share-button";
+import { Stats as StatsPanel } from "./stats";
 import { SearchBox } from "./search-box";
 import { TileHeaders, TileRow, type RowStrings } from "./tile-row";
 
@@ -97,6 +98,8 @@ export function Game({
   const [phase, setPhase] = useState<Phase>({ kind: "loading" });
   const [game, setGame] = useState<SavedGame | null>(null);
   const [stats, setStats] = useState<Stats | null>(null);
+  /** Where the record comes from: the server when it kept the game. */
+  const [statsStore, setStatsStore] = useState<Store>("device");
   const [notice, setNotice] = useState<Notice>(null);
   const [pending, setPending] = useState(false);
   /** Rows from this index on were guessed in this page view: they flip in. */
@@ -171,6 +174,7 @@ export function Game({
     }
     if (body.stats) saveStats(storage, body.stats);
     setStats(body.stats ?? loadStats(storage));
+    setStatsStore(body.stats ? "server" : "device");
     setGame(saved ?? fresh(today.number));
     setAnimateFrom(Infinity);
     setPhase({ kind: "open", today });
@@ -208,6 +212,7 @@ export function Game({
         status?: "playing" | "won" | "lost";
         card?: Card | null;
         stats?: Stats;
+        store?: Store;
         error?: string;
       };
       if (response.status === 409) {
@@ -236,6 +241,9 @@ export function Game({
             { n: game.n, solved: body.status === "won", guesses: rows.length },
             body.stats ?? null,
           ),
+        );
+        setStatsStore(
+          body.stats && body.store === "server" ? "server" : "device",
         );
       }
     } catch {
@@ -390,6 +398,9 @@ export function Game({
             })}
             strings={t.share}
           />
+          {stats ? (
+            <StatsPanel stats={stats} store={statsStore} strings={t.stats} />
+          ) : null}
         </Result>
       ) : null}
 

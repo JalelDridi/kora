@@ -193,3 +193,78 @@ test("with neither, Share offers a WhatsApp link and a long-press box", async ({
   );
   expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
 });
+
+const record = (page: Page, label: string) =>
+  page
+    .locator("#chkoun-stats ~ dl > div")
+    .filter({ has: page.getByRole("term").getByText(label, { exact: true }) })
+    .locator("dd");
+
+test("the streak is kept on the device, by puzzle number, and survives a reload", async ({
+  page,
+  request,
+}) => {
+  const { number } = await (await request.get("/api/chkoun/today")).json();
+  await page.addInitScript((n) => {
+    if (!localStorage.getItem("kora.chkoun.v1.stats"))
+      localStorage.setItem(
+        "kora.chkoun.v1.stats",
+        JSON.stringify({
+          last: n - 1,
+          lastSolved: true,
+          streak: 4,
+          best: 4,
+          played: 6,
+          won: 5,
+          dist: [0, 1, 2, 1, 1, 0, 0, 0],
+        }),
+      );
+  }, number);
+  await page.goto("/fr/chkoun");
+  await ready(page);
+  await win(page);
+  await expect(record(page, fr.chkoun.stats.streak)).toHaveText("5");
+  await expect(record(page, fr.chkoun.stats.best)).toHaveText("5");
+  await expect(record(page, fr.chkoun.stats.played)).toHaveText("7");
+  await expect(record(page, fr.chkoun.stats.winRate)).toHaveText("86%");
+  await expect(page.getByText(fr.chkoun.stats.onDevice)).toBeVisible();
+  await page.reload();
+  await expect(record(page, fr.chkoun.stats.streak)).toHaveText("5");
+  await expect(record(page, fr.chkoun.stats.played)).toHaveText("7");
+});
+
+test("the server's record replaces the device's when the server kept the game", async ({
+  page,
+}) => {
+  const server = {
+    last: 0,
+    lastSolved: true,
+    streak: 9,
+    best: 12,
+    played: 30,
+    won: 27,
+    dist: [1, 2, 3, 4, 5, 6, 3, 3],
+  };
+  await page.route("**/api/chkoun/guess", async (route) => {
+    const response = await route.fetch();
+    const body = await response.json();
+    if (body.status !== "playing") {
+      server.last = (
+        body.token
+          ? JSON.parse(
+              Buffer.from(body.token.split(".")[1], "base64url").toString(),
+            ).n
+          : 0
+      ) as number;
+      body.stats = server;
+      body.store = "server";
+    }
+    await route.fulfill({ response, json: body });
+  });
+  await page.goto("/fr/chkoun");
+  await ready(page);
+  await win(page);
+  await expect(record(page, fr.chkoun.stats.streak)).toHaveText("9");
+  await expect(record(page, fr.chkoun.stats.best)).toHaveText("12");
+  await expect(page.getByText(fr.chkoun.stats.onServer)).toBeVisible();
+});
