@@ -4,8 +4,10 @@ import {
   getTranslations,
   setRequestLocale,
 } from "next-intl/server";
-import { gamePageData } from "@/chkoun/page-data.server";
-import { Game, type GameStrings } from "@/components/chkoun/game";
+import type { GameStrings } from "@/components/chkoun/game";
+import { GameIsland } from "@/components/chkoun/game-island";
+import { Legend } from "@/components/chkoun/legend";
+import { GameShell } from "@/components/chkoun/shell";
 import { PageHeader } from "@/components/page-header";
 import { getGame } from "@/games";
 import { isLocale, localeInfo } from "@/i18n/locales";
@@ -13,11 +15,10 @@ import { pageMetadata } from "@/i18n/page-metadata";
 import { gameShareImagePath } from "@/share";
 import { site } from "@/site";
 
-// Chkoun? (plan Task 12): a static shell per locale. The page holds the
-// names a visitor may guess and the label tables, read from data/pool.json
-// at build time; it never reads the database or the puzzle, so the day's
-// answer appears here exactly as often as any other footballer. The game
-// itself asks /api/chkoun/today once it runs.
+// Chkoun? (plan Task 12): a static shell per locale. It never reads the
+// database or the puzzle. The names a visitor may guess and the label
+// tables are a static JSON file per locale (src/app/chkoun-data), fetched
+// after the first paint; the game asks /api/chkoun/today once it runs.
 
 const ROUTE = "/chkoun";
 
@@ -53,7 +54,6 @@ export default async function ChkounPage({
     positions: messages.positions,
     credit: messages.credit,
   };
-  const { names, labels } = await gamePageData(locale);
   const { prefix } = localeInfo[locale];
 
   return (
@@ -75,14 +75,31 @@ export default async function ChkounPage({
         <noscript>
           <p className="mt-6 text-xl font-semibold">{t("chkoun.noscript")}</p>
         </noscript>
-        <Game
+        {/* The live game renders first and hides the shell after it. */}
+        <GameIsland
           locale={locale}
-          names={names}
-          labels={labels}
+          dataUrl={`/chkoun-data/${locale}.json`}
           strings={strings}
           shareUrl={`${site.url}${prefix}${ROUTE}`}
           sourcesHref={`${prefix}/sources`}
         />
+        <GameShell
+          label={t("chkoun.search.label")}
+          hint={t("chkoun.search.hint")}
+          placeholder={t("chkoun.search.placeholder")}
+          guessCount={t("chkoun.guessCount", { n: 1 })}
+        />
+        <div className="max-w-2xl">
+          <Legend
+            title={t("chkoun.legend.title")}
+            words={{
+              same: t("chkoun.legend.same"),
+              close: t("chkoun.legend.close"),
+              different: t("chkoun.legend.different"),
+              unknown: t("chkoun.legend.unknown"),
+            }}
+          />
+        </div>
       </main>
     </div>
   );
