@@ -14,7 +14,12 @@ const nextConfig: NextConfig = {
   },
   // The admin pages read data/pool.json at request time (src/admin/load-pool.ts);
   // this puts the file in their serverless bundle on Vercel.
-  outputFileTracingIncludes: { "/admin/**": ["./data/pool.json"] },
+  // The game's API reads the same file and the governorates
+  // (src/chkoun/attributes.server.ts).
+  outputFileTracingIncludes: {
+    "/admin/**": ["./data/pool.json"],
+    "/api/chkoun/**": ["./data/pool.json", "./data/curated/*.json"],
+  },
   // Every response, the admin pages included (src/security-headers.ts).
   async headers() {
     return [

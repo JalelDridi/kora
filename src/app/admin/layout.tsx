@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { NavLink } from "@/admin/nav-link";
 import "./admin.css";
 
 export const metadata: Metadata = {
@@ -11,7 +12,13 @@ export const metadata: Metadata = {
 export default function AdminLayout({ children }: LayoutProps<"/admin">) {
   return (
     <html lang="en" dir="ltr">
-      <body>{children}</body>
+      <body>
+        <nav className="admin" aria-label="Admin pages">
+          <NavLink href="/admin/pool">Pool review</NavLink>
+          <NavLink href="/admin/chkoun">Chkoun? calendar</NavLink>
+        </nav>
+        {children}
+      </body>
     </html>
   );
 }

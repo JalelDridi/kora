@@ -182,3 +182,56 @@ button {
 ul.plain {
   padding-inline-start: 1.25rem;
 }
+
+/* The Chkoun? calendar (/admin/chkoun). */
+
+nav.admin {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  max-inline-size: 72rem;
+  margin-inline: auto;
+  margin-block-end: 1rem;
+}
+
+tr.frozen {
+  color: var(--chalk-dim);
+}
+
+.calendar th[scope="row"] {
+  white-space: nowrap;
+}
+
+tr[aria-current] th {
+  color: var(--mint);
+}
+
+td.warn {
+  background: var(--low);
+}
+
+.change {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  min-inline-size: 22rem;
+}
+
+.notice {
+  border: 1px solid var(--mint);
+  border-radius: 6px;
+  padding: 0.4rem 0.6rem;
+}
+
+.notice-error {
+  background: var(--low);
+}
+
+.visually-hidden {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}

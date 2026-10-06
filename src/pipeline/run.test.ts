@@ -21,6 +21,7 @@ import {
   createClients,
   MAX_REQUESTS,
   PAGEVIEWS_GAP_MS,
+  PAGEVIEWS_MAX_PER_RUN,
   planRequests,
   run,
   sectionZero,
@@ -1492,6 +1493,32 @@ describe("createClients", () => {
     }
     expect(waits).toEqual([PAGEVIEWS_GAP_MS, PAGEVIEWS_GAP_MS]);
     expect(PAGEVIEWS_GAP_MS).toBeGreaterThanOrEqual(100);
+  });
+});
+
+describe("the page views cap (P49)", () => {
+  // The 800 counts HTTP attempts, retries included, not only requests.
+  it("stops the page views client at 800 attempts, retries included", async () => {
+    let calls = 0;
+    const clients = createClients({
+      fetch: async () => {
+        calls++;
+        // Every other attempt is a 503 that is retried.
+        return new Response('{"items":[]}', {
+          status: calls % 2 === 1 ? 503 : 200,
+        });
+      },
+      sleep: async () => {},
+    });
+    let failed: unknown = null;
+    for (let i = 0; i < PAGEVIEWS_MAX_PER_RUN && failed === null; i++)
+      await clients.pageviews
+        .getJson("https://wikimedia.org/api/rest_v1/x")
+        .catch((error: unknown) => {
+          failed = error;
+        });
+    expect(failed).not.toBeNull();
+    expect(calls).toBe(PAGEVIEWS_MAX_PER_RUN);
   });
 });
 

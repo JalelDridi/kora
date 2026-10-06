@@ -106,12 +106,61 @@ describe("todayPuzzle", () => {
     expect(a!.playerId).toMatch(/^tier-a-/);
   });
 
-  it("the reserve avoids the last 120 days", async () => {
+  it("the reserve avoids the footballers of its repeat window", async () => {
     const tierA = eligible.filter((p) => p.fame?.tier === "A");
-    // Every A but one played recently.
+    // 45 eligible: a window of 44 days. Every A but one played within it.
     for (const [i, p] of tierA.slice(1).entries())
-      await insert(addDays(today, -1 - i * 7), p.id);
+      await insert(addDays(today, -1 - i * 3), p.id);
     expect((await reader()(now))?.playerId).toBe(tierA[0].id);
+  });
+
+  // Review L1: the reserve keeps the calendar's adaptive window, not a
+  // fixed 120 days, and looks at the days after today too.
+  it("the reserve uses the calendar's window: min(120, eligible - 1)", async () => {
+    const four = eligible.filter((p) => p.fame?.tier === "A").slice(0, 4);
+    await resetDatabase(db);
+    await syncFootballers(
+      { query: (text, values) => client.query(text, values) },
+      four,
+    );
+    // Window 3: the footballers of days -1 to -3 are ruled out; the one of
+    // day -10 played long enough ago.
+    for (const [i, p] of four.slice(0, 3).entries())
+      await insert(addDays(today, -1 - i), p.id);
+    await insert(addDays(today, -10), four[3].id);
+    expect((await reader()(now))?.playerId).toBe(four[3].id);
+  });
+
+  it("the reserve shrinks the window for today only when it must", async () => {
+    const four = eligible.filter((p) => p.fame?.tier === "A").slice(0, 4);
+    await resetDatabase(db);
+    await syncFootballers(
+      { query: (text, values) => client.query(text, values) },
+      four,
+    );
+    // Every footballer is within 3 days of today, one of them tomorrow.
+    await insert(addDays(today, -1), four[0].id);
+    await insert(addDays(today, -2), four[1].id);
+    await insert(addDays(today, -3), four[2].id);
+    await insert(addDays(today, 1), four[3].id);
+    const drawn = (await reader()(now))?.playerId;
+    // The days next to today keep their footballers apart.
+    expect([four[1].id, four[2].id]).toContain(drawn);
+  });
+
+  it("the reserve draws a weekend's tier C when no A or B is left", async () => {
+    const onlyC = eligible.filter((p) => p.fame?.tier === "C");
+    await resetDatabase(db);
+    await syncFootballers(
+      { query: (text, values) => client.query(text, values) },
+      onlyC,
+    );
+    // A Saturday: C may be an answer.
+    const saturday = new Date("2026-10-24T10:00:00Z");
+    const picked = await reader()(saturday);
+    expect(picked?.playerId).toMatch(/^tier-c-/);
+    // A Tuesday: C may not, so no reserve.
+    expect(await reader()(new Date("2026-10-27T10:00:00Z"))).toBeNull();
   });
 
   it("without a seed there is no reserve: null", async () => {
@@ -175,5 +224,81 @@ describe("todayPuzzle", () => {
     expect(await read(now)).toBeNull();
     up = true;
     expect((await read(now))?.playerId).toBe(eligible[0].id);
+  });
+});
+
+// Review L11: the Prisma-backed wrapper the endpoints use, end to end.
+describe("todayPuzzle (Prisma)", () => {
+  it("writes the reserve through Prisma and reads it back", async () => {
+    const saved = { ...process.env };
+    process.env.DATABASE_URL = TEST_DATABASE_URL;
+    process.env.CHKOUN_SEED = seed;
+    process.env.UPSTASH_REDIS_REST_URL = "";
+    process.env.UPSTASH_REDIS_REST_TOKEN = "";
+    try {
+      const { todayPuzzle } = await import("./puzzle.server.ts");
+      const puzzle = await todayPuzzle(now);
+      expect(puzzle).toMatchObject({ day: today });
+      const { rows } = await client.query(
+        "SELECT player_id, source, to_char(day, 'YYYY-MM-DD') AS day FROM puzzles WHERE game = 'chkoun'",
+      );
+      expect(rows).toEqual([
+        { player_id: puzzle!.playerId, source: "reserve", day: today },
+      ]);
+    } finally {
+      process.env = saved;
+      const { getDb } = await import("@/db/client");
+      await getDb().$disconnect();
+    }
+  });
+});
+
+// Review 2a, G1: while no footballer is eligible, a loop of requests must
+// not keep the database awake.
+describe("an empty day", () => {
+  /** A database with no puzzle and no candidate, counting statements. */
+  function emptyDb() {
+    const seen: string[] = [];
+    const sql: SqlRows = async (text) => {
+      seen.push(text);
+      return [];
+    };
+    return { sql, seen };
+  }
+
+  it("is remembered for 60 seconds: a second call within 60 s makes no database query", async () => {
+    const { sql, seen } = emptyDb();
+    const read = reader({ sql });
+    const at = new Date("2026-10-20T10:00:00Z");
+    expect(await read(at)).toBeNull();
+    const queries = seen.length;
+    expect(queries).toBeGreaterThan(0);
+    expect(await read(new Date(at.getTime() + 59_000))).toBeNull();
+    expect(seen).toHaveLength(queries);
+    // After 60 s the database is asked again.
+    expect(await read(new Date(at.getTime() + 60_000))).toBeNull();
+    expect(seen.length).toBeGreaterThan(queries);
+  });
+
+  it("is remembered in Redis for 60 seconds too, so other instances skip the database", async () => {
+    const { kv, store } = fakeKv();
+    await reader({ sql: emptyDb().sql, kv })(now);
+    expect(store.get(puzzleKey("test", today))?.ex).toBe(60);
+    const other = emptyDb();
+    expect(await reader({ sql: other.sql, kv })(now)).toBeNull();
+    expect(other.seen).toEqual([]);
+  });
+
+  it("logs its warning once per instance and day", async () => {
+    const lines: string[] = [];
+    const read = reader({ sql: emptyDb().sql, log: (l) => lines.push(l) });
+    const at = new Date("2026-10-20T10:00:00Z");
+    for (let i = 0; i < 5; i++) await read(new Date(at.getTime() + i * 61_000));
+    expect(lines).toEqual([
+      "chkoun: no puzzle for 2026-10-20 and no footballer for a reserve",
+    ]);
+    // The next day may warn again.
+    await read(new Date("2026-10-21T10:00:00Z"));
+    expect(lines).toHaveLength(2);
   });
 });

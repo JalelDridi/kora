@@ -98,6 +98,19 @@ const known = facts.filter(
 );
 
 describe("compare", () => {
+  // Review L9: the right guess is a win row even when a value is unknown.
+  it("a footballer compared with himself is all green, unknown values included", () => {
+    fc.assert(
+      fc.property(facts, (f) => {
+        const row = compare(f, f, day);
+        expect(colourKey(row)).toBe("gggggg");
+        for (const t of Object.values(row)) expect(t.arrow).toBeNull();
+      }),
+    );
+    const freeAgent = { ...skhiri, clubId: null, clubCountry: null };
+    expect(colourKey(compare(freeAgent, freeAgent, day))).toBe("gggggg");
+  });
+
   it("a footballer compared with himself is all green and has no arrows", () => {
     fc.assert(
       fc.property(known, (f) => {
@@ -145,7 +158,7 @@ describe("compare", () => {
   });
 
   it("position amber only for the neighbouring line", () => {
-    const keeper = { ...meriah, line: "goalkeeper" as const };
+    const keeper = { ...meriah, id: "a-keeper", line: "goalkeeper" as const };
     expect(compare(keeper, meriah, day).position.colour).toBe("amber");
     expect(compare(keeper, skhiri, day).position.colour).toBe("grey");
     expect(compare(chaouat, msakni, day).position).toEqual({

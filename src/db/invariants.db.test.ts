@@ -207,6 +207,30 @@ describe("the Chkoun? calendar", () => {
     expect(await db.puzzle.count()).toBe(2);
   });
 
+  // Review L3: day + 2 is the last frozen day, day + 3 the first open one.
+  it("day + 2 is frozen and day + 3 is not", async () => {
+    await insertDay(2);
+    await insertDay(3);
+    await expect(updateDay(2)).rejects.toThrow(/puzzle day is frozen/);
+    expect(await updateDay(3)).toBe(1);
+    await expect(deleteDay(2)).rejects.toThrow(/puzzle day is frozen/);
+    expect(await deleteDay(3)).toBe(1);
+  });
+
+  it("a row cannot be moved onto a frozen day", async () => {
+    await insertDay(10);
+    const move = (to: number) =>
+      db.$executeRawUnsafe(
+        `UPDATE puzzles SET day = (now() AT TIME ZONE 'Africa/Tunis')::date + $1::int
+         WHERE game = 'chkoun'
+           AND day = (now() AT TIME ZONE 'Africa/Tunis')::date + 10`,
+        to,
+      );
+    await expect(move(0)).rejects.toThrow(/puzzle day is frozen/);
+    await expect(move(2)).rejects.toThrow(/puzzle day is frozen/);
+    expect(await move(3)).toBe(1);
+  });
+
   it("a frozen day can still be filled once", async () => {
     await insertDay(0, "reserve");
     expect(await db.puzzle.count()).toBe(1);
