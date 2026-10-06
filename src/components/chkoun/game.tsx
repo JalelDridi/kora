@@ -20,6 +20,7 @@ import type { Locale } from "@/i18n/locales";
 import type fr from "../../../messages/fr.json";
 import { Countdown } from "./countdown";
 import { Legend } from "./legend";
+import { Result } from "./result";
 import { SearchBox } from "./search-box";
 import { TileHeaders, TileRow, type RowStrings } from "./tile-row";
 
@@ -358,28 +359,17 @@ export function Game({
       ) : null}
 
       {phase.kind === "open" && game && game.status !== "playing" ? (
-        <section aria-labelledby="chkoun-result" className="mt-8">
-          <h2 id="chkoun-result" className="text-3xl font-extrabold">
-            {game.status === "won"
-              ? format(t.result.won, {
-                  n: game.rows.length || (game.grid?.length ?? 0),
-                })
-              : format(t.result.lost, {
-                  name: game.card ? localName(game.card, locale) : "",
-                })}
-          </h2>
-          <Countdown
-            endsAt={phase.today.endsAt}
-            template={t.next}
-            onZero={() => void loadToday()}
-            className="mt-4 text-lg"
-          />
-          <a href={sourcesHref} className="text-mint underline">
-            {strings.credit.sources}
-          </a>
-          {stats ? <p className="sr-only">{stats.streak}</p> : null}
-          <span hidden>{shareUrl}</span>
-        </section>
+        <Result
+          solved={game.status === "won"}
+          guesses={game.rows.length || (game.grid?.length ?? 0)}
+          card={game.card}
+          locale={locale}
+          labels={labels}
+          strings={strings}
+          sourcesHref={sourcesHref}
+          endsAt={phase.today.endsAt}
+          onNextDay={() => void loadToday()}
+        />
       ) : null}
 
       {phase.kind === "open" && playing ? (
