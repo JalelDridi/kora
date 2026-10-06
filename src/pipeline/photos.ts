@@ -36,11 +36,42 @@ export function creditGap(photo: Photo): string | null {
   return null;
 }
 
+/** The next standard thumbnail width below 330 px (Wikimedia's standard steps). */
+export const SMALLER_WIDTH = 250;
+
+/**
+ * The URL of the same Commons file as a 250 px standard thumbnail, for a
+ * copy that came back over MAX_PHOTO_BYTES; null when the file is not wider
+ * than that or the URL has an unknown shape. Commons answers a 330 px request
+ * for a narrower file with the original ("thumbnail_unscaled"), which can be
+ * an unoptimised file of 150 to 240 KB; a 250 px thumbnail is a re-scaled one.
+ * The shape (thumb.wikimedia.org/…/thumb/<a>/<ab>/<name>/250px-<name>) is the
+ * one the 330 px URLs have; unverified for the unscaled files until a run.
+ */
+export function smallerThumbUrl(photo: Photo): string | null {
+  if (photo.width <= SMALLER_WIDTH) return null;
+  const url = photo.thumbUrl;
+  const scaled = /\/thumb\/[0-9a-f]\/[0-9a-f]{2}\/[^/?]+\/\d+px-[^/?]+/;
+  if (scaled.test(url)) return url.replace(/\/\d+px-/, `/${SMALLER_WIDTH}px-`);
+  const original = url.match(
+    /^https:\/\/upload\.wikimedia\.org\/wikipedia\/commons\/([0-9a-f]\/[0-9a-f]{2})\/([^/?]+)(\?.*)?$/,
+  );
+  if (!original) return null;
+  const [, dirs, name] = original;
+  return `https://thumb.wikimedia.org/wikipedia/commons/thumb/${dirs}/${name}/${SMALLER_WIDTH}px-${name}`;
+}
+
 export type PhotoPlayer = { id: string; photo: Photo | null };
 
 export type PhotoSync = {
   /** The path each footballer's photo is served at, or null (silhouette). */
   paths: Map<string, string | null>;
+  /**
+   * Footballers whose Commons file was renamed but not copied again this run:
+   * the old copy, still on disk, stays with its own credit until the new one
+   * is downloaded (review 1, L7). The pool takes this photo, not the new one.
+   */
+  kept: Map<string, Photo>;
   /** Thumbnails downloaded this run. */
   downloaded: number;
   /** Footballers whose photo waits for a later run (budget spent). */
@@ -52,7 +83,9 @@ export type PhotoSync = {
 /**
  * Copies the thumbnails that are new, then those whose Commons file name
  * changed, at most `max` downloads, one at a time, `gapMs` apart. A photo already copied from
- * the same Commons file keeps its path while its file is still there.
+ * the same Commons file keeps its path while its file is still there; a
+ * renamed one keeps its old copy and credit until the new one is copied. A
+ * copy over MAX_PHOTO_BYTES is asked again once as a 250 px thumbnail.
  * `exists(name)` and `write(name, bytes)` work in public/photos/. A 429 or
  * 403 stops the downloads for the run, like the other clients.
  */
@@ -75,6 +108,7 @@ export async function syncPhotos(input: {
     ((ms: number) => new Promise<void>((r) => setTimeout(r, ms)));
   const out: PhotoSync = {
     paths: new Map(),
+    kept: new Map(),
     downloaded: 0,
     waiting: 0,
     notes: [],
@@ -83,6 +117,13 @@ export async function syncPhotos(input: {
   // copies go before re-fetches of a renamed Commons file (P49).
   const fresh: { id: string; photo: Photo }[] = [];
   const renamed: { id: string; photo: Photo }[] = [];
+  /** The old copy of a renamed file, used until the new one is copied. */
+  const keep = (id: string) => {
+    const before = input.previous.get(id);
+    if (!before?.path || !renamed.some((r) => r.id === id)) return;
+    out.paths.set(id, before.path);
+    out.kept.set(id, before);
+  };
   for (const { id, photo } of input.players) {
     out.paths.set(id, null);
     if (photo === null) continue;
@@ -104,72 +145,85 @@ export async function syncPhotos(input: {
   let stopped: string | null = null;
   let first = true;
   let throttled = 0;
+  const headers = { "User-Agent": USER_AGENT, "Api-User-Agent": USER_AGENT };
+  /** One request, a 429 waited out (Retry-After, else 60 s) up to the run's limit. */
+  const get = async (url: string): Promise<Response> => {
+    if (!first) await sleep(input.gapMs ?? 250);
+    first = false;
+    let response = await input.fetch(url, { headers });
+    // A 429 from thumb.wikimedia.org is a throttle: wait and ask again.
+    while (response.status === 429 && throttled < (input.throttleWaits ?? 3)) {
+      throttled++;
+      const header = response.headers.get("retry-after");
+      await response.body?.cancel();
+      await sleep(
+        header === null
+          ? THROTTLE_WAIT_MS
+          : Math.min(retryDelayMs(header, 0, Date.now()), 300_000),
+      );
+      response = await input.fetch(url, { headers });
+    }
+    out.downloaded++;
+    if (response.status === 429 || response.status === 403) {
+      await response.body?.cancel();
+      throw new StoppedError(url, response.status);
+    }
+    if (!response.ok) {
+      await response.body?.cancel();
+      throw new HttpError(url, response.status);
+    }
+    return response;
+  };
+  type Copy =
+    | { bytes: Uint8Array; ext: "jpg" | "png" }
+    | { over: number }
+    | { type: string };
+  /** The bytes and extension, or why not: over the size limit, or the type. */
+  const copy = async (url: string): Promise<Copy> => {
+    const response = await get(url);
+    const type = (response.headers.get("content-type") ?? "")
+      .split(";")[0]
+      .trim()
+      .toLowerCase();
+    const ext = TYPES[type];
+    const declared = Number(response.headers.get("content-length") ?? "0");
+    if (!ext || declared > MAX_PHOTO_BYTES) {
+      await response.body?.cancel();
+      return ext ? { over: declared } : { type };
+    }
+    const bytes = new Uint8Array(await response.arrayBuffer());
+    if (bytes.byteLength > MAX_PHOTO_BYTES) return { over: bytes.byteLength };
+    return { bytes, ext };
+  };
   for (const { id, photo } of [...fresh, ...renamed]) {
     if (input.offline || stopped || out.downloaded >= input.max) {
       out.waiting++;
+      keep(id);
       continue;
     }
-    if (!first) await sleep(input.gapMs ?? 250);
-    first = false;
     try {
-      let response = await input.fetch(photo.thumbUrl, {
-        headers: { "User-Agent": USER_AGENT, "Api-User-Agent": USER_AGENT },
-      });
-      // A 429 from thumb.wikimedia.org is a throttle: wait and ask again.
-      while (
-        response.status === 429 &&
-        throttled < (input.throttleWaits ?? 3)
-      ) {
-        throttled++;
-        const header = response.headers.get("retry-after");
-        await response.body?.cancel();
-        await sleep(
-          header === null
-            ? THROTTLE_WAIT_MS
-            : Math.min(retryDelayMs(header, 0, Date.now()), 300_000),
-        );
-        response = await input.fetch(photo.thumbUrl, {
-          headers: { "User-Agent": USER_AGENT, "Api-User-Agent": USER_AGENT },
-        });
-      }
-      out.downloaded++;
-      if (response.status === 429 || response.status === 403) {
-        await response.body?.cancel();
-        throw new StoppedError(photo.thumbUrl, response.status);
-      }
-      if (!response.ok) {
-        await response.body?.cancel();
-        throw new HttpError(photo.thumbUrl, response.status);
-      }
-      const type = (response.headers.get("content-type") ?? "")
-        .split(";")[0]
-        .trim()
-        .toLowerCase();
-      const ext = TYPES[type];
-      const declared = Number(response.headers.get("content-length") ?? "0");
-      if (!ext || declared > MAX_PHOTO_BYTES) {
-        await response.body?.cancel();
+      let result = await copy(photo.thumbUrl);
+      // Over the limit: the next standard width down, once (the eleven
+      // "not copied" of the first runs were mostly unscaled originals).
+      const smaller = smallerThumbUrl(photo);
+      if ("over" in result && smaller && out.downloaded < input.max)
+        result = await copy(smaller);
+      if (!("bytes" in result)) {
         out.paths.set(id, null);
         out.notes.push(
-          `${id}: not copied, ${ext ? `${declared} bytes, over ${MAX_PHOTO_BYTES}` : `type "${type || "none"}"`}`,
+          `${id}: not copied, ${"over" in result ? `${result.over} bytes, over ${MAX_PHOTO_BYTES}` : `type "${result.type || "none"}"`}`,
         );
+        keep(id);
         continue;
       }
-      const bytes = new Uint8Array(await response.arrayBuffer());
-      if (bytes.byteLength > MAX_PHOTO_BYTES) {
-        out.paths.set(id, null);
-        out.notes.push(
-          `${id}: not copied, ${bytes.byteLength} bytes, over ${MAX_PHOTO_BYTES}`,
-        );
-        continue;
-      }
-      await input.write(`${id}.${ext}`, bytes);
-      out.paths.set(id, `/photos/${id}.${ext}`);
+      await input.write(`${id}.${result.ext}`, result.bytes);
+      out.paths.set(id, `/photos/${id}.${result.ext}`);
     } catch (error) {
       out.paths.set(id, null);
       const message = error instanceof Error ? error.message : String(error);
       out.notes.push(`${id}: not copied, ${message}`);
       if (error instanceof StoppedError) stopped = message;
+      keep(id);
     }
   }
   return out;

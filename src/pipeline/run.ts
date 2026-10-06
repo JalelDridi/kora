@@ -1250,10 +1250,14 @@ async function build(deps: RunDeps): Promise<RunResult> {
   const pool = {
     ...built.pool,
     players: built.pool.players.map((p) => {
-      const photo = p.photo && {
-        ...p.photo,
-        path: photoRun.paths.get(p.id) ?? null,
-      };
+      // A renamed Commons file not copied again yet keeps its old copy and
+      // that copy's credit (review 1, L7).
+      const photo =
+        photoRun.kept.get(p.id) ??
+        (p.photo && {
+          ...p.photo,
+          path: photoRun.paths.get(p.id) ?? null,
+        });
       if (!p.pools.active) return { ...p, photo, fame: null };
       const m = measured.find((x) => x.id === p.id)!;
       const found = viewsOf(m, views);
