@@ -201,3 +201,37 @@ describe("createSiteClient: robots.txt and odd paths (fix round 1)", () => {
     }
   });
 });
+
+describe("a guessed path (squad-lists review, L2)", () => {
+  it("with missingOk, a 404 answers an empty page and the site goes on; any other refusal still stops it", async () => {
+    const { client, log } = harness({
+      "/robots.txt": [ok("")],
+      "/guess": [{ status: 404 }],
+      "/real": [ok()],
+      "/moved": [{ status: 301, headers: { location: "/elsewhere" } }],
+      "/after": [ok()],
+    });
+    expect(await client.get("/guess", { missingOk: true })).toBe("");
+    expect(client.stopped()).toBeNull();
+    expect(await client.get("/real")).toBe("<html>page</html>");
+    await expect(client.get("/moved", { missingOk: true })).rejects.toThrow(
+      SiteStopped,
+    );
+    await expect(client.get("/after")).rejects.toThrow(SiteStopped);
+    expect(log.map((l) => l.path)).toEqual([
+      "/robots.txt",
+      "/guess",
+      "/real",
+      "/moved",
+    ]);
+  });
+
+  it("without missingOk, a 404 still stops the site", async () => {
+    const { client } = harness({
+      "/robots.txt": [ok("")],
+      "/gone": [{ status: 404 }],
+    });
+    await expect(client.get("/gone")).rejects.toThrow(SiteStopped);
+    expect(client.stopped()).toContain("HTTP 404");
+  });
+});

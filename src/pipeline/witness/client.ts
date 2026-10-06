@@ -34,8 +34,12 @@ export class SiteRefusal extends Error {
 }
 
 export type SiteClient = {
-  /** The page at `path` on the host; throws SiteStopped or SiteRefusal. */
-  get(path: string): Promise<string>;
+  /**
+   * The page at `path` on the host; throws SiteStopped or SiteRefusal. With
+   * `missingOk`, a 404 answers "" and the site goes on (a guessed path that
+   * does not exist is no refusal); any other refusal still stops it.
+   */
+  get(path: string, options?: { missingOk?: boolean }): Promise<string>;
   /** Why the site stopped, or null. */
   stopped(): string | null;
   /** Requests sent so far, robots.txt included. */
@@ -96,6 +100,7 @@ export function createSiteClient(options: {
 
   async function fetchText(
     path: string,
+    missingOk = false,
   ): Promise<{ status: number; text: string }> {
     if (stopped) throw new SiteStopped(stopped);
     if (sent >= options.maxRequests)
@@ -113,7 +118,8 @@ export function createSiteClient(options: {
     } catch (error) {
       const status = error instanceof HttpError ? error.status : 0;
       // A missing robots.txt is no refusal: no extra rules (B2).
-      if (status === 404 && path === "/robots.txt") return { status, text: "" };
+      if (status === 404 && (path === "/robots.txt" || missingOk))
+        return { status, text: "" };
       stopped = `${options.host} answered ${status === 0 ? (error as Error).message : `HTTP ${status}`} for ${path}; nothing more is sent to it this run`;
       throw new SiteStopped(stopped);
     }
@@ -129,7 +135,7 @@ export function createSiteClient(options: {
   }
 
   return {
-    async get(path) {
+    async get(path, how = {}) {
       if (stopped) throw new SiteStopped(stopped);
       urlOf(path); // an odd path is refused before any request, robots.txt included
       if (robots === null) {
@@ -144,7 +150,7 @@ export function createSiteClient(options: {
         throw new SiteRefusal(
           `robots.txt of ${options.host} disallows ${path}`,
         );
-      return (await fetchText(path)).text;
+      return (await fetchText(path, how.missingOk === true)).text;
     },
     stopped: () => stopped,
     requests: () => sent,

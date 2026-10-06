@@ -579,6 +579,39 @@ describe("backfill links (fix round 2)", () => {
     );
   });
 
+  it("asks known links first; a guessed name that answers 404 is counted and skipped, never a stop", async () => {
+    const store = await tempStore();
+    // Q2 (800002) has his link in the state; Q1 and Q3 have none, and the
+    // site has no page at Q3's guessed path.
+    await store.writeState({
+      version: 1,
+      nft: { "800002": { path: "/player/800002/Exact_Link.html" } },
+      backfill: { done: {} },
+    });
+    const nft = fakeSite("www.national-football-teams.com", {
+      "/robots.txt": "",
+      "/player/800002/Exact_Link.html": await fixture("nft-player.html"),
+      [playerPath("800001", "Player Q1")]: await fixture("nft-player.html"),
+    });
+    const { input, lines } = checkInput(store, {
+      "national-football-teams": nft.client,
+    });
+    const result = await runBackfill({ ...input, pages: 3 });
+    expect(nft.asked.map((a) => a.path)).toEqual([
+      "/robots.txt",
+      "/player/800002/Exact_Link.html",
+      "/player/800001/Player_Q1.html",
+      "/player/800003/Player_Q3.html",
+    ]);
+    expect(result.stopped).toEqual({});
+    expect(lines).toContain(
+      "national-football-teams: 1 of 2 guessed names answered 404; they wait for a country page's link",
+    );
+    expect(Object.keys((await store.readState()).backfill.done).sort()).toEqual(
+      ["800001", "800002"],
+    );
+  });
+
   it("knownPlayerPaths: the state's link wins over a saved page's", async () => {
     const paths = knownPlayerPaths(
       {

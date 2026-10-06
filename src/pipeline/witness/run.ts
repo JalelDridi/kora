@@ -531,6 +531,13 @@ export async function runBackfill(
 ): Promise<CheckResult> {
   const state = await input.store.readState();
   const rank = { low: 0, medium: 1, high: 2 } as const;
+  // Fix round 2: the exact link a country page gave him (this run's state,
+  // or a country page saved in the private folder); a guessed name only
+  // as a last resort, after every known link (squad-lists review, L2).
+  const known = knownPlayerPaths(
+    state,
+    await input.store.readPages("national-football-teams", ""),
+  );
   const queue = input.pool.players
     .map((p) => ({ p, id: input.mapping.players.get(p.wikidataId)?.nft }))
     .filter((x): x is { p: Pool["players"][number]; id: string } =>
@@ -538,32 +545,34 @@ export async function runBackfill(
     )
     .sort(
       (a, b) =>
+        Number(!known.has(a.id)) - Number(!known.has(b.id)) ||
         rank[a.p.provenance.caps?.confidence ?? "low"] -
           rank[b.p.provenance.caps?.confidence ?? "low"] ||
         Number(a.p.wikidataId.slice(1)) - Number(b.p.wikidataId.slice(1)),
     )
     .slice(0, input.pages);
-  // Fix round 2: the exact link a country page gave him (this run's state,
-  // or a country page saved in the private folder); a guessed name only
-  // as a last resort.
-  const known = knownPlayerPaths(
-    state,
-    await input.store.readPages("national-football-teams", ""),
-  );
   const guessed = queue.filter(({ id }) => !known.has(id)).length;
   input.log(
     `national-football-teams: backfill of ${queue.length} player pages, ${queue.length - guessed} by the link a country page gave, ${guessed} by a guessed name (UNVERIFIED)`,
   );
   const stopped: Partial<Record<SiteName, string>> = {};
+  let missed = 0;
   const why = await forSite(
     input,
     "national-football-teams",
     async (client) => {
       for (const { p, id } of queue) {
         checkAbort(input);
-        const page = await client.get(
-          known.get(id) ?? playerPath(id, p.nameLatin),
-        );
+        const exact = known.get(id);
+        // A guessed path that answers 404 is skipped, never a stop: it
+        // stays not done until a country page gives his link.
+        const page = exact
+          ? await client.get(exact)
+          : await client.get(playerPath(id, p.nameLatin), { missingOk: true });
+        if (page === "") {
+          missed++;
+          continue;
+        }
         await input.store.savePage(
           "national-football-teams",
           `player-${id}`,
@@ -580,6 +589,10 @@ export async function runBackfill(
     },
   );
   if (why) stopped["national-football-teams"] = why;
+  if (guessed > 0)
+    input.log(
+      `national-football-teams: ${missed} of ${guessed} guessed names answered 404; they wait for a country page's link`,
+    );
   input.log(
     `backfill: ${Object.keys(state.backfill.done).length} player pages read so far; the next weekly run turns them into verdicts`,
   );
