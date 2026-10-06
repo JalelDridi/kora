@@ -7,7 +7,8 @@
     "tagline": "ألعاب الكورة التونسية، كل يوم",
     "games": "الألعاب",
     "soon": "قريب",
-    "language": "اللغة"
+    "language": "اللغة",
+    "play": "العب"
   },
   "badges": {
     "daily": "كل يوم",
@@ -32,5 +33,183 @@
     "title": "الصفحة هاذي موش موجودة",
     "body": "يمكن الرابط غالط ولا الصفحة تنحّات.",
     "home": "ارجع للألعاب"
+  },
+  "chkoun": {
+    "meta": {
+      "title": "شكون؟ · Kora",
+      "description": "أعرف لاعب اليوم في 8 محاولات. كل يوم لاعب جديد."
+    },
+    "rules": "أعرف لاعب اليوم في 8 محاولات. كان اللاعبين اللي مازالو يلعبو.",
+    "legend": {
+      "title": "الألوان",
+      "same": "كيف كيف",
+      "close": "قريب",
+      "different": "موش كيف كيف",
+      "unknown": "ما نعرفوش"
+    },
+    "search": {
+      "label": "اللاعب",
+      "placeholder": "اكتب اسم لاعب",
+      "none": "ما لقينا حتى لاعب",
+      "already": "جرّبتو",
+      "hint": "بالعربي، بالأرابيزي ولا بالفرنسي"
+    },
+    "guessCount": "محاولة {n} من 8",
+    "guesses": "المحاولات متاعك",
+    "noscript": "اللعبة هاذي تستحق JavaScript.",
+    "soon": "أول لاعب يجي بعد {time}",
+    "error": {
+      "network": "صارت مشكلة في الكونكسيون.",
+      "retry": "عاود جرّب",
+      "newDay": "بدا نهار جديد: هاو اللاعب الجديد.",
+      "tooMany": "برشا محاولات. عاود بعد شوية دقايق.",
+      "closed": "لعبة اليوم موش موجودة."
+    },
+    "tiles": {
+      "club": "الفريق",
+      "country": "بلاد الفريق",
+      "position": "البلاصة",
+      "age": "العمر",
+      "caps": "ماتشات المنتخب",
+      "governorate": "مولود في",
+      "older": "هو أكبر",
+      "younger": "هو أصغر",
+      "moreCaps": "عندو ماتشات أكثر مع المنتخب",
+      "fewerCaps": "عندو ماتشات أقل مع المنتخب",
+      "abroad": "برّا: {country}",
+      "noClub": "بلا فريق"
+    },
+    "caps": {
+      "band0": "0",
+      "band1": "1-9",
+      "band2": "10-29",
+      "band3": "30-59",
+      "band4": "60+"
+    },
+    "result": {
+      "won": "لقيتو في {n}!",
+      "lost": "كان {name}"
+    },
+    "card": {
+      "club": "الفريق",
+      "born": "مولود في",
+      "caps": "ماتشات المنتخب",
+      "goals": "أهداف مع المنتخب",
+      "noPhoto": "ما فماش تصويرة"
+    },
+    "share": {
+      "button": "بارطاجي",
+      "copy": "كوبي",
+      "copied": "تكوبى!",
+      "whatsapp": "ابعث على WhatsApp",
+      "longPress": "اضغط مطوّل على الكتيبة باش تكوبيها",
+      "header": "Kora · شكون؟"
+    },
+    "stats": {
+      "title": "الأرقام متاعك",
+      "streak": "السلسلة",
+      "best": "أحسن سلسلة",
+      "played": "اللعبات",
+      "winRate": "ربحت",
+      "onDevice": "محفوظ في التليفون هذا",
+      "onServer": "محفوظ في Kora"
+    },
+    "next": "اللاعب الجاي بعد {time}"
+  },
+  "positions": {
+    "goalkeeper": "حارس",
+    "defender": "مدافع",
+    "midfielder": "وسط ميدان",
+    "forward": "مهاجم"
+  },
+  "credit": {
+    "photo": "التصويرة: {author}، {licence}",
+    "photoNoAuthor": "التصويرة: {licence}",
+    "facts": "المعلومات: ويكيبيديا، ويكيداتا",
+    "sources": "المصادر متاعنا"
+  },
+  "footer": {
+    "sources": "المصادر",
+    "privacy": "الخصوصية",
+    "unofficial": "موش رسمي. ما عندناش علاقة بحتى فريق، ولا بالـFTF، ولا بالـCAF، ولا بالـFIFA."
+  },
+  "sources": {
+    "meta": {
+      "description": "D'où viennent les données et les photos de Kora."
+    },
+    "title": "Sources et crédits",
+    "unofficial": "Kora est un projet de fan, non officiel. Il n'a aucun lien avec un club, la FTF, la CAF ou la FIFA.",
+    "data": {
+      "title": "Les données",
+      "wikidata": "Wikidata : identités des joueurs, clubs, postes, dates et lieux de naissance (CC0).",
+      "wikipedia": "Wikipédia en anglais et en français : carrières, clubs et sélections, d'après les infobox et les effectifs (CC BY-SA 4.0).",
+      "results": "Résultats et buteurs des matchs internationaux : jeu de données martj42/international_results (CC0).",
+      "checks": "Kora compare les sources entre elles. Un fait douteux n'est jamais la réponse du jour, et chaque valeur garde la trace de sa source."
+    },
+    "photos": {
+      "title": "Photos des joueurs",
+      "intro": "Les photos viennent de Wikimedia Commons. Chacune garde sa propre licence ; elles sont copiées sans recadrage ni retouche.",
+      "footballer": "Joueur",
+      "author": "Auteur",
+      "licence": "Licence",
+      "file": "Fichier",
+      "changes": "Modifications",
+      "none": "aucune",
+      "empty": "Aucune photo pour l'instant."
+    },
+    "licence": {
+      "title": "Licences de Kora",
+      "code": "Le code de Kora est sous licence MIT.",
+      "data": "Les données de Kora sont sous licence CC BY-SA 4.0. Les photos n'en font pas partie."
+    },
+    "contact": "Une erreur, ou une photo à retirer ? Dis-le-nous sur GitHub."
+  },
+  "privacy": {
+    "meta": {
+      "description": "Ce que Kora garde quand tu joues, et pour combien de temps."
+    },
+    "title": "Vie privée",
+    "draft": "Brouillon : cette page n'est pas encore validée et peut changer.",
+    "date": "Mise à jour : 6 octobre 2026",
+    "device": {
+      "title": "Sur ton appareil",
+      "body": "Le navigateur garde la partie du jour (tes essais et leur résultat) et tes stats (série, parties, victoires) dans son stockage local. Kora ne les lit pas à distance : ils restent sur ton appareil."
+    },
+    "cookie": {
+      "title": "Un seul cookie, strictement nécessaire",
+      "body": "Quand les résultats sont gardés sur le serveur, Kora pose un cookie quand tu finis ta première partie : kora_v, un numéro tiré au hasard, sans aucune donnée sur toi. Il est envoyé seulement au jeu (/api/chkoun), il est illisible par les scripts de la page, et il dure 13 mois. Il sert seulement à relier tes parties pour ta série. Il n'y a aucun autre cookie."
+    },
+    "server": {
+      "title": "Sur le serveur",
+      "body": "Pour chaque partie finie, le serveur garde le jour, ton numéro kora_v, si tu as trouvé, le nombre d'essais et la grille de couleurs, jamais les noms essayés. Ces parties restent 8 jours dans Redis (Upstash), puis sont copiées chaque nuit dans la base de données (Neon), gardées jusqu'à nouvel ordre. Tes stats restent 13 mois après ta dernière partie. Pour limiter les abus, le serveur compte les essais par adresse réseau pendant 10 minutes, sous une empreinte salée qui change chaque jour : l'adresse elle-même n'est jamais enregistrée. L'hébergeur (Vercel) tient aussi ses propres journaux techniques des requêtes."
+    },
+    "serverOff": {
+      "title": "Quand le serveur ne garde rien",
+      "body": "Si le stockage des résultats est éteint, le jeu marche quand même : tout reste sur ton appareil, aucun cookie n'est posé et rien de tes parties n'est gardé sur le serveur. Le jeu l'indique par « Enregistré sur cet appareil »."
+    },
+    "analytics": {
+      "title": "Mesure d'audience",
+      "body": "Kora compte les visites sans cookie avec Vercel Web Analytics, et quelques événements du jeu avec PostHog (serveurs en Europe), sans cookie et sans profil : partie ouverte, essai fait, partie finie, partage, recherche sans résultat. Ces événements portent seulement le numéro du jour, le nombre d'essais, gagné ou non, la langue et la façon de partager ; jamais ce que tu tapes, un joueur, ni ton numéro kora_v."
+    },
+    "errors": {
+      "title": "Erreurs",
+      "body": "Les erreurs du serveur peuvent être envoyées à Sentry, depuis le serveur seulement : sans cookie, sans adresse IP, sans corps de requête ni paramètres d'URL. Ton navigateur n'envoie rien à Sentry."
+    },
+    "processors": {
+      "title": "Qui traite les données, et où",
+      "body": "Vercel (hébergement, fonctions à Francfort), Neon (base de données, Francfort), Upstash (Redis, région européenne choisie à la création), PostHog (Europe), Sentry (région à confirmer)."
+    },
+    "children": {
+      "title": "Enfants",
+      "body": "Kora ne demande ni compte, ni nom, ni e-mail, ni âge, à personne."
+    },
+    "clear": {
+      "title": "Tout effacer",
+      "body": "Pour effacer ce que garde ton appareil, supprime les données du site dans ton navigateur (cela efface aussi le cookie). Pour effacer ce que garde le serveur, écris-nous avec les jours où tu as joué : ton numéro kora_v n'est pas encore affiché."
+    },
+    "contact": {
+      "title": "Contact",
+      "body": "Une question sur cette page ? Écris-nous sur GitHub."
+    }
   }
 }
