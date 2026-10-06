@@ -36,12 +36,22 @@ export const SITES: Record<SiteName, SiteSettings> = {
   },
 };
 
-/** Transfermarkt's Tunisian Ligue Professionnelle 1, this season. */
-export const TM_LEAGUE_PATH =
-  "/ligue-professionnelle-1/startseite/wettbewerb/TUN1/saison_id/2026";
+/**
+ * Transfermarkt's season id on `today` (YYYY-MM-DD): a season runs from July
+ * to June and is named by the year it starts (2026 is 2026-27), so the
+ * weekly run never reads last season (squad-lists review, L3).
+ */
+export function tmSeason(today: string): number {
+  const year = Number(today.slice(0, 4));
+  return Number(today.slice(5, 7)) >= 7 ? year : year - 1;
+}
+
+/** Transfermarkt's Tunisian Ligue Professionnelle 1 in `season`. */
+export const tmLeaguePath = (season: number) =>
+  `/ligue-professionnelle-1/startseite/wettbewerb/TUN1/saison_id/${season}`;
 /** B5's one club squad page (Club Africain, id 819, as the league page links it). */
-export const TM_SAMPLE_SQUAD_PATH =
-  "/club-africain-tunis/kader/verein/819/saison_id/2026";
+export const tmSampleSquadPath = (season: number) =>
+  `/club-africain-tunis/kader/verein/819/saison_id/${season}`;
 /** national-football-teams.com's Tunisia page for the current year. */
 export const nftCountryPath = (year: number) =>
   `/country/190/${year}/Tunisia.html`;
@@ -67,13 +77,14 @@ export type Mode =
 export function plannedRequests(
   mode: Mode,
   year: number,
+  season: number,
 ): Record<SiteName, string[]> {
   const nft = nftCountryPath(year);
   if (mode.kind === "sample")
     return {
       transfermarkt: [
         "/robots.txt",
-        TM_SAMPLE_SQUAD_PATH,
+        tmSampleSquadPath(season),
         "/<player>/profil/spieler/<id> (one player of that squad page)",
       ],
       "national-football-teams": [
@@ -101,10 +112,11 @@ export function plannedRequests(
   return {
     transfermarkt: [
       "/robots.txt",
-      TM_LEAGUE_PATH,
+      tmLeaguePath(season),
       ...Array.from(
         { length: 16 },
-        () => "/<club>/kader/verein/<id>/saison_id/2026 (each Ligue 1 club)",
+        () =>
+          `/<club>/kader/verein/<id>/saison_id/${season} (each Ligue 1 club)`,
       ),
     ],
     "national-football-teams": [
@@ -128,6 +140,8 @@ export function longestMinutes(site: SiteName, requests: number): number {
 export function describePlan(input: {
   mode: Mode;
   year: number;
+  /** Transfermarkt's season (tmSeason). */
+  season: number;
   sites: readonly SiteName[];
   privateDir: string;
   /**
@@ -150,7 +164,7 @@ export function describePlan(input: {
     clubs: number;
   } | null;
 }): string[] {
-  const planned = plannedRequests(input.mode, input.year);
+  const planned = plannedRequests(input.mode, input.year, input.season);
   const lines = [
     `witness plan (${input.mode.kind === "backfill" ? `backfill ${input.mode.pages}` : input.mode.kind}): nothing is sent without --live`,
     `private folder: ${input.privateDir}`,

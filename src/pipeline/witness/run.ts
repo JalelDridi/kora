@@ -9,8 +9,9 @@ import {
   nftCountryPath,
   SAMPLE_PAGES,
   SITES,
-  TM_LEAGUE_PATH,
-  TM_SAMPLE_SQUAD_PATH,
+  tmLeaguePath,
+  tmSampleSquadPath,
+  tmSeason,
 } from "./plan.ts";
 import type { SiteName } from "./plan.ts";
 import type { Store, WitnessState } from "./store.ts";
@@ -101,7 +102,7 @@ export async function runSample(
   };
 
   const tm = await forSite(deps, "transfermarkt", async (client) => {
-    const squad = await client.get(TM_SAMPLE_SQUAD_PATH);
+    const squad = await client.get(tmSampleSquadPath(tmSeason(deps.today)));
     await keep(
       "transfermarkt",
       client,
@@ -285,7 +286,7 @@ export async function runWeekly(input: CheckInput): Promise<CheckResult> {
   const leagueIds = new Set<string>();
   const loans = new Set<string>();
   const tm = await forSite(input, "transfermarkt", async (client) => {
-    const league = await client.get(TM_LEAGUE_PATH);
+    const league = await client.get(tmLeaguePath(tmSeason(input.today)));
     await input.store.savePage("transfermarkt", "league", league);
     const clubs = parseLeague(league);
     for (const c of clubs) leagueIds.add(c.id);

@@ -16,6 +16,7 @@ import {
 import type { Mapping } from "./witness/mapping.ts";
 import {
   describePlan,
+  tmSeason,
   SITE_NAMES,
   SITES,
   WITNESS_USER_AGENT,
@@ -113,6 +114,7 @@ const sites: SiteName[] =
 
 const privateDir = witnessDir(env, where.home);
 const year = new Date().getUTCFullYear();
+const season = tmSeason(new Date().toISOString().slice(0, 10));
 
 // Fix round 3, --rejudge: the verdicts made again from the pages already in
 // the private folder. No client is created on this path, so no request is
@@ -225,6 +227,7 @@ const backfillPaths =
 for (const line of describePlan({
   mode,
   year,
+  season,
   sites,
   privateDir,
   mapping,
