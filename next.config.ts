@@ -26,6 +26,16 @@ const nextConfig: NextConfig = {
   async headers() {
     return [
       {
+        // Self-hosted fonts carry a version in their name (globals.css).
+        source: "/fonts/:file*",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=31536000, immutable",
+          },
+        ],
+      },
+      {
         source: "/:path*",
         headers: securityHeaders({
           analyticsHost: process.env.NEXT_PUBLIC_POSTHOG_HOST || posthogEuHost,
