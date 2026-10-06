@@ -83,17 +83,19 @@ export function TileRow({
             >
               <span
                 data-header
-                className="text-[0.7rem] leading-tight min-[400px]:sr-only"
+                dir="auto"
+                className="max-w-full text-[0.7rem] leading-tight [overflow-wrap:break-word] min-[400px]:sr-only"
               >
-                {strings.headers[column]}
+                <Words text={strings.headers[column]} />
                 <span className="sr-only">: </span>
               </span>
               <span
                 data-value
-                dir={numeric ? "ltr" : undefined}
-                className="font-semibold [overflow-wrap:break-word] hyphens-auto"
+                dir={numeric ? "ltr" : "auto"}
+                title={text}
+                className="max-w-full font-semibold [overflow-wrap:break-word]"
               >
-                {text}
+                <Words text={text} />
               </span>
               {arrow ? (
                 <span
@@ -121,6 +123,27 @@ export function TileRow({
   );
 }
 
+/**
+ * Text that wraps only between words. Each word is its own box: a word wider
+ * than the tile (a long club name) is cut with an ellipsis instead of being
+ * broken across lines; the tile's title and its screen-reader text keep the
+ * whole value. No automatic hyphenation either.
+ */
+function Words({ text }: { text: string }) {
+  return text.split(/(\s+)/).map((part, i) =>
+    /^\s+$/.test(part) || part === "" ? (
+      part
+    ) : (
+      <span
+        key={i}
+        className="inline-block max-w-full overflow-hidden align-bottom text-ellipsis whitespace-nowrap"
+      >
+        {part}
+      </span>
+    ),
+  );
+}
+
 /** The six column headers, once above the rows (screen readers get them per tile). */
 export function TileHeaders({
   headers,
@@ -135,7 +158,7 @@ export function TileHeaders({
       {COLUMNS.map((column) => (
         <span
           key={column}
-          className="min-w-0 text-center text-[0.7rem] leading-tight text-chalk-dim [overflow-wrap:break-word] hyphens-auto"
+          className="min-w-0 text-center text-[0.7rem] leading-tight text-chalk-dim [overflow-wrap:break-word]"
         >
           {headers[column]}
         </span>
