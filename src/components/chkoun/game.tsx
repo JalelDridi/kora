@@ -299,36 +299,45 @@ export function Game({
 
   return (
     <div className="mt-8 max-w-2xl">
-      {phase.kind === "failed" ? (
-        <div role="alert" className="flex flex-wrap items-center gap-3">
-          <p className="text-lg">{t.error.network}</p>
-          <button
-            type="button"
-            onClick={() => {
-              setPhase({ kind: "loading" });
-              void loadToday();
-            }}
-            className="min-h-11 rounded-full bg-mint px-5 font-semibold text-pitch-950"
-          >
-            {t.error.retry}
-          </button>
-        </div>
-      ) : null}
-      {phase.kind === "closed" ? (
-        <p role="status" className="text-lg">
-          {t.error.closed}
-        </p>
-      ) : null}
-      {phase.kind === "soon" ? (
-        <Countdown
-          endsAt={phase.startsAt}
-          template={t.soon}
-          onZero={() => void loadToday()}
-          className="text-lg"
-        />
-      ) : null}
+      {/* One slot for the day's state, sized for its tallest content, so a
+          closed day or a failed request moves nothing below it (CLS). */}
+      <div className="mb-3 min-h-12">
+        {phase.kind === "failed" ? (
+          <div role="alert" className="flex flex-wrap items-center gap-3">
+            <p className="text-lg">{t.error.network}</p>
+            <button
+              type="button"
+              onClick={() => {
+                setPhase({ kind: "loading" });
+                void loadToday();
+              }}
+              className="min-h-11 rounded-full bg-mint px-5 font-semibold text-pitch-950"
+            >
+              {t.error.retry}
+            </button>
+          </div>
+        ) : null}
+        {phase.kind === "closed" ? (
+          <p role="status" className="text-lg">
+            {t.error.closed}
+          </p>
+        ) : null}
+        {phase.kind === "soon" ? (
+          <Countdown
+            endsAt={phase.startsAt}
+            template={t.soon}
+            onZero={() => void loadToday()}
+            className="text-lg"
+          />
+        ) : null}
+      </div>
 
-      {phase.kind === "loading" || playing ? (
+      {/* The search stays in place, disabled, while the day loads, is closed
+          or failed, so nothing below it jumps. */}
+      {phase.kind === "loading" ||
+      phase.kind === "closed" ||
+      phase.kind === "failed" ||
+      playing ? (
         <div>
           <SearchBox
             locale={locale}
@@ -428,8 +437,10 @@ export function Game({
           endsAt={phase.today.endsAt}
           template={t.next}
           onZero={() => void loadToday()}
-          className="mt-6 text-base text-chalk-dim"
+          className="mt-6 min-h-7 text-base text-chalk-dim"
         />
+      ) : phase.kind === "loading" ? (
+        <p aria-hidden="true" className="mt-6 min-h-7" />
       ) : null}
 
       <Legend title={t.legend.title} words={t.legend} />
