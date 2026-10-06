@@ -59,6 +59,17 @@ describe("the guess rate limit (N4)", () => {
     expect(kv.ttl(keys[0])).toBe(600);
   });
 
+  it("the count and its expiry are one command, so no counter is left without expiry", async () => {
+    await guesses(1, at(0));
+    kv.nowMs = 30_000;
+    await guesses(1, at(30_000));
+    expect(kv.commands.every((c) => c.startsWith("incrEx "))).toBe(true);
+    for (const key of kv.entries.keys()) expect(kv.ttl(key)).toBe(600);
+    kv.failOn.add("incrEx");
+    expect((await guesses(1, at(31_000)))[0].allowed).toBe(true);
+    for (const key of kv.entries.keys()) expect(kv.ttl(key)).not.toBeNull();
+  });
+
   it("the salt changes every day and depends on the seed", () => {
     const other = rateLimitSalt("test-seed-not-the-real-one", "2026-10-17");
     expect(other).not.toBe(salt);
