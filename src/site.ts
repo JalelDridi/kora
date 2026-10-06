@@ -7,4 +7,7 @@ export const site = {
     : "http://localhost:3000",
   // Same as --color-pitch-950 in src/app/globals.css (checked by a test).
   themeColor: "#0b1510",
+  // The public repository: code, data, licences and the issue tracker that
+  // the Sources and privacy pages point to for contact.
+  repo: "https://github.com/JalelDridi/kora",
 };

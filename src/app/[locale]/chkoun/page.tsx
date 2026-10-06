@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import {
   getMessages,
@@ -7,7 +6,7 @@ import {
 } from "next-intl/server";
 import { gamePageData } from "@/chkoun/page-data.server";
 import { Game, type GameStrings } from "@/components/chkoun/game";
-import { LanguageSwitcher } from "@/components/language-switcher";
+import { PageHeader } from "@/components/page-header";
 import { getGame } from "@/games";
 import { isLocale, localeInfo } from "@/i18n/locales";
 import { pageMetadata } from "@/i18n/page-metadata";
@@ -59,20 +58,12 @@ export default async function ChkounPage({
 
   return (
     <div className="mx-auto flex max-w-5xl flex-col px-4 py-5 sm:px-8">
-      <header className="flex flex-wrap items-center justify-between gap-3">
-        <Link
-          href={prefix}
-          prefetch={false}
-          className="flex min-h-11 items-center text-base font-semibold text-mint underline-offset-4 hover:underline"
-        >
-          {t("notFound.home")}
-        </Link>
-        <LanguageSwitcher
-          current={locale}
-          label={t("hub.language")}
-          path={ROUTE}
-        />
-      </header>
+      <PageHeader
+        locale={locale}
+        path={ROUTE}
+        home={t("notFound.home")}
+        language={t("hub.language")}
+      />
 
       <main className="py-8 sm:py-12">
         <h1 className="text-5xl font-extrabold sm:text-7xl">
