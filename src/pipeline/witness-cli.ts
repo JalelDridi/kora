@@ -243,6 +243,9 @@ if (!argv.includes("--live")) {
 
 // Live. Every guard above has passed: only now are clients created.
 const store = await openStore({ env, home: where.home, repoRoot });
+// Ctrl+C (handled from the weekly or backfill run on, below) also ends a
+// wait between requests without sending the next one (squad-lists review, L5).
+const controller = new AbortController();
 const today = new Date().toISOString().slice(0, 10);
 const siteClient = (name: SiteName, maxRequests: number) =>
   createSiteClient({
@@ -250,6 +253,7 @@ const siteClient = (name: SiteName, maxRequests: number) =>
     gapMs: SITES[name].gapMs,
     maxRequests: Math.min(maxRequests, SITES[name].maxRequests),
     userAgent: WITNESS_USER_AGENT,
+    signal: controller.signal,
   });
 const log = (line: string) => console.log(line);
 
@@ -313,7 +317,6 @@ try {
 }
 
 // Ctrl+C: the pages and the state already saved are kept; a second Ctrl+C quits.
-const controller = new AbortController();
 process.on("SIGINT", () => {
   if (controller.signal.aborted) process.exit(130);
   console.log("stopping after the current request (Ctrl+C again to quit now)");

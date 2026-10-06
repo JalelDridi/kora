@@ -25,6 +25,14 @@ export class SiteStopped extends Error {
   }
 }
 
+/** Ctrl+C arrived before the request was sent: it is not sent. */
+export class SiteInterrupted extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "SiteInterrupted";
+  }
+}
+
 /** A path robots.txt disallows, or a request past the cap: nothing was sent. */
 export class SiteRefusal extends Error {
   constructor(message: string) {
@@ -58,10 +66,33 @@ export function createSiteClient(options: {
   fetch?: FetchLike;
   sleep?: (ms: number) => Promise<void>;
   now?: () => number;
+  /**
+   * Ctrl+C (squad-lists review, L5): it ends the wait between requests at
+   * once, and the request that wait was for is never sent.
+   */
+  signal?: AbortSignal;
 }): SiteClient {
+  const signal = options.signal;
   const sleep =
     options.sleep ??
-    ((ms: number) => new Promise<void>((r) => setTimeout(r, ms)));
+    ((ms: number) =>
+      new Promise<void>((resolve) => {
+        const timer = setTimeout(resolve, ms);
+        signal?.addEventListener(
+          "abort",
+          () => {
+            clearTimeout(timer);
+            resolve();
+          },
+          { once: true },
+        );
+      }));
+  const interrupted = () => {
+    if (signal?.aborted)
+      throw new SiteInterrupted(
+        `${options.host}: interrupted; the next request was not sent`,
+      );
+  };
   const now = options.now ?? Date.now;
   const http = createPoliteClient({
     minGapMs: 0, // the gap is kept here, once robots.txt is read
@@ -107,8 +138,10 @@ export function createSiteClient(options: {
       throw new SiteRefusal(
         `${options.host}: ${sent} requests sent, the most this run allows`,
       );
+    interrupted();
     const wait = lastStart + gap() - now();
     if (wait > 0) await sleep(wait);
+    interrupted();
     lastStart = now();
     sent++;
     const url = urlOf(path);
