@@ -1232,28 +1232,31 @@ describe("the squad lists in the run (P42)", () => {
     expect(JSON.stringify(await readPool(root))).not.toContain("squad");
   });
 
-  it("plans 2 page requests plus link lookups and refuses over the budget before the first link lookup", async () => {
+  it("plans 2 page requests plus link lookups and skips the lookups over the budget, the build going on", async () => {
     const root = await setup();
     const calls: Calls = { urls: [], queries: [] };
     // 7 + (1 English + 1 Commons + 1 redirect + 2 squad pages) + 2 = 14
     // before the links (the French squad page is counted, at most one per
     // club, until the clubs answer says there is none). Exactly: 1 squad
     // page, then 52 unknown targets, 2 lookups: 15.
+    const lines: string[] = [];
     const outcome = await run(
       deps(root, {
         wikimedia: squadWikimedia(calls, false, 51),
         maxRequests: 14,
+        log: (l) => lines.push(l),
       }),
     );
-    expect(outcome).toEqual({
-      ok: false,
-      reason:
-        "with 52 squad link targets to look up the run would make up to 15 requests, over the budget of 14",
-    });
+    expect(outcome).toMatchObject({ ok: true });
     expect(calls.urls.filter((u) => u.includes("prop=revisions"))).toHaveLength(
       2,
     );
     expect(calls.urls.some((u) => u.includes("prop=pageprops"))).toBe(false);
+    expect(lines.join("\n")).toContain("squad-links: left out of this build");
+    const report = await readFile(file(root, "report.md"), "utf8");
+    expect(report).toContain(
+      "| squad-links | failed | never | squad-links failed and there is no cached copy (with 52 squad link targets to look up the run would make up to 15 requests, over the budget of 14) |",
+    );
   });
 
   it("looks up unknown links, and the lists vote: club and caps high", async () => {
