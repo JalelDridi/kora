@@ -204,6 +204,8 @@ export function parseEnInfobox(
   let seniorRow = false;
   /** The latest end year of the senior rows; null once one is open or unreadable. */
   let nationalEnd: number | null | undefined;
+  /** The earliest start year of the senior rows. */
+  let nationalStart: number | null = null;
   for (let n = 1; n <= NATIONAL_ROWS; n++) {
     const team = get(`nationalteam${n}`);
     // A cell empty but for comments or refs is no row.
@@ -227,6 +229,8 @@ export function parseEnInfobox(
     if (rowGoals !== null) goals = (goals ?? 0) + rowGoals;
     const years = parseYears(get(`nationalyears${n}`));
     nationalOpen ||= years.open;
+    if (years.from !== null)
+      nationalStart = Math.min(nationalStart ?? years.from, years.from);
     nationalEnd =
       nationalEnd === null || years.to === null
         ? null
@@ -256,6 +260,7 @@ export function parseEnInfobox(
     goals,
     nationalOpen,
     nationalEnd: nationalEnd ?? null,
+    nationalStart,
     clubsAsOf: parseEnDate(get("pcupdate") || get("club-update")),
     capsAsOf: parseEnDate(get("ntupdate") || get("nationalteam-update")),
     skipped,

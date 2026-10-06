@@ -1000,6 +1000,10 @@ async function build(deps: RunDeps): Promise<RunResult> {
       fr: new Set(players.map((p) => p.titles.fr).filter(present)),
     };
     const targets = linkTargets(squadLists, known);
+    // Too many targets for the budget: the lookups are skipped like a failed
+    // optional source (the cached copy, else none), and the build goes on
+    // (review of the squad lists, L1).
+    let overBudget: string | null = null;
     if (!deps.offline) {
       const withLinks = planRequests({
         en: titles.en.length,
@@ -1016,14 +1020,13 @@ async function build(deps: RunDeps): Promise<RunResult> {
         `plan with squad links: wdqs ${withLinks.wdqs}, wikimedia ${withLinks.wikimedia}, github ${withLinks.github}: at most ${withLinks.total} requests, plus retries after a 503 (budget ${budget})`,
       );
       if (withLinks.total > budget)
-        throw new Refusal(
-          `with ${targets.en.length + targets.fr.length} squad link targets to look up the run would make up to ${withLinks.total} requests, over the budget of ${budget}`,
-        );
+        overBudget = `with ${targets.en.length + targets.fr.length} squad link targets to look up the run would make up to ${withLinks.total} requests, over the budget of ${budget}`;
     }
     type LinksRaw = { en: RawBatch[]; fr: RawBatch[] };
     const looked = await optionalSource<LinksRaw, Map<string, string>>(
       "squad-links",
       async () => {
+        if (overBudget) throw new Error(overBudget);
         const out: LinksRaw = { en: [], fr: [] };
         for (const lang of ["en", "fr"] as const) {
           for (const batch of chunk(targets[lang])) {
@@ -1250,10 +1253,14 @@ async function build(deps: RunDeps): Promise<RunResult> {
   const pool = {
     ...built.pool,
     players: built.pool.players.map((p) => {
-      const photo = p.photo && {
-        ...p.photo,
-        path: photoRun.paths.get(p.id) ?? null,
-      };
+      // A renamed Commons file not copied again yet keeps its old copy and
+      // that copy's credit (review 1, L7).
+      const photo =
+        photoRun.kept.get(p.id) ??
+        (p.photo && {
+          ...p.photo,
+          path: photoRun.paths.get(p.id) ?? null,
+        });
       if (!p.pools.active) return { ...p, photo, fame: null };
       const m = measured.find((x) => x.id === p.id)!;
       const found = viewsOf(m, views);

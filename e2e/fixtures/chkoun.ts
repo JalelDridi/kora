@@ -1,7 +1,11 @@
+import { readFileSync } from "node:fs";
 import pg from "pg";
 import { E2E_ENV } from "../../playwright.config";
 import { ANSWER_READY_SQL } from "../../src/pipeline/confidence.ts";
 import { runSync } from "../../src/pipeline/sync-run.ts";
+import type { Pool } from "../../src/pipeline/types.ts";
+
+const pool = JSON.parse(readFileSync("data/pool.json", "utf8")) as Pool;
 
 // The test database for the Chkoun? browser tests: data/pool.json synced
 // as a deploy syncs it, tier A given to the answer-ready footballers (the
@@ -52,7 +56,15 @@ export async function seedChkoun(): Promise<ChkounFixture> {
         )
       ).rows[0].d,
     );
-    const answers = ready.slice(0, 30);
+    // Footballers with a copied photo first, so the tests that need one
+    // (the photo row on /sources) run instead of skipping (review 2b, L3).
+    const withPhoto = new Set(
+      pool.players.filter((p) => p.photo?.path).map((p) => p.id),
+    );
+    const answers = [
+      ...ready.filter((id) => withPhoto.has(id)),
+      ...ready.filter((id) => !withPhoto.has(id)),
+    ].slice(0, 30);
     await client.query(
       `INSERT INTO puzzles (id, game, day, player_id, source)
        SELECT gen_random_uuid(), 'chkoun', $1::date + (n - 1)::int, id, 'generator'

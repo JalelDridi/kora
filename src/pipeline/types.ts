@@ -129,6 +129,11 @@ export type Infobox = {
    * senior row, or one of them is open or has no readable end.
    */
   nationalEnd: number | null;
+  /**
+   * The earliest start year of the senior Tunisia rows; null when there is
+   * none or no start is readable. Absent in hand-made test infoboxes.
+   */
+  nationalStart?: number | null;
   clubsAsOf: string | null;
   capsAsOf: string | null;
   /** Rows the parser could not read; empty when nothing was skipped. */

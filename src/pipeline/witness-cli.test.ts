@@ -4,6 +4,7 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 import { promisify } from "node:util";
+import { tmLeaguePath, tmSampleSquadPath, tmSeason } from "./witness/plan.ts";
 import { describe, expect, it } from "vitest";
 
 /** Thrown by no-network.ts, which every spawned CLI loads first. */
@@ -93,7 +94,7 @@ describe("pnpm data:witness (node src/pipeline/witness-cli.ts)", () => {
       "national-football-teams: https://www.national-football-teams.com, at least 60 s apart",
     );
     expect(out.stdout).toContain(
-      "/ligue-professionnelle-1/startseite/wettbewerb/TUN1/saison_id/2026",
+      tmLeaguePath(tmSeason(new Date().toISOString().slice(0, 10))),
     );
     expect(out.stdout).toContain("longest: about 9 min");
     expect(out.stdout).toContain("longest: about 39 min");
@@ -114,7 +115,7 @@ describe("pnpm data:witness (node src/pipeline/witness-cli.ts)", () => {
     );
     expect(sample.code).toBe(0);
     expect(sample.stdout).toContain(
-      "/club-africain-tunis/kader/verein/819/saison_id/2026",
+      tmSampleSquadPath(tmSeason(new Date().toISOString().slice(0, 10))),
     );
     const backfill = await witness(
       ["--backfill", "40"],

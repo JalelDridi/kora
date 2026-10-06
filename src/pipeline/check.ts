@@ -1,4 +1,4 @@
-import { readFile } from "node:fs/promises";
+import { access, readFile } from "node:fs/promises";
 import path from "node:path";
 import { validateOverrides } from "./overrides.ts";
 import type { KnownIds } from "./overrides.ts";
@@ -213,6 +213,22 @@ export async function inspectData(
         (e) => `data/pool.json: ${e}`,
       ),
     );
+
+  // A photo path must name a file in public/ (review 1, L6): a pool
+  // committed without its photos would show a broken image with a credit.
+  if (usablePool(pool))
+    for (const p of pool.players) {
+      const photoPath = isRecord(p) && isRecord(p.photo) ? p.photo.path : null;
+      if (typeof photoPath !== "string" || !photoPath.startsWith("/photos/"))
+        continue;
+      try {
+        await access(path.join(root, "public", ...photoPath.split("/")));
+      } catch {
+        errors.push(
+          `data/pool.json: ${String(p.id)}: photo ${photoPath} is not in public/`,
+        );
+      }
+    }
 
   // P48 (B6): the private witness's verdicts. A footballer the pool no longer
   // holds is a warning: the next build simply does not use his verdicts.

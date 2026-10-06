@@ -31,9 +31,11 @@ describe("recordFinish", () => {
   it("recordFinish writes the day's hash once (HSETNX), sets 8 days of life, updates stats", async () => {
     const stats = await recordFinish(kv, "test", won);
     expect(stats).toMatchObject({ last: 12, streak: 1, played: 1, won: 1 });
+    // The hash and its expiry go in one transaction.
     expect(kv.commands.filter((c) => c.startsWith("hsetnx"))).toEqual([
-      "hsetnx kora:test:chkoun:r:2026-10-16",
+      "hsetnxEx kora:test:chkoun:r:2026-10-16",
     ]);
+    expect(kv.commands.some((c) => c.startsWith("expire"))).toBe(false);
     expect(RESULT_TTL_SECONDS).toBe(8 * 86_400);
     expect(kv.ttl("kora:test:chkoun:r:2026-10-16")).toBe(691_200);
     expect(STATS_TTL_SECONDS).toBe(34_128_000);
@@ -64,6 +66,44 @@ describe("recordFinish", () => {
       n: 13,
     });
     expect(next).toMatchObject({ streak: 2, best: 2, played: 2 });
+  });
+
+  it("a failed record write keeps the hash's expiry, and a replay counts the stored game", async () => {
+    kv.failOn.add("set");
+    expect(await recordFinish(kv, "test", won)).toBe("unavailable");
+    expect(kv.ttl("kora:test:chkoun:r:2026-10-16")).toBe(691_200);
+    expect(kv.ttl(`kora:test:chkoun:s:${visitorId}`)).toBeUndefined();
+    kv.failOn.clear();
+    // The replay is a loss; the first finish (a win) is what counts.
+    const again = await recordFinish(kv, "test", {
+      ...won,
+      solved: false,
+      guesses: 8,
+      grid: Array(8).fill("xxxxxx"),
+    });
+    expect(again).toMatchObject({ last: 12, streak: 1, played: 1, won: 1 });
+    expect(kv.ttl(`kora:test:chkoun:s:${visitorId}`)).toBe(34_128_000);
+  });
+
+  it("a day the record missed is folded in by the next day's finish, so the streak does not skip it", async () => {
+    await recordFinish(kv, "test", { ...won, day: "2026-10-15", n: 11 });
+    kv.failOn.add("set");
+    expect(await recordFinish(kv, "test", won)).toBe("unavailable");
+    kv.failOn.clear();
+    const next = await recordFinish(kv, "test", {
+      ...won,
+      day: "2026-10-17",
+      n: 13,
+    });
+    expect(next).toMatchObject({ last: 13, streak: 3, best: 3, played: 3 });
+  });
+
+  it("an unreadable stored game leaves the record as it is on a replay", async () => {
+    await kv.hsetnx("kora:test:chkoun:r:2026-10-16", visitorId, "{broken");
+    expect(await recordFinish(kv, "test", won)).toMatchObject({
+      last: 12,
+      played: 1,
+    });
   });
 
   it("keys start with kora:{env}:", async () => {

@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { createSiteClient, SiteRefusal, SiteStopped } from "./client.ts";
+import {
+  createSiteClient,
+  SiteInterrupted,
+  SiteRefusal,
+  SiteStopped,
+} from "./client.ts";
 
 type Reply = {
   status: number;
@@ -199,5 +204,92 @@ describe("createSiteClient: robots.txt and odd paths (fix round 1)", () => {
       expect(log, JSON.stringify(odd)).toEqual([]);
       expect(client.requests()).toBe(0);
     }
+  });
+});
+
+describe("a guessed path (squad-lists review, L2)", () => {
+  it("with missingOk, a 404 answers an empty page and the site goes on; any other refusal still stops it", async () => {
+    const { client, log } = harness({
+      "/robots.txt": [ok("")],
+      "/guess": [{ status: 404 }],
+      "/real": [ok()],
+      "/moved": [{ status: 301, headers: { location: "/elsewhere" } }],
+      "/after": [ok()],
+    });
+    expect(await client.get("/guess", { missingOk: true })).toBe("");
+    expect(client.stopped()).toBeNull();
+    expect(await client.get("/real")).toBe("<html>page</html>");
+    await expect(client.get("/moved", { missingOk: true })).rejects.toThrow(
+      SiteStopped,
+    );
+    await expect(client.get("/after")).rejects.toThrow(SiteStopped);
+    expect(log.map((l) => l.path)).toEqual([
+      "/robots.txt",
+      "/guess",
+      "/real",
+      "/moved",
+    ]);
+  });
+
+  it("without missingOk, a 404 still stops the site", async () => {
+    const { client } = harness({
+      "/robots.txt": [ok("")],
+      "/gone": [{ status: 404 }],
+    });
+    await expect(client.get("/gone")).rejects.toThrow(SiteStopped);
+    expect(client.stopped()).toContain("HTTP 404");
+  });
+});
+
+describe("Ctrl+C during a wait (squad-lists review, L5)", () => {
+  it("ends the wait and never sends the request it was for", async () => {
+    const controller = new AbortController();
+    const sent: string[] = [];
+    let time = 0;
+    let waits = 0;
+    const client = createSiteClient({
+      host: "site.test",
+      gapMs: 60_000,
+      maxRequests: 5,
+      userAgent: "KoraWitness/0.1 (test)",
+      signal: controller.signal,
+      now: () => time,
+      // Ctrl+C arrives during the second gap, the one before "/b".
+      sleep: async (ms) => {
+        waits++;
+        time += ms;
+        if (waits === 2) controller.abort();
+      },
+      fetch: async (url) => {
+        sent.push(new URL(url).pathname);
+        return new Response("<html>page</html>");
+      },
+    });
+    await client.get("/a");
+    await expect(client.get("/b")).rejects.toThrow(SiteInterrupted);
+    expect(sent).toEqual(["/robots.txt", "/a"]);
+    await expect(client.get("/c")).rejects.toThrow(SiteInterrupted);
+    expect(sent).toEqual(["/robots.txt", "/a"]);
+  });
+
+  it("the default wait ends as soon as the signal aborts", async () => {
+    const controller = new AbortController();
+    const sent: string[] = [];
+    const client = createSiteClient({
+      host: "site.test",
+      gapMs: 3_600_000, // an hour: the test would time out without the abort
+      maxRequests: 5,
+      userAgent: "KoraWitness/0.1 (test)",
+      signal: controller.signal,
+      fetch: async (url) => {
+        sent.push(new URL(url).pathname);
+        return new Response("");
+      },
+    });
+    // robots.txt goes at once; "/a" waits an hour behind it.
+    const first = client.get("/a");
+    setTimeout(() => controller.abort(), 20);
+    await expect(first).rejects.toThrow(SiteInterrupted);
+    expect(sent).toEqual(["/robots.txt"]);
   });
 });

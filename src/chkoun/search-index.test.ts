@@ -22,7 +22,7 @@ describe("the game page's name index", () => {
     for (const p of legendsOnly) expect(ids).not.toContain(p.id);
   });
 
-  it("carries no field beyond id, display names, aliases and fame", () => {
+  it("carries no field beyond id, display names, aliases and the fame tier's rank", () => {
     for (const row of packed) {
       expect(row).toHaveLength(6);
       const [id, latin, arabic, french, aliases, fame] = row;
@@ -31,9 +31,12 @@ describe("the game page's name index", () => {
       expect(arabic).toBe(player.nameArabic);
       expect([player.nameFrench, null]).toContain(french);
       expect(aliases).toEqual(player.aliases);
-      expect(typeof fame).toBe("number");
+      // Only the tier, which data/pool.json already makes public; never the
+      // finer score (review 2b, L1).
+      const rank = { A: 4, B: 3, C: 2, D: 1 };
+      expect(fame).toBe(player.fame?.tier ? rank[player.fame.tier] : 0);
     }
-    // Nothing that could rank the answer: no club, caps, birth or tier.
+    // No club, caps or birth date.
     const text = JSON.stringify(packed);
     for (const p of pool.players.filter((x) => x.pools.active).slice(0, 20)) {
       if (p.clubId) expect(text).not.toContain(`"${p.clubId}"`);

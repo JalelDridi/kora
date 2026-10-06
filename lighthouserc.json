@@ -7,14 +7,15 @@
         "http://localhost:3200/ar",
         "http://localhost:3200/tn",
         "http://localhost:3200/fr",
-        "http://localhost:3200/ar/chkoun"
+        "http://localhost:3200/ar/chkoun",
+        "http://localhost:3200/ar/privacy"
       ],
       "numberOfRuns": 3
     },
     "assert": {
       "assertMatrix": [
         {
-          "matchingUrlPattern": "^http://localhost:3200/(ar|tn|fr)$",
+          "matchingUrlPattern": "^http://localhost:3200/(ar|tn|fr|ar/privacy)$",
           "assertions": {
             "categories:performance": ["error", { "minScore": 0.9 }],
             "categories:accessibility": ["error", { "minScore": 1 }],

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { USER_AGENT } from "./http.ts";
-import { MAX_PHOTO_BYTES, syncPhotos } from "./photos.ts";
+import { MAX_PHOTO_BYTES, smallerThumbUrl, syncPhotos } from "./photos.ts";
 import type { Photo } from "./types.ts";
 
 const photo: Photo = {
@@ -311,5 +311,137 @@ describe("syncPhotos (P30)", () => {
         ["b", null],
       ]),
     );
+  });
+});
+
+describe("photos: later fixes (review 1, L7 and L8; the eleven over 120 KB)", () => {
+  it("a renamed file keeps its old copy and credit while the new one waits", async () => {
+    const w = world();
+    w.files.set("wahbi-khazri.jpg", new Uint8Array(1));
+    const before = {
+      ...photo,
+      file: "File:Wahbi Khazri 2015.jpg",
+      author: "Old author",
+      path: "/photos/wahbi-khazri.jpg",
+    };
+    const out = await syncPhotos({
+      players: [khazri],
+      previous: new Map([["wahbi-khazri", before]]),
+      max: 0,
+      ...w.deps,
+    });
+    expect(w.asked).toEqual([]);
+    expect(out.waiting).toBe(1);
+    expect(out.paths.get("wahbi-khazri")).toBe("/photos/wahbi-khazri.jpg");
+    expect(out.kept.get("wahbi-khazri")).toEqual(before);
+  });
+
+  it("a renamed file keeps its old copy when the new one cannot be copied", async () => {
+    const w = world(() => new Response("throttled", { status: 403 }));
+    w.files.set("wahbi-khazri.jpg", new Uint8Array(1));
+    const before = {
+      ...photo,
+      file: "File:Wahbi Khazri 2015.jpg",
+      path: "/photos/wahbi-khazri.jpg",
+    };
+    const out = await syncPhotos({
+      players: [khazri],
+      previous: new Map([["wahbi-khazri", before]]),
+      max: 10,
+      ...w.deps,
+    });
+    expect(out.paths.get("wahbi-khazri")).toBe("/photos/wahbi-khazri.jpg");
+    expect(out.kept.get("wahbi-khazri")?.file).toBe(
+      "File:Wahbi Khazri 2015.jpg",
+    );
+  });
+
+  it("a new copy replaces the kept one once it is downloaded", async () => {
+    const w = world();
+    w.files.set("wahbi-khazri.jpg", new Uint8Array(1));
+    const out = await syncPhotos({
+      players: [khazri],
+      previous: new Map([
+        [
+          "wahbi-khazri",
+          { ...photo, file: "File:Old.jpg", path: "/photos/wahbi-khazri.jpg" },
+        ],
+      ]),
+      max: 10,
+      ...w.deps,
+    });
+    expect(out.kept.size).toBe(0);
+    expect(out.paths.get("wahbi-khazri")).toBe("/photos/wahbi-khazri.jpg");
+  });
+
+  it("the second night downloads nothing when the first night's pool is the previous one (L8)", async () => {
+    const w = world();
+    const players = ["a", "b"].map((id) => ({ id, photo }));
+    const first = await syncPhotos({
+      players,
+      previous: new Map(),
+      max: 10,
+      ...w.deps,
+    });
+    expect(w.asked).toHaveLength(2);
+    const previous = new Map(
+      players.map((p) => [p.id, { ...p.photo, path: first.paths.get(p.id) }]),
+    );
+    const second = await syncPhotos({ players, previous, max: 10, ...w.deps });
+    expect(w.asked).toHaveLength(2);
+    expect(second.downloaded).toBe(0);
+    expect(second.paths).toEqual(first.paths);
+  });
+
+  it("a copy over 120 KB is asked again once as a 250 px thumbnail", async () => {
+    const w = world((url) =>
+      url.includes("/250px-") ? jpeg(40_000) : jpeg(MAX_PHOTO_BYTES + 1),
+    );
+    const out = await syncPhotos({
+      players: [khazri],
+      previous: new Map(),
+      max: 10,
+      ...w.deps,
+    });
+    expect(w.asked.map((a) => a.url)).toEqual([
+      photo.thumbUrl,
+      photo.thumbUrl.replace("/330px-", "/250px-"),
+    ]);
+    expect(out.paths.get("wahbi-khazri")).toBe("/photos/wahbi-khazri.jpg");
+    expect(w.files.get("wahbi-khazri.jpg")?.byteLength).toBe(40_000);
+    expect(out.notes).toEqual([]);
+    expect(out.downloaded).toBe(2);
+  });
+
+  it("the second request counts against the run's limit", async () => {
+    const w = world(() => jpeg(MAX_PHOTO_BYTES + 1));
+    const out = await syncPhotos({
+      players: [khazri],
+      previous: new Map(),
+      max: 1,
+      ...w.deps,
+    });
+    expect(w.asked).toHaveLength(1);
+    expect(out.paths.get("wahbi-khazri")).toBeNull();
+  });
+
+  it("smallerThumbUrl: the 250 px step of a scaled or an unscaled file, none for a narrow one", () => {
+    expect(smallerThumbUrl(photo)).toBe(
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ab/Wahbi_Khazri_2018.jpg/250px-Wahbi_Khazri_2018.jpg",
+    );
+    expect(
+      smallerThumbUrl({
+        ...photo,
+        width: 294,
+        thumbUrl:
+          "https://upload.wikimedia.org/wikipedia/commons/0/0c/Bilel_Ifa%2C_Tunisia.jpg?utm_source=commons.wikimedia.org&utm_content=thumbnail_unscaled",
+      }),
+    ).toBe(
+      "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0c/Bilel_Ifa%2C_Tunisia.jpg/250px-Bilel_Ifa%2C_Tunisia.jpg",
+    );
+    expect(smallerThumbUrl({ ...photo, width: 250 })).toBeNull();
+    expect(
+      smallerThumbUrl({ ...photo, thumbUrl: "https://example.org/x.jpg" }),
+    ).toBeNull();
   });
 });

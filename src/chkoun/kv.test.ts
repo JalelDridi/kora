@@ -14,9 +14,31 @@ describe("the Upstash adapter", () => {
         calls.push(args);
         return args[2] && (args[2] as { nx?: boolean }).nx ? null : "OK";
       },
-      hsetnx: async () => 0,
-      expire: async () => 1,
-      incr: async () => 3,
+      multi: () => {
+        const parts: string[] = [];
+        const tx = {
+          hsetnx: (...args: unknown[]) => (
+            parts.push("hsetnx"),
+            calls.push(args),
+            tx
+          ),
+          incr: (...args: unknown[]) => (
+            parts.push("incr"),
+            calls.push(args),
+            tx
+          ),
+          expire: (...args: unknown[]) => (
+            parts.push("expire"),
+            calls.push(args),
+            tx
+          ),
+          exec: async () => {
+            calls.push(["exec", ...parts]);
+            return parts[0] === "incr" ? [3, 1] : [0, 1];
+          },
+        };
+        return tx;
+      },
       del: async () => 1,
     } as unknown as Redis;
     const kv = upstashKv(redis);
@@ -29,8 +51,18 @@ describe("the Upstash adapter", () => {
       ["k", "v", { ex: 60 }],
       ["k", "v", { ex: 60, nx: true }],
     ]);
-    expect(await kv.hsetnx("k", "f", "v")).toBe(false);
-    expect(await kv.incr("k")).toBe(3);
+    calls.length = 0;
+    expect(await kv.hsetnxEx("k", "f", "v", 9)).toBe(false);
+    expect(await kv.incrEx("k", 7)).toBe(3);
+    // Each write and its expiry go in one MULTI.
+    expect(calls).toEqual([
+      ["k", "f", "v"],
+      ["k", 9],
+      ["exec", "hsetnx", "expire"],
+      ["k"],
+      ["k", 7],
+      ["exec", "incr", "expire"],
+    ]);
   });
 
   it("keys start with kora:{env}:chkoun:", () => {
@@ -44,12 +76,21 @@ describe("FakeKv", () => {
   it("expires keys on its own clock", async () => {
     const kv = new FakeKv();
     await kv.set("a", "1", { ex: 10 });
-    await kv.incr("b");
-    await kv.expire("b", 5);
+    await kv.incrEx("b", 5);
     kv.nowMs = 5_000;
     expect(await kv.get("b")).toBeNull();
     expect(await kv.get("a")).toBe("1");
     kv.nowMs = 10_000;
     expect(await kv.get("a")).toBeNull();
+  });
+
+  it("a failed transaction applies none of its parts", async () => {
+    const kv = new FakeKv();
+    kv.failOn.add("hsetnxEx");
+    await expect(kv.hsetnxEx("h", "f", "v", 10)).rejects.toThrow();
+    expect(kv.entries.size).toBe(0);
+    kv.failOn.clear();
+    expect(await kv.hsetnxEx("h", "f", "v", 10)).toBe(true);
+    expect(kv.ttl("h")).toBe(10);
   });
 });

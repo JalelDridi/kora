@@ -1,9 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { describePlan } from "./plan.ts";
+import { describePlan, tmLeaguePath, tmSeason } from "./plan.ts";
 
 const base = {
   mode: { kind: "weekly" as const },
   year: 2026,
+  season: 2026,
   sites: ["transfermarkt" as const, "national-football-teams" as const],
   privateDir: "/w",
   mapping: null,
@@ -47,5 +48,23 @@ describe("the backfill plan counts the guessed links (fix round 2)", () => {
         (l) => l.startsWith("backfill links"),
       ),
     ).toBe(false);
+  });
+});
+
+describe("Transfermarkt's season (squad-lists review, L3)", () => {
+  it("runs from July to June and is named by its first year", () => {
+    expect(tmSeason("2026-10-05")).toBe(2026);
+    expect(tmSeason("2027-06-30")).toBe(2026);
+    expect(tmSeason("2027-07-01")).toBe(2027);
+    expect(tmLeaguePath(tmSeason("2027-08-15"))).toBe(
+      "/ligue-professionnelle-1/startseite/wettbewerb/TUN1/saison_id/2027",
+    );
+  });
+
+  it("the dry run plans the season it is given", () => {
+    const lines = describePlan({ ...base, season: 2027 }).join("\n");
+    expect(lines).toContain("/TUN1/saison_id/2027");
+    expect(lines).toContain("/saison_id/2027 (each Ligue 1 club)");
+    expect(lines).not.toContain("saison_id/2026");
   });
 });

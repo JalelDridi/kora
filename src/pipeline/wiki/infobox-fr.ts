@@ -34,6 +34,12 @@ const NAMES_TUNISIA = /tunisi|\{\{\s*TUN\b/i;
 /** Tunisian youth and olympic teams, as their cells, links or templates write them. */
 const YOUTH_TEAM =
   /-\s?\d{2}\s?ans|moins de \d{2} ans|\bU-?\d{2}\b|olympique|juniors?|espoirs?/i;
+/**
+ * The home-based team, "Tunisie A'" ({{TUN-d}} Tunisie A' in the cache): its
+ * own team, not the senior one, so its rows are another team, read silently
+ * (review guide v2, item 8; A4 refinement). Its matches are not Tunisia caps.
+ */
+const HOME_BASED_TEAM = /Tunisie\s+A\s*['’]/i;
 /** A loan note after the current club: "(en prêt de l'…)", with its <br> and <small>. */
 const LOAN_NOTE = /(?:<br\s*\/?>\s*)?(?:<small>\s*)?\(\s*en prêt\b[\s\S]*$/i;
 /** {{Lien}}'s wiki: absent means English. */
@@ -199,13 +205,16 @@ export function isSeniorTunisie(team: string): boolean {
 }
 
 /**
- * A national row naming Tunisia that is neither the senior team nor a youth
- * or olympic team ("Tunisie A'"): reported as skipped, never silently read
+ * A national row naming Tunisia that is neither the senior team nor a youth,
+ * olympic or home-based (A') team: reported as skipped, never silently read
  * as another country's team (the English parser's rule, fix round 3).
  */
 function unplacedTunisie(team: string): boolean {
   return (
-    NAMES_TUNISIA.test(team) && !isSeniorTunisie(team) && !YOUTH_TEAM.test(team)
+    NAMES_TUNISIA.test(team) &&
+    !isSeniorTunisie(team) &&
+    !YOUTH_TEAM.test(team) &&
+    !HOME_BASED_TEAM.test(plainText(team))
   );
 }
 
@@ -253,12 +262,16 @@ export function parseFrInfobox(
   let seniorRow = false;
   /** The latest end year of the senior rows; null once one is open or unknown. */
   let nationalEnd: number | null | undefined;
+  /** The earliest start year of the senior rows. */
+  let nationalStart: number | null = null;
   for (const row of national.rows) {
     if (!isSeniorTunisie(row.team)) continue;
     seniorRow = true;
     if (row.apps !== null) caps = (caps ?? 0) + row.apps;
     if (row.goals !== null) goals = (goals ?? 0) + row.goals;
     nationalOpen ||= row.open;
+    if (row.from !== null)
+      nationalStart = Math.min(nationalStart ?? row.from, row.from);
     nationalEnd =
       nationalEnd === null || row.to === null
         ? null
@@ -292,6 +305,7 @@ export function parseFrInfobox(
     goals,
     nationalOpen,
     nationalEnd: nationalEnd ?? null,
+    nationalStart,
     clubsAsOf: asOf,
     capsAsOf: asOf,
     skipped,

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { clientIp, serializeCookie, toResponse } from "./http.ts";
+import { clientIp, readCapped, serializeCookie, toResponse } from "./http.ts";
 import { newVisitorCookie } from "./visitor.ts";
 
 describe("the game API's responses", () => {
@@ -33,5 +33,42 @@ describe("the game API's responses", () => {
       "198.51.100.2",
     );
     expect(clientIp(new Headers())).toBeNull();
+  });
+});
+
+describe("readCapped", () => {
+  const post = (body: BodyInit, headers: Record<string, string> = {}) =>
+    new Request("http://localhost/api/chkoun/guess", {
+      method: "POST",
+      body,
+      headers,
+      // Required by Node for a stream body.
+      ...({ duplex: "half" } as object),
+    });
+
+  it("reads a body within the limit, in UTF-8", async () => {
+    expect(await readCapped(post('{"id":"Q1","n":"صالح"}'), 2048)).toBe(
+      '{"id":"Q1","n":"صالح"}',
+    );
+    expect(await readCapped(post(""), 2048)).toBe("");
+  });
+
+  it("refuses a declared length over the limit without reading", async () => {
+    expect(
+      await readCapped(post("x", { "content-length": "4096" }), 2048),
+    ).toBeNull();
+  });
+
+  it("stops reading a chunked body at the limit", async () => {
+    let pulled = 0;
+    const endless = new ReadableStream<Uint8Array>({
+      pull(controller) {
+        pulled++;
+        controller.enqueue(new Uint8Array(1024).fill(120));
+      },
+    });
+    expect(await readCapped(post(endless), 2048)).toBeNull();
+    // Three chunks of 1 KB pass the 2 KB limit; nothing more is pulled.
+    expect(pulled).toBeLessThanOrEqual(4);
   });
 });

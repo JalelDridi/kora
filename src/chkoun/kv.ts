@@ -17,12 +17,20 @@ export interface Kv {
     value: string,
     options?: { ex?: number; nx?: boolean },
   ): Promise<boolean>;
-  /** True when the field was new. */
-  hsetnx(key: string, field: string, value: string): Promise<boolean>;
+  /**
+   * HSETNX and EXPIRE in one transaction (MULTI), so the hash never lives
+   * without its expiry. True when the field was new.
+   */
+  hsetnxEx(
+    key: string,
+    field: string,
+    value: string,
+    seconds: number,
+  ): Promise<boolean>;
   hget(key: string, field: string): Promise<string | null>;
   hgetall(key: string): Promise<Record<string, string>>;
-  expire(key: string, seconds: number): Promise<void>;
-  incr(key: string): Promise<number>;
+  /** INCR and EXPIRE in one transaction (MULTI); returns the new count. */
+  incrEx(key: string, seconds: number): Promise<number>;
   del(key: string): Promise<void>;
 }
 
@@ -57,8 +65,14 @@ export function upstashKv(redis: Redis): Kv {
             : await redis.set(key, value);
       return result !== null;
     },
-    hsetnx: async (key, field, value) =>
-      (await redis.hsetnx(key, field, value)) === 1,
+    hsetnxEx: async (key, field, value, seconds) => {
+      const [isNew] = await redis
+        .multi()
+        .hsetnx(key, field, value)
+        .expire(key, seconds)
+        .exec<[number, number]>();
+      return isNew === 1;
+    },
     hget: async (key, field) => asText(await redis.hget(key, field)),
     hgetall: async (key) => {
       const all = await redis.hgetall<Record<string, unknown>>(key);
@@ -69,10 +83,14 @@ export function upstashKv(redis: Redis): Kv {
       }
       return out;
     },
-    expire: async (key, seconds) => {
-      await redis.expire(key, seconds);
+    incrEx: async (key, seconds) => {
+      const [count] = await redis
+        .multi()
+        .incr(key)
+        .expire(key, seconds)
+        .exec<[number, number]>();
+      return count;
     },
-    incr: (key) => redis.incr(key),
     del: async (key) => {
       await redis.del(key);
     },
@@ -94,12 +112,15 @@ type Entry = { value: string | Map<string, string>; expiresAt: number | null };
 
 /**
  * An in-memory Kv for tests, with a clock the test moves. `failing` makes
- * every command throw, like an unreachable Upstash.
+ * every command throw, like an unreachable Upstash; `failOn` makes only the
+ * named commands throw. A transaction (hsetnxEx, incrEx) is one command: it
+ * applies all of its parts or none.
  */
 export class FakeKv implements Kv {
   readonly entries = new Map<string, Entry>();
   readonly commands: string[] = [];
   failing = false;
+  readonly failOn = new Set<string>();
   nowMs = 0;
 
   private live(key: string): Entry | undefined {
@@ -113,7 +134,8 @@ export class FakeKv implements Kv {
 
   private run(name: string, key: string): void {
     this.commands.push(`${name} ${key}`);
-    if (this.failing) throw new Error("fake Redis is down");
+    if (this.failing || this.failOn.has(name))
+      throw new Error("fake Redis is down");
   }
 
   /** Seconds a key has left; null without expiry, undefined when absent. */
@@ -146,8 +168,13 @@ export class FakeKv implements Kv {
     return true;
   }
 
+  /** A bare HSETNX, without expiry: for tests that seed a hash. */
   async hsetnx(key: string, field: string, value: string): Promise<boolean> {
     this.run("hsetnx", key);
+    return this.hsetnxNow(key, field, value);
+  }
+
+  private hsetnxNow(key: string, field: string, value: string): boolean {
     let entry = this.live(key);
     if (!entry) {
       entry = { value: new Map(), expiresAt: null };
@@ -157,6 +184,18 @@ export class FakeKv implements Kv {
     if (hash.has(field)) return false;
     hash.set(field, value);
     return true;
+  }
+
+  async hsetnxEx(
+    key: string,
+    field: string,
+    value: string,
+    seconds: number,
+  ): Promise<boolean> {
+    this.run("hsetnxEx", key);
+    const isNew = this.hsetnxNow(key, field, value);
+    this.expireNow(key, seconds);
+    return isNew;
   }
 
   async hget(key: string, field: string): Promise<string | null> {
@@ -173,14 +212,19 @@ export class FakeKv implements Kv {
     return entry?.value instanceof Map ? Object.fromEntries(entry.value) : {};
   }
 
-  async expire(key: string, seconds: number): Promise<void> {
-    this.run("expire", key);
+  private expireNow(key: string, seconds: number): void {
     const entry = this.live(key);
     if (entry) entry.expiresAt = this.nowMs + seconds * 1000;
   }
 
-  async incr(key: string): Promise<number> {
-    this.run("incr", key);
+  async incrEx(key: string, seconds: number): Promise<number> {
+    this.run("incrEx", key);
+    const next = this.incrNow(key);
+    this.expireNow(key, seconds);
+    return next;
+  }
+
+  private incrNow(key: string): number {
     const entry = this.live(key);
     const next = Number(typeof entry?.value === "string" ? entry.value : 0) + 1;
     this.entries.set(key, {

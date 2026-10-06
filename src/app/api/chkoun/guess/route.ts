@@ -1,6 +1,6 @@
 import { getFootballers } from "@/chkoun/attributes.server";
 import { handleGuess, MAX_BODY_BYTES } from "@/chkoun/guess";
-import { clientIp, toResponse } from "@/chkoun/http";
+import { clientIp, readCapped, toResponse } from "@/chkoun/http";
 import { getKv, kvEnv } from "@/chkoun/kv";
 import { todayPuzzle } from "@/chkoun/puzzle.server";
 
@@ -15,7 +15,8 @@ const closed = () => toResponse({ status: 503, body: { error: "closed" } });
 export async function POST(request: Request) {
   const seed = process.env.CHKOUN_SEED;
   if (!seed) return closed();
-  if (Number(request.headers.get("content-length") ?? 0) > MAX_BODY_BYTES)
+  const body = await readCapped(request, MAX_BODY_BYTES).catch(() => null);
+  if (body === null)
     return toResponse({ status: 400, body: { error: "badRequest" } });
   try {
     const result = await handleGuess(
@@ -28,7 +29,7 @@ export async function POST(request: Request) {
         env: kvEnv(),
         secureCookie: process.env.NODE_ENV === "production",
       },
-      await request.text(),
+      body,
       { cookie: request.headers.get("cookie"), ip: clientIp(request.headers) },
     );
     return toResponse(result);

@@ -36,8 +36,10 @@ export async function allowGuess(
     .slice(0, 16);
   const key = chkounKey(input.env, `rl:${hash}:${window}`);
   try {
-    const count = await kv.incr(key);
-    if (count === 1) await kv.expire(key, WINDOW_SECONDS);
+    // The count and its expiry in one transaction: no counter outlives its
+    // window. Each call renews the expiry; the key names its window, so a
+    // renewed one is never read again.
+    const count = await kv.incrEx(key, WINDOW_SECONDS);
     if (count <= GUESS_LIMIT) return open;
     const ends = (window + 1) * windowMs;
     return {

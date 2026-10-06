@@ -58,6 +58,7 @@ describe("parseEnInfobox", () => {
       caps: 89,
       goals: 3,
       nationalOpen: true,
+      nationalStart: 2013,
       nationalEnd: null,
       clubsAsOf: "2026-09-04",
       capsAsOf: "2024-04-01",
@@ -209,6 +210,7 @@ describe("parseFrInfobox", () => {
       caps: 93,
       goals: 5,
       nationalOpen: false,
+      nationalStart: 2015,
       nationalEnd: 2026,
       clubsAsOf: "2026-09-27",
       capsAsOf: "2026-09-27",
@@ -1107,19 +1109,39 @@ describe("final wave: parser gaps found by the first pool", () => {
   });
 
   // A4, hand-made (0 such rows in the cache): a Tunisia team that is neither
-  // the senior team nor a youth team is reported, never silently "other".
+  // the senior team nor a youth or home-based team is reported, never
+  // silently "other".
   it("reports a Tunisia row it cannot place (hand-made)", () => {
     const box = frNational(
-      "|[[2010 en football|2010]]|[[Équipe de Tunisie A' de football|Tunisie A']]|4 (0)",
+      "|[[2010 en football|2010]]|[[Équipe de Tunisie B de football|Tunisie B]]|4 (0)",
     );
     expect(box).toMatchObject({ caps: null, seniorRow: false });
     expect(box?.skipped).toEqual([
       {
         field: "sélection nationale",
-        raw: "|[[2010 en football|2010]]|[[Équipe de Tunisie A' de football|Tunisie A']]|4 (0)",
+        raw: "|[[2010 en football|2010]]|[[Équipe de Tunisie B de football|Tunisie B]]|4 (0)",
         reason: "no-club",
       },
     ]);
+  });
+
+  // A4 refinement (review guide v2, item 8): the home-based team's rows, as
+  // the cache writes them (Traoui, Korbi, Darragi), are another team: no
+  // caps, and no skipped row to cap the rating.
+  it.each([
+    "|[[2011 en football|2011]]|{{TUN-d}} Tunisie A' |{{0}}{{0}}6 {{0}}(1)",
+    "|[[2010 en football|2010]]|[[Équipe de Tunisie A' de football|Tunisie A']]|4 (0)",
+  ])("reads a Tunisie A' row as another team: %s", (row) => {
+    expect(frNational(row)).toMatchObject({
+      caps: null,
+      seniorRow: false,
+      skipped: [],
+    });
+    expect(
+      frNational(
+        `|[[2010 en football|2010]]-[[2014 en football|2014]]|{{TUN football}}|{{0}}26 (2)\n${row}`,
+      ),
+    ).toMatchObject({ caps: 26, goals: 2, seniorRow: true, skipped: [] });
   });
 
   // A7. Raouf Bouzaiene (Q2707274), frwiki dated 17 Dec 2012: a closed career.

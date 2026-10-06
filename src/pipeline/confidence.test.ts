@@ -3,6 +3,7 @@ import {
   ANSWER_READY_SQL,
   capForSkipped,
   capsCeiling,
+  ceilingYears,
   CHKOUN_FIELDS,
   isAnswerReady,
   rateCount,
@@ -14,7 +15,7 @@ import {
   type Rating,
   type Vote,
 } from "./confidence.ts";
-import type { Match, SourceId } from "./types.ts";
+import type { Infobox, Match, SourceId } from "./types.ts";
 
 // Rows of .superpowers/research/data-confidence-sheet.csv, carried inline.
 const today = "2026-10-04";
@@ -209,6 +210,70 @@ describe("ceiling and skipped rows", () => {
       }).confidence,
     ).toBe("low");
   });
+  // Review guide v2, item 7: Wikidata's national years are narrower than the
+  // pages' for some legends (Samir Bakaou: 1981-1982 on Wikidata, 1973-1989
+  // on the pages).
+  const page = (
+    lang: "en" | "fr",
+    years: Partial<Infobox> & { seniorRow?: boolean },
+  ): Infobox => ({
+    lang,
+    title: "X",
+    currentClub: null,
+    currentClubIsStaff: false,
+    positionText: null,
+    spells: [],
+    caps: 45,
+    goals: 0,
+    nationalOpen: false,
+    nationalEnd: null,
+    clubsAsOf: null,
+    capsAsOf: null,
+    skipped: [],
+    seniorRow: true,
+    ...years,
+  });
+  it("counts in the pages' national years when a page gives them, Wikidata's otherwise", () => {
+    const wikidata = { start: 1981, end: 1982 };
+    expect(
+      ceilingYears(
+        [
+          page("en", { nationalStart: 1975, nationalEnd: 1989 }),
+          page("fr", { nationalStart: 1973, nationalEnd: 1988 }),
+        ],
+        wikidata,
+      ),
+    ).toEqual({ from: 1973, to: 1989 });
+    // An open spell on a page counts to the as-of date.
+    expect(
+      ceilingYears(
+        [page("en", { nationalStart: 2015, nationalOpen: true }), null],
+        wikidata,
+      ),
+    ).toEqual({ from: 2015, to: null });
+    // A start but no readable end: Wikidata's end.
+    expect(
+      ceilingYears([page("fr", { nationalStart: 1979 })], wikidata),
+    ).toEqual({ from: 1979, to: 1982 });
+    // No page start (no senior row, or none readable): Wikidata's years.
+    expect(
+      ceilingYears(
+        [
+          page("en", { nationalStart: 1960, seniorRow: false }),
+          page("fr", { nationalStart: null }),
+        ],
+        wikidata,
+      ),
+    ).toEqual({ from: 1981, to: 1982 });
+    expect(ceilingYears([null, null], null)).toBeNull();
+    expect(
+      ceilingYears(
+        [page("en", { nationalStart: 1979, nationalEnd: 1983 })],
+        null,
+      ),
+    ).toEqual({ from: 1979, to: 1983 });
+  });
+
   it("keeps high only with two sources that skipped nothing", () => {
     const high: Rating = { confidence: "high", agreeing: ["enwiki", "frwiki"] };
     expect(capForSkipped(high, ["frwiki"]).confidence).toBe("medium");
