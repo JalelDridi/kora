@@ -17,6 +17,11 @@ export function analyticsOptions(
     options: {
       api_host: env.host || posthogEuHost,
       defaults: "2025-05-24",
+      // Those defaults turn on automatic page views and page leaves. Pages
+      // are Vercel Web Analytics' job (P41); PostHog gets the games' own
+      // events only, as the privacy page says.
+      capture_pageview: false,
+      capture_pageleave: false,
       // No cookie, no local or session storage. The PostHog project must also
       // have cookieless server hash mode on, or the events are dropped.
       cookieless_mode: "always",

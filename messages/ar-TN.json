@@ -189,7 +189,7 @@
     },
     "analytics": {
       "title": "Mesure d'audience",
-      "body": "Kora compte les visites sans cookie avec Vercel Web Analytics, et quelques événements du jeu avec PostHog (serveurs en Europe), sans cookie et sans profil : partie ouverte, essai fait, partie finie, partage, recherche sans résultat. Ces événements portent seulement le numéro du jour, le nombre d'essais, gagné ou non, la langue et la façon de partager ; jamais ce que tu tapes, un joueur, ni ton numéro kora_v."
+      "body": "Kora compte les visites sans cookie avec Vercel Web Analytics. PostHog (serveurs en Europe), sans cookie et sans profil, reçoit seulement cinq événements du jeu : partie ouverte, essai fait, partie finie, partage, recherche sans résultat. Ils portent le numéro du jour, le nombre d'essais, gagné ou non, la langue et la façon de partager ; jamais ce que tu tapes, un joueur, ni ton numéro kora_v. La bibliothèque de PostHog y ajoute d'elle-même l'adresse de la page, la page d'où tu viens, le navigateur, le système et la taille de l'écran. PostHog reçoit ton adresse IP pour calculer son empreinte sans cookie, sans l'enregistrer : l'enregistrement des adresses IP est désactivé dans le projet PostHog."
     },
     "errors": {
       "title": "Erreurs",

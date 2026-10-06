@@ -15,6 +15,8 @@ describe("analyticsOptions", () => {
       options: {
         api_host: "https://eu.i.posthog.com",
         defaults: "2025-05-24",
+        capture_pageview: false,
+        capture_pageleave: false,
         cookieless_mode: "always",
         person_profiles: "never",
         mask_personal_data_properties: true,
@@ -27,6 +29,12 @@ describe("analyticsOptions", () => {
         disable_external_dependency_loading: true,
       },
     });
+  });
+
+  it("never records page views or page leaves (P41: Vercel Web Analytics counts pages)", () => {
+    const options = analyticsOptions({ key: "phc_test" })?.options;
+    expect(options?.capture_pageview).toBe(false);
+    expect(options?.capture_pageleave).toBe(false);
   });
 
   it("sends to another host only when told to", () => {
