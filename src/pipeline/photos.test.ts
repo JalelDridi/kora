@@ -237,8 +237,48 @@ describe("syncPhotos (P30)", () => {
     expect(out.waiting).toBe(1);
   });
 
-  it("stops at the first 429 and sends nothing more", async () => {
+  // Pageviews fix: thumb.wikimedia.org throttles too; a 429 is waited out.
+  it("waits out a 429 (Retry-After, else 60 s) and goes on, at most 3 times", async () => {
+    let n = 0;
+    const waits: number[] = [];
+    const w = world(() =>
+      n++ === 0
+        ? new Response("", { status: 429, headers: { "retry-after": "9" } })
+        : jpeg(),
+    );
+    const out = await syncPhotos({
+      players: ["a", "b"].map((id) => ({ id, photo })),
+      previous: new Map(),
+      max: 10,
+      ...w.deps,
+      sleep: async (ms) => {
+        waits.push(ms);
+      },
+    });
+    expect(waits).toContain(9_000);
+    expect(out.paths.get("a")).toBe("/photos/a.jpg");
+    expect(out.paths.get("b")).toBe("/photos/b.jpg");
+  });
+
+  it("stops after a fourth 429 and sends nothing more", async () => {
     const w = world(() => new Response("", { status: 429 }));
+    const waits: number[] = [];
+    const out = await syncPhotos({
+      players: ["a", "b"].map((id) => ({ id, photo })),
+      previous: new Map(),
+      max: 10,
+      ...w.deps,
+      sleep: async (ms) => {
+        waits.push(ms);
+      },
+    });
+    expect(w.asked).toHaveLength(4);
+    expect(waits.filter((ms) => ms === 60_000)).toHaveLength(3);
+    expect(out.paths.get("b")).toBeNull();
+  });
+
+  it("stops at the first 403 and sends nothing more", async () => {
+    const w = world(() => new Response("", { status: 403 }));
     const out = await syncPhotos({
       players: ["a", "b"].map((id) => ({ id, photo })),
       previous: new Map(),
