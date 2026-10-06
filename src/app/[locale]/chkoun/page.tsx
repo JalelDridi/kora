@@ -10,7 +10,7 @@ import { PageHeader } from "@/components/page-header";
 import { getGame } from "@/games";
 import { isLocale, localeInfo } from "@/i18n/locales";
 import { pageMetadata } from "@/i18n/page-metadata";
-import { shareImagePath } from "@/share";
+import { gameShareImagePath } from "@/share";
 import { site } from "@/site";
 
 // Chkoun? (plan Task 12): a static shell per locale. The page holds the
@@ -33,7 +33,7 @@ export async function generateMetadata({
     title: t("chkoun.meta.title"),
     description: t("chkoun.meta.description"),
     image: {
-      url: shareImagePath(localeInfo[locale].prefix),
+      url: gameShareImagePath("chkoun", localeInfo[locale].prefix),
       alt: `${site.name} · ${t("games.chkoun.name")}`,
     },
     index: getGame("chkoun").live,

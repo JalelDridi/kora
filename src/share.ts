@@ -16,6 +16,14 @@ export function shareImagePath(prefix: string): string {
   return `/og${prefix}-v${shareImageVersion}.png`;
 }
 
+/**
+ * A game page's own preview (plan Task 15): the K mark, "Kora" and the
+ * game's name; never a footballer or a crest (P33). /og/chkoun-ar-v1.png.
+ */
+export function gameShareImagePath(game: string, prefix: string): string {
+  return `/og/${game}-${prefix.slice(1)}-v${shareImageVersion}.png`;
+}
+
 // Facebook has no Tunisian or Arabizi locale (decision H7).
 export const openGraphLocale: Record<Locale, string> = {
   "ar-TN": "ar_AR",

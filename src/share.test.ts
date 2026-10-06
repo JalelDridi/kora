@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import { localeInfo, locales } from "./i18n/locales";
 import {
   alternateOpenGraphLocales,
+  gameShareImagePath,
   openGraphLocale,
   shareImageMaxBytes,
   shareImagePath,
@@ -18,10 +19,22 @@ describe("share images", () => {
     ]);
   });
 
+  it("each game page has its own, per locale", () => {
+    expect(
+      locales.map((l) => gameShareImagePath("chkoun", localeInfo[l].prefix)),
+    ).toEqual([
+      "/og/chkoun-ar-v1.png",
+      "/og/chkoun-tn-v1.png",
+      "/og/chkoun-fr-v1.png",
+    ]);
+  });
+
   // The PNGs are committed (rendered by `pnpm images`): this catches a
   // missing, resized or bloated file before Facebook or WhatsApp does.
-  for (const locale of locales) {
-    const path = shareImagePath(localeInfo[locale].prefix);
+  for (const path of locales.flatMap((l) => [
+    shareImagePath(localeInfo[l].prefix),
+    gameShareImagePath("chkoun", localeInfo[l].prefix),
+  ])) {
     it(`${path} is a 1200×630 PNG under 250 KB`, () => {
       const file = readFileSync(new URL(`../public${path}`, import.meta.url));
       expect(file.subarray(0, 8).toString("hex")).toBe("89504e470d0a1a0a");

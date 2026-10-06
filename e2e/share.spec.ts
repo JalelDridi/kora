@@ -2,6 +2,7 @@ import { expect, test } from "@playwright/test";
 import { localeInfo, locales } from "../src/i18n/locales";
 import {
   alternateOpenGraphLocales,
+  gameShareImagePath,
   openGraphLocale,
   shareImageMaxBytes,
   shareImagePath,
@@ -63,6 +64,32 @@ for (const locale of locales) {
       new RegExp(`^${site.name} · `),
     );
 
+    const image = await request.get(pathname);
+    expect(image.status()).toBe(200);
+    expect(image.headers()["content-type"]).toBe("image/png");
+    const body = await image.body();
+    expect(body.length).toBeLessThanOrEqual(shareImageMaxBytes);
+    expect({
+      width: body.readUInt32BE(16),
+      height: body.readUInt32BE(20),
+    }).toEqual(shareImageSize);
+  });
+}
+
+for (const locale of locales) {
+  const { prefix } = localeInfo[locale];
+  test(`${prefix}/chkoun has its own og:image, under 250,000 bytes, 1200×630`, async ({
+    page,
+    request,
+  }) => {
+    await page.goto(`${prefix}/chkoun`);
+    const og = (p: string) => page.locator(`head meta[property="${p}"]`);
+    const imageUrl = await og("og:image").getAttribute("content");
+    const { pathname } = new URL(imageUrl ?? "");
+    expect(pathname).toBe(gameShareImagePath("chkoun", prefix));
+    expect(
+      new URL((await og("og:url").getAttribute("content")) ?? "").pathname,
+    ).toBe(`${prefix}/chkoun`);
     const image = await request.get(pathname);
     expect(image.status()).toBe(200);
     expect(image.headers()["content-type"]).toBe("image/png");

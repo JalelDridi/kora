@@ -3,7 +3,8 @@ import { describe, expect, it } from "vitest";
 import arTN from "../messages/ar-TN.json";
 import manifest from "./app/manifest";
 import robots from "./app/robots";
-import sitemap from "./app/sitemap";
+import sitemap, { sitemapEntries } from "./app/sitemap";
+import { getGame, launchGames } from "./games";
 import { site } from "./site";
 
 const file = (path: string) => readFileSync(new URL(path, import.meta.url));
@@ -27,18 +28,41 @@ describe("site files", () => {
     });
   });
 
-  it("the sitemap lists the three hubs, each with every language and x-default", () => {
+  const entries = (path: string) => {
     const languages = {
-      "ar-TN": `${site.url}/ar`,
-      "ar-Latn-TN": `${site.url}/tn`,
-      fr: `${site.url}/fr`,
-      "x-default": `${site.url}/ar`,
+      "ar-TN": `${site.url}/ar${path}`,
+      "ar-Latn-TN": `${site.url}/tn${path}`,
+      fr: `${site.url}/fr${path}`,
+      "x-default": `${site.url}/ar${path}`,
     };
-    expect(sitemap()).toEqual(
-      ["/ar", "/tn", "/fr"].map((p) => ({
-        url: `${site.url}${p}`,
-        alternates: { languages },
-      })),
+    return ["/ar", "/tn", "/fr"].map((p) => ({
+      url: `${site.url}${p}${path}`,
+      alternates: { languages },
+    }));
+  };
+
+  it("the sitemap lists the hub, the live games, Sources and privacy in three languages, with alternates and x-default", () => {
+    const live = getGame("chkoun").live ? entries("/chkoun") : [];
+    expect(sitemap()).toEqual([
+      ...entries(""),
+      ...live,
+      ...entries("/sources"),
+      ...entries("/privacy"),
+    ]);
+  });
+
+  it("a game enters the sitemap only when its switch is on", () => {
+    const off = launchGames.map((g) => ({ ...g, live: false }));
+    const on = launchGames.map((g) => ({ ...g, live: g.id === "chkoun" }));
+    const urls = (list: { url: string }[]) => list.map((e) => e.url);
+    expect(urls(sitemapEntries(off)).join(" ")).not.toContain("/chkoun");
+    expect(urls(sitemapEntries(on))).toEqual(
+      urls([
+        ...entries(""),
+        ...entries("/chkoun"),
+        ...entries("/sources"),
+        ...entries("/privacy"),
+      ]),
     );
   });
 
