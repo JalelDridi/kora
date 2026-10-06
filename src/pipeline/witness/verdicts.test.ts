@@ -381,6 +381,33 @@ describe("club verdicts need a Ligue 1 club tied to the league page (fix round 1
     expect(tally.checks).toEqual([]);
     expect(tally.unjudged).toBe(1);
   });
+
+  it("the loan mark (an UNVERIFIED shape) can only take a differs away, never make one", () => {
+    const every = new Set(["700001", "700002", "700003", "700004"]);
+    const players = [
+      { qid: "Q1", clubQid: "Q900" }, // listed at his club
+      { qid: "Q2", clubQid: "Q900" }, // listed at the other club
+      { qid: "Q3", clubQid: null }, // listed, we give no club
+      { qid: "Q4", clubQid: "Q901" }, // not listed at his club
+    ];
+    const run = (loans?: Set<string>) =>
+      clubVerdicts({ players, mapping, squads, ...tied, loans, today });
+    const without = run();
+    const marked = run(every);
+    const verdicts = (t: typeof without) =>
+      Object.fromEntries(t.checks.map((c) => [c.qid, c.check.verdict]));
+    expect(verdicts(without)).toEqual({
+      Q1: "agrees",
+      Q2: "differs",
+      Q3: "differs",
+      Q4: "not-found",
+    });
+    // Every row marked: the agrees and the not-found stay, the differs go.
+    expect(verdicts(marked)).toEqual({ Q1: "agrees", Q4: "not-found" });
+    expect(marked.checks.some((c) => c.check.verdict === "differs")).toBe(
+      false,
+    );
+  });
 });
 
 describe("caps verdicts on A matches (fix round 3)", () => {
