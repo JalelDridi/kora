@@ -191,3 +191,21 @@ Every country the game can show today: the current clubs' countries and the birt
 | UZ   | Uzbekistan           | Ouzbékistan                         |                         |                        |
 
 Existing strings now used in new places (no new wording): `games.chkoun.name` (page heading, preview images `public/og/chkoun-*-v1.png`, share header draft); `notFound.home` (the link back to the games on the game, Sources and privacy pages); `hub.language` (the language switcher on those pages, which now keeps the page); `hub.tagline` (the preview image alt text on Sources and privacy). If `games.chkoun.name` changes, re-render the previews with `pnpm images games` and bump `shareImageVersion` in `src/share.ts`.
+
+## Go-live checklist (Chkoun?)
+
+The game page is reachable by its URL but hidden until all of these are done, in this order:
+
+1. **Strings in.** Jalel's Derja for every DRAFT key above, and the 39 country names in `messages/countries/ar-TN.json` and `messages/countries/ar-Latn-TN.json` (blocking).
+2. **Privacy settings on before any key is set.** In PostHog, turn on "Discard client IP data" in the project settings before `NEXT_PUBLIC_POSTHOG_KEY` is set in Vercel (the privacy draft says PostHog does not store the address). In Sentry, turn on "Prevent Storing of IP Addresses" before `SENTRY_DSN` is set.
+3. **Flip the switch.** `live: true` on Chkoun? in `src/games.ts`. This one change makes the hub card open the game, drops the page's `noindex` and adds it to the sitemap. The browser tests read the switch and check all three.
+4. **Restore the full SEO check.** In `lighthouserc.json`, replace the `/chkoun$` entry's per-audit SEO list with `"categories:seo": ["error", { "minScore": 0.95 }]`, like the hubs. It was split only because `noindex` fails `is-crawlable` on purpose.
+5. **`bash check.sh`** passes, then the release steps of the plan's Task 16 (FIRST_DAY moved to the go-live day).
+6. **Phone checks (plan, Task 16), by hand, 15 minutes, Android and ideally an iPhone:**
+   - Open `/ar/chkoun` from a Facebook post, from Messenger (in-app browser) and in Chrome; play to the end in each.
+   - Share to WhatsApp and Messenger: the grid rows read the same way, `#n` and `4/8` are not reversed, and the link is alone on the last line and opens `/ar/chkoun`.
+   - In the Facebook browser, note which share path appeared (system sheet, copy, WhatsApp link or long-press box).
+   - Close and reopen the in-app browser: today's guesses come back.
+   - TalkBack on: a tile reads its column, its value and its colour word; the arrows read their meaning; each guess is announced; focus lands on the result at the end.
+   - `/tn` and `/fr` once each; switch language mid-game.
+   - Look at `/sources` and `/privacy` on the phone.
