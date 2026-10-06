@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { track } from "@/analytics/events";
 import type { Card } from "@/chkoun/attributes";
 import {
   deviceStorage,
@@ -178,7 +179,9 @@ export function Game({
     setGame(saved ?? fresh(today.number));
     setAnimateFrom(Infinity);
     setPhase({ kind: "open", today });
-  }, []);
+    if (previous !== today.number)
+      track("chkoun_opened", { n: today.number, locale });
+  }, [locale]);
 
   useEffect(() => {
     again.current = () => void loadToday();
@@ -234,7 +237,14 @@ export function Game({
         card: body.status === "playing" ? null : (body.card ?? null),
       };
       update(next);
+      track("chkoun_guessed", { n: game.n, guesses: rows.length, locale });
       if (body.status !== "playing") {
+        track("chkoun_finished", {
+          n: game.n,
+          guesses: rows.length,
+          solved: body.status === "won",
+          locale,
+        });
         setStats(
           recordFinish(
             deviceStorage(),
@@ -327,6 +337,12 @@ export function Game({
             guessed={guessed}
             disabled={!playing}
             onGuess={(id) => void guess(id)}
+            onNoMatch={() =>
+              track("chkoun_no_match", {
+                n: phase.kind === "open" ? phase.today.number : undefined,
+                locale,
+              })
+            }
             strings={t.search}
           />
           <p className="text-base text-chalk-dim">
@@ -397,6 +413,9 @@ export function Game({
               url: shareUrl,
             })}
             strings={t.share}
+            onShared={(channel) =>
+              track("chkoun_shared", { n: game.n, channel, locale })
+            }
           />
           {stats ? (
             <StatsPanel stats={stats} store={statsStore} strings={t.stats} />

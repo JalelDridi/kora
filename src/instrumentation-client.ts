@@ -1,3 +1,4 @@
+import { registerAnalytics } from "@/analytics/events";
 import { analyticsOptions } from "@/analytics/options";
 
 const analytics = analyticsOptions({
@@ -10,5 +11,7 @@ const analytics = analyticsOptions({
 if (analytics) {
   void import("posthog-js").then(({ default: posthog }) => {
     posthog.init(analytics.key, analytics.options);
+    // The games send their events through src/analytics/events.ts.
+    registerAnalytics(posthog);
   });
 }

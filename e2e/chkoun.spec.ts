@@ -304,3 +304,19 @@ test("the game page is reachable but kept out of search engines until live", asy
       page.locator(`link[rel="alternate"][hreflang="${l}"]`),
     ).toHaveAttribute("href", new RegExp(`${localeInfo[l].prefix}/chkoun$`));
 });
+
+test("without an analytics key, a played game sends nothing to PostHog", async ({
+  page,
+}) => {
+  const outside: string[] = [];
+  page.on("request", (r) => {
+    if (!r.url().startsWith("http://localhost")) outside.push(r.url());
+  });
+  await page.goto("/fr/chkoun");
+  await ready(page);
+  await page.getByRole("combobox").fill("zzqqxx");
+  await guess(page, fixture.others[0]);
+  await guess(page, fixture.answers[0]);
+  await page.waitForLoadState("networkidle");
+  expect(outside).toEqual([]);
+});
