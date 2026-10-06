@@ -45,6 +45,8 @@ export function SearchBox({
   const [open, setOpen] = useState(false);
   const input = useRef<HTMLInputElement>(null);
   const lastNone = useRef(false);
+  /** The visitor chose a footballer he has already guessed. */
+  const [repeated, setRepeated] = useState(false);
 
   const results = useMemo(() => match(entries, query, 5), [entries, query]);
   const searched = [...query.trim()].length >= 2;
@@ -52,7 +54,11 @@ export function SearchBox({
   const expanded = open && results.length > 0;
 
   function choose(footballer: string) {
-    if (guessed.has(footballer)) return;
+    if (guessed.has(footballer)) {
+      setRepeated(true);
+      return;
+    }
+    setRepeated(false);
     onGuess(footballer);
     setQuery("");
     setActive(0);
@@ -61,6 +67,7 @@ export function SearchBox({
   }
 
   function onChange(value: string) {
+    setRepeated(false);
     setQuery(value);
     setActive(0);
     setOpen(true);
@@ -160,7 +167,7 @@ export function SearchBox({
         })}
       </ul>
       <p role="status" className="mt-2 min-h-6 text-base text-chalk-dim">
-        {none ? strings.none : ""}
+        {repeated ? strings.already : none ? strings.none : ""}
       </p>
     </div>
   );

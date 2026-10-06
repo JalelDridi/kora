@@ -40,6 +40,8 @@ for (const locale of locales) {
       page.getByRole("heading", { name: fill(t.result.won, { n: 3 }) }),
     ).toBeVisible();
     await expect(page.getByRole("combobox")).toHaveCount(0);
+    // The search that held focus is gone: the result heading takes it.
+    await expect(page.locator("#chkoun-result")).toBeFocused();
     const win = page.locator(`[data-guess="${fixture.answers[0]}"] li`);
     await expect(win).toHaveCount(6);
     for (const colour of await win.evaluateAll((els) =>
@@ -59,6 +61,46 @@ for (const locale of locales) {
       }),
     ).toBeVisible();
     await expect(page.locator("[data-guess]")).toHaveCount(8);
+    await expect(page.locator("#chkoun-result")).toBeFocused();
+  });
+
+  test(`${url}: at 320 px the tiles sit 3 by 2, name their column, and break no word`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 320, height: 740 });
+    await page.goto(url);
+    await ready(page);
+    for (const id of fixture.others.slice(0, 8)) await guess(page, id);
+    const row = page.locator("[data-guess]").first();
+    const box = async (c: string) =>
+      (await row.locator(`[data-column="${c}"]`).boundingBox())!;
+    expect((await box("club")).y).toBeCloseTo((await box("position")).y, 0);
+    expect((await box("age")).y).toBeGreaterThan((await box("club")).y);
+    await expect(
+      row.locator('[data-column="caps"] [data-header]'),
+    ).toBeVisible();
+    // Every word of every tile stays on one line.
+    const split = await page.evaluate(() => {
+      const bad: string[] = [];
+      for (const el of document.querySelectorAll(
+        "[data-guess] [data-value], [data-guess] [data-header]",
+      )) {
+        const node = el.firstChild;
+        if (!node || node.nodeType !== Node.TEXT_NODE) continue;
+        const text = node.textContent ?? "";
+        for (const m of text.matchAll(/\S+/g)) {
+          const range = document.createRange();
+          range.setStart(node, m.index!);
+          range.setEnd(node, m.index! + m[0].length);
+          const lines = new Set(
+            [...range.getClientRects()].map((r) => Math.round(r.top)),
+          );
+          if (lines.size > 1) bad.push(m[0]);
+        }
+      }
+      return bad;
+    });
+    expect(split).toEqual([]);
   });
 
   test(`${url}: every tile has a text label and a screen-reader word, not only a colour`, async ({
@@ -173,6 +215,23 @@ test("suggestions accept Arabic, Arabizi and French spellings", async ({
   }
   await box.fill("zzqqxx");
   await expect(page.getByText(fr.chkoun.search.none)).toBeVisible();
+});
+
+test("each guess is announced, and a name already guessed says so", async ({
+  page,
+}) => {
+  await page.goto("/fr/chkoun");
+  await ready(page);
+  await guess(page, fixture.others[0]);
+  const name = footballer(fixture.others[0]).nameLatin;
+  const live = page.locator("p.sr-only[role=status]");
+  await expect(live).toContainText(name);
+  await expect(live).toContainText(fr.chkoun.tiles.club);
+  const box = page.getByRole("combobox");
+  await box.fill(name);
+  await box.press("Enter");
+  await expect(page.getByText(fr.chkoun.search.already).last()).toBeVisible();
+  await expect(page.locator("[data-guess]")).toHaveCount(1);
 });
 
 test("the search is a combobox: arrows move, Enter guesses, Escape closes", async ({

@@ -12,7 +12,13 @@ import {
   saveStats,
   type SavedGame,
 } from "@/chkoun/device";
-import { format, localName, type Labels } from "@/chkoun/labels";
+import {
+  COLUMNS,
+  format,
+  localName,
+  tileText,
+  type Labels,
+} from "@/chkoun/labels";
 import { unpackNames, type PackedName } from "@/chkoun/search-index";
 import { shareText } from "@/engine/chkoun/share";
 import type { Stats } from "@/engine/chkoun/stats";
@@ -22,7 +28,7 @@ import { buildEntries } from "@/engine/names";
 import type { Locale } from "@/i18n/locales";
 import type fr from "../../../messages/fr.json";
 import { Countdown } from "./countdown";
-import { Legend } from "./legend";
+import { Legend, LEGEND_KEY } from "./legend";
 import { Result } from "./result";
 import { ShareButton } from "./share-button";
 import { Stats as StatsPanel } from "./stats";
@@ -106,6 +112,10 @@ export function Game({
   /** Rows from this index on were guessed in this page view: they flip in. */
   const [animateFrom, setAnimateFrom] = useState(Infinity);
   const current = useRef<number | null>(null);
+  /** Set by the guess that ends the game: the result heading takes focus. */
+  const finishedNow = useRef(false);
+  /** What a screen reader hears after each guess: the row's words. */
+  const [announcement, setAnnouncement] = useState("");
   const retry = useRef<number | undefined>(undefined);
   /** loadToday itself, for the timer that asks again after a zero. */
   const again = useRef<() => void>(() => {});
@@ -197,6 +207,12 @@ export function Game({
     };
   }, [loadToday]);
 
+  useEffect(() => {
+    if (game?.status === "playing" || !finishedNow.current) return;
+    finishedNow.current = false;
+    document.getElementById("chkoun-result")?.focus();
+  }, [game?.status]);
+
   async function guess(id: string) {
     if (phase.kind !== "open" || !game || game.status !== "playing") return;
     if (pending) return;
@@ -237,6 +253,8 @@ export function Game({
         card: body.status === "playing" ? null : (body.card ?? null),
       };
       update(next);
+      setAnnouncement(describeRow(id, body.row));
+      if (body.status !== "playing") finishedNow.current = true;
       track("chkoun_guessed", { n: game.n, guesses: rows.length, locale });
       if (body.status !== "playing") {
         track("chkoun_finished", {
@@ -284,6 +302,29 @@ export function Game({
       fewerCaps: t.tiles.fewerCaps,
     },
   };
+
+  /** One guess in words: "Name. Club: X, same; Age: 25, the answer is older, close; …". */
+  function describeRow(id: string, row: Row): string {
+    const n = byId.get(id);
+    const name = n ? localName(n, locale) : id;
+    const arrows: Record<string, string> = {
+      "age:up": t.tiles.older,
+      "age:down": t.tiles.younger,
+      "caps:up": t.tiles.moreCaps,
+      "caps:down": t.tiles.fewerCaps,
+    };
+    const parts = COLUMNS.map((column) => {
+      const tile = row[column];
+      const { text, label } = tileText(column, tile, labels, rowStrings);
+      const arrow = arrows[`${column}:${tile.arrow}`];
+      return [
+        `${rowStrings.headers[column]}: ${label ?? text}`,
+        ...(arrow ? [arrow] : []),
+        rowStrings.words[LEGEND_KEY[tile.colour]],
+      ].join(", ");
+    });
+    return `${name}. ${parts.join("; ")}.`;
+  }
 
   const guessed = useMemo(
     () => new Set(game?.rows.map((r) => r.guess) ?? []),
@@ -442,6 +483,10 @@ export function Game({
       ) : phase.kind === "loading" ? (
         <p aria-hidden="true" className="mt-6 min-h-7" />
       ) : null}
+
+      <p role="status" aria-live="polite" className="sr-only">
+        {announcement}
+      </p>
 
       <Legend title={t.legend.title} words={t.legend} />
     </div>

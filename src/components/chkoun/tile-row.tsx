@@ -62,7 +62,12 @@ export function TileRow({
           </span>
         ) : null}
       </p>
-      <ul aria-label={name} className="grid grid-cols-6 gap-1">
+      {/* Six columns from 400 px; below, 3 by 2 so every word fits (about
+          90 px a tile), each tile showing its own column name. */}
+      <ul
+        aria-label={name}
+        className="grid grid-cols-3 gap-1 min-[400px]:grid-cols-6"
+      >
         {COLUMNS.map((column, i) => {
           const tile = row[column];
           const { text, label } = tileText(column, tile, labels, strings);
@@ -76,10 +81,17 @@ export function TileRow({
               style={animate ? { animationDelay: `${i * 120}ms` } : undefined}
               className={`relative flex min-h-16 min-w-0 flex-col items-center justify-center rounded-md px-0.5 py-1 text-center text-xs leading-tight ${COLOUR_CLASS[tile.colour]} ${animate ? "tile-flip" : ""}`}
             >
-              <span className="sr-only">{strings.headers[column]}: </span>
               <span
+                data-header
+                className="text-[0.7rem] leading-tight min-[400px]:sr-only"
+              >
+                {strings.headers[column]}
+                <span className="sr-only">: </span>
+              </span>
+              <span
+                data-value
                 dir={numeric ? "ltr" : undefined}
-                className="font-semibold [overflow-wrap:anywhere] hyphens-auto"
+                className="font-semibold [overflow-wrap:break-word] hyphens-auto"
               >
                 {text}
               </span>
@@ -116,11 +128,14 @@ export function TileHeaders({
   headers: Record<TileColumn, string>;
 }) {
   return (
-    <div aria-hidden="true" className="grid grid-cols-6 gap-1">
+    <div
+      aria-hidden="true"
+      className="hidden gap-1 min-[400px]:grid min-[400px]:grid-cols-6"
+    >
       {COLUMNS.map((column) => (
         <span
           key={column}
-          className="min-w-0 text-center text-[0.7rem] leading-tight text-chalk-dim [overflow-wrap:anywhere]"
+          className="min-w-0 text-center text-[0.7rem] leading-tight text-chalk-dim [overflow-wrap:break-word] hyphens-auto"
         >
           {headers[column]}
         </span>

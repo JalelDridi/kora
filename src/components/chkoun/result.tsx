@@ -40,7 +40,8 @@ export function Result({
     : format(t.result.lost, { name: card ? localName(card, locale) : "?" });
   return (
     <section aria-labelledby="chkoun-result" className="mt-8">
-      <h2 id="chkoun-result" className="text-3xl font-extrabold">
+      {/* Focused when the game ends: the search that held focus is gone. */}
+      <h2 id="chkoun-result" tabIndex={-1} className="text-3xl font-extrabold">
         <bdi>{heading}</bdi>
       </h2>
       {card ? (
