@@ -11,6 +11,10 @@ type Props = {
   names: Map<string, NameSource>;
   guessed: ReadonlySet<string>;
   disabled: boolean;
+  /** False until the name list is loaded and indexed. */
+  ready: boolean;
+  /** The visitor reached the search: load and index the names now. */
+  onWant: () => void;
   onGuess: (id: string) => void;
   /** Called when a query of two letters or more finds nobody. */
   onNoMatch?: () => void;
@@ -33,6 +37,8 @@ export function SearchBox({
   names,
   guessed,
   disabled,
+  ready,
+  onWant,
   onGuess,
   onNoMatch,
   strings,
@@ -50,7 +56,7 @@ export function SearchBox({
 
   const results = useMemo(() => match(entries, query, 5), [entries, query]);
   const searched = [...query.trim()].length >= 2;
-  const none = searched && results.length === 0;
+  const none = ready && searched && results.length === 0;
   const expanded = open && results.length > 0;
 
   function choose(footballer: string) {
@@ -67,12 +73,15 @@ export function SearchBox({
   }
 
   function onChange(value: string) {
+    onWant();
     setRepeated(false);
     setQuery(value);
     setActive(0);
     setOpen(true);
     const nowNone =
-      [...value.trim()].length >= 2 && match(entries, value, 1).length === 0;
+      ready &&
+      [...value.trim()].length >= 2 &&
+      match(entries, value, 1).length === 0;
     if (nowNone && !lastNone.current) onNoMatch?.();
     lastNone.current = nowNone;
   }
@@ -123,7 +132,11 @@ export function SearchBox({
         value={query}
         onChange={(e) => onChange(e.target.value)}
         onKeyDown={onKeyDown}
-        onFocus={() => setOpen(true)}
+        onFocus={() => {
+          onWant();
+          setOpen(true);
+        }}
+        onPointerDown={onWant}
         onBlur={() => setOpen(false)}
         className="mt-2 block min-h-12 w-full rounded-xl border-2 border-pitch-700 bg-pitch-900 px-4 text-lg text-chalk placeholder:text-chalk-dim focus:border-mint disabled:opacity-60"
       />

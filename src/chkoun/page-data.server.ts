@@ -8,9 +8,9 @@ import arTNCountries from "../../messages/countries/ar-TN.json";
 import { buildLabels, type Labels } from "./labels";
 import { packNames, type PackedName } from "./search-index";
 
-// What the game page puts in its static HTML, read at build time from the
-// committed data/pool.json and governorates: the names every visitor may
-// guess and the label tables. Never the puzzle, never the database: the
+// What the game page loads after its first paint (/chkoun-data/<locale>.json,
+// built at build time from the committed data/pool.json and governorates):
+// the names every visitor may guess and the label tables. Never the puzzle, never the database: the
 // day's answer stays on the server until a game ends (plan Task 12).
 
 const derjaCountries: Record<Locale, Record<string, string> | null> = {

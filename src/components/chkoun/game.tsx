@@ -43,8 +43,8 @@ export type GameStrings = {
 
 type Props = {
   locale: Locale;
-  names: PackedName[];
-  labels: Labels;
+  /** The name list and label tables (/chkoun-data/<locale>.json), loaded after the first paint. */
+  dataUrl: string;
   strings: GameStrings;
   /** The game in the sharer's language, absolute (Q4.1). */
   shareUrl: string;
@@ -52,6 +52,8 @@ type Props = {
 };
 
 type Store = "server" | "device";
+type GameData = { names: PackedName[]; labels: Labels };
+const NO_LABELS: Labels = { clubs: {}, governorates: {}, countries: {} };
 type Today = { number: number; day: string; endsAt: string; store: Store };
 type Phase =
   | { kind: "loading" }
@@ -91,15 +93,35 @@ type TodayBody = {
 // device. It never knows the answer before the server ends the game.
 export function Game({
   locale,
-  names,
-  labels,
+  dataUrl,
   strings,
   shareUrl,
   sourcesHref,
 }: Props) {
   const t = strings.chkoun;
-  const sources = useMemo(() => unpackNames(names), [names]);
-  const entries = useMemo(() => buildEntries(sources), [sources]);
+  // The names and labels come after the first paint (a static JSON file):
+  // on an idle moment, when the visitor reaches the search, or at once when
+  // today's game has rows to show. The search keys are built on first use.
+  const [data, setData] = useState<GameData | null>(null);
+  const [wanted, setWanted] = useState(false);
+  const fetching = useRef<Promise<void> | null>(null);
+  const loadData = useCallback(() => {
+    fetching.current ??= fetch(dataUrl)
+      .then((response) => {
+        if (!response.ok) throw new Error(String(response.status));
+        return response.json() as Promise<GameData>;
+      })
+      .then(setData)
+      .catch(() => {
+        fetching.current = null;
+      });
+  }, [dataUrl]);
+  const labels = data?.labels ?? NO_LABELS;
+  const sources = useMemo(() => (data ? unpackNames(data.names) : []), [data]);
+  const entries = useMemo(
+    () => (wanted ? buildEntries(sources) : []),
+    [sources, wanted],
+  );
   const byId = useMemo(() => new Map(sources.map((s) => [s.id, s])), [sources]);
 
   const [phase, setPhase] = useState<Phase>({ kind: "loading" });
@@ -187,11 +209,13 @@ export function Game({
     setStats(body.stats ?? loadStats(storage));
     setStatsStore(body.stats ? "server" : "device");
     setGame(saved ?? fresh(today.number));
+    if (saved && (saved.rows.length > 0 || saved.status !== "playing"))
+      loadData();
     setAnimateFrom(Infinity);
     setPhase({ kind: "open", today });
     if (previous !== today.number)
       track("chkoun_opened", { n: today.number, locale });
-  }, [locale]);
+  }, [locale, loadData]);
 
   useEffect(() => {
     again.current = () => void loadToday();
@@ -206,6 +230,20 @@ export function Game({
       window.clearTimeout(timer.current);
     };
   }, [loadToday]);
+
+  useEffect(() => {
+    // Fetch the names once the page is idle, so the first keystroke finds them.
+    const w = window as Window & {
+      requestIdleCallback?: (cb: () => void, o?: { timeout: number }) => number;
+      cancelIdleCallback?: (id: number) => void;
+    };
+    if (w.requestIdleCallback) {
+      const id = w.requestIdleCallback(loadData, { timeout: 4000 });
+      return () => w.cancelIdleCallback?.(id);
+    }
+    const id = window.setTimeout(loadData, 2000);
+    return () => window.clearTimeout(id);
+  }, [loadData]);
 
   useEffect(() => {
     if (game?.status === "playing" || !finishedNow.current) return;
@@ -384,6 +422,11 @@ export function Game({
             locale={locale}
             entries={entries}
             names={byId}
+            ready={entries.length > 0}
+            onWant={() => {
+              loadData();
+              setWanted(true);
+            }}
             guessed={guessed}
             disabled={!playing}
             onGuess={(id) => void guess(id)}
@@ -411,7 +454,7 @@ export function Game({
         {noticeText}
       </p>
 
-      {game && game.rows.length > 0 ? (
+      {data && game && game.rows.length > 0 ? (
         <section aria-label={t.guesses} className="mt-4 flex flex-col gap-3">
           <TileHeaders headers={rowStrings.headers} />
           <ol className="flex flex-col gap-4">
@@ -435,7 +478,7 @@ export function Game({
         </section>
       ) : null}
 
-      {phase.kind === "open" && game && game.status !== "playing" ? (
+      {phase.kind === "open" && data && game && game.status !== "playing" ? (
         <Result
           solved={game.status === "won"}
           guesses={game.rows.length || (game.grid?.length ?? 0)}

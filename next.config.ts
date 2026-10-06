@@ -19,6 +19,8 @@ const nextConfig: NextConfig = {
   outputFileTracingIncludes: {
     "/admin/**": ["./data/pool.json"],
     "/api/chkoun/**": ["./data/pool.json", "./data/curated/*.json"],
+    // Static at build; listed in case a locale is ever rendered on demand.
+    "/chkoun-data/**": ["./data/pool.json", "./data/curated/*.json"],
   },
   // Every response, the admin pages included (src/security-headers.ts).
   async headers() {

@@ -25,6 +25,7 @@ for (const path of [
   "/fr/sources",
   "/tn/privacy",
   "/og/chkoun-ar-v1.png",
+  "/chkoun-data/ar-TN.json",
   "/og/ar-v1.png",
   "/robots.txt",
 ]) {
