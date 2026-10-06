@@ -59,6 +59,13 @@ export type PoliteOptions = {
   apiUserAgent?: false;
   /** How fetch treats a redirect; "manual" hands the 3xx back as the answer. */
   redirect?: RequestRedirect;
+  /**
+   * A REST service's 429 is a throttle, not a refusal: wait as long as
+   * Retry-After asks (60 s without it) and go on, at most this many times
+   * for the client's life (one run); the next 429 stops it. Default 0: a 429
+   * stops the client at once (the MediaWiki manners).
+   */
+  throttleWaits?: number;
 };
 
 export type PoliteClient = {
@@ -69,6 +76,8 @@ export type PoliteClient = {
 const RETRYABLE = new Set([500, 502, 503, 504]);
 const STOP = new Set([429, 403]);
 const MAX_WAIT_MS = 300_000;
+/** A throttled request's wait when the 429 names none. */
+export const THROTTLE_WAIT_MS = 60_000;
 
 /** How long to wait before retry number `attempt` (0 for the first). */
 export function retryDelayMs(
@@ -95,6 +104,7 @@ export function createPoliteClient(options: PoliteOptions): PoliteClient {
   let stopped: StoppedError | null = null;
   let limited: LimitError | null = null;
   let attempts = 0;
+  let throttled = 0;
   const createdAt = now();
   /** Throws, and keeps throwing, once an attempt starting at `at` would break a limit. */
   function checkLimits(url: string, at: number): void {
@@ -141,6 +151,20 @@ export function createPoliteClient(options: PoliteOptions): PoliteClient {
         ...(options.redirect ? { redirect: options.redirect } : {}),
       });
 
+      if (response.status === 429 && throttled < (options.throttleWaits ?? 0)) {
+        const header = response.headers.get("retry-after");
+        const delay =
+          header === null ? THROTTLE_WAIT_MS : retryDelayMs(header, 0, now());
+        await response.body?.cancel();
+        if (delay <= MAX_WAIT_MS) {
+          throttled++;
+          checkLimits(url, now() + delay);
+          await sleep(delay);
+          continue;
+        }
+        stopped = new StoppedError(url, response.status);
+        throw stopped;
+      }
       if (STOP.has(response.status)) {
         await response.body?.cancel();
         stopped = new StoppedError(url, response.status);
