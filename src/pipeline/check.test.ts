@@ -1,5 +1,13 @@
 import { execFile } from "node:child_process";
-import { cp, mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
+import {
+  cp,
+  mkdir,
+  mkdtemp,
+  readdir,
+  readFile,
+  rm,
+  writeFile,
+} from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
@@ -26,6 +34,12 @@ async function copyOfData(): Promise<{
   await cp(path.join(process.cwd(), "data"), path.join(root, "data"), {
     recursive: true,
   });
+  // The pool's photo files, empty: the check only asks that they exist.
+  await mkdir(path.join(root, "public", "photos"), { recursive: true });
+  for (const name of await readdir(
+    path.join(process.cwd(), "public", "photos"),
+  ))
+    await writeFile(path.join(root, "public", "photos", name), "");
   // The real verdicts name real footballers; the fixture pools below do not
   // hold them, so start every copy from an empty witness file.
   await writeFile(
@@ -117,6 +131,20 @@ describe("checkData", () => {
       "data/curated/governorates.json: must list the 24 governorates",
       "data/overrides.json: players.Q1.caps: invalid value -1",
       "data/pool.json: not a version 1 pool",
+    ]);
+  });
+
+  it("fails on a photo path whose file is not in public/ (review 1, L6)", async () => {
+    const { root } = await copyOfData();
+    const pool = JSON.parse(
+      await readFile(path.join(root, "data", "pool.json"), "utf8"),
+    ) as Pool;
+    const withPhoto = pool.players.find((p) => p.photo?.path);
+    expect(withPhoto).toBeDefined();
+    expect(await checkData(root)).toEqual([]);
+    await rm(path.join(root, "public", ...withPhoto!.photo!.path!.split("/")));
+    expect(await checkData(root)).toEqual([
+      `data/pool.json: ${withPhoto!.id}: photo ${withPhoto!.photo!.path} is not in public/`,
     ]);
   });
 
