@@ -3,7 +3,7 @@ import { expect, test } from "@playwright/test";
 import arLatnTN from "../messages/ar-Latn-TN.json";
 import arTN from "../messages/ar-TN.json";
 import fr from "../messages/fr.json";
-import { launchGames } from "../src/games";
+import { launchGames, liveRoute } from "../src/games";
 import { localeInfo, locales } from "../src/i18n/locales";
 
 const messages = { "ar-TN": arTN, "ar-Latn-TN": arLatnTN, fr };
@@ -12,7 +12,7 @@ for (const locale of locales) {
   const { prefix } = localeInfo[locale];
   const strings = messages[locale];
 
-  test(`${prefix} shows the three launch games, each marked as coming soon`, async ({
+  test(`${prefix} shows the three launch games; a live one opens in the same language, the others say soon`, async ({
     page,
   }) => {
     await page.goto(prefix);
@@ -28,7 +28,17 @@ for (const locale of locales) {
       ).toBeVisible();
       await expect(card.getByText(strings.games[game.id].pitch)).toBeVisible();
       await expect(card.getByText(strings.badges[game.badge])).toBeVisible();
-      await expect(card.getByText(strings.hub.soon)).toBeVisible();
+      const route = liveRoute(game);
+      if (route) {
+        await expect(
+          card.getByRole("link", { name: strings.games[game.id].name }),
+        ).toHaveAttribute("href", `${prefix}${route}`);
+        await expect(card.getByText(strings.hub.play)).toBeVisible();
+        await expect(card.getByText(strings.hub.soon)).toHaveCount(0);
+      } else {
+        await expect(card.getByText(strings.hub.soon)).toBeVisible();
+        await expect(card.getByRole("link")).toHaveCount(0);
+      }
     }
   });
 
