@@ -42,17 +42,28 @@ async function pageAndPayload(request: APIRequestContext, path: string) {
   return { html, rsc };
 }
 
-for (const path of ["/ar/chkoun", "/tn/chkoun", "/fr/chkoun"]) {
+for (const [path, locale] of [
+  ["/ar/chkoun", "ar-TN"],
+  ["/tn/chkoun", "ar-Latn-TN"],
+  ["/fr/chkoun", "fr"],
+] as const) {
   test(`${path}: today's and tomorrow's answers appear as often as a control footballer`, async ({
     request,
   }) => {
     const { html, rsc } = await pageAndPayload(request, path);
     expect(rsc.length).toBeGreaterThan(1000);
+    // The name list the page loads after its first paint.
+    const data = await request.get(`/chkoun-data/${locale}.json`);
+    expect(data.status()).toBe(200);
+    const list = await data.text();
     for (const id of [fixture.answers[0], fixture.answers[1]]) {
       const answer = footballer(id);
       const control = footballer(controlFor(id));
-      for (const text of [html, rsc]) {
-        expect(count(text, answer.id)).toBeGreaterThan(0);
+      expect(count(list, answer.id)).toBeGreaterThan(0);
+      // The page itself carries no footballer: the list comes after it.
+      expect(count(html, answer.id)).toBe(0);
+      expect(count(rsc, answer.id)).toBe(0);
+      for (const text of [html, rsc, list]) {
         expect(count(text, answer.id)).toBe(count(text, control.id));
         expect(count(text, answer.nameLatin)).toBe(
           count(text, control.nameLatin),
@@ -129,4 +140,20 @@ test("the page names no answer in its title, preview or image URLs", async ({
 
 test("the pool used by the page is the one the server reads", () => {
   expect(pool.players.length).toBeGreaterThan(0);
+});
+
+test("the name list is a static JSON file per locale, and nothing else", async ({
+  request,
+}) => {
+  for (const locale of ["ar-TN", "ar-Latn-TN", "fr"]) {
+    const response = await request.get(`/chkoun-data/${locale}.json`);
+    expect(response.status()).toBe(200);
+    expect(response.headers()["content-type"]).toContain("application/json");
+    const body = await response.json();
+    expect(Object.keys(body).sort()).toEqual(["labels", "names"]);
+    expect(body.names.length).toBe(
+      pool.players.filter((p) => p.pools.active).length,
+    );
+  }
+  expect((await request.get("/chkoun-data/en.json")).status()).toBe(404);
 });

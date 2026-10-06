@@ -1,7 +1,8 @@
 import { Analytics } from "@vercel/analytics/next";
 import type { Metadata, Viewport } from "next";
-import { IBM_Plex_Sans_Arabic, Inter } from "next/font/google";
+import { Inter } from "next/font/google";
 import { notFound } from "next/navigation";
+import { preload } from "react-dom";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { defaultLocale, isLocale, localeInfo, locales } from "@/i18n/locales";
 import { webAnalyticsEnabled } from "@/analytics/web-analytics";
@@ -17,15 +18,12 @@ import "../globals.css";
 
 const latin = Inter({ subsets: ["latin"], variable: "--font-latin" });
 
-// Not preloaded: one layout serves all three locales, and /tn and /fr only
-// need the 600 weight for "تونسي". The browser fetches the Arabic files that
-// the page's characters need (unicode-range) as soon as the CSS is parsed.
-const arabic = IBM_Plex_Sans_Arabic({
-  subsets: ["arabic"],
-  weight: ["400", "600", "700"],
-  variable: "--font-arabic",
-  preload: false,
-});
+// The Arabic faces are self-hosted (globals.css) so /ar can preload the two
+// it draws first; next/font preloads per declaration, not per locale.
+const ARABIC_PRELOADS = [
+  "/fonts/plex-arabic-400-v1.woff2",
+  "/fonts/plex-arabic-700-v1.woff2",
+];
 
 export function generateStaticParams() {
   return locales.map((locale) => ({ locale }));
@@ -89,14 +87,13 @@ export default async function LocaleLayout({
   const { locale } = await params;
   if (!isLocale(locale)) notFound();
   setRequestLocale(locale);
+  if (locale === "ar-TN")
+    for (const href of ARABIC_PRELOADS)
+      preload(href, { as: "font", type: "font/woff2", crossOrigin: "" });
   const t = await getTranslations({ locale, namespace: "footer" });
 
   return (
-    <html
-      lang={locale}
-      dir={localeInfo[locale].dir}
-      className={`${latin.variable} ${arabic.variable}`}
-    >
+    <html lang={locale} dir={localeInfo[locale].dir} className={latin.variable}>
       <body className="font-sans antialiased">
         {children}
         <SiteFooter
