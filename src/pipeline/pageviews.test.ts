@@ -10,13 +10,15 @@ import {
   pageviewsUrl,
   parsePageviews,
   planPageviews,
+  tooManyNotFound,
   viewsOf,
   windowKey,
 } from "./pageviews.ts";
 import type { Measured, ViewsCache } from "./pageviews.ts";
 
-// Hand-written in the Pageviews API's answer shape (no request was made to
-// write them): one footballer in three languages, and the 404 body.
+// Hand-written in the Pageviews API's answer shape (all-access, user agent,
+// monthly), with Hannibal Mejbri's 12-month totals from the research, and
+// the 404 body.
 const fixture = (name: string) =>
   JSON.parse(
     readFileSync(
@@ -36,13 +38,13 @@ describe("the page views window and URL", () => {
 
   it("pageviewsUrl builds the per-article monthly URL for the 12 full months before the run date", () => {
     expect(pageviewsUrl("en", "Wahbi Khazri", window)).toBe(
-      "https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article/en.wikipedia/user/Wahbi_Khazri/monthly/2025100100/2026090100",
+      "https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article/en.wikipedia/all-access/user/Wahbi_Khazri/monthly/2025100100/2026090100",
     );
     expect(pageviewsUrl("ar", "وهبي الخزري", window)).toBe(
-      `https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article/ar.wikipedia/user/${encodeURIComponent("وهبي_الخزري")}/monthly/2025100100/2026090100`,
+      `https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article/ar.wikipedia/all-access/user/${encodeURIComponent("وهبي_الخزري")}/monthly/2025100100/2026090100`,
     );
     expect(pageviewsUrl("fr", "Ali Maâloul (football)", window)).toContain(
-      "/fr.wikipedia/user/Ali_Ma%C3%A2loul_(football)/",
+      "https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article/fr.wikipedia/all-access/user/Ali_Ma%C3%A2loul_(football)/monthly/2025100100/2026090100",
     );
   });
 });
@@ -59,14 +61,14 @@ describe("parsePageviews", () => {
     expect(() => parsePageviews({ items: [{ views: -1 }] })).toThrow();
   });
 
-  it("a 404 means 0 views and no error", async () => {
+  it("a 404 means no such article: null, and no error", async () => {
     const client: PoliteClient = {
       getJson: async (url) => {
         throw new HttpError(url, 404);
       },
       getText: async () => "",
     };
-    expect(await fetchViews(client, "fr", "Nobody", window)).toBe(0);
+    expect(await fetchViews(client, "fr", "Nobody", window)).toBeNull();
   });
 
   it("another error stops the fetch", async () => {
@@ -92,6 +94,15 @@ const meriah: Measured = {
   wiki: { en: "Yassine Meriah", fr: null, ar: null },
   previous: null,
 };
+
+describe("tooManyNotFound (pageviews fix)", () => {
+  it("is true when more than 10% of the articles asked were not found", () => {
+    expect(tooManyNotFound(90, 10)).toBe(false);
+    expect(tooManyNotFound(89, 11)).toBe(true);
+    expect(tooManyNotFound(0, 1)).toBe(true);
+    expect(tooManyNotFound(0, 0)).toBe(false);
+  });
+});
 
 describe("planPageviews", () => {
   it("views are fetched once per month window: a cache entry for the same window is reused, a new window refetches", () => {

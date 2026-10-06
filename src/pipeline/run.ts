@@ -22,6 +22,7 @@ import {
   fetchViews,
   monthWindow,
   planPageviews,
+  tooManyNotFound,
   viewsOf,
 } from "./pageviews.ts";
 import type { Measured, ViewLang, ViewsCache } from "./pageviews.ts";
@@ -193,6 +194,8 @@ export function createClients(
       // would pass it stops there and keeps the counts it has.
       maxAttempts: PAGEVIEWS_MAX_PER_RUN,
       maxWallMs: MAX_RUN_MS,
+      // A REST service's 429 is a throttle: wait it out, three times a run.
+      throttleWaits: THROTTLE_WAITS_PER_RUN,
       sleep: options.sleep,
       fetch: options.fetch,
     }),
@@ -216,9 +219,11 @@ export const MAX_REQUESTS = 70;
  * above is for Wikidata and the MediaWiki API only.
  */
 export const PAGEVIEWS_MAX_PER_RUN = 800;
-export const PAGEVIEWS_GAP_MS = 100;
+export const PAGEVIEWS_GAP_MS = 250;
 export const PHOTOS_MAX_PER_RUN = 200;
 export const PHOTO_GAP_MS = 250;
+/** A 429 from page views or thumbnails is waited out this many times a run. */
+export const THROTTLE_WAITS_PER_RUN = 3;
 
 /** The English article whose "Current squad" table gives caps (P42). */
 export const NATIONAL_TEAM_TITLE = "Tunisia national football team";
@@ -1111,61 +1116,11 @@ async function build(deps: RunDeps): Promise<RunResult> {
   }
   const { ids } = built;
 
-  // D-S2-4: fame from Wikipedia page views, through its own polite client
-  // (P49): the Pageviews REST API is a separate service, so the 70 requests
-  // stay for Wikidata and the MediaWiki API. One request per article; every
-  // footballer whose count is missing or from an earlier 12-month window is
-  // measured in this run, unmeasured first, up to PAGEVIEWS_MAX_PER_RUN. A
-  // failure keeps the counts already known (data/cache/pageviews.json and
-  // the pool) and the build goes on.
-  const viewsWindow = monthWindow(today);
-  const cachedViews = await readCache<ViewsCache>("pageviews");
-  let views: ViewsCache = cachedViews?.value ?? {};
-  const previousFame = new Map(
-    (previous?.players ?? []).map((p) => [p.id, p.fame ?? null]),
-  );
-  const measured: Measured[] = built.pool.players
-    .filter((p) => p.pools.active)
-    .map((p) => ({
-      id: p.id,
-      wiki: p.wiki,
-      previous: previousFame.get(p.id) ?? null,
-    }));
-  const viewRun = { asked: 0, read: 0, failure: null as string | null };
-  if (!deps.offline) {
-    const asked = planPageviews({
-      players: measured,
-      cache: views,
-      window: viewsWindow,
-      max: PAGEVIEWS_MAX_PER_RUN,
-    });
-    deps.log(
-      `plan: pageviews ${asked.length} (one per article, at most ${PAGEVIEWS_MAX_PER_RUN} a run)`,
-    );
-    const client = deps.pageviews;
-    const got: { lang: ViewLang; title: string; views: number }[] = [];
-    if (asked.length > 0 && !client) viewRun.failure = "no page views client";
-    else
-      for (const a of asked) {
-        try {
-          got.push({
-            ...a,
-            views: await fetchViews(client!, a.lang, a.title, viewsWindow),
-          });
-        } catch (error) {
-          viewRun.failure =
-            error instanceof Error ? error.message : String(error);
-          break;
-        }
-      }
-    viewRun.asked = asked.length;
-    viewRun.read = got.length;
-    if (got.length > 0) views = addToCache(views, viewsWindow, got);
-  }
-
   // P30: the thumbnails, through their own client (P49), as soon as a
-  // footballer has a photo record: new files first, at most
-  // PHOTOS_MAX_PER_RUN. Kept in memory until the outputs are written, so a
+  // footballer has a photo record, whatever page views do: new files first,
+  // at most PHOTOS_MAX_PER_RUN. Before the page views, so their hundreds of
+  // requests never come first (the first real run's thumbnails met a 429
+  // right after them). Kept in memory until the outputs are written, so a
   // refused build copies nothing.
   const photoDir = path.join(deps.root, "public", "photos");
   const pending = new Map<string, Uint8Array>();
@@ -1188,7 +1143,76 @@ async function build(deps: RunDeps): Promise<RunResult> {
     },
     sleep: deps.sleep,
     gapMs: PHOTO_GAP_MS,
+    throttleWaits: THROTTLE_WAITS_PER_RUN,
   });
+
+  // D-S2-4: fame from Wikipedia page views, through its own polite client
+  // (P49): the Pageviews REST API is a separate service, so the 70 requests
+  // stay for Wikidata and the MediaWiki API. One request per article; every
+  // footballer whose count is missing or from an earlier 12-month window is
+  // measured in this run, unmeasured first, up to PAGEVIEWS_MAX_PER_RUN. A
+  // failure keeps the counts already known (data/cache/pageviews.json and
+  // the pool) and the build goes on.
+  const viewsWindow = monthWindow(today);
+  const cachedViews = await readCache<ViewsCache>("pageviews");
+  let views: ViewsCache = cachedViews?.value ?? {};
+  const previousFame = new Map(
+    (previous?.players ?? []).map((p) => [p.id, p.fame ?? null]),
+  );
+  const measured: Measured[] = built.pool.players
+    .filter((p) => p.pools.active)
+    .map((p) => ({
+      id: p.id,
+      wiki: p.wiki,
+      previous: previousFame.get(p.id) ?? null,
+    }));
+  const viewRun = {
+    asked: 0,
+    read: 0,
+    notFound: 0,
+    failure: null as string | null,
+    distrusted: false,
+  };
+  if (!deps.offline) {
+    const asked = planPageviews({
+      players: measured,
+      cache: views,
+      window: viewsWindow,
+      max: PAGEVIEWS_MAX_PER_RUN,
+    });
+    deps.log(
+      `plan: pageviews ${asked.length} (one per article, at most ${PAGEVIEWS_MAX_PER_RUN} a run)`,
+    );
+    const client = deps.pageviews;
+    const got: { lang: ViewLang; title: string; views: number | null }[] = [];
+    if (asked.length > 0 && !client) viewRun.failure = "no page views client";
+    else
+      for (const a of asked) {
+        try {
+          got.push({
+            ...a,
+            views: await fetchViews(client!, a.lang, a.title, viewsWindow),
+          });
+        } catch (error) {
+          viewRun.failure =
+            error instanceof Error ? error.message : String(error);
+          break;
+        }
+      }
+    viewRun.asked = asked.length;
+    viewRun.notFound = got.filter((g) => g.views === null).length;
+    viewRun.read = got.length - viewRun.notFound;
+    deps.log(`pageviews: ${viewRun.read} read, ${viewRun.notFound} not found`);
+    // A real 404 means "no article" and is rare; many of them mean a broken
+    // request, and their zeros would make everyone tier D. Not used then.
+    viewRun.distrusted = tooManyNotFound(viewRun.read, viewRun.notFound);
+    if (got.length > 0 && !viewRun.distrusted)
+      views = addToCache(
+        views,
+        viewsWindow,
+        got.map((g) => ({ ...g, views: g.views ?? 0 })),
+      );
+  }
 
   if (deps.offline) {
     statuses.pageviews = cachedViews
@@ -1199,7 +1223,7 @@ async function build(deps: RunDeps): Promise<RunResult> {
           note: "no cached copy; the last pool's counts are kept",
         };
   } else {
-    if (viewRun.read > 0) {
+    if (viewRun.read + viewRun.notFound > 0 && !viewRun.distrusted) {
       const file = path.join(data, "cache", "pageviews.json");
       await mkdir(path.dirname(file), { recursive: true });
       const entry: CacheEntry<ViewsCache> = {
@@ -1211,10 +1235,12 @@ async function build(deps: RunDeps): Promise<RunResult> {
       await writeFile(file, JSON.stringify(entry));
     }
     const waiting = measured.filter((m) => viewsOf(m, views) === null).length;
-    const note = `${viewRun.read} of ${viewRun.asked} articles read${viewRun.failure ? ` (then: ${viewRun.failure})` : ""}; ${waiting} active footballers not measured yet`;
+    const note = viewRun.distrusted
+      ? `${viewRun.notFound} of ${viewRun.read + viewRun.notFound} articles not found (over 10%); counts not used, fame unchanged`
+      : `${viewRun.read} of ${viewRun.asked} articles read${viewRun.notFound > 0 ? `, ${viewRun.notFound} not found` : ""}${viewRun.failure ? ` (then: ${viewRun.failure})` : ""}; ${waiting} active footballers not measured yet`;
     deps.log(`pageviews: ${note}`);
     statuses.pageviews =
-      viewRun.failure !== null && viewRun.read === 0
+      viewRun.distrusted || (viewRun.failure !== null && viewRun.read === 0)
         ? { status: "failed", retrievedAt: cachedViews?.savedAt ?? null, note }
         : { status: "fresh", retrievedAt: today, note };
   }
