@@ -4,7 +4,10 @@ import {
   getTranslations,
   setRequestLocale,
 } from "next-intl/server";
-import { Game, type GameStrings } from "@/components/chkoun/game";
+import type { GameStrings } from "@/components/chkoun/game";
+import { GameIsland } from "@/components/chkoun/game-island";
+import { Legend } from "@/components/chkoun/legend";
+import { GameShell } from "@/components/chkoun/shell";
 import { PageHeader } from "@/components/page-header";
 import { getGame } from "@/games";
 import { isLocale, localeInfo } from "@/i18n/locales";
@@ -72,13 +75,31 @@ export default async function ChkounPage({
         <noscript>
           <p className="mt-6 text-xl font-semibold">{t("chkoun.noscript")}</p>
         </noscript>
-        <Game
+        {/* The live game renders first and hides the shell after it. */}
+        <GameIsland
           locale={locale}
           dataUrl={`/chkoun-data/${locale}.json`}
           strings={strings}
           shareUrl={`${site.url}${prefix}${ROUTE}`}
           sourcesHref={`${prefix}/sources`}
         />
+        <GameShell
+          label={t("chkoun.search.label")}
+          hint={t("chkoun.search.hint")}
+          placeholder={t("chkoun.search.placeholder")}
+          guessCount={t("chkoun.guessCount", { n: 1 })}
+        />
+        <div className="max-w-2xl">
+          <Legend
+            title={t("chkoun.legend.title")}
+            words={{
+              same: t("chkoun.legend.same"),
+              close: t("chkoun.legend.close"),
+              different: t("chkoun.legend.different"),
+              unknown: t("chkoun.legend.unknown"),
+            }}
+          />
+        </div>
       </main>
     </div>
   );

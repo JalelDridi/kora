@@ -28,7 +28,7 @@ import { buildEntries } from "@/engine/names";
 import type { Locale } from "@/i18n/locales";
 import type fr from "../../../messages/fr.json";
 import { Countdown } from "./countdown";
-import { Legend, LEGEND_KEY } from "./legend";
+import { LEGEND_KEY } from "./legend";
 import { Result } from "./result";
 import { ShareButton } from "./share-button";
 import { Stats as StatsPanel } from "./stats";
@@ -377,7 +377,7 @@ export function Game({
         : t.error[notice];
 
   return (
-    <div className="mt-8 max-w-2xl">
+    <div className="chkoun-live mt-8 max-w-2xl">
       {/* One slot for the day's state, sized for its tallest content, so a
           closed day or a failed request moves nothing below it (CLS). */}
       <div className="mb-3 min-h-12">
@@ -523,15 +523,16 @@ export function Game({
           onZero={() => void loadToday()}
           className="mt-6 min-h-7 text-base text-chalk-dim"
         />
-      ) : phase.kind === "loading" ? (
+      ) : phase.kind === "loading" ||
+        phase.kind === "closed" ||
+        phase.kind === "failed" ? (
+        // The countdown's line, kept so nothing below moves (CLS).
         <p aria-hidden="true" className="mt-6 min-h-7" />
       ) : null}
 
       <p role="status" aria-live="polite" className="sr-only">
         {announcement}
       </p>
-
-      <Legend title={t.legend.title} words={t.legend} />
     </div>
   );
 }

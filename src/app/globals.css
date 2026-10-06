@@ -59,3 +59,9 @@ html {
     transform: rotateX(0deg);
   }
 }
+
+/* The game page's server-rendered shell steps aside as soon as the live game
+   (a client island loaded after the first paint) renders before it. */
+.chkoun-live ~ .chkoun-shell {
+  display: none;
+}
