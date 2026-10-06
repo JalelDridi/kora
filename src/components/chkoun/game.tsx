@@ -1,0 +1,397 @@
+"use client";
+
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import type { Card } from "@/chkoun/attributes";
+import {
+  deviceStorage,
+  loadGame,
+  loadStats,
+  recordFinish,
+  saveGame,
+  saveStats,
+  type SavedGame,
+} from "@/chkoun/device";
+import { format, localName, type Labels } from "@/chkoun/labels";
+import { unpackNames, type PackedName } from "@/chkoun/search-index";
+import type { Stats } from "@/engine/chkoun/stats";
+import type { TileRow as Row } from "@/engine/chkoun/types";
+import { buildEntries } from "@/engine/names";
+import type { Locale } from "@/i18n/locales";
+import type fr from "../../../messages/fr.json";
+import { Countdown } from "./countdown";
+import { Legend } from "./legend";
+import { SearchBox } from "./search-box";
+import { TileHeaders, TileRow, type RowStrings } from "./tile-row";
+
+export type GameStrings = {
+  chkoun: (typeof fr)["chkoun"];
+  positions: (typeof fr)["positions"];
+  credit: (typeof fr)["credit"];
+};
+
+type Props = {
+  locale: Locale;
+  names: PackedName[];
+  labels: Labels;
+  strings: GameStrings;
+  /** The game in the sharer's language, absolute (Q4.1). */
+  shareUrl: string;
+  sourcesHref: string;
+};
+
+type Store = "server" | "device";
+type Today = { number: number; day: string; endsAt: string; store: Store };
+type Phase =
+  | { kind: "loading" }
+  | { kind: "failed" }
+  | { kind: "soon"; startsAt: string }
+  | { kind: "closed" }
+  | { kind: "open"; today: Today };
+type Notice = "network" | "newDay" | "tooMany" | "closed" | null;
+
+const MAX_GUESSES = 8;
+/** After a zero that the server does not confirm yet (a fast phone clock). */
+const RETRY_AFTER_ZERO_MS = 30_000;
+
+function fresh(n: number): SavedGame {
+  return { n, token: null, rows: [], status: "playing", card: null };
+}
+
+type TodayBody = {
+  status?: "soon" | "open" | "closed";
+  number?: number;
+  day?: string;
+  endsAt?: string;
+  startsAt?: string;
+  store?: Store;
+  finished?: {
+    grid: string[];
+    solved: boolean;
+    guesses: number;
+    card: Card | null;
+  };
+  stats?: Stats;
+};
+
+// The Chkoun? game in the browser (plan Task 12). It asks the server for
+// today's number, restores today's game from the device, sends each guess
+// with the signed state the server gave last, and keeps the result on the
+// device. It never knows the answer before the server ends the game.
+export function Game({
+  locale,
+  names,
+  labels,
+  strings,
+  shareUrl,
+  sourcesHref,
+}: Props) {
+  const t = strings.chkoun;
+  const sources = useMemo(() => unpackNames(names), [names]);
+  const entries = useMemo(() => buildEntries(sources), [sources]);
+  const byId = useMemo(() => new Map(sources.map((s) => [s.id, s])), [sources]);
+
+  const [phase, setPhase] = useState<Phase>({ kind: "loading" });
+  const [game, setGame] = useState<SavedGame | null>(null);
+  const [stats, setStats] = useState<Stats | null>(null);
+  const [notice, setNotice] = useState<Notice>(null);
+  const [pending, setPending] = useState(false);
+  /** Rows from this index on were guessed in this page view: they flip in. */
+  const [animateFrom, setAnimateFrom] = useState(Infinity);
+  const current = useRef<number | null>(null);
+  const retry = useRef<number | undefined>(undefined);
+  /** loadToday itself, for the timer that asks again after a zero. */
+  const again = useRef<() => void>(() => {});
+
+  const update = useCallback((next: SavedGame) => {
+    setGame(next);
+    saveGame(deviceStorage(), next);
+  }, []);
+
+  const loadToday = useCallback(async () => {
+    window.clearTimeout(retry.current);
+    let body: TodayBody;
+    try {
+      const response = await fetch("/api/chkoun/today", { cache: "no-store" });
+      if (response.status === 429) {
+        setNotice("tooMany");
+        return;
+      }
+      body = (await response.json()) as TodayBody;
+    } catch {
+      setPhase({ kind: "failed" });
+      return;
+    }
+    if (body.status === "soon" && body.startsAt) {
+      setPhase({ kind: "soon", startsAt: body.startsAt });
+      return;
+    }
+    if (
+      body.status !== "open" ||
+      body.number === undefined ||
+      !body.day ||
+      !body.endsAt
+    ) {
+      setPhase({ kind: "closed" });
+      return;
+    }
+    const today: Today = {
+      number: body.number,
+      day: body.day,
+      endsAt: body.endsAt,
+      store: body.store === "server" ? "server" : "device",
+    };
+    const previous = current.current;
+    if (previous !== null && previous === today.number) {
+      // The phone's clock reached zero first: ask again a little later.
+      if (Date.parse(today.endsAt) <= Date.now() + 1000)
+        retry.current = window.setTimeout(
+          () => again.current(),
+          RETRY_AFTER_ZERO_MS,
+        );
+    }
+    if (previous !== null && previous !== today.number) setNotice("newDay");
+    current.current = today.number;
+
+    const storage = deviceStorage();
+    let saved = loadGame(storage, today.number);
+    if (!saved && body.finished) {
+      saved = {
+        n: today.number,
+        token: null,
+        rows: [],
+        status: body.finished.solved ? "won" : "lost",
+        card: body.finished.card,
+        grid: body.finished.grid,
+      };
+      saveGame(storage, saved);
+    }
+    if (body.stats) saveStats(storage, body.stats);
+    setStats(body.stats ?? loadStats(storage));
+    setGame(saved ?? fresh(today.number));
+    setAnimateFrom(Infinity);
+    setPhase({ kind: "open", today });
+  }, []);
+
+  useEffect(() => {
+    again.current = () => void loadToday();
+  }, [loadToday]);
+
+  useEffect(() => {
+    // The first request once the page runs; state is set when it answers.
+    const start = window.setTimeout(() => void loadToday(), 0);
+    const timer = retry;
+    return () => {
+      window.clearTimeout(start);
+      window.clearTimeout(timer.current);
+    };
+  }, [loadToday]);
+
+  async function guess(id: string) {
+    if (phase.kind !== "open" || !game || game.status !== "playing") return;
+    if (pending) return;
+    setPending(true);
+    setNotice(null);
+    try {
+      const response = await fetch("/api/chkoun/guess", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ n: game.n, token: game.token, guess: id }),
+        cache: "no-store",
+      });
+      const body = (await response.json().catch(() => ({}))) as {
+        token?: string;
+        row?: Row;
+        status?: "playing" | "won" | "lost";
+        card?: Card | null;
+        stats?: Stats;
+        error?: string;
+      };
+      if (response.status === 409) {
+        await loadToday();
+        setNotice("newDay");
+        return;
+      }
+      if (response.status === 429) return setNotice("tooMany");
+      if (response.status === 503) return setNotice("closed");
+      if (!response.ok || !body.token || !body.row || !body.status)
+        return setNotice("network");
+      const rows = [...game.rows, { guess: id, row: body.row }];
+      setAnimateFrom((from) => Math.min(from, game.rows.length));
+      const next: SavedGame = {
+        n: game.n,
+        token: body.token,
+        rows,
+        status: body.status,
+        card: body.status === "playing" ? null : (body.card ?? null),
+      };
+      update(next);
+      if (body.status !== "playing") {
+        setStats(
+          recordFinish(
+            deviceStorage(),
+            { n: game.n, solved: body.status === "won", guesses: rows.length },
+            body.stats ?? null,
+          ),
+        );
+      }
+    } catch {
+      setNotice("network");
+    } finally {
+      setPending(false);
+    }
+  }
+
+  const rowStrings: RowStrings = {
+    positions: strings.positions,
+    caps: t.caps,
+    abroad: t.tiles.abroad,
+    noClub: t.tiles.noClub,
+    headers: {
+      club: t.tiles.club,
+      country: t.tiles.country,
+      position: t.tiles.position,
+      age: t.tiles.age,
+      caps: t.tiles.caps,
+      governorate: t.tiles.governorate,
+    },
+    words: t.legend,
+    arrows: {
+      older: t.tiles.older,
+      younger: t.tiles.younger,
+      moreCaps: t.tiles.moreCaps,
+      fewerCaps: t.tiles.fewerCaps,
+    },
+  };
+
+  const guessed = useMemo(
+    () => new Set(game?.rows.map((r) => r.guess) ?? []),
+    [game],
+  );
+  const playing = phase.kind === "open" && game?.status === "playing";
+  const noticeText =
+    notice === null
+      ? null
+      : notice === "network"
+        ? t.error.network
+        : t.error[notice];
+
+  return (
+    <div className="mt-8 max-w-2xl">
+      {phase.kind === "failed" ? (
+        <div role="alert" className="flex flex-wrap items-center gap-3">
+          <p className="text-lg">{t.error.network}</p>
+          <button
+            type="button"
+            onClick={() => {
+              setPhase({ kind: "loading" });
+              void loadToday();
+            }}
+            className="min-h-11 rounded-full bg-mint px-5 font-semibold text-pitch-950"
+          >
+            {t.error.retry}
+          </button>
+        </div>
+      ) : null}
+      {phase.kind === "closed" ? (
+        <p role="status" className="text-lg">
+          {t.error.closed}
+        </p>
+      ) : null}
+      {phase.kind === "soon" ? (
+        <Countdown
+          endsAt={phase.startsAt}
+          template={t.soon}
+          onZero={() => void loadToday()}
+          className="text-lg"
+        />
+      ) : null}
+
+      {phase.kind === "loading" || playing ? (
+        <div>
+          <SearchBox
+            locale={locale}
+            entries={entries}
+            names={byId}
+            guessed={guessed}
+            disabled={!playing}
+            onGuess={(id) => void guess(id)}
+            strings={t.search}
+          />
+          <p className="text-base text-chalk-dim">
+            {format(t.guessCount, {
+              n: Math.min((game?.rows.length ?? 0) + 1, MAX_GUESSES),
+            })}
+          </p>
+        </div>
+      ) : null}
+
+      <p
+        role="status"
+        aria-live="polite"
+        className="mt-2 min-h-6 text-base font-semibold"
+      >
+        {noticeText}
+      </p>
+
+      {game && game.rows.length > 0 ? (
+        <section aria-label={t.guesses} className="mt-4 flex flex-col gap-3">
+          <TileHeaders headers={rowStrings.headers} />
+          <ol className="flex flex-col gap-4">
+            {game.rows.map((r, i) => {
+              const n = byId.get(r.guess);
+              const shown = n ? localName(n, locale) : r.guess;
+              return (
+                <TileRow
+                  key={r.guess}
+                  id={r.guess}
+                  name={shown}
+                  latin={n && shown !== n.nameLatin ? n.nameLatin : null}
+                  row={r.row}
+                  labels={labels}
+                  strings={rowStrings}
+                  animate={i >= animateFrom}
+                />
+              );
+            })}
+          </ol>
+        </section>
+      ) : null}
+
+      {phase.kind === "open" && game && game.status !== "playing" ? (
+        <section aria-labelledby="chkoun-result" className="mt-8">
+          <h2 id="chkoun-result" className="text-3xl font-extrabold">
+            {game.status === "won"
+              ? format(t.result.won, {
+                  n: game.rows.length || (game.grid?.length ?? 0),
+                })
+              : format(t.result.lost, {
+                  name: game.card ? localName(game.card, locale) : "",
+                })}
+          </h2>
+          <Countdown
+            endsAt={phase.today.endsAt}
+            template={t.next}
+            onZero={() => void loadToday()}
+            className="mt-4 text-lg"
+          />
+          <a href={sourcesHref} className="text-mint underline">
+            {strings.credit.sources}
+          </a>
+          {stats ? <p className="sr-only">{stats.streak}</p> : null}
+          <span hidden>{shareUrl}</span>
+        </section>
+      ) : null}
+
+      {phase.kind === "open" && playing ? (
+        <Countdown
+          endsAt={phase.today.endsAt}
+          template={t.next}
+          onZero={() => void loadToday()}
+          className="mt-6 text-base text-chalk-dim"
+        />
+      ) : null}
+
+      <Legend title={t.legend.title} words={t.legend} />
+    </div>
+  );
+}

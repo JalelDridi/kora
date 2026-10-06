@@ -1,19 +1,24 @@
 import Link from "next/link";
 import { localeInfo, locales, type Locale } from "@/i18n/locales";
 
-type Props = { current: Locale; label: string };
+type Props = {
+  current: Locale;
+  label: string;
+  /** The same page in each language: "" for the hub, "/chkoun". */
+  path?: string;
+};
 
 // On a narrow screen or with large text the row wraps instead of scrolling
 // sideways (WCAG 1.4.10). No prefetch: few visitors switch, and a full load
 // is the surest way to swap <html lang dir>.
-export function LanguageSwitcher({ current, label }: Props) {
+export function LanguageSwitcher({ current, label, path = "" }: Props) {
   return (
     <nav aria-label={label} className="max-w-full">
       <ul className="flex flex-wrap justify-end gap-1 rounded-3xl bg-pitch-800 p-1">
         {locales.map((locale) => (
           <li key={locale}>
             <Link
-              href={localeInfo[locale].prefix}
+              href={`${localeInfo[locale].prefix}${path}`}
               prefetch={false}
               lang={locale}
               hrefLang={locale}
