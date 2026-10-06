@@ -262,12 +262,16 @@ export function parseFrInfobox(
   let seniorRow = false;
   /** The latest end year of the senior rows; null once one is open or unknown. */
   let nationalEnd: number | null | undefined;
+  /** The earliest start year of the senior rows. */
+  let nationalStart: number | null = null;
   for (const row of national.rows) {
     if (!isSeniorTunisie(row.team)) continue;
     seniorRow = true;
     if (row.apps !== null) caps = (caps ?? 0) + row.apps;
     if (row.goals !== null) goals = (goals ?? 0) + row.goals;
     nationalOpen ||= row.open;
+    if (row.from !== null)
+      nationalStart = Math.min(nationalStart ?? row.from, row.from);
     nationalEnd =
       nationalEnd === null || row.to === null
         ? null
@@ -301,6 +305,7 @@ export function parseFrInfobox(
     goals,
     nationalOpen,
     nationalEnd: nationalEnd ?? null,
+    nationalStart,
     clubsAsOf: asOf,
     capsAsOf: asOf,
     skipped,

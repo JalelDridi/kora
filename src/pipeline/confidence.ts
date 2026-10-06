@@ -3,6 +3,7 @@ import { plainLatin } from "./places.ts";
 import { latestPlayed } from "./results.ts";
 import type {
   Confidence,
+  Infobox,
   PoolPlayer,
   FlagKind,
   Line,
@@ -264,6 +265,35 @@ export function capForSkipped(rating: Rating, tainted: SourceId[]): Rating {
     confidence: "medium",
     confidenceNote: `${tainted.join(", ")} skipped rows of this field`,
   };
+}
+
+/**
+ * The national years the caps ceiling counts in: the pages' senior Tunisia
+ * years when a page gives a start (the earliest start of the English and
+ * French pages, and their latest end, or none while one is open), else
+ * Wikidata's membership. Wikidata's years are narrower than the pages' for
+ * some legends (review guide v2, item 7: 5 of its 10 flags were within the
+ * pages' years, 6 legends above them were missed).
+ */
+export function ceilingYears(
+  pages: (Infobox | null)[],
+  wikidata: { start: number | null; end: number | null } | null,
+): { from: number | null; to: number | null } | null {
+  const senior = pages.filter((b): b is Infobox => b !== null && b.seniorRow);
+  const starts = senior
+    .map((b) => b.nationalStart ?? null)
+    .filter((y): y is number => y !== null);
+  if (starts.length === 0)
+    return wikidata ? { from: wikidata.start, to: wikidata.end } : null;
+  const ends = senior
+    .map((b) => b.nationalEnd)
+    .filter((y): y is number => y !== null);
+  const to = senior.some((b) => b.nationalOpen)
+    ? null
+    : ends.length > 0
+      ? Math.max(...ends)
+      : (wikidata?.end ?? null);
+  return { from: Math.min(...starts), to };
 }
 
 /** Tunisia matches played from 1 January of the first national year to the as-of date; null when unknowable. */

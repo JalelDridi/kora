@@ -1,5 +1,6 @@
 import {
   capsCeiling,
+  ceilingYears,
   NATIONAL_FIELD,
   rateFields,
   titleName,
@@ -1077,9 +1078,12 @@ export function mergePlayer(
         ? Math.max(en.nationalEnd, fr.nationalEnd)
         : null,
     birthPlace: birth.place,
-    capsCeiling: tunisia
-      ? capsCeiling(ctx.tunisiaMatches, tunisia.start, tunisia.end, capsAsOf)
-      : null,
+    capsCeiling: (() => {
+      const years = ceilingYears([en, fr], tunisia ?? null);
+      return years
+        ? capsCeiling(ctx.tunisiaMatches, years.from, years.to, capsAsOf)
+        : null;
+    })(),
     // An infobox naming no club votes "none"; a club title that does not resolve is no vote.
     clubId: [
       ...boxes.flatMap((b): Vote<string | null>[] =>
