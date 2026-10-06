@@ -3,12 +3,15 @@
 // it reverses Arabic words and crashes on IBM Plex Sans Arabic). Run by hand
 // after changing a tagline, the mark or this design: `pnpm images`, then bump
 // shareImageVersion in src/share.ts if an existing image changed. Locally it
-// uses the installed Chrome, like scripts/render-deck.mjs.
+// uses the installed Chrome, like scripts/render-deck.mjs. Name sets to render
+// only those: `pnpm images games` renders the game pages' previews alone
+// (sets: share, games, icons; none named renders all).
 import { mkdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { chromium, type Page } from "@playwright/test";
 import { localeInfo, locales } from "../src/i18n/locales.ts";
 import {
+  gameShareImagePath,
   shareImageMaxBytes,
   shareImagePath,
   shareImageSize,
@@ -82,6 +85,29 @@ async function renderShareImages(page: Page) {
   }
 }
 
+// A game page's preview: the mark, the game's name large and "Kora" under
+// it (plan Task 15). No footballer, no crest (P33).
+async function renderGameImages(page: Page) {
+  mkdirSync(out("public/og"), { recursive: true });
+  await page.setViewportSize(shareImageSize);
+  for (const locale of locales) {
+    const { prefix, dir } = localeInfo[locale];
+    const messages = JSON.parse(
+      read(`messages/${locale}.json`).toString("utf8"),
+    );
+    await page.setContent(
+      `<!doctype html><html lang="${locale}" dir="${dir}"><head><meta charset="utf-8"><style>${shareCss}</style></head>
+       <body>${mark}<h1><bdi>${messages.games.chkoun.name}</bdi></h1><p>${site.name}</p><div class="bar"></div></body></html>`,
+    );
+    await waitForFonts(page);
+    const path = out(`public${gameShareImagePath("chkoun", prefix)}`);
+    await page.screenshot({ path, type: "png" });
+    const bytes = statSync(path).size;
+    if (bytes > shareImageMaxBytes) throw new Error(`${path}: ${bytes} bytes`);
+    console.log(`${path} (${bytes} bytes)`);
+  }
+}
+
 const glyph = mark.match(/<path[\s\S]*?\/>/)?.[0];
 if (!glyph) throw new Error("no <path> in src/app/icon.svg");
 
@@ -141,9 +167,12 @@ const browser = await chromium.launch({
   channel: process.env.CI ? undefined : "chrome",
 });
 const page = await browser.newPage({ deviceScaleFactor: 1 });
+const sets = process.argv.slice(2);
+const wanted = (set: string) => sets.length === 0 || sets.includes(set);
 try {
-  await renderShareImages(page);
-  await renderIcons(page);
+  if (wanted("share")) await renderShareImages(page);
+  if (wanted("games")) await renderGameImages(page);
+  if (wanted("icons")) await renderIcons(page);
 } finally {
   await browser.close();
 }

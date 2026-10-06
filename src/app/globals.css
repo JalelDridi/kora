@@ -11,6 +11,12 @@
   --color-shirt: #e63946;
   --color-chalk: #eef3ef;
   --color-chalk-dim: #cfd8d2;
+  /* Chkoun? tiles. Each tile also shows a mark (✓ ≈ ✕ ?) and says its
+     colour in words, so no tile speaks by colour alone. Text contrast:
+     white on green 5.35:1, pitch-950 on amber 10.19:1, chalk on grey 8.28:1. */
+  --color-tile-green: #1d7a46;
+  --color-tile-amber: #e9b949;
+  --color-tile-grey: #3d4a43;
 }
 
 /* One stack for both directions. Inter has no Arabic letters, so Arabic falls
@@ -35,4 +41,21 @@ html {
 :focus-visible {
   outline: 3px solid var(--color-mint);
   outline-offset: 3px;
+}
+
+/* A guessed row's tiles turn over one after another, only for visitors who
+   have not asked for less motion. */
+@media (prefers-reduced-motion: no-preference) {
+  .tile-flip {
+    animation: kora-flip 0.45s ease-out both;
+  }
+}
+
+@keyframes kora-flip {
+  from {
+    transform: rotateX(90deg);
+  }
+  to {
+    transform: rotateX(0deg);
+  }
 }

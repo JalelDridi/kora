@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { launchGames, liveRoute } from "../src/games";
 import { localeInfo, locales } from "../src/i18n/locales";
 import { site } from "../src/site";
 
@@ -11,7 +12,7 @@ test("robots.txt is served and points to the sitemap", async ({ request }) => {
   expect(await response.text()).toMatch(/^Sitemap: \S+\/sitemap\.xml$/m);
 });
 
-test("sitemap.xml lists the three hubs with language alternates", async ({
+test("sitemap.xml lists the hubs, the live games, Sources and privacy with language alternates", async ({
   request,
 }) => {
   const response = await request.get("/sitemap.xml");
@@ -21,8 +22,20 @@ test("sitemap.xml lists the three hubs with language alternates", async ({
   const locs = [...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map(
     (m) => new URL(m[1]).pathname,
   );
-  expect(locs).toEqual(locales.map((l) => localeInfo[l].prefix));
-  expect(xml.match(/hreflang="x-default"/g)).toHaveLength(3);
+  const paths = [
+    "",
+    ...launchGames.flatMap((g) => liveRoute(g) ?? []),
+    "/sources",
+    "/privacy",
+  ];
+  expect(locs).toEqual(
+    paths.flatMap((path) =>
+      locales.map((l) => `${localeInfo[l].prefix}${path}`),
+    ),
+  );
+  expect(xml.match(/hreflang="x-default"/g)).toHaveLength(
+    paths.length * locales.length,
+  );
   expect(xml).not.toContain("/admin");
 });
 

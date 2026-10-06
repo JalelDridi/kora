@@ -2,8 +2,8 @@ import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { GameCard } from "@/components/game-card";
 import { LanguageSwitcher } from "@/components/language-switcher";
-import { launchGames } from "@/games";
-import { isLocale } from "@/i18n/locales";
+import { launchGames, liveRoute } from "@/games";
+import { isLocale, localeInfo } from "@/i18n/locales";
 import { site } from "@/site";
 
 export default async function HubPage({ params }: PageProps<"/[locale]">) {
@@ -29,16 +29,21 @@ export default async function HubPage({ params }: PageProps<"/[locale]">) {
             {t("hub.games")}
           </h2>
           <ul className="mt-5 grid gap-4 md:grid-cols-3">
-            {launchGames.map((game) => (
-              <li key={game.id}>
-                <GameCard
-                  name={t(`games.${game.id}.name`)}
-                  pitch={t(`games.${game.id}.pitch`)}
-                  badge={t(`badges.${game.badge}`)}
-                  soon={t("hub.soon")}
-                />
-              </li>
-            ))}
+            {launchGames.map((game) => {
+              const route = liveRoute(game);
+              return (
+                <li key={game.id}>
+                  <GameCard
+                    name={t(`games.${game.id}.name`)}
+                    pitch={t(`games.${game.id}.pitch`)}
+                    badge={t(`badges.${game.badge}`)}
+                    soon={t("hub.soon")}
+                    href={route ? `${localeInfo[locale].prefix}${route}` : null}
+                    play={t("hub.play")}
+                  />
+                </li>
+              );
+            })}
           </ul>
         </section>
       </main>

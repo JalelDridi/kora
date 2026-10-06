@@ -7,7 +7,8 @@
     "tagline": "Al3ab el koura ettounsia, kol youm",
     "games": "El al3ab",
     "soon": "9rib",
-    "language": "Logha"
+    "language": "Logha",
+    "play": "El3ab"
   },
   "badges": {
     "daily": "Kol youm",
@@ -32,5 +33,183 @@
     "title": "El page hedhi mouch mawjouda",
     "body": "Ymken el lien ghalet wala el page tna77at.",
     "home": "Arja3 lel al3ab"
+  },
+  "chkoun": {
+    "meta": {
+      "title": "Chkoun? · Kora",
+      "description": "A3ref la3eb el youm fi 8 mou7awlet. Kol youm la3eb jdid."
+    },
+    "rules": "A3ref la3eb el youm fi 8 mou7awlet. Ken el la3ba elli mazelou yel3bou.",
+    "legend": {
+      "title": "El alwen",
+      "same": "Kif kif",
+      "close": "9rib",
+      "different": "Mouch kif kif",
+      "unknown": "Ma na3rfouch"
+    },
+    "search": {
+      "label": "El la3eb",
+      "placeholder": "Ekteb esm la3eb",
+      "none": "Ma l9ina 7atta la3eb",
+      "already": "Jarrabtou",
+      "hint": "B el 3arbi, b el arabizi wala b el fransi"
+    },
+    "guessCount": "Mou7awla {n} men 8",
+    "guesses": "El mou7awlet mte3ek",
+    "noscript": "El le3ba hedhi test7a99 JavaScript.",
+    "soon": "Awwel la3eb yji ba3d {time}",
+    "error": {
+      "network": "Saret mochkla fel connexion.",
+      "retry": "3awed jarreb",
+      "newDay": "Bda nhar jdid: hew el la3eb ejdid.",
+      "tooMany": "Barcha mou7awlet. 3awed ba3d chwaya d9aye9.",
+      "closed": "Le3bet el youm mouch mawjouda."
+    },
+    "tiles": {
+      "club": "El far9",
+      "country": "Blad el far9",
+      "position": "El blasa",
+      "age": "El 3omr",
+      "caps": "Matchet el mountakhab",
+      "governorate": "Mawloud fi",
+      "older": "Howa akbar",
+      "younger": "Howa asghar",
+      "moreCaps": "3andou matchet akther m3a el mountakhab",
+      "fewerCaps": "3andou matchet a9al m3a el mountakhab",
+      "abroad": "Barra: {country}",
+      "noClub": "Bla far9"
+    },
+    "caps": {
+      "band0": "0",
+      "band1": "1-9",
+      "band2": "10-29",
+      "band3": "30-59",
+      "band4": "60+"
+    },
+    "result": {
+      "won": "L9itou fi {n}!",
+      "lost": "Ken {name}"
+    },
+    "card": {
+      "club": "El far9",
+      "born": "Mawloud fi",
+      "caps": "Matchet el mountakhab",
+      "goals": "Ahdef m3a el mountakhab",
+      "noPhoto": "Ma fammech tsawira"
+    },
+    "share": {
+      "button": "Partagi",
+      "copy": "Copi",
+      "copied": "Tcopa!",
+      "whatsapp": "Eb3ath 3la WhatsApp",
+      "longPress": "Edhghat mtawwel 3al ktiba bech tcopiha",
+      "header": "Kora · Chkoun?"
+    },
+    "stats": {
+      "title": "El ar9am mte3ek",
+      "streak": "Série",
+      "best": "A7sen série",
+      "played": "El le3bet",
+      "winRate": "Rba7t",
+      "onDevice": "Ma7fouth fel telifoun hedha",
+      "onServer": "Ma7fouth fi Kora"
+    },
+    "next": "El la3eb ejjey ba3d {time}"
+  },
+  "positions": {
+    "goalkeeper": "7ares",
+    "defender": "Mdafe3",
+    "midfielder": "Wost midan",
+    "forward": "Mhajem"
+  },
+  "credit": {
+    "photo": "Tsawira: {author}, {licence}",
+    "photoNoAuthor": "Tsawira: {licence}",
+    "facts": "Ma3loumet: Wikipedia, Wikidata",
+    "sources": "El masader mte3na"
+  },
+  "footer": {
+    "sources": "El masader",
+    "privacy": "El khousousiya",
+    "unofficial": "Mouch rasmi. Ma 3andnech 3la9a b 7atta far9, wala bel FTF, wala bel CAF, wala bel FIFA."
+  },
+  "sources": {
+    "meta": {
+      "description": "D'où viennent les données et les photos de Kora."
+    },
+    "title": "Sources et crédits",
+    "unofficial": "Kora est un projet de fan, non officiel. Il n'a aucun lien avec un club, la FTF, la CAF ou la FIFA.",
+    "data": {
+      "title": "Les données",
+      "wikidata": "Wikidata : identités des joueurs, clubs, postes, dates et lieux de naissance (CC0).",
+      "wikipedia": "Wikipédia en anglais et en français : carrières, clubs et sélections, d'après les infobox et les effectifs (CC BY-SA 4.0).",
+      "results": "Résultats et buteurs des matchs internationaux : jeu de données martj42/international_results (CC0).",
+      "checks": "Kora compare les sources entre elles. Un fait douteux n'est jamais la réponse du jour, et chaque valeur garde la trace de sa source."
+    },
+    "photos": {
+      "title": "Photos des joueurs",
+      "intro": "Les photos viennent de Wikimedia Commons. Chacune garde sa propre licence ; elles sont copiées sans recadrage ni retouche.",
+      "footballer": "Joueur",
+      "author": "Auteur",
+      "licence": "Licence",
+      "file": "Fichier",
+      "changes": "Modifications",
+      "none": "aucune",
+      "empty": "Aucune photo pour l'instant."
+    },
+    "licence": {
+      "title": "Licences de Kora",
+      "code": "Le code de Kora est sous licence MIT.",
+      "data": "Les données de Kora sont sous licence CC BY-SA 4.0. Les photos n'en font pas partie."
+    },
+    "contact": "Une erreur, ou une photo à retirer ? Dis-le-nous sur GitHub."
+  },
+  "privacy": {
+    "meta": {
+      "description": "Ce que Kora garde quand tu joues, et pour combien de temps."
+    },
+    "title": "Vie privée",
+    "draft": "Brouillon : cette page n'est pas encore validée et peut changer.",
+    "date": "Mise à jour : 6 octobre 2026",
+    "device": {
+      "title": "Sur ton appareil",
+      "body": "Le navigateur garde la partie du jour (tes essais et leur résultat) et tes stats (série, parties, victoires) dans son stockage local. Kora ne les lit pas à distance : ils restent sur ton appareil."
+    },
+    "cookie": {
+      "title": "Un seul cookie, strictement nécessaire",
+      "body": "Quand les résultats sont gardés sur le serveur, Kora pose un cookie quand tu finis ta première partie : kora_v, un numéro tiré au hasard, sans aucune donnée sur toi. Il est envoyé seulement au jeu (/api/chkoun), il est illisible par les scripts de la page, et il dure 13 mois. Il sert seulement à relier tes parties pour ta série. Il n'y a aucun autre cookie."
+    },
+    "server": {
+      "title": "Sur le serveur",
+      "body": "Pour chaque partie finie, le serveur garde le jour, ton numéro kora_v, si tu as trouvé, le nombre d'essais et la grille de couleurs, jamais les noms essayés. Ces parties restent 8 jours dans Redis (Upstash), puis sont copiées chaque nuit dans la base de données (Neon), gardées jusqu'à nouvel ordre. Tes stats restent 13 mois après ta dernière partie. Pour limiter les abus, le serveur compte les essais par adresse réseau pendant 10 minutes, sous une empreinte salée qui change chaque jour : l'adresse elle-même n'est jamais enregistrée. L'hébergeur (Vercel) tient aussi ses propres journaux techniques des requêtes."
+    },
+    "serverOff": {
+      "title": "Quand le serveur ne garde rien",
+      "body": "Si le stockage des résultats est éteint, le jeu marche quand même : tout reste sur ton appareil, aucun cookie n'est posé et rien de tes parties n'est gardé sur le serveur. Le jeu l'indique par « Enregistré sur cet appareil »."
+    },
+    "analytics": {
+      "title": "Mesure d'audience",
+      "body": "Kora compte les visites sans cookie avec Vercel Web Analytics. PostHog (serveurs en Europe), sans cookie et sans profil, reçoit seulement cinq événements du jeu : partie ouverte, essai fait, partie finie, partage, recherche sans résultat. Ils portent le numéro du jour, le nombre d'essais, gagné ou non, la langue et la façon de partager ; jamais ce que tu tapes, un joueur, ni ton numéro kora_v. La bibliothèque de PostHog y ajoute d'elle-même l'adresse de la page, la page d'où tu viens, le navigateur, le système et la taille de l'écran. PostHog reçoit ton adresse IP pour calculer son empreinte sans cookie, sans l'enregistrer : l'enregistrement des adresses IP est désactivé dans le projet PostHog."
+    },
+    "errors": {
+      "title": "Erreurs",
+      "body": "Les erreurs du serveur peuvent être envoyées à Sentry, depuis le serveur seulement : sans cookie, sans adresse IP, sans corps de requête ni paramètres d'URL. Ton navigateur n'envoie rien à Sentry."
+    },
+    "processors": {
+      "title": "Qui traite les données, et où",
+      "body": "Vercel (hébergement, fonctions à Francfort), Neon (base de données, Francfort), Upstash (Redis, région européenne choisie à la création), PostHog (Europe), Sentry (région à confirmer)."
+    },
+    "children": {
+      "title": "Enfants",
+      "body": "Kora ne demande ni compte, ni nom, ni e-mail, ni âge, à personne."
+    },
+    "clear": {
+      "title": "Tout effacer",
+      "body": "Pour effacer ce que garde ton appareil, supprime les données du site dans ton navigateur (cela efface aussi le cookie). Pour effacer ce que garde le serveur, écris-nous avec les jours où tu as joué : ton numéro kora_v n'est pas encore affiché."
+    },
+    "contact": {
+      "title": "Contact",
+      "body": "Une question sur cette page ? Écris-nous sur GitHub."
+    }
   }
 }
