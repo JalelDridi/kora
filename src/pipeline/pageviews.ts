@@ -1,7 +1,8 @@
 // Wikipedia page views for the fame score (D-S2-4), from the Wikimedia
-// Pageviews API: one request per article, 12 full months, user agents only.
+// Pageviews API: one request per article, 12 full months, all access
+// methods, user agents only.
 // A full measure is about 600 requests a month. The API is a separate
-// service with its own client and cap (P49): at least 100 ms apart and at
+// service with its own client and cap (P49): at least 250 ms apart and at
 // most 800 HTTP attempts a run, retries included, outside the budget of 70
 // for Wikidata and the MediaWiki API. Each run measures every footballer
 // whose count is missing or from an earlier window, those never measured
@@ -42,7 +43,7 @@ export function pageviewsUrl(
   const article = encodeURIComponent(title.replace(/ /g, "_"));
   return (
     "https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article/" +
-    `${lang}.wikipedia/user/${article}/monthly/${window.from}0100/${window.to}0100`
+    `${lang}.wikipedia/all-access/user/${article}/monthly/${window.from}0100/${window.to}0100`
   );
 }
 
@@ -60,21 +61,30 @@ export function parsePageviews(json: unknown): number {
   return sum;
 }
 
-/** One article's views; an article the API does not know (404) has none. */
+/**
+ * One article's views; null when the API does not know the article (404).
+ * A real 404 is rare: the run counts them and distrusts a night with many
+ * (tooManyNotFound), so a broken URL can never turn everyone into tier D.
+ */
 export async function fetchViews(
   client: PoliteClient,
   lang: ViewLang,
   title: string,
   window: MonthWindow,
-): Promise<number> {
+): Promise<number | null> {
   try {
     return parsePageviews(
       await client.getJson(pageviewsUrl(lang, title, window)),
     );
   } catch (error) {
-    if (error instanceof HttpError && error.status === 404) return 0;
+    if (error instanceof HttpError && error.status === 404) return null;
     throw error;
   }
+}
+
+/** More than a tenth of the articles asked came back "not found". */
+export function tooManyNotFound(read: number, notFound: number): boolean {
+  return notFound > 0 && notFound * 10 > read + notFound;
 }
 
 /** Counts per window, per article: { "202510-202609": { "en:Wahbi Khazri": 258284 } }. */

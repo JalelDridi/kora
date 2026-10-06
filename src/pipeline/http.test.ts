@@ -17,7 +17,11 @@ type Reply = {
 // A fake network and a fake clock: sleeping only moves time forward.
 function harness(
   replies: Reply[],
-  limits: { maxAttempts?: number; maxWallMs?: number } = {},
+  limits: {
+    maxAttempts?: number;
+    maxWallMs?: number;
+    throttleWaits?: number;
+  } = {},
 ) {
   let time = 0;
   const starts: number[] = [];
@@ -232,6 +236,55 @@ describe("createPoliteClient", () => {
       expect(starts).toHaveLength(1);
     });
   }
+
+  // A REST service's 429 is a throttle, not a refusal (pageviews fix).
+  describe("with throttleWaits, a 429 is waited out", () => {
+    it("waits as long as Retry-After asks, then continues", async () => {
+      const h = harness(
+        [{ status: 429, headers: { "retry-after": "7" } }, { status: 200 }],
+        { throttleWaits: 3 },
+      );
+      expect(await h.client.getJson("https://wikimedia.org/a")).toEqual({});
+      expect(h.sleeps).toContain(7_000);
+    });
+
+    it("waits 60 s when there is no Retry-After", async () => {
+      const h = harness([{ status: 429 }, { status: 200 }], {
+        throttleWaits: 3,
+      });
+      await h.client.getJson("https://wikimedia.org/a");
+      expect(h.sleeps).toContain(60_000);
+    });
+
+    it("waits at most that many times a run, then stops", async () => {
+      const h = harness(
+        [
+          { status: 429 },
+          { status: 200 },
+          { status: 429 },
+          { status: 429 },
+          { status: 429 },
+          { status: 200 },
+        ],
+        { throttleWaits: 3, maxRetries: 0 } as never,
+      );
+      await h.client.getJson("https://wikimedia.org/a");
+      await expect(h.client.getJson("https://wikimedia.org/b")).rejects.toThrow(
+        StoppedError,
+      );
+      await expect(h.client.getJson("https://wikimedia.org/c")).rejects.toThrow(
+        StoppedError,
+      );
+      expect(h.sleeps.filter((ms) => ms === 60_000)).toHaveLength(3);
+    });
+
+    it("a 403 still stops at once", async () => {
+      const h = harness([{ status: 403 }], { throttleWaits: 3 });
+      await expect(h.client.getJson("https://wikimedia.org/a")).rejects.toThrow(
+        StoppedError,
+      );
+    });
+  });
 
   it("does not stop on a 404", async () => {
     const { client } = harness([{ status: 404 }, { status: 200, body: "ok" }]);

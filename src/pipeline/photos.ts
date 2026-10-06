@@ -4,7 +4,13 @@
 // no "modified" note. A photo is copied only with its licence, its file page
 // and, when the licence asks for attribution, its author.
 
-import { HttpError, StoppedError, USER_AGENT } from "./http.ts";
+import {
+  HttpError,
+  retryDelayMs,
+  StoppedError,
+  THROTTLE_WAIT_MS,
+  USER_AGENT,
+} from "./http.ts";
 import type { FetchLike } from "./http.ts";
 import type { Photo } from "./types.ts";
 
@@ -61,6 +67,8 @@ export async function syncPhotos(input: {
   sleep?: (ms: number) => Promise<void>;
   gapMs?: number;
   offline?: boolean;
+  /** 429s waited out (Retry-After, else 60 s) before the downloads stop. */
+  throttleWaits?: number;
 }): Promise<PhotoSync> {
   const sleep =
     input.sleep ??
@@ -95,6 +103,7 @@ export async function syncPhotos(input: {
   }
   let stopped: string | null = null;
   let first = true;
+  let throttled = 0;
   for (const { id, photo } of [...fresh, ...renamed]) {
     if (input.offline || stopped || out.downloaded >= input.max) {
       out.waiting++;
@@ -103,9 +112,26 @@ export async function syncPhotos(input: {
     if (!first) await sleep(input.gapMs ?? 250);
     first = false;
     try {
-      const response = await input.fetch(photo.thumbUrl, {
+      let response = await input.fetch(photo.thumbUrl, {
         headers: { "User-Agent": USER_AGENT, "Api-User-Agent": USER_AGENT },
       });
+      // A 429 from thumb.wikimedia.org is a throttle: wait and ask again.
+      while (
+        response.status === 429 &&
+        throttled < (input.throttleWaits ?? 3)
+      ) {
+        throttled++;
+        const header = response.headers.get("retry-after");
+        await response.body?.cancel();
+        await sleep(
+          header === null
+            ? THROTTLE_WAIT_MS
+            : Math.min(retryDelayMs(header, 0, Date.now()), 300_000),
+        );
+        response = await input.fetch(photo.thumbUrl, {
+          headers: { "User-Agent": USER_AGENT, "Api-User-Agent": USER_AGENT },
+        });
+      }
       out.downloaded++;
       if (response.status === 429 || response.status === 403) {
         await response.body?.cancel();

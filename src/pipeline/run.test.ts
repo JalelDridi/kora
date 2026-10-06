@@ -14,7 +14,7 @@ import path from "node:path";
 import { pathToFileURL } from "node:url";
 import { promisify } from "node:util";
 import { describe, expect, it } from "vitest";
-import { createPoliteClient, StoppedError } from "./http.ts";
+import { createPoliteClient, HttpError, StoppedError } from "./http.ts";
 import type { PoliteClient } from "./http.ts";
 import {
   CACHE_VERSION,
@@ -1466,9 +1466,9 @@ describe("createClients", () => {
     expect(clients.attempts()).toEqual({ wdqs: 0, wikimedia: 2, github: 0 });
   });
 
-  // P49: page views have a client of their own, at least 100 ms apart, and
+  // P49: page views have a client of their own, at least 250 ms apart, and
   // never count against the 70.
-  it("gives page views their own client, 100 ms apart, outside the 70", async () => {
+  it("gives page views their own client, 250 ms apart, outside the 70", async () => {
     const waits: number[] = [];
     let clock = 0;
     const realNow = Date.now;
@@ -1492,7 +1492,34 @@ describe("createClients", () => {
       Date.now = realNow;
     }
     expect(waits).toEqual([PAGEVIEWS_GAP_MS, PAGEVIEWS_GAP_MS]);
-    expect(PAGEVIEWS_GAP_MS).toBeGreaterThanOrEqual(100);
+    expect(PAGEVIEWS_GAP_MS).toBeGreaterThanOrEqual(250);
+  });
+
+  // Pageviews fix: a 429 from the Pageviews API is a throttle.
+  it("waits out a page views 429 (Retry-After, else 60 s), at most 3 times a run", async () => {
+    const waits: number[] = [];
+    let clock = 0;
+    let n = 0;
+    const realNow = Date.now;
+    Date.now = () => clock;
+    try {
+      const clients = createClients({
+        fetch: async () =>
+          n++ < 4
+            ? new Response("", { status: 429 })
+            : new Response('{"items":[]}'),
+        sleep: async (ms) => {
+          waits.push(ms);
+          clock += ms;
+        },
+      });
+      await expect(
+        clients.pageviews.getJson("https://wikimedia.org/api/rest_v1/x"),
+      ).rejects.toThrow(/429/);
+    } finally {
+      Date.now = realNow;
+    }
+    expect(waits.filter((ms) => ms === 60_000)).toHaveLength(3);
   });
 });
 
@@ -1869,7 +1896,7 @@ describe("fame from page views in the run (D-S2-4)", () => {
     });
     expect(calls.urls.filter((u) => u.includes("/metrics/pageviews/"))).toEqual(
       [
-        "https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article/en.wikipedia/user/Test_Footballer/monthly/2025100100/2026090100",
+        "https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article/en.wikipedia/all-access/user/Test_Footballer/monthly/2025100100/2026090100",
       ],
     );
     const report = await readFile(file(root, "report.md"), "utf8");
@@ -2003,6 +2030,45 @@ describe("fame from page views in the run (D-S2-4)", () => {
   });
 });
 
+describe("page views that come back not found (pageviews fix)", () => {
+  const notFound = (calls: string[] = []): PoliteClient => ({
+    async getJson(url) {
+      calls.push(url);
+      throw new HttpError(url, 404);
+    },
+    getText: async () => "",
+  });
+  const found: PoliteClient = {
+    getJson: async () => ({ items: [{ views: 200000 }] }),
+    getText: async () => "",
+  };
+
+  it("counts the articles not found in the plan line", async () => {
+    const root = await setup();
+    const lines: string[] = [];
+    await run(deps(root, { pageviews: notFound(), log: (l) => lines.push(l) }));
+    expect(lines).toContain("pageviews: 0 read, 1 not found");
+  });
+
+  it("over 10% not found: the source fails, and fame stays what it was", async () => {
+    const root = await setup();
+    await run(deps(root, { pageviews: found }));
+    expect((await readPool(root)).players[0].fame?.tier).toBe("A");
+    // A new window, and every article now answers 404 (a broken URL).
+    const report = async () => readFile(file(root, "report.md"), "utf8");
+    expect(
+      await run(deps(root, { today: "2026-11-02", pageviews: notFound() })),
+    ).toMatchObject({ ok: true });
+    expect((await readPool(root)).players[0].fame).toMatchObject({
+      tier: "A",
+      window: "202510-202609",
+    });
+    expect(await report()).toMatch(
+      /\| pageviews \| failed \| 2026-10-04 \| 1 of 1 articles not found \(over 10%\); counts not used/,
+    );
+  });
+});
+
 describe("photos copied into the repo in the run (P30)", () => {
   const jpeg = () =>
     new Response(new Uint8Array(2000), {
@@ -2083,6 +2149,28 @@ describe("photos copied into the repo in the run (P30)", () => {
       "/photos/test-footballer.jpg",
     );
     expect((await readPool(root)).players[0].fame?.tier).toBeNull();
+  });
+
+  it("a page views 429 does not stop the photos (pageviews fix)", async () => {
+    const root = await setup();
+    const asked: string[] = [];
+    const throttled: PoliteClient = {
+      async getJson(url) {
+        throw new StoppedError(url, 429);
+      },
+      getText: async () => "",
+    };
+    await run(
+      deps(root, {
+        pageviews: throttled,
+        photoFetch: photoFetch(asked),
+        sleep: async () => {},
+      }),
+    );
+    expect(asked).toHaveLength(1);
+    expect((await readPool(root)).players[0].photo?.path).toBe(
+      "/photos/test-footballer.jpg",
+    );
   });
 
   it("a refused build copies no photo", async () => {

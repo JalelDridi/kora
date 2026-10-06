@@ -3,5 +3,5 @@
   "title": "Not found.",
   "method": "get",
   "detail": "The date(s) you used are valid, but we either do not have data for those date(s), or the project you asked for is not loaded yet.",
-  "uri": "/analytics.wikimedia.org/v1/pageviews/per-article/fr.wikipedia/user/Nobody/monthly/2025100100/2026090100"
+  "uri": "/analytics.wikimedia.org/v1/pageviews/per-article/fr.wikipedia/all-access/user/Nobody/monthly/2025100100/2026090100"
 }
