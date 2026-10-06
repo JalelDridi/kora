@@ -4,7 +4,7 @@ Every key added by the game page, the result, the Sources page, the privacy draf
 
 - **DRAFT**: drafted by Claude (an AI), modelled on the existing Derja strings, not run through a translation tool and with no Modern Standard Arabic on purpose, but not checked by a Derja speaker. They may ship for the soft launch (P13); Jalel rewrites or approves each one.
 - **French placeholder (needs Jalel)**: the long texts of the Sources and privacy pages carry the French draft in all three files, so the pages work; the Derja versions are his to write (legal-ish text, too risky to draft). The paragraphs use `dir="auto"`, so French reads left to right on `/ar` until then.
-- **Blocking**: the country names in `ar-TN` and `ar-Latn-TN` (last table). They must be his before the pull request merges (plan, Strings for Jalel). They live in `messages/countries/ar-TN.json` and `messages/countries/ar-Latn-TN.json` and carry the French name as a placeholder today. French needs no file: it comes from `Intl.DisplayNames`.
+- **Country names**: written on 6 October 2026 from Wikidata's Tunisian-Arabic (`aeb`) labels, as Jalel asked ("you can search for them surely"); he corrects any he dislikes. The doubtful ones are marked in the last table.
 
 Where to edit: `messages/ar-TN.json`, `messages/ar-Latn-TN.json`, `messages/fr.json` (and the two country files). Keep `{n}`, `{name}`, `{time}`, `{country}`, `{author}`, `{licence}` as they are; Western digits only; the tests check every key exists in every locale.
 
@@ -198,7 +198,7 @@ Existing strings now used in new places (no new wording): `games.chkoun.name` (p
 
 The game page is reachable by its URL but hidden until all of these are done, in this order:
 
-1. **Strings in.** Jalel's Derja for every DRAFT key above, and the 39 country names in `messages/countries/ar-TN.json` and `messages/countries/ar-Latn-TN.json` (blocking).
+1. **Strings in.** Done on 6 October 2026 with Claude's Derja drafts and the 39 country names from Wikidata's `aeb` labels; Jalel corrects wording whenever he likes, no release waits on it.
 2. **Privacy settings on before any key is set.** In PostHog, turn on "Discard client IP data" in the project settings before `NEXT_PUBLIC_POSTHOG_KEY` is set in Vercel (the privacy draft says PostHog does not store the address). In Sentry, turn on "Prevent Storing of IP Addresses" before `SENTRY_DSN` is set.
 3. **Flip the switch.** `live: true` on Chkoun? in `src/games.ts`. This one change makes the hub card open the game, drops the page's `noindex` and adds it to the sitemap. The browser tests read the switch and check all three.
 4. **Restore the full SEO check.** In `lighthouserc.json`, replace the `/chkoun$` entry's per-audit SEO list with `"categories:seo": ["error", { "minScore": 0.95 }]`, like the hubs. It was split only because `noindex` fails `is-crawlable` on purpose.
