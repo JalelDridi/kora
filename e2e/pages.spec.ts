@@ -126,6 +126,8 @@ test("the Sources page names the data sources and their licences", async ({
   page,
 }) => {
   await page.goto("/fr/sources");
+  // The data section alone: the photo table links licences too.
+  const data = page.getByRole("region", { name: fr.sources.data.title });
   for (const name of [
     "Wikidata",
     "Wikipedia (en)",
@@ -134,5 +136,19 @@ test("the Sources page names the data sources and their licences", async ({
     "CC0 1.0",
     "CC BY-SA 4.0",
   ])
-    await expect(page.getByRole("link", { name, exact: true })).toBeVisible();
+    await expect(data.getByRole("link", { name, exact: true })).toBeVisible();
+  // The photo table: one row per copied photo, each with its licence,
+  // linked whenever the licence has a URL.
+  const credits = photoCredits(pool);
+  const rows = page.locator("tr[data-footballer]");
+  await expect(rows).toHaveCount(credits.length);
+  for (const c of credits) {
+    const cell = page.locator(`tr[data-footballer="${c.id}"] td`).nth(1);
+    await expect(cell).toHaveText(c.licence);
+    if (c.licenceUrl)
+      await expect(cell.getByRole("link")).toHaveAttribute(
+        "href",
+        c.licenceUrl,
+      );
+  }
 });

@@ -79,23 +79,27 @@ for (const locale of locales) {
     await expect(
       row.locator('[data-column="caps"] [data-header]'),
     ).toBeVisible();
-    // Every word of every tile stays on one line.
+    // Every word of every tile stays on one line: no break inside a word,
+    // and no automatic hyphenation (Chromium on Linux has dictionaries).
     const split = await page.evaluate(() => {
       const bad: string[] = [];
       for (const el of document.querySelectorAll(
         "[data-guess] [data-value], [data-guess] [data-header]",
       )) {
-        const node = el.firstChild;
-        if (!node || node.nodeType !== Node.TEXT_NODE) continue;
-        const text = node.textContent ?? "";
-        for (const m of text.matchAll(/\S+/g)) {
-          const range = document.createRange();
-          range.setStart(node, m.index!);
-          range.setEnd(node, m.index! + m[0].length);
-          const lines = new Set(
-            [...range.getClientRects()].map((r) => Math.round(r.top)),
-          );
-          if (lines.size > 1) bad.push(m[0]);
+        if (getComputedStyle(el).hyphens === "auto")
+          bad.push(`hyphens:auto on ${el.textContent}`);
+        const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+        for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+          const text = node.textContent ?? "";
+          for (const m of text.matchAll(/\S+/g)) {
+            const range = document.createRange();
+            range.setStart(node, m.index!);
+            range.setEnd(node, m.index! + m[0].length);
+            const lines = new Set(
+              [...range.getClientRects()].map((r) => Math.round(r.top)),
+            );
+            if (lines.size > 1) bad.push(m[0]);
+          }
         }
       }
       return bad;
