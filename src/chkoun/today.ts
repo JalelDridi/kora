@@ -6,6 +6,7 @@ import {
   tunisDay,
 } from "@/engine/chkoun/day.ts";
 import type { ApiResult, GameDeps, Store } from "./guess.ts";
+import { allowGuess, rateLimitSalt } from "./rate-limit.ts";
 import { readToday } from "./store.ts";
 import { readVisitorId } from "./visitor.ts";
 
@@ -17,14 +18,34 @@ import { readVisitorId } from "./visitor.ts";
 export type TodayDeps = Pick<
   GameDeps,
   "now" | "puzzle" | "footballers" | "kv" | "env" | "firstDay"
->;
+> & {
+  /** CHKOUN_SEED, for the rate limit's salt; without it, no limit. */
+  seed?: string;
+};
 
 export async function handleToday(
   deps: TodayDeps,
   cookie: string | null,
+  ip: string | null = null,
 ): Promise<ApiResult> {
   const first = deps.firstDay ?? FIRST_DAY;
   const day = tunisDay(deps.now);
+  // The guesses' per-address limit (N4), shared, when Redis is on: a loop
+  // on /today must not keep the database awake (review 2a, G1).
+  if (deps.seed) {
+    const limit = await allowGuess(deps.kv, {
+      ip,
+      now: deps.now,
+      salt: rateLimitSalt(deps.seed, day),
+      env: deps.env,
+    });
+    if (!limit.allowed)
+      return {
+        status: 429,
+        body: { error: "tooMany", retryAfter: limit.retryAfter },
+        headers: { "Retry-After": String(limit.retryAfter) },
+      };
+  }
   const number = puzzleNumber(day, first);
   if (number < 1)
     return {

@@ -1,5 +1,5 @@
 import { getFootballers } from "@/chkoun/attributes.server";
-import { toResponse } from "@/chkoun/http";
+import { clientIp, toResponse } from "@/chkoun/http";
 import { getKv, kvEnv } from "@/chkoun/kv";
 import { todayPuzzle } from "@/chkoun/puzzle.server";
 import { handleToday } from "@/chkoun/today";
@@ -19,8 +19,10 @@ export async function GET(request: Request) {
         footballers: await getFootballers(),
         kv: getKv(),
         env: kvEnv(),
+        seed: process.env.CHKOUN_SEED,
       },
       request.headers.get("cookie"),
+      clientIp(request.headers),
     );
     return toResponse(result);
   } catch {

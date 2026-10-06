@@ -252,3 +252,53 @@ describe("todayPuzzle (Prisma)", () => {
     }
   });
 });
+
+// Review 2a, G1: while no footballer is eligible, a loop of requests must
+// not keep the database awake.
+describe("an empty day", () => {
+  /** A database with no puzzle and no candidate, counting statements. */
+  function emptyDb() {
+    const seen: string[] = [];
+    const sql: SqlRows = async (text) => {
+      seen.push(text);
+      return [];
+    };
+    return { sql, seen };
+  }
+
+  it("is remembered for 60 seconds: a second call within 60 s makes no database query", async () => {
+    const { sql, seen } = emptyDb();
+    const read = reader({ sql });
+    const at = new Date("2026-10-20T10:00:00Z");
+    expect(await read(at)).toBeNull();
+    const queries = seen.length;
+    expect(queries).toBeGreaterThan(0);
+    expect(await read(new Date(at.getTime() + 59_000))).toBeNull();
+    expect(seen).toHaveLength(queries);
+    // After 60 s the database is asked again.
+    expect(await read(new Date(at.getTime() + 60_000))).toBeNull();
+    expect(seen.length).toBeGreaterThan(queries);
+  });
+
+  it("is remembered in Redis for 60 seconds too, so other instances skip the database", async () => {
+    const { kv, store } = fakeKv();
+    await reader({ sql: emptyDb().sql, kv })(now);
+    expect(store.get(puzzleKey("test", today))?.ex).toBe(60);
+    const other = emptyDb();
+    expect(await reader({ sql: other.sql, kv })(now)).toBeNull();
+    expect(other.seen).toEqual([]);
+  });
+
+  it("logs its warning once per instance and day", async () => {
+    const lines: string[] = [];
+    const read = reader({ sql: emptyDb().sql, log: (l) => lines.push(l) });
+    const at = new Date("2026-10-20T10:00:00Z");
+    for (let i = 0; i < 5; i++) await read(new Date(at.getTime() + i * 61_000));
+    expect(lines).toEqual([
+      "chkoun: no puzzle for 2026-10-20 and no footballer for a reserve",
+    ]);
+    // The next day may warn again.
+    await read(new Date("2026-10-21T10:00:00Z"));
+    expect(lines).toHaveLength(2);
+  });
+});

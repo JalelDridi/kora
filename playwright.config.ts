@@ -7,10 +7,15 @@ const PORT = 3100;
 // environment win over .env files, so a test run can never reach a hosted
 // database, Redis or error tracker. The admin password and the Chkoun? seed
 // are test values, not secrets: they only work on this local server.
+const TEST_DB =
+  process.env.TEST_DATABASE_URL ??
+  "postgresql://postgres:postgres@localhost:5434/kora_test";
+
 export const E2E_ENV: Record<string, string> = {
-  DATABASE_URL:
-    process.env.TEST_DATABASE_URL ??
-    "postgresql://postgres:postgres@localhost:5434/kora_test",
+  DATABASE_URL: TEST_DB,
+  // src/db/pg.ts prefers the unpooled URL: pinned to the same local test
+  // database, so a shell that exports a hosted one never gets these writes.
+  DATABASE_URL_UNPOOLED: TEST_DB,
   UPSTASH_REDIS_REST_URL: "",
   UPSTASH_REDIS_REST_TOKEN: "",
   SENTRY_DSN: "",
@@ -19,6 +24,7 @@ export const E2E_ENV: Record<string, string> = {
   CHKOUN_SEED: "e2e-only-chkoun-seed",
 };
 assertLocalDatabase(E2E_ENV.DATABASE_URL);
+assertLocalDatabase(E2E_ENV.DATABASE_URL_UNPOOLED);
 
 export default defineConfig({
   testDir: "e2e",

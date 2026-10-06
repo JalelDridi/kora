@@ -166,6 +166,17 @@ export const CALENDAR_ERRORS = {
 
 export type CalendarErrorCode = keyof typeof CALENDAR_ERRORS;
 
+/**
+ * The page's message for `?error=`: own keys only, so "__proto__" or
+ * "toString" reads as unknown (review 2a). Null for anything unknown.
+ */
+export function calendarErrorMessage(code: unknown): string | null {
+  if (typeof code !== "string") return null;
+  if (Object.hasOwn(CALENDAR_ERRORS, code))
+    return CALENDAR_ERRORS[code as CalendarErrorCode];
+  return code === "failed" ? "The change failed; nothing was written." : null;
+}
+
 export type CalendarChange =
   | { action: "swap"; day: string; playerId: string }
   | { action: "pin"; day: string; playerId: string; note?: string }

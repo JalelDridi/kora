@@ -134,6 +134,28 @@ describe("handleToday", () => {
     ).toMatchObject({ status: "open", store: "device" });
   });
 
+  // Review 2a, G1: /today shares the guesses' per-address limit when Redis is on.
+  it("with Redis on, today is rate limited per address like the guesses", async () => {
+    const d = deps({ kv, seed: "test-seed-not-the-real-one" });
+    for (let i = 0; i < 80; i++)
+      expect((await handleToday(d, null, "203.0.113.7")).status).toBe(200);
+    const over = await handleToday(d, null, "203.0.113.7");
+    expect(over.status).toBe(429);
+    expect(over.body).toEqual({ error: "tooMany", retryAfter: 600 });
+    expect(over.headers).toEqual({ "Retry-After": "600" });
+    // Without Redis: no limit.
+    for (let i = 0; i < 100; i++)
+      expect(
+        (
+          await handleToday(
+            deps({ seed: "test-seed-not-the-real-one" }),
+            null,
+            "203.0.113.7",
+          )
+        ).status,
+      ).toBe(200);
+  });
+
   it("no puzzle: closed", async () => {
     expect(
       (await handleToday(deps({ puzzle: async () => null }), null)).body,

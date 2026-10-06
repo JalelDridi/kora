@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { headers } from "next/headers";
 import { notFound } from "next/navigation";
 import { adminAccess } from "@/admin/access";
-import { CALENDAR_ERRORS, loadAdminCalendar } from "@/admin/calendar";
+import { calendarErrorMessage, loadAdminCalendar } from "@/admin/calendar";
 import type { AdminCalendar, Pickable } from "@/admin/calendar";
 import { loadPool } from "@/admin/load-pool";
 import { NavLink } from "@/admin/nav-link";
@@ -93,12 +93,7 @@ export default async function ChkounCalendarPage({
   const job = kv ? await readNightly(kv, kvEnv()).catch(() => null) : null;
   const names = new Map(pool.players.map((p) => [p.id, p.nameLatin]));
   const nearly = oneFieldAway(pool.players);
-  const error =
-    typeof params.error === "string" && params.error in CALENDAR_ERRORS
-      ? CALENDAR_ERRORS[params.error as keyof typeof CALENDAR_ERRORS]
-      : params.error === "failed"
-        ? "The change failed; nothing was written."
-        : null;
+  const error = calendarErrorMessage(params.error);
   const done =
     typeof params.done === "string" && /^\d{4}-\d{2}-\d{2}$/.test(params.done)
       ? params.done
