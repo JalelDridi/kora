@@ -1,21 +1,102 @@
-# Nightly pool, 2026-10-05
+# Nightly pool, 2026-10-06
 
 | Source | Status | Read on | Note |
 | --- | --- | --- | --- |
-| wikidata | fresh | 2026-10-05 |  |
-| infobox-en | fresh | 2026-10-05 |  |
-| infobox-fr | fresh | 2026-10-05 |  |
-| redirects | fresh | 2026-10-05 |  |
-| clubs | fresh | 2026-10-05 |  |
-| commons | fresh | 2026-10-05 |  |
-| squads | fresh | 2026-10-05 |  |
-| squad-links | fresh | 2026-10-05 |  |
-| martj42 | fresh | 2026-10-05 |  |
-| martj42-goals | fresh | 2026-10-05 |  |
+| wikidata | fresh | 2026-10-06 |  |
+| infobox-en | fresh | 2026-10-06 |  |
+| infobox-fr | fresh | 2026-10-06 |  |
+| redirects | fresh | 2026-10-06 |  |
+| clubs | fresh | 2026-10-06 |  |
+| commons | fresh | 2026-10-06 |  |
+| squads | fresh | 2026-10-06 |  |
+| squad-links | fresh | 2026-10-06 |  |
+| martj42 | fresh | 2026-10-06 |  |
+| martj42-goals | fresh | 2026-10-06 |  |
+| pageviews | fresh | 2026-10-06 | 0 of 0 articles read; 0 active footballers not measured yet |
 
 **372 footballers** (245 active, 159 legends, 32 in both), 628 clubs, 111 honours.
 
-Active footballers ready to be a daily answer (P27): 106 of 245.
+Active footballers ready to be a daily answer (P27): 110 of 245.
+Of them, ready through caps agreed at band level (D-S2-6): 4.
+Fame tiers among them (D-S2-4; D is never an answer, C only at weekends): A 6, B 11, C 17, D 76, not measured yet 0.
+
+### One field away from a daily answer (73)
+
+Active footballers who fail exactly one of the fields a puzzle needs: an override, or a local star tag for fame, can bring each in.
+
+- abdel-medioub: clubId (low)
+- abdelkader-oueslati: clubId (low)
+- achref-habessi: birthPlace (missing)
+- alaeddine-bouslimi: clubId (low)
+- alaeddine-marzouki: birthPlace (low)
+- alaeddine-zouhir: birthPlace (low)
+- amanallah-memmiche: birthPlace (missing)
+- amine-haboubi: clubId (low)
+- anis-ben-hatira: clubId (low)
+- aymen-belaid: clubId (low)
+- aymen-mahmoud: birthPlace (low)
+- azmi-ghouma: birthPlace (missing)
+- elyes-jlassi: clubId (low)
+- fakhreddine-ben-youssef: caps (low)
+- fakhreddine-jaziri: clubId (low)
+- fedi-ben-choug: clubId (low)
+- firas-ben-larbi: birthPlace (missing)
+- firas-chaouat: clubId (low)
+- foued-khraifi: clubId (low)
+- ghaith-yeferni: birthPlace (low)
+- ghaith-zaalouni: birthPlace (missing)
+- hamza-agrebi: clubId (low)
+- hamza-hadda: clubId (low)
+- hamza-khadhraoui: birthPlace (missing)
+- hamza-lahmar: clubId (low)
+- hassan-ayari: caps (low)
+- haykeul-chikhaoui: clubId (low)
+- hazem-haj-hassen: clubId (low)
+- houssem-ben-ali: position (low)
+- imed-louati: clubId (low)
+- jassem-hamdouni: birthPlace (missing)
+- jasser-khmiri: clubId (low)
+- jibril-othman: caps (low)
+- khaled-ayari: clubId (low)
+- khaled-yahia: clubId (low)
+- koussay-maacha: birthPlace (missing)
+- louay-ben-hassine: caps (low)
+- maher-ben-sghaier: birthPlace (missing)
+- mahmoud-ben-salah: clubId (low)
+- malek-mehri: caps (low)
+- manoubi-haddad: clubId (low)
+- mehdi-ben-mrad: birthPlace (missing)
+- moez-aloulou: clubId (low)
+- moez-haj-ali: birthPlace (missing)
+- mohamed-ali-amri: birthPlace (missing)
+- mohamed-ali-yacoubi: clubId (low)
+- mohamed-amine-meskini: clubId (low)
+- mohamed-gouaida: clubId (low)
+- mohamed-hamrouni: birthPlace (low)
+- mohamed-iyadh-riahi: birthPlace (missing)
+- mohamed-lahbib-yeken: clubId (low)
+- mohamed-nasraoui: birthPlace (low)
+- mohamed-wael-derbali: caps (low)
+- mohammad-mothnani: clubId (low)
+- nader-ghandri: caps (low)
+- naim-sliti: clubId (low)
+- najib-gandi: clubId (low)
+- omar-rekik: birthPlace (low)
+- oussama-bouguerra: birthPlace (missing)
+- raed-bouchniba: caps (low)
+- raed-fedaa: position (low)
+- rafik-boujedra: clubId (low)
+- sabri-ameri: birthPlace (missing)
+- sadok-kadida: birthPlace (missing)
+- salem-bouajila: caps (low)
+- seif-teka: clubId (low)
+- slim-rebai: clubId (low)
+- sliman-kchouk: clubId (low)
+- thameur-salhi: position (low)
+- walid-karoui: birthPlace (missing)
+- youssef-abdelli: caps (low)
+- youssef-mosraty: clubId (low)
+- zied-machmoum: birthPlace (missing)
 
 ## Low confidence, review first (553)
 
@@ -173,7 +254,7 @@ Fields that two sources could confirm but do not, by footballer: the value, the 
 - farouk-mimouni: birthDate 2001-06-23: wikidata 2001-06-13 (undated) differs; sources: enwiki
 - … 403 more in data/pool.json
 
-Single-source fields: one source each. The governorate and the birthplace are medium when Wikidata gives a precise place (P36), else low; the Arabic name and the photo stay low until Jalel confirms them. Low: governorate 0, birthPlace 30, nameArabic 353, photo 150.
+Single-source fields: one source each. The governorate and the birthplace are medium when Wikidata gives a precise place (P36), else low; the Arabic name and the photo stay low until Jalel confirms them. Low: governorate 0, birthPlace 29, nameArabic 353, photo 150.
 
 ### Rows the infobox parsers skipped (7)
 
@@ -251,6 +332,30 @@ No verdict in use.
 
 Stale (over 21 days): 0. Unused (our value changed, or no longer in the pool): 0.
 
+## Photos (P30)
+
+139 of the 150 footballers with a Commons photo have a copy in public/photos/. Tonight: 150 downloaded, 0 waiting for a later night's budget.
+
+### Not copied (11)
+
+- ali-abdi: not copied, 239699 bytes, over 122880
+- bilel-ifa: not copied, 188598 bytes, over 122880
+- chadi-hammami: not copied, 154458 bytes, over 122880
+- fakhreddine-jaziri: not copied, 192294 bytes, over 122880
+- ghailene-chaalali: not copied, 206226 bytes, over 122880
+- khaled-korbi: not copied, 184488 bytes, over 122880
+- mahmoud-ben-salah: not copied, 208696 bytes, over 122880
+- oussama-darragi: not copied, 192759 bytes, over 122880
+- syam-ben-youssef: not copied, 146720 bytes, over 122880
+- wissem-ben-yahia: not copied, 185360 bytes, over 122880
+- zouheir-dhaouadi: not copied, 193682 bytes, over 122880
+
+### Copies no footballer uses any more (0)
+
+Kept: deleting a file is Jalel's call.
+
+None.
+
 ## Left out of the pool (723)
 
 - excluded: 0
@@ -314,7 +419,7 @@ None means the field has no value to rate (for example no current club).
 | history | 107 | 109 | 154 | 2 |
 | nameLatin | 339 | 22 | 11 | 0 |
 | governorate | 1 | 203 | 0 | 168 |
-| birthPlace | 0 | 288 | 30 | 54 |
+| birthPlace | 0 | 289 | 29 | 54 |
 | nameArabic | 0 | 0 | 353 | 19 |
 | photo | 0 | 0 | 150 | 222 |
 
@@ -330,9 +435,9 @@ None.
 
 - Added (0): none
 - Removed (0): none
-- Caps or goals changed: 6. Other fields changed: 15.
+- Caps or goals changed: 0. Other fields changed: 372.
 
-## Flags (421)
+## Flags (420)
 
 ### birthdate-january-first (5)
 
@@ -363,7 +468,7 @@ None.
 - Yassine Chikhaoui (Q710223): enwiki 1986-09-21 against frwiki, wikidata 1986-09-22
 - Oussama Darragi (Q967841): wikidata 1987-03-14 against enwiki, frwiki 1987-04-03
 
-### birthplace-country-only (29)
+### birthplace-country-only (28)
 
 - Malek Miladi (Q102401313): born in Tunisia, town unknown
 - Haythem Mhamdi (Q104184413): born in Tunisia, town unknown
@@ -384,7 +489,6 @@ None.
 - Achraf Krir (Q21294707): born in Tunisia, town unknown
 - Alaeddine Marzouki (Q22212165): born in Tunisia, town unknown
 - Mohamed Ben Ammar (Q23540929): born in Tunisia, town unknown
-- Youssef Msakni (Q2409513): born in Tunisia, town unknown
 - Ali Kaabi (Q2642003): born in Tunisia, town unknown
 - Mourad Okbi (Q26465426): born in Tunisia, town unknown
 - Atef Dkhili (Q2868801): born in Tunisia, town unknown
