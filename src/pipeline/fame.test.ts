@@ -16,17 +16,18 @@ describe("fame (D-S2-4)", () => {
     expect(fameScore({ en: 0, fr: 0, ar: 0 }, false)).toBe(0);
   });
 
-  it("fameTier: 5.0 → A, 4.99 → B, 4.5 → B, 4.0 → C, 3.99 → D, null → D", () => {
+  it("fameTier: 5.0 → A, 4.99 → B, 4.5 → B, 4.0 → C, 3.0 → C, 2.99 → D, null → D (P53)", () => {
     expect(fameTier(5.0)).toBe("A");
     expect(fameTier(4.99)).toBe("B");
     expect(fameTier(4.5)).toBe("B");
     expect(fameTier(4.0)).toBe("C");
-    expect(fameTier(3.99)).toBe("D");
+    expect(fameTier(3.0)).toBe("C");
+    expect(fameTier(2.99)).toBe("D");
     expect(fameTier(null)).toBe("D");
   });
 
   it("the thresholds live in one constant", () => {
-    expect(TIER_FLOORS).toEqual({ A: 5.0, B: 4.5, C: 4.0 });
+    expect(TIER_FLOORS).toEqual({ A: 5.0, B: 4.5, C: 3.0 });
   });
 
   it("fameOf without views has no score and no tier", () => {
