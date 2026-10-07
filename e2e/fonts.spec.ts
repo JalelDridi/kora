@@ -30,12 +30,13 @@ async function loadedFaces(page: Page) {
 
 for (const locale of locales) {
   const { prefix } = localeInfo[locale];
-  // /ar preloads its Arabic body and bold faces too, so their late arrival
-  // cannot reflow the page (CI measured CLS 0.37 on /ar/chkoun from the
-  // Arabic font swap); /tn and /fr preload only Inter (they need one Arabic
-  // weight, for the switcher's label).
+  // /ar preloads its Arabic body, semibold and bold faces too, so their late
+  // arrival cannot reflow the page (CI measured CLS 0.37 on /ar/chkoun from
+  // the Arabic font swap, then 0.128 on /ar/sources and /ar/privacy from the
+  // 600 face); /tn and /fr preload only Inter (they need one Arabic weight,
+  // for the switcher's label).
   for (const path of ["", "/chkoun", "/sources"]) {
-    test(`${prefix}${path} preloads ${locale === "ar-TN" ? "Inter and the Arabic 400 and 700 faces" : "one font file, the Latin face"}`, async ({
+    test(`${prefix}${path} preloads ${locale === "ar-TN" ? "Inter and the Arabic 400, 600 and 700 faces" : "one font file, the Latin face"}`, async ({
       page,
     }) => {
       await page.goto(`${prefix}${path}`);
@@ -48,6 +49,7 @@ for (const locale of locales) {
         locale === "ar-TN"
           ? [
               "/fonts/plex-arabic-400-v1.woff2",
+              "/fonts/plex-arabic-600-v1.woff2",
               "/fonts/plex-arabic-700-v1.woff2",
             ]
           : [],
@@ -68,7 +70,7 @@ test("the preloaded Arabic faces are the ones the page uses, cached for a year",
       .map((f) => f.weight)
       .sort();
   });
-  expect(used).toEqual(expect.arrayContaining(["400", "700"]));
+  expect(used).toEqual(expect.arrayContaining(["400", "600", "700"]));
   for (const weight of [400, 600, 700]) {
     const response = await request.get(`/fonts/plex-arabic-${weight}-v1.woff2`);
     expect(response.status()).toBe(200);
