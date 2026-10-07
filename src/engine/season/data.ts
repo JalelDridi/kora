@@ -4,6 +4,7 @@
 // are passed in.
 
 import { capsBand } from "../chkoun/caps-band.ts";
+import { FORMATION } from "./draft.ts";
 import { rate, RATING } from "./rating.ts";
 import { DECADES, tripleKey } from "./types.ts";
 import type {
@@ -198,4 +199,65 @@ export function readCode(data: SeasonData, code: string): Candidate | null {
   const key = data.combos.get(id)?.[Number(k)];
   if (key === undefined) return null;
   return data.index.get(key)?.find((c) => c.footballerId === id) ?? null;
+}
+
+/** D-S3-1: the strength table holds every Ligue 1 club, 16 this season. */
+export const LIGUE1_CLUBS = 16;
+
+const LINES = ["goalkeeper", "defender", "midfielder", "forward"] as const;
+const SHORT = {
+  goalkeeper: "GK",
+  defender: "DEF",
+  midfielder: "MID",
+  forward: "FWD",
+};
+
+/**
+ * Why a pool could leave a 30–0 slot empty, or a season without its table;
+ * empty when none. A spin widens until it finds someone not drafted yet
+ * (spin.ts), so a line is safe when it has at least as many draftable
+ * footballers as the formation has slots for it.
+ */
+export function seasonProblems(data: SeasonData): string[] {
+  const problems: string[] = [];
+  for (const line of LINES) {
+    const draftable = new Set<string>();
+    for (const list of data.index.values())
+      for (const c of list) if (c.line === line) draftable.add(c.footballerId);
+    const needed = FORMATION.filter((l) => l === line).length;
+    if (draftable.size < needed)
+      problems.push(
+        `30–0: ${draftable.size} ${line}${draftable.size === 1 ? "" : "s"} can be drafted, ${needed} needed`,
+      );
+  }
+  if (data.table.length !== LIGUE1_CLUBS)
+    problems.push(
+      `30–0: the strength table has ${data.table.length} clubs, ${LIGUE1_CLUBS} needed`,
+    );
+  const rated = new Set(data.table.map((o) => o.clubId));
+  for (const id of data.clubIds)
+    if (!rated.has(id)) problems.push(`30–0: no strength for ${id}`);
+  return problems;
+}
+
+/**
+ * The nightly report's "30–0 spins": per club, how many footballers each
+ * decade and line can offer, then how many (club, decade, line) triples
+ * offer anyone.
+ */
+export function spinSummary(data: SeasonData): string[] {
+  let open = 0;
+  const lines = data.clubIds.map((clubId) => {
+    const decades = DECADES.map((decade) => {
+      const counts = LINES.map((line) => {
+        const n = data.index.get(tripleKey(clubId, decade, line))?.length ?? 0;
+        if (n > 0) open += 1;
+        return `${SHORT[line]} ${n}`;
+      });
+      return `${decade}s ${counts.join(" ")}`;
+    });
+    return `${clubId}: ${decades.join(" · ")}`;
+  });
+  const total = data.clubIds.length * DECADES.length * LINES.length;
+  return [...lines, `${open} of ${total} triples can be spun`];
 }
