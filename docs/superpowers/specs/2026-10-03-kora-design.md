@@ -26,7 +26,7 @@ Launch with three; add the rest in order. Names are working names in Derja (Arab
 | # | Game | Derja name | Type | Mechanic | Data needed | Real-time |
 | --- | --- | --- | --- | --- | --- | --- |
 | 1 | **Chkoun?** | شكون؟ · Chkoun? · C'est qui ? | Daily | Who Are Ya / Hoople: one mystery Tunisian player, 8 guesses, tiles: club, country of club, position, age, caps, governorate | pool | none; midnight rollover without refresh |
-| 2 | **30–0** | 30–0 in all three | Simulator | 82-0 clone: spin a Ligue 1 club and an era, draft a legend into each of 11 positions from that club's history, simulate a 30-match season. Share the squad and the record. "Today's top sides" board | pool with club history and a rating per player | leaderboard updates live (SSE) |
+| 2 | **30–0** | 30–0 in all three | Simulator | 82-0 clone: spin a Ligue 1 club and an era, draft a legend into each of 11 positions from that club's history, simulate a 30-match season. Share the squad and the record. "Today's top sides" board | pool with club history; ratings derived from the pool at run time | board refreshed every 30 s |
 | 3 | **Aktar wala A9all** | أكثر ولا أقل · Aktar wala a9all · Plus ou moins | Endless | Higher or Lower: more caps, goals, trophies? Keep the streak | pool stats | none |
 | 4 | **Masira** | المسيرة · Masira · Carrière | Daily | Career Path: clubs revealed one by one, name the player, fewer = more points | club history | none |
 | 5 | **Box 3×3** | الشبكة · Chabka · Grille | Daily | Immaculate grid: rows and columns are clubs, trophies, eras; nine guesses, rarity score | club history, honours | none |
@@ -65,7 +65,7 @@ Why these and not a chatbot: they are cheap, bounded, measurable (hint-open rate
 | Need | Technology | Why |
 | --- | --- | --- |
 | Daily puzzle rolls at midnight with no refresh | a client timer against the server date plus `router.refresh()`; page is ISR with a daily tag | no connection needed |
-| "Today's top sides" and streak boards updating while you watch | **Server-Sent Events** from a Next.js route handler, reading Upstash Redis every few seconds; browsers reconnect by themselves | one-way; works on Vercel; free |
+| "Today's top sides" and streak boards updating while you watch | the visible tab polls every 30 s a route cached 30 s at the CDN, reading a Redis sorted set (D-S3-10) | one-way; works on Vercel; free |
 | Live score points in Tbannen | SSE from the same route; scores entered by you or a feed later | one-way; low volume |
 | Duel (two players, turns, presence) | **PartyKit** (partyserver) on Cloudflare: one Durable Object per room, WebSockets, state in memory, free tier for non-commercial use | Vercel cannot hold WebSockets; PartyKit is built for rooms; the client is one hook |
 | Fallback if PartyKit ever changes terms | Ably free (200 concurrent connections, 6M messages/month) or Supabase Realtime (200 connections) | |
@@ -87,7 +87,7 @@ Ratings for 30–0: a documented formula over caps, goals per match, honours (le
 
 ## 10. Architecture and stack
 
-Next.js 16 on Vercel Hobby (fra1) · Neon Postgres + Prisma · Upstash Redis (leaderboards, rate limits, SSE source) · PartyKit on Cloudflare for Duel · next-intl with three locales · Auth.js (Google) · PostHog cookieless · Sentry (Student Pack) · free domain (Student Pack, D1) · Gemini free tier for A1/A2/A4 · GitHub Actions for CI and the nightly data job · Vitest + fast-check, Postgres tests, Playwright, Lighthouse CI.
+Next.js 16 on Vercel Hobby (fra1) · Neon Postgres + Prisma · Upstash Redis (leaderboards read by polling, rate limits, SSE source for Tbannen) · PartyKit on Cloudflare for Duel · next-intl with three locales · Auth.js (Google) · PostHog cookieless · Sentry (Student Pack) · free domain (Student Pack, D1) · Gemini free tier for A1/A2/A4 · GitHub Actions for CI and the nightly data job · Vitest + fast-check, Postgres tests, Playwright, Lighthouse CI.
 
 Game engines are pure TypeScript modules with no I/O (`engine/chkoun`, `engine/season`, `engine/grid`, …), property-tested. Guesses and simulations run on the server; a client never receives an answer before the day ends. One result per player per game per day (idempotent writes).
 
@@ -95,7 +95,7 @@ Game engines are pure TypeScript modules with no I/O (`engine/chkoun`, `engine/s
 
 1. Data pipeline with provenance, review by PR, audience reports, an AI assistant that proposes and a human that approves.
 2. Deterministic engines: schedule across time zones, a season simulator that is reproducible from a seed, grids with a rarity score computed from everyone's answers.
-3. Three transports chosen by need: ISR + timer, SSE on Redis, WebSockets in Durable Objects; and the write-up of why.
+3. Three transports chosen by need: ISR + timer, polling a CDN-cached route on Redis (30–0) and SSE on Redis (Tbannen), WebSockets in Durable Objects; and the write-up of why.
 4. Three locales including a dialect in two scripts, RTL and LTR, with a transliteration-aware search.
 5. An AI layer with hard cost ceilings and template fallbacks, measured by its own events.
 6. Performance on a 3G Android: Lighthouse budget in CI, edge share images, PWA.
