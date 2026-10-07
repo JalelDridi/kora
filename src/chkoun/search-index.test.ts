@@ -2,6 +2,7 @@ import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { buildEntries, match } from "@/engine/names/index.ts";
 import type { Pool } from "@/pipeline/types.ts";
+import { buildFootballers } from "./attributes";
 import { packNames, unpackNames } from "./search-index";
 
 const pool = JSON.parse(
@@ -56,6 +57,33 @@ describe("the game page's name index", () => {
     )!;
     expect(match(entries, someone.nameLatin)).toContain(someone.id);
     expect(match(entries, someone.nameArabic!)).toContain(someone.id);
+  });
+
+  it("lists footballers in grace too, as the guessable set does (P54)", () => {
+    const legend = pool.players.find((p) => !p.pools.active)!;
+    const active = pool.players.find((p) => p.pools.active)!;
+    const withGrace: Pool = {
+      ...pool,
+      players: pool.players.map((p) =>
+        p.id === legend.id
+          ? { ...p, pools: { ...p.pools, graceUntil: "2026-12-03" } }
+          : p.id === active.id
+            ? {
+                ...p,
+                pools: {
+                  active: false,
+                  legend: false,
+                  graceUntil: "2026-12-03",
+                },
+              }
+            : p,
+      ),
+    };
+    const ids = packNames(withGrace).map((row) => row[0]);
+    expect(ids).toContain(legend.id);
+    expect(ids).toContain(active.id);
+    const guessable = buildFootballers(withGrace, []).guessable;
+    expect([...ids].sort()).toEqual([...guessable].sort());
   });
 
   it("stays small: about 10 KB compressed (plan Task 12)", async () => {

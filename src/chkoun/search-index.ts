@@ -1,8 +1,10 @@
 import type { NameSource } from "@/engine/names/index.ts";
+import { isGuessable } from "@/pipeline/grace.ts";
 import type { FameTier, Pool } from "@/pipeline/types.ts";
 
 // The game page's name list (plan Task 12): every footballer a visitor may
-// guess, the active pool, and nothing that could single out the day's
+// guess, the active pool and footballers in grace (P54, the same rule as
+// attributes.ts), and nothing that could single out the day's
 // answer: an id, the names to search and show, aliases, and the fame tier
 // (as a rank) for ties. No club, caps or birth. The tier is public anyway
 // (data/pool.json carries it); the finer fame score is not shipped (review
@@ -24,7 +26,7 @@ const TIER_RANK: Record<FameTier, number> = { A: 4, B: 3, C: 2, D: 1 };
 
 export function packNames(pool: Pool): PackedName[] {
   return pool.players
-    .filter((p) => p.pools.active)
+    .filter((p) => isGuessable(p.pools))
     .map((p): PackedName => [
       p.id,
       p.nameLatin,
