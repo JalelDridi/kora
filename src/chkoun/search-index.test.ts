@@ -1,3 +1,4 @@
+import { isGuessable } from "@/pipeline/grace.ts";
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { buildEntries, match } from "@/engine/names/index.ts";
@@ -12,13 +13,15 @@ const pool = JSON.parse(
 describe("the game page's name index", () => {
   const packed = packNames(pool);
 
-  it("holds every active footballer once, and no legend-only footballer", () => {
-    const active = pool.players.filter((p) => p.pools.active).map((p) => p.id);
+  it("holds every guessable footballer once (active or in grace, P54), and no legend-only footballer", () => {
+    const guessable = pool.players
+      .filter((p) => isGuessable(p.pools))
+      .map((p) => p.id);
     const ids = packed.map((row) => row[0]);
     expect(new Set(ids).size).toBe(ids.length);
-    expect([...ids].sort()).toEqual([...active].sort());
+    expect([...ids].sort()).toEqual([...guessable].sort());
     const legendsOnly = pool.players.filter(
-      (p) => !p.pools.active && p.pools.legend,
+      (p) => !isGuessable(p.pools) && p.pools.legend,
     );
     for (const p of legendsOnly) expect(ids).not.toContain(p.id);
   });
