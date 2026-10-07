@@ -44,6 +44,11 @@ export default async function SourcesPage({
   const { pool } = await readGameFiles();
   const credits = photoCredits(pool);
   const link = "text-mint underline underline-offset-2";
+  // Authors and file names come in every script (Cyrillic, Arabic, extended
+  // Latin). Drawn with the site's fonts they pull Inter's other subsets and
+  // the Arabic 600 face, 140 KB the Lighthouse font budget has no room for;
+  // the system font draws them as well.
+  const credit = "font-[system-ui,sans-serif]";
 
   const data: { text: string; links: [string, string][] }[] = [
     {
@@ -150,10 +155,10 @@ export default async function SourcesPage({
                       data-footballer={c.id}
                       className="border-t border-pitch-700"
                     >
-                      <th scope="row" className="p-2 text-start font-semibold">
+                      <th scope="row" className="p-2 text-start font-bold">
                         <bdi>{localName(c, locale)}</bdi>
                       </th>
-                      <td className="p-2">
+                      <td className={`p-2 ${credit}`}>
                         <bdi>{c.author ?? "—"}</bdi>
                       </td>
                       <td className="p-2">
@@ -165,7 +170,7 @@ export default async function SourcesPage({
                           <bdi>{c.licence}</bdi>
                         )}
                       </td>
-                      <td className="p-2">
+                      <td className={`p-2 ${credit}`}>
                         <a href={c.sourceUrl} className={link}>
                           <bdi>{c.file}</bdi>
                         </a>
