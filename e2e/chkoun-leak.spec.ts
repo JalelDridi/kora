@@ -8,6 +8,7 @@ import { packNames } from "../src/chkoun/search-index";
 import type { PoolPlayer } from "../src/pipeline/types";
 import { footballer, pool } from "./chkoun-helpers";
 import { type ChkounFixture, seedChkoun } from "./fixtures/chkoun";
+import { isGuessable } from "../src/pipeline/grace";
 
 // The day's answer never reaches the visitor before his game ends (plan
 // Task 12, "Readings" 1). Every active footballer is guessable, so his name
@@ -180,8 +181,9 @@ test("the name list is a static JSON file per locale, and nothing else", async (
     expect(response.headers()["content-type"]).toContain("application/json");
     const body = await response.json();
     expect(Object.keys(body).sort()).toEqual(["labels", "names"]);
+    // P54: the list holds the active pool and the footballers in grace.
     expect(body.names.length).toBe(
-      pool.players.filter((p) => p.pools.active).length,
+      pool.players.filter((p) => isGuessable(p.pools)).length,
     );
   }
   expect((await request.get("/chkoun-data/en.json")).status()).toBe(404);
