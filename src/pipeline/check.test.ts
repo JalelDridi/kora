@@ -13,7 +13,12 @@ import path from "node:path";
 import { pathToFileURL } from "node:url";
 import { promisify } from "node:util";
 import { describe, expect, it } from "vitest";
-import { checkData, inspectData } from "./check.ts";
+import {
+  checkData,
+  inspectData,
+  validateAfcon,
+  validateStrength,
+} from "./check.ts";
 import type { Pool } from "./types.ts";
 
 const run = promisify(execFile);
@@ -46,13 +51,28 @@ async function copyOfData(): Promise<{
     path.join(root, "data", "witness.json"),
     JSON.stringify({ version: 1, checks: {} }),
   );
+  const write = (name: string, value: unknown) =>
+    writeFile(
+      path.join(root, "data", name),
+      typeof value === "string" ? value : JSON.stringify(value),
+    );
   return {
     root,
-    write: (name, value) =>
-      writeFile(
-        path.join(root, "data", name),
-        typeof value === "string" ? value : JSON.stringify(value),
-      ),
+    write: async (name, value) => {
+      await write(name, value);
+      // A fixture pool has its own Ligue 1 clubs: give them a strength each,
+      // so the real file does not fail against it.
+      const clubs = (value as Partial<Pool> | null)?.clubs;
+      if (name === "pool.json" && Array.isArray(clubs))
+        await write("curated/ligue1-strength.json", {
+          season: "2026–27",
+          ...by,
+          note: "fixture",
+          clubs: Object.fromEntries(
+            clubs.filter((c) => c.ligue1).map((c) => [c.id, 70]),
+          ),
+        });
+    },
   };
 }
 
@@ -383,6 +403,62 @@ describe("data:check agrees with the build about overrides (fix round 3)", () =>
     expect(await checkData(root)).toEqual([
       "data/overrides.json: players.Q7: excluded and overridden at once",
     ]);
+  });
+});
+
+describe("the 30–0 curated files (Sprint 3)", () => {
+  const ids = ["club-africain", "cs-sfaxien"];
+  const strength = (clubs: Record<string, number>) => ({
+    season: "2026–27",
+    by: "claude",
+    at: "2026-10-07",
+    note: "DRAFT",
+    clubs,
+  });
+
+  it("a strength file names every Ligue 1 club once, 55 to 90", () => {
+    expect(
+      validateStrength(
+        strength({ "club-africain": 77, "cs-sfaxien": 77 }),
+        ids,
+      ),
+    ).toEqual([]);
+    expect(validateStrength(strength({ "club-africain": 77 }), ids)).toContain(
+      "ligue1-strength.json: no strength for cs-sfaxien",
+    );
+    expect(
+      validateStrength(
+        strength({ "club-africain": 77, "cs-sfaxien": 77, x: 70 }),
+        ids,
+      ),
+    ).toContain("ligue1-strength.json: x is not a Ligue 1 club");
+    expect(
+      validateStrength(
+        strength({ "club-africain": 91, "cs-sfaxien": 54.5 }),
+        ids,
+      ),
+    ).toHaveLength(2);
+  });
+
+  it("an AFCON 2004 file lists Wikidata ids, at most 23, no repeats", () => {
+    expect(validateAfcon({ by: "jalel", at: null, footballers: [] })).toEqual(
+      [],
+    );
+    expect(
+      validateAfcon({ by: "jalel", at: null, footballers: ["Q1", "Q1"] }),
+    ).toContain("afcon-2004.json: Q1 is listed twice");
+    expect(
+      validateAfcon({ by: "jalel", at: null, footballers: ["Msakni"] }),
+    ).toContain("afcon-2004.json: Msakni is not a Wikidata id");
+  });
+
+  it("checkData reports a missing ligue1-strength.json", async () => {
+    const { root } = await copyOfData();
+    expect(await checkData(root)).toEqual([]);
+    await rm(path.join(root, "data", "curated", "ligue1-strength.json"));
+    const errors = await checkData(root);
+    expect(errors).toHaveLength(1);
+    expect(errors[0]).toMatch(/ligue1-strength.json/);
   });
 });
 

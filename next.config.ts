@@ -21,6 +21,11 @@ const nextConfig: NextConfig = {
     "/api/chkoun/**": ["./data/pool.json", "./data/curated/*.json"],
     // Static at build; listed in case a locale is ever rendered on demand.
     "/chkoun-data/**": ["./data/pool.json", "./data/curated/*.json"],
+    // 30–0 reads the pool's club histories and the curated strength file
+    // (src/season); the route path keeps its [locale] segment, which
+    // Next's matcher takes literally.
+    "/api/season/**": ["./data/pool.json", "./data/curated/*.json"],
+    "/[locale]/season/r/**": ["./data/pool.json", "./data/curated/*.json"],
   },
   // Every response, the admin pages included (src/security-headers.ts).
   async headers() {
