@@ -1,4 +1,5 @@
 import { OVERRIDE_RATING } from "./confidence.ts";
+import { graceUntilFor } from "./grace.ts";
 import { mergePlayer } from "./merge.ts";
 import type { ClubIndex, Draft, MergeContext } from "./merge.ts";
 import { confederationOf, LIGUE1, slugify, TUNISIA_TEAM } from "./places.ts";
@@ -180,7 +181,7 @@ type Kept = {
     position: Line;
     birthDate: string;
   };
-  pools: { active: boolean; legend: boolean };
+  pools: PoolPlayer["pools"];
 };
 
 const byNumber = (a: { qid: string }, b: { qid: string }) =>
@@ -243,6 +244,9 @@ export function buildPool(input: BuildInput): {
   const flags: Flag[] = [];
   const kept: Kept[] = [];
   const dropped: PoolDropped[] = [];
+  const before = new Map(
+    (input.previous?.players ?? []).map((p) => [p.wikidataId, p]),
+  );
 
   for (const p of [...input.players].sort(byNumber)) {
     const name = p.nameEn ?? p.nameFr ?? p.nameAr ?? p.qid;
@@ -262,7 +266,7 @@ export function buildPool(input: BuildInput): {
       delete draft.provenance.clubId;
     }
     const override = input.overrides.players[p.qid]?.pools;
-    let pools = { active: false, legend: false };
+    let pools: PoolPlayer["pools"] = { active: false, legend: false };
     let candidate = true;
     if (override) {
       // Ruling (fix round 2): a pools override brings him in whatever the
@@ -289,7 +293,16 @@ export function buildPool(input: BuildInput): {
     } else {
       candidate = false;
     }
-    if (!pools.active && !pools.legend) {
+    // P54: out of the active pool tonight, in it on an earlier night: 60
+    // days of grace, even in neither pool and whatever the candidate rule
+    // says now.
+    const graceUntil = graceUntilFor(
+      before.get(p.qid)?.pools,
+      pools.active,
+      input.today,
+    );
+    if (graceUntil !== undefined) pools = { ...pools, graceUntil };
+    if (!pools.active && !pools.legend && graceUntil === undefined) {
       dropped.push({
         wikidataId: p.qid,
         name,
@@ -404,9 +417,6 @@ export function buildPool(input: BuildInput): {
     registry.players,
   );
   const playerIds = assigned.ids;
-  const before = new Map(
-    (input.previous?.players ?? []).map((p) => [p.wikidataId, p]),
-  );
   const players: PoolPlayer[] = kept
     .map(({ draft, pools }) =>
       carryProvenance(before.get(draft.wikidataId), {

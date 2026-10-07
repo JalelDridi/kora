@@ -314,6 +314,42 @@ describe("fame (D-S2-4)", () => {
   });
 });
 
+describe("grace (P54)", () => {
+  const withPools = (pools: unknown, fame: unknown = null) =>
+    validatePool(
+      { ...pool, players: [{ ...player, pools, fame }] },
+      new Set(["sfax"]),
+    );
+  const fame = {
+    score: 5.41,
+    tier: "A",
+    views: { en: 258284, fr: 0, ar: 0 },
+    window: "202510-202609",
+    localStar: false,
+  };
+
+  it("accepts a footballer in grace in neither pool, with his last fame", () => {
+    expect(
+      withPools({ active: false, legend: false, graceUntil: "2026-12-03" }),
+    ).toEqual([]);
+    expect(
+      withPools(
+        { active: false, legend: true, graceUntil: "2026-12-03" },
+        fame,
+      ),
+    ).toEqual([]);
+  });
+
+  it("refuses a malformed date, and grace on an active footballer", () => {
+    expect(
+      withPools({ active: false, legend: false, graceUntil: "3 December" }),
+    ).toEqual(["player ali-maaloul: grace until 3 December"]);
+    expect(
+      withPools({ active: true, legend: false, graceUntil: "2026-12-03" }),
+    ).toEqual(["player ali-maaloul: grace on an active footballer"]);
+  });
+});
+
 describe("the id registry (fix round 1 finding 2, fix round 2 item 1)", () => {
   const registry = (
     players: Record<string, string>,

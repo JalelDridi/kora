@@ -108,6 +108,34 @@ describe("buildFootballers", () => {
     expect([...f.guessable]).toEqual(["an-active-footballer"]);
   });
 
+  it("a footballer in grace may be guessed too (P54)", () => {
+    const inGrace = {
+      ...footballer("in-grace", "A"),
+      pools: { active: false, legend: false, graceUntil: "2026-12-03" },
+    };
+    const g = buildFootballers(
+      {
+        ...pool,
+        players: [
+          ...pool.players,
+          inGrace,
+          {
+            ...legend,
+            id: "a-legend-in-grace",
+            pools: { ...legend.pools, graceUntil: "2026-12-03" },
+          },
+        ],
+      },
+      governorates,
+    );
+    expect([...g.guessable].sort()).toEqual([
+      "a-legend-in-grace",
+      "an-active-footballer",
+      "in-grace",
+    ]);
+    expect(g.facts.has("in-grace")).toBe(true);
+  });
+
   it("the card carries a photo only when it was copied", () => {
     expect(f.card("an-active-footballer")).toMatchObject({
       birth: "gov:sfax",

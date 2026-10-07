@@ -168,6 +168,36 @@ describe("renderReport", () => {
     );
   });
 
+  it("counts and lists footballers in grace under the pool counts (P54)", () => {
+    const p = pool([
+      player("x"),
+      player("y", {
+        pools: { active: false, legend: false, graceUntil: "2026-12-03" },
+      }),
+      player("w", {
+        pools: { active: false, legend: true, graceUntil: "2026-11-20" },
+      }),
+    ]);
+    const report = renderReport({
+      pool: p,
+      diff: diffPools(null, p),
+      statuses: {},
+      today: "2026-10-05",
+    });
+    expect(report).toMatch(
+      /\*\*3 footballers\*\*[^\n]*\n\nIn grace \(P54\): 2\n- w \(until 2026-11-20\)\n- y \(until 2026-12-03\)\n/,
+    );
+    const none = pool([player("x")]);
+    expect(
+      renderReport({
+        pool: none,
+        diff: diffPools(null, none),
+        statuses: {},
+        today: "2026-10-05",
+      }),
+    ).toContain("In grace (P54): 0\n");
+  });
+
   it("warns at the top when a source came from the cache, naming it and its date", () => {
     const p = pool([player("x")]);
     const render = (statuses: Parameters<typeof renderReport>[0]["statuses"]) =>
