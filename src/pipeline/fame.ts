@@ -9,7 +9,7 @@ export const FAME_WEIGHTS = { en: 1, fr: 1.5, ar: 3 } as const;
 /** Jalel's "local star" tag: known at home beyond his page views. */
 export const LOCAL_STAR_BOOST = 0.5;
 /** The lowest score of each tier; below C is D. */
-export const TIER_FLOORS = { A: 5.0, B: 4.5, C: 4.0 } as const;
+export const TIER_FLOORS = { A: 5.0, B: 4.5, C: 3.0 } as const;
 
 /** log10(en + 1.5·fr + 3·ar + 1), plus the boost for a local star. */
 export function fameScore(views: PageViews, localStar: boolean): number {
@@ -22,7 +22,7 @@ export function fameScore(views: PageViews, localStar: boolean): number {
   return Math.round(score * 100) / 100;
 }
 
-/** A ≥ 5.0, B 4.5 to 5.0, C 4.0 to 4.5, D below 4.0 or no views. */
+/** A ≥ 5.0, B 4.5 to 5.0, C 3.0 to 4.5 (P53), D below 3.0 or no views. */
 export function fameTier(score: number | null): FameTier {
   if (score === null) return "D";
   if (score >= TIER_FLOORS.A) return "A";
