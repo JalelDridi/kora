@@ -1261,7 +1261,16 @@ async function build(deps: RunDeps): Promise<RunResult> {
           ...p.photo,
           path: photoRun.paths.get(p.id) ?? null,
         });
-      if (!p.pools.active) return { ...p, photo, fame: null };
+      // P54: a footballer in grace keeps his last fame; a legend only has none.
+      if (!p.pools.active)
+        return {
+          ...p,
+          photo,
+          fame:
+            p.pools.graceUntil !== undefined
+              ? (previousFame.get(p.id) ?? null)
+              : null,
+        };
       const m = measured.find((x) => x.id === p.id)!;
       const found = viewsOf(m, views);
       const localStar =

@@ -1963,6 +1963,39 @@ describe("fame from page views in the run (D-S2-4)", () => {
     );
   });
 
+  it("a footballer in grace keeps his last fame (P54)", async () => {
+    const root = await setup();
+    await run(deps(root, { pageviews: withViews() }));
+    const before = (await readPool(root)).players[0].fame;
+    expect(before?.tier).toBe("A");
+    // He leaves the active pool: an override makes him a legend only.
+    await writeFile(
+      file(root, "overrides.json"),
+      JSON.stringify({
+        players: {
+          Q1001: {
+            pools: {
+              value: { active: false, legend: true },
+              by: "jalel",
+              at: "2026-10-05",
+            },
+          },
+        },
+        clubTitles: {},
+      }),
+    );
+    expect(
+      await run(deps(root, { today: "2026-10-05", pageviews: withViews() })),
+    ).toMatchObject({ ok: true });
+    const after = (await readPool(root)).players[0];
+    expect(after.pools).toEqual({
+      active: false,
+      legend: true,
+      graceUntil: "2026-12-04",
+    });
+    expect(after.fame).toEqual(before);
+  });
+
   it("page views have their own client: the 70 for Wikidata and MediaWiki does not limit them (P49)", async () => {
     const root = await setup();
     const calls: Calls = { urls: [], queries: [] };
