@@ -180,12 +180,22 @@ export function validatePool(
     }
     if (registry)
       errors.push(...registered(registry.players, p.wikidataId, p.id, at));
-    // D-S2-4: absent in a pool built before Sprint 2.
+    // P54: a footballer who left the active pool keeps his grace date.
+    const grace = p.pools.graceUntil;
+    if (grace !== undefined) {
+      if (typeof grace !== "string" || !ISO_DATE.test(grace))
+        errors.push(`${at}: grace until ${String(grace)}`);
+      else if (p.pools.active)
+        errors.push(`${at}: grace on an active footballer`);
+    }
+    // D-S2-4: absent in a pool built before Sprint 2. A footballer in grace
+    // keeps his last fame (P54).
     if (p.fame !== undefined && p.fame !== null) {
       if (!validFame(p.fame)) errors.push(`${at}: fame is malformed`);
-      else if (!p.pools.active) errors.push(`${at}: a legend only has no fame`);
+      else if (!p.pools.active && grace === undefined)
+        errors.push(`${at}: a legend only has no fame`);
     }
-    if (!p.pools.active && !p.pools.legend)
+    if (!p.pools.active && !p.pools.legend && grace === undefined)
       errors.push(`${at}: in neither pool`);
     // Decision P26: every value says how sure it is, and on whose word.
     for (const [field, e] of Object.entries(p.provenance ?? {})) {
