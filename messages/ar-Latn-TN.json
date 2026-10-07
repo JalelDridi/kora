@@ -130,86 +130,86 @@
   },
   "footer": {
     "sources": "El masader",
-    "privacy": "El khousousiya",
+    "privacy": "El 7ayet el khassa",
     "unofficial": "Mouch rasmi. Ma 3andnech 3la9a b 7atta far9, wala bel FTF, wala bel CAF, wala bel FIFA."
   },
   "sources": {
     "meta": {
-      "description": "D'où viennent les données et les photos de Kora."
+      "description": "Mnin jeya ma3loumet Kora w tsawerha."
     },
-    "title": "Sources et crédits",
-    "unofficial": "Kora est un projet de fan, non officiel. Il n'a aucun lien avec un club, la FTF, la CAF ou la FIFA.",
+    "title": "El masader w el 7ou9ou9",
+    "unofficial": "Kora machrou3 mta3 supporter, mouch rasmi. Ma 3andou 7atta 3ala9a b'ay nedi, wala el jem3iya (FTF), wala el CAF, wala el FIFA.",
     "data": {
-      "title": "Les données",
-      "wikidata": "Wikidata : identités des joueurs, clubs, postes, dates et lieux de naissance (CC0).",
-      "wikipedia": "Wikipédia en anglais et en français : carrières, clubs et sélections, d'après les infobox et les effectifs (CC BY-SA 4.0).",
-      "results": "Résultats et buteurs des matchs internationaux : jeu de données martj42/international_results (CC0).",
-      "checks": "Kora compare les sources entre elles. Un fait douteux n'est jamais la réponse du jour, et chaque valeur garde la trace de sa source."
+      "title": "El ma3loumet",
+      "wikidata": "Wikidata: howiyet el la3ba, el nwedi, el postet, twarikh w bleyes el wleda (CC0).",
+      "wikipedia": "Wikipédia bel ingliziya w bel fransiya: el carrière, el nwedi w el mountakhab, mel infobox w 9wayem el fera9 (CC BY-SA 4.0).",
+      "results": "Nateyej w haddefet el matchet eddawliya: 9a3det bayanet martj42/international_results (CC0).",
+      "checks": "Kora t9aren el masader m3a b3adhha. Ma3louma fiha chakk ma tkoun abadan jweb el youm, w kol 9ima ta7fedh mnin jet."
     },
     "photos": {
-      "title": "Photos des joueurs",
-      "intro": "Les photos viennent de Wikimedia Commons. Chacune garde sa propre licence ; elles sont copiées sans recadrage ni retouche.",
-      "footballer": "Joueur",
-      "author": "Auteur",
-      "licence": "Licence",
-      "file": "Fichier",
-      "changes": "Modifications",
-      "none": "aucune",
-      "empty": "Aucune photo pour l'instant."
+      "title": "Tsawer el la3ba",
+      "intro": "Ettsawer jeyin men Wikimedia Commons. Kol wa7da ta7fedh el licence mte3ha; mansoukhin kima houma, bla 9ass w bla retouche.",
+      "footballer": "El la3eb",
+      "author": "El mousawer",
+      "licence": "El licence",
+      "file": "El fichier",
+      "changes": "Tabdilet",
+      "none": "7atta chay",
+      "empty": "Mazel mafamech tsawer."
     },
     "licence": {
-      "title": "Licences de Kora",
-      "code": "Le code de Kora est sous licence MIT.",
-      "data": "Les données de Kora sont sous licence CC BY-SA 4.0. Les photos n'en font pas partie."
+      "title": "Licence Kora",
+      "code": "El code mta3 Kora ta7t licence MIT.",
+      "data": "Ma3loumet Kora ta7t licence CC BY-SA 4.0. Ettsawer mouch dakhlin fiha."
     },
-    "contact": "Une erreur, ou une photo à retirer ? Dis-le-nous sur GitHub."
+    "contact": "Famma ghalta, wala taswira lazem tetna77a? 9ollna 3la GitHub."
   },
   "privacy": {
     "meta": {
-      "description": "Ce que Kora garde quand tu joues, et pour combien de temps."
+      "description": "Chnowa ta7fedh Kora ki tel3eb, w 9addech men wa9t."
     },
-    "title": "Vie privée",
-    "draft": "Brouillon : cette page n'est pas encore validée et peut changer.",
-    "date": "Mise à jour : 6 octobre 2026",
+    "title": "El 7ayet el khassa",
+    "draft": "Brouillon: essaf7a hedhi mazelet ma t'akkdetch w tnajjem tetbaddel.",
+    "date": "Ekher ta7dith: 7 octobre 2026",
     "device": {
-      "title": "Sur ton appareil",
-      "body": "Le navigateur garde la partie du jour (tes essais et leur résultat) et tes stats (série, parties, victoires) dans son stockage local. Kora ne les lit pas à distance : ils restent sur ton appareil."
+      "title": "3la jihezek",
+      "body": "Ennavigateur ya7fedh partie el youm (mou7awletek w natijet'ha) w el stats mte3ek (série, parties, rab7at) fel stockage local mte3ou. Kora ma ta9rahomch 3an bo3d: yo93dou 3la jihezek."
     },
     "cookie": {
-      "title": "Un seul cookie, strictement nécessaire",
-      "body": "Quand les résultats sont gardés sur le serveur, Kora pose un cookie quand tu finis ta première partie : kora_v, un numéro tiré au hasard, sans aucune donnée sur toi. Il est envoyé seulement au jeu (/api/chkoun), il est illisible par les scripts de la page, et il dure 13 mois. Il sert seulement à relier tes parties pour ta série. Il n'y a aucun autre cookie."
+      "title": "Cookie we7ed barka, dharouri",
+      "body": "Ki ennateyej tet7fedh 3al serveur, Kora t7ott cookie ki tkammel awel partie: kora_v, numéro mas7oub bessodfa, bla 7atta ma3louma 3lik. Yetba3th ken lel la3ba (/api/chkoun), ma ynajmouch ya9rawh les scripts mta3 essaf7a, w yo93od 13 chhar. Yekhdem ken bech yorbot partiyetek lel série mte3ek. Mafamech 7atta cookie ekher."
     },
     "server": {
-      "title": "Sur le serveur",
-      "body": "Pour chaque partie finie, le serveur garde le jour, ton numéro kora_v, si tu as trouvé, le nombre d'essais et la grille de couleurs, jamais les noms essayés. Ces parties restent 8 jours dans Redis (Upstash), puis sont copiées chaque nuit dans la base de données (Neon), gardées jusqu'à nouvel ordre. Tes stats restent 13 mois après ta dernière partie. Pour limiter les abus, le serveur compte les essais par adresse réseau pendant 10 minutes, sous une empreinte salée qui change chaque jour : l'adresse elle-même n'est jamais enregistrée. L'hébergeur (Vercel) tient aussi ses propres journaux techniques des requêtes."
+      "title": "3al serveur",
+      "body": "Lkol partie mkammla, el serveur ya7fedh ennhar, ennuméro kora_v mte3ek, idha l9it wala le, 3adad el mou7awlet w chabket el alwen, abadan el asemi elli jarrabt'hom. El parties hedhom yo93dou 8 ayem fi Redis (Upstash), w men ba3d yetnaskhou kol lila fi 9a3det el bayanet (Neon), w yet7afdhou 7atta ich3ar ekher. El stats mte3ek to93od 13 chhar ba3d ekher partie. Bech n7addou mel tajawouzet, el serveur y3edd el mou7awlet 7asb 3onwen echabka lmoddet 10 d9aye9, ta7t basma mmall7a tetbaddel kol youm: el 3onwen nafsou ma yetsajjel abadan. El hébergeur (Vercel) 3andou zeda el journaux techniques mte3ou lel requêtes."
     },
     "serverOff": {
-      "title": "Quand le serveur ne garde rien",
-      "body": "Si le stockage des résultats est éteint, le jeu marche quand même : tout reste sur ton appareil, aucun cookie n'est posé et rien de tes parties n'est gardé sur le serveur. Le jeu l'indique par « Enregistré sur cet appareil »."
+      "title": "Ki el serveur ma ya7fedh chay",
+      "body": "Idha 7efdh ennateyej metfi, el la3ba temchi el koll: kol chay yo93od 3la jihezek, 7atta cookie ma yet7att w 7atta chay men partiyetek ma yet7fedh 3al serveur. El la3ba tbayenha b « Ma7fouth fel telifoun hedha »."
     },
     "analytics": {
-      "title": "Mesure d'audience",
-      "body": "Kora compte les visites sans cookie avec Vercel Web Analytics. PostHog (serveurs en Europe), sans cookie et sans profil, reçoit seulement cinq événements du jeu : partie ouverte, essai fait, partie finie, partage, recherche sans résultat. Ils portent le numéro du jour, le nombre d'essais, gagné ou non, la langue et la façon de partager ; jamais ce que tu tapes, un joueur, ni ton numéro kora_v. La bibliothèque de PostHog y ajoute d'elle-même l'adresse de la page, la page d'où tu viens, le navigateur, le système et la taille de l'écran. PostHog reçoit ton adresse IP pour calculer son empreinte sans cookie, sans l'enregistrer : l'enregistrement des adresses IP est désactivé dans le projet PostHog."
+      "title": "9yes el jomhour",
+      "body": "Kora t3edd ezziyarat bla cookie b Vercel Web Analytics. PostHog (serveurs fi Europa), bla cookie w bla profil, youslou ken khamsa a7deth mel la3ba: partie ma7loula, mou7awla, partie mkammla, mocharka, taftich bla natija. Ya7mlou numéro ennhar, 3adad el mou7awlet, rba7t wala le, ellougha w kifech cherekt; abadan elli tektbou, la la3eb, la ennuméro kora_v mte3ek. El bibliothèque mta3 PostHog tzid wa7adha 3onwen essaf7a, essaf7a elli jit menha, ennavigateur, essystème w 9yes el écran. PostHog youslou 3onwen IP mte3ek bech ya7seb el basma mte3ou bla cookie, men ghir ma ysajlou: tasjil 3anawin IP metfi fi machrou3 PostHog."
     },
     "errors": {
-      "title": "Erreurs",
-      "body": "Les erreurs du serveur peuvent être envoyées à Sentry, depuis le serveur seulement : sans cookie, sans adresse IP, sans corps de requête ni paramètres d'URL. Ton navigateur n'envoie rien à Sentry."
+      "title": "El ghaltat",
+      "body": "Ghaltat el serveur tnajjem tetba3th l Sentry, mel serveur barka: bla cookie, bla 3onwen IP, bla mo7tawa el requête w la paramètres el URL. Ennavigateur mte3ek ma yeb3ath chay l Sentry."
     },
     "processors": {
-      "title": "Qui traite les données, et où",
-      "body": "Vercel (hébergement, fonctions à Francfort), Neon (base de données, Francfort), Upstash (Redis, région européenne choisie à la création), PostHog (Europe), Sentry (région à confirmer)."
+      "title": "Chkoun y3alej el ma3loumet, w win",
+      "body": "Vercel (hébergement, fonctions fi Francfort), Neon (9a3det el bayanet, Francfort), Upstash (Redis, mante9a européenne mokhtara wa9t el inche'), PostHog (Europa), Sentry (el mante9a lazem tet'akked)."
     },
     "children": {
-      "title": "Enfants",
-      "body": "Kora ne demande ni compte, ni nom, ni e-mail, ni âge, à personne."
+      "title": "Essghar",
+      "body": "Kora ma totlob la compte, la esm, la e-mail, la 3omr, men 7atta 7ad."
     },
     "clear": {
-      "title": "Tout effacer",
-      "body": "Pour effacer ce que garde ton appareil, supprime les données du site dans ton navigateur (cela efface aussi le cookie). Pour effacer ce que garde le serveur, écris-nous avec les jours où tu as joué : ton numéro kora_v n'est pas encore affiché."
+      "title": "Emsa7 el koll",
+      "body": "Bech temsa7 elli 7afdhou jihezek, fassakh mo3tayet el site mel navigateur mte3ek (hedha yemsa7 zeda el cookie). Bech temsa7 elli 7afdhou el serveur, ekteblna m3a el ayem elli l3abt fihom: ennuméro kora_v mte3ek mazel ma yet3radhch."
     },
     "contact": {
-      "title": "Contact",
-      "body": "Une question sur cette page ? Écris-nous sur GitHub."
+      "title": "Ettasel bina",
+      "body": "3andek sou'el 3al saf7a hedhi? Ekteblna 3la GitHub."
     }
   }
 }
