@@ -133,6 +133,28 @@ In words: four parts, each scaled from 0 to 1, are weighted by his line and adde
 
 **What "?" means.** A part shown with "?" on the card is one the pool rates low or gives no confidence for: the career (`history`, so the spells, appearances and titles) or the goals. The footballer stays draftable and his rating uses the values as they are; nothing is hidden. Appearances no spell gives count as 0 and show as "?".
 
+## 30–0 season (D-S3-8)
+
+The drafted XI takes the place of the club that gave it most footballers (a tie goes to the club id that sorts first, T-S3-5) and plays the other 15 Ligue 1 clubs home and away, at the strengths of `curated/ligue1-strength.json`. The season is seeded by the day and the squad (`season|{day}|{codes}`, codes sorted within each line), so the same squad on the same day always gets the same 30 results. In `src/engine/season/simulate.ts`:
+
+    edge         = k · (rating − strength) ± home      (+ at home, − away)
+    goals for    = Poisson(base · e^edge),  at most maxGoals
+    goals against = Poisson(base · e^−edge), at most maxGoals
+
+`rating` is the XI's mean rating to one decimal. Constants: `base` 1.3, `k` 0.055, `home` 0.15, `maxGoals` 9 (the planned values; the tuning tests passed on them without adjustment).
+
+How often a side goes 30–0 (`src/season/tuning.test.ts`, 20,000 consecutive days from 2026-10-07 for a side whose 11 footballers share one rating; 3,000 drafts of a visitor who always takes the best candidate):
+
+| Side           | 30–0 rate | Test bound  |
+| -------------- | --------- | ----------- |
+| all rated 80   | 0%        | under 0.05% |
+| all rated 85   | 0.075%    | under 0.25% |
+| all rated 90   | 2.9%      | 0.25% to 5% |
+| all rated 95   | 21.9%     | over 2%     |
+| greedy drafter | 0%        | under 1%    |
+
+The greedy drafter's XI rates 78.1 at the median (74.5 to 81.8 from the 10th to the 90th percentile, 87.5 at best): the spins rarely offer eleven top footballers, so a 30–0 takes luck in the draft as well as in the season.
+
 ## Sources and licences
 
 The pool data and the hints written from it are under [CC BY-SA 4.0](LICENSE) (decision P29). Photos, cropped or not, stay under each Commons file's own licence and are credited per file. The code keeps the repository's MIT licence.
