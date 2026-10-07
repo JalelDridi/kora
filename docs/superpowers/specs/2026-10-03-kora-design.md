@@ -31,7 +31,7 @@ Launch with three; add the rest in order. Names are working names in Derja (Arab
 | 4 | **Masira** | المسيرة · Masira · Carrière | Daily | Career Path: clubs revealed one by one, name the player, fewer = more points | club history | none |
 | 5 | **Box 3×3** | الشبكة · Chabka · Grille | Daily | Immaculate grid: rows and columns are clubs, trophies, eras; nine guesses, rarity score | club history, honours | none |
 | 6 | **El 11** | الحداش · El 7dach · Le onze | Daily | Missing XI: a famous Tunisia or derby line-up (2004 final, 1978 World Cup, a Champions League final); name the eleven | curated line-ups | none |
-| 7 | **Tbannen** | تبنّن · Tbannen · Pronostics | Predict | Score Predictor for national-team and derby matches; live points as the match goes | fixtures and scores (manual entry at first) | live scores (SSE) |
+| 7 | **Tbannen** | تبنّن · Tbannen · Pronostics | Predict | Score Predictor for national-team and derby matches; live points as the match goes | fixtures and scores (manual entry at first) | live scores (polled every 30 s) |
 | 8 | **Duel** | ديول · Duel · Duel | Multiplayer | Tiki-Taka-Toe: two players, a 3×3 of clubs and criteria, take turns in real time, invite link | club history | WebSockets (PartyKit) |
 
 Game 1 is detailed in §4. Game 2 is the growth bet: 82-0's authors said the simulator, not the puzzles, went viral. Ratings are computed, not invented: caps, goals, honours and era weight, published on each card so arguments can happen in the comments.
@@ -66,11 +66,11 @@ Why these and not a chatbot: they are cheap, bounded, measurable (hint-open rate
 | --- | --- | --- |
 | Daily puzzle rolls at midnight with no refresh | a client timer against the server date plus `router.refresh()`; page is ISR with a daily tag | no connection needed |
 | "Today's top sides" and streak boards updating while you watch | the visible tab polls every 30 s a route cached 30 s at the CDN, reading a Redis sorted set (D-S3-10) | one-way; works on Vercel; free |
-| Live score points in Tbannen | SSE from the same route; scores entered by you or a feed later | one-way; low volume |
+| Live score points in Tbannen | polled every 30 s through the same CDN-cached route as 30–0's board; scores entered by you or a feed later | one-way; low volume |
 | Duel (two players, turns, presence) | **PartyKit** (partyserver) on Cloudflare: one Durable Object per room, WebSockets, state in memory, free tier for non-commercial use | Vercel cannot hold WebSockets; PartyKit is built for rooms; the client is one hook |
 | Fallback if PartyKit ever changes terms | Ably free (200 concurrent connections, 6M messages/month) or Supabase Realtime (200 connections) | |
 
-Rule: nothing that works with a timer or SSE gets a WebSocket. Only Duel does.
+Rule: nothing that works with a timer or polling gets a WebSocket. Only Duel does.
 
 ## 8. Data
 
@@ -87,7 +87,7 @@ Ratings for 30–0: a documented formula over caps, goals per match, honours (le
 
 ## 10. Architecture and stack
 
-Next.js 16 on Vercel Hobby (fra1) · Neon Postgres + Prisma · Upstash Redis (leaderboards read by polling, rate limits, SSE source for Tbannen) · PartyKit on Cloudflare for Duel · next-intl with three locales · Auth.js (Google) · PostHog cookieless · Sentry (Student Pack) · free domain (Student Pack, D1) · Gemini free tier for A1/A2/A4 · GitHub Actions for CI and the nightly data job · Vitest + fast-check, Postgres tests, Playwright, Lighthouse CI.
+Next.js 16 on Vercel Hobby (fra1) · Neon Postgres + Prisma · Upstash Redis (leaderboards and live scores read by polling, rate limits) · PartyKit on Cloudflare for Duel · next-intl with three locales · Auth.js (Google) · PostHog cookieless · Sentry (Student Pack) · free domain (Student Pack, D1) · Gemini free tier for A1/A2/A4 · GitHub Actions for CI and the nightly data job · Vitest + fast-check, Postgres tests, Playwright, Lighthouse CI.
 
 Game engines are pure TypeScript modules with no I/O (`engine/chkoun`, `engine/season`, `engine/grid`, …), property-tested. Guesses and simulations run on the server; a client never receives an answer before the day ends. One result per player per game per day (idempotent writes).
 
@@ -95,7 +95,7 @@ Game engines are pure TypeScript modules with no I/O (`engine/chkoun`, `engine/s
 
 1. Data pipeline with provenance, review by PR, audience reports, an AI assistant that proposes and a human that approves.
 2. Deterministic engines: schedule across time zones, a season simulator that is reproducible from a seed, grids with a rarity score computed from everyone's answers.
-3. Three transports chosen by need: ISR + timer, polling a CDN-cached route on Redis (30–0) and SSE on Redis (Tbannen), WebSockets in Durable Objects; and the write-up of why.
+3. Three transports chosen by need: ISR + timer, polling a CDN-cached route on Redis (30–0 and Tbannen), WebSockets in Durable Objects; and the write-up of why.
 4. Three locales including a dialect in two scripts, RTL and LTR, with a transliteration-aware search.
 5. An AI layer with hard cost ceilings and template fallbacks, measured by its own events.
 6. Performance on a 3G Android: Lighthouse budget in CI, edge share images, PWA.
@@ -129,6 +129,6 @@ Risks: stale club data (overrides, reports, nightly PR); Facebook browser quirks
 ## 15. Phases
 
 1. **Foundation (days 1–3):** repo, CI, data pipeline with ratings and first pool, engines for Chkoun?, season and higher-or-lower with property tests.
-2. **Launch (days 4–8):** hub, the three games in three languages, share grid and squad card, SSE board, PWA, PostHog, Sentry, domain, A1 hints and A3 matching. **Launch.**
+2. **Launch (days 4–8):** hub, the three games in three languages, share grid and squad card, polled board, PWA, PostHog, Sentry, domain, A1 hints and A3 matching. **Launch.**
 3. **Keep (days 9–14):** leaderboards, optional sign-in, Masira and Box 3×3, A2 coach's report, A4 review assistant, report button, first nightly data PR.
 4. **Grow (weeks 3–4):** El 11, Tbannen for a national-team match, Duel on PartyKit, archive, retention work from the numbers, portfolio case study with real figures.
