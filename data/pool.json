@@ -14,7 +14,7 @@
       "birthPlace": "Sfax",
       "birthCountry": "TN",
       "governorate": "sfax",
-      "clubId": "us-ben-guerdane",
+      "clubId": "etoile-sportive-du-sahel",
       "caps": 0,
       "goals": 0,
       "capsAsOf": null,
@@ -129,15 +129,14 @@
           "confidenceNote": "one source, precise (P36)"
         },
         "clubId": {
-          "source": "enwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2025-09-17",
-          "ref": "Abdallah Amri",
-          "confidence": "low",
+          "source": "override",
+          "retrievedAt": "2026-10-07",
+          "by": "jalel",
+          "confidence": "high",
           "agreeing": [
-            "enwiki"
+            "override"
           ],
-          "confidenceNote": "transfermarkt checked on 2026-10-06: differs (P48)"
+          "confidenceNote": "decided by Jalel"
         },
         "history": {
           "source": "enwiki",
@@ -1398,7 +1397,7 @@
       "birthPlace": "Tunisia",
       "birthCountry": "TN",
       "governorate": null,
-      "clubId": "mudhar-club",
+      "clubId": "etoile-sportive-du-sahel",
       "caps": 0,
       "goals": 0,
       "capsAsOf": null,
@@ -1548,14 +1547,14 @@
           "confidenceNote": "born in Tunisia, town unknown"
         },
         "clubId": {
-          "source": "enwiki",
-          "retrievedAt": "2026-10-04",
-          "ref": "Achraf Ben Dhiaf",
-          "confidence": "low",
+          "source": "override",
+          "retrievedAt": "2026-10-07",
+          "by": "jalel",
+          "confidence": "high",
           "agreeing": [
-            "enwiki"
+            "override"
           ],
-          "confidenceNote": "transfermarkt checked on 2026-10-06: differs (P48)"
+          "confidenceNote": "decided by Jalel"
         },
         "history": {
           "source": "enwiki",
@@ -1849,7 +1848,7 @@
       "birthDate": "2001-12-08",
       "birthPlace": null,
       "birthCountry": null,
-      "governorate": null,
+      "governorate": "siliana",
       "clubId": "zakho-s-c",
       "caps": 0,
       "goals": 0,
@@ -1967,6 +1966,16 @@
             "frwiki",
             "wikidata"
           ]
+        },
+        "governorate": {
+          "source": "override",
+          "retrievedAt": "2026-10-07",
+          "by": "jalel",
+          "confidence": "high",
+          "agreeing": [
+            "override"
+          ],
+          "confidenceNote": "decided by Jalel"
         },
         "clubId": {
           "source": "frwiki",
@@ -5301,7 +5310,7 @@
       "birthDate": "2000-03-07",
       "birthPlace": "Tunisia",
       "birthCountry": "TN",
-      "governorate": null,
+      "governorate": "monastir",
       "clubId": "al-wahda-s-c-c",
       "caps": 0,
       "goals": 0,
@@ -5396,6 +5405,16 @@
             "wikidata"
           ],
           "confidenceNote": "born in Tunisia, town unknown"
+        },
+        "governorate": {
+          "source": "override",
+          "retrievedAt": "2026-10-07",
+          "by": "jalel",
+          "confidence": "high",
+          "agreeing": [
+            "override"
+          ],
+          "confidenceNote": "decided by Jalel"
         },
         "clubId": {
           "source": "enwiki",
@@ -7161,16 +7180,14 @@
           ]
         },
         "caps": {
-          "source": "enwiki-national",
-          "retrievedAt": "2026-10-05",
-          "asOf": "2026-09-28",
-          "ref": "Tunisia national football team",
-          "confidence": "medium",
+          "source": "override",
+          "retrievedAt": "2026-10-07",
+          "by": "jalel",
+          "confidence": "high",
           "agreeing": [
-            "enwiki-national"
+            "override"
           ],
-          "confidenceNote": "one fresh source; the others are explained by their dates",
-          "bandAgreed": true
+          "confidenceNote": "decided by Jalel"
         },
         "goals": {
           "source": "enwiki-national",
@@ -10318,7 +10335,7 @@
       "birthPlace": "Berlin",
       "birthCountry": "DE",
       "governorate": null,
-      "clubId": "hertha-bsc",
+      "clubId": "hertha-bsc-ii",
       "caps": 12,
       "goals": 1,
       "capsAsOf": "2026-09-27",
@@ -10528,15 +10545,14 @@
           "confidenceNote": "one source, precise (P36)"
         },
         "clubId": {
-          "source": "frwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-27",
-          "ref": "Änis Ben-Hatira",
-          "confidence": "low",
+          "source": "override",
+          "retrievedAt": "2026-10-07",
+          "by": "jalel",
+          "confidence": "high",
           "agreeing": [
-            "frwiki"
+            "override"
           ],
-          "confidenceNote": "enwiki Q920263 (2026-09-23) is within 90 days"
+          "confidenceNote": "decided by Jalel"
         },
         "history": {
           "source": "frwiki",
@@ -12579,7 +12595,7 @@
       "birthPlace": "Paris",
       "birthCountry": "FR",
       "governorate": null,
-      "clubId": "us-creteil-lusitanos",
+      "clubId": null,
       "caps": 2,
       "goals": 0,
       "capsAsOf": "2024-08-31",
@@ -12682,8 +12698,9 @@
         "ar": "أيمن بلعيد"
       },
       "pools": {
-        "active": true,
-        "legend": false
+        "active": false,
+        "legend": false,
+        "graceUntil": "2026-12-06"
       },
       "provenance": {
         "nameLatin": {
@@ -12751,15 +12768,14 @@
           "confidenceNote": "one source, precise (P36)"
         },
         "clubId": {
-          "source": "frwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2024-08-31",
-          "ref": "Aymen Belaïd",
-          "confidence": "low",
+          "source": "override",
+          "retrievedAt": "2026-10-07",
+          "by": "jalel",
+          "confidence": "high",
           "agreeing": [
-            "frwiki"
+            "override"
           ],
-          "confidenceNote": "enwiki none (2025-05-17) is newer"
+          "confidenceNote": "decided by Jalel"
         },
         "history": {
           "source": "enwiki",
@@ -12966,15 +12982,14 @@
           "confidenceNote": "one fresh source; the others are explained by their dates"
         },
         "caps": {
-          "source": "enwiki-national",
-          "retrievedAt": "2026-10-05",
-          "asOf": "2026-09-28",
-          "ref": "Tunisia national football team",
-          "confidence": "medium",
+          "source": "override",
+          "retrievedAt": "2026-10-07",
+          "by": "jalel",
+          "confidence": "high",
           "agreeing": [
-            "enwiki-national"
+            "override"
           ],
-          "confidenceNote": "one fresh source; the others are explained by their dates"
+          "confidenceNote": "decided by Jalel"
         },
         "goals": {
           "source": "enwiki-national",
@@ -13706,7 +13721,7 @@
       "birthPlace": null,
       "birthCountry": null,
       "governorate": null,
-      "clubId": "us-ben-guerdane",
+      "clubId": "etoile-sportive-de-metlaoui",
       "caps": 0,
       "goals": 0,
       "capsAsOf": null,
@@ -13818,15 +13833,14 @@
           ]
         },
         "clubId": {
-          "source": "frwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2023-08-08",
-          "ref": "Ayoub Tlili",
-          "confidence": "low",
+          "source": "override",
+          "retrievedAt": "2026-10-07",
+          "by": "jalel",
+          "confidence": "high",
           "agreeing": [
-            "frwiki"
+            "override"
           ],
-          "confidenceNote": "transfermarkt checked on 2026-10-06: differs (P48)"
+          "confidenceNote": "decided by Jalel"
         },
         "history": {
           "source": "frwiki",
@@ -13886,7 +13900,7 @@
       "birthDate": "1998-02-27",
       "birthPlace": null,
       "birthCountry": null,
-      "governorate": null,
+      "governorate": "sfax",
       "clubId": "etoile-sportive-du-sahel",
       "caps": 0,
       "goals": 0,
@@ -13995,6 +14009,16 @@
             "frwiki",
             "wikidata"
           ]
+        },
+        "governorate": {
+          "source": "override",
+          "retrievedAt": "2026-10-07",
+          "by": "jalel",
+          "confidence": "high",
+          "agreeing": [
+            "override"
+          ],
+          "confidenceNote": "decided by Jalel"
         },
         "clubId": {
           "source": "frwiki",
@@ -17758,7 +17782,7 @@
       "birthPlace": null,
       "birthCountry": null,
       "governorate": null,
-      "clubId": "al-mina-a-sc",
+      "clubId": "es-zarzis",
       "caps": 0,
       "goals": 0,
       "capsAsOf": null,
@@ -17871,15 +17895,14 @@
           ]
         },
         "clubId": {
-          "source": "enwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2025-09-14",
-          "ref": "Dhiaeddine Jouini",
-          "confidence": "low",
+          "source": "override",
+          "retrievedAt": "2026-10-07",
+          "by": "jalel",
+          "confidence": "high",
           "agreeing": [
-            "enwiki"
+            "override"
           ],
-          "confidenceNote": "transfermarkt checked on 2026-10-06: differs (P48)"
+          "confidenceNote": "decided by Jalel"
         },
         "history": {
           "source": "enwiki",
@@ -22195,9 +22218,9 @@
       "birthCountry": "TN",
       "governorate": "sfax",
       "clubId": "al-ahly-sc-benghazi",
-      "caps": 31,
+      "caps": 33,
       "goals": 6,
-      "capsAsOf": "2026-09-11",
+      "capsAsOf": "2026-06-26",
       "history": [
         {
           "clubId": "cs-sfaxien",
@@ -22349,15 +22372,14 @@
           "confidenceNote": "one source, precise (P36)"
         },
         "clubId": {
-          "source": "frwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-11",
-          "ref": "Firas Chaouat",
-          "confidence": "low",
+          "source": "override",
+          "retrievedAt": "2026-10-07",
+          "by": "jalel",
+          "confidence": "high",
           "agreeing": [
-            "frwiki"
+            "override"
           ],
-          "confidenceNote": "enwiki none (2026-07-29) is within 90 days"
+          "confidenceNote": "decided by Jalel"
         },
         "history": {
           "source": "frwiki",
@@ -22371,16 +22393,14 @@
           "confidenceNote": "one fresh source; the others are explained by their dates"
         },
         "caps": {
-          "source": "frwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-11",
-          "ref": "Firas Chaouat",
-          "confidence": "low",
+          "source": "override",
+          "retrievedAt": "2026-10-07",
+          "by": "jalel",
+          "confidence": "high",
           "agreeing": [
-            "frwiki"
+            "override"
           ],
-          "confidenceNote": "enwiki 33 (2026-06-26) is higher",
-          "bandAgreed": true
+          "confidenceNote": "decided by Jalel"
         },
         "goals": {
           "source": "frwiki",
@@ -26193,7 +26213,7 @@
       "birthPlace": "Sousse",
       "birthCountry": "TN",
       "governorate": "sousse",
-      "clubId": "al-wehdat-sc",
+      "clubId": null,
       "caps": 15,
       "goals": 2,
       "capsAsOf": "2024-08-18",
@@ -26242,8 +26262,9 @@
         "ar": "حمزة لحمر"
       },
       "pools": {
-        "active": true,
-        "legend": false
+        "active": false,
+        "legend": false,
+        "graceUntil": "2026-12-06"
       },
       "provenance": {
         "nameLatin": {
@@ -26321,15 +26342,14 @@
           "confidenceNote": "one source, precise (P36)"
         },
         "clubId": {
-          "source": "enwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2022-02-17",
-          "ref": "Hamza Lahmar",
-          "confidence": "low",
+          "source": "override",
+          "retrievedAt": "2026-10-07",
+          "by": "jalel",
+          "confidence": "high",
           "agreeing": [
-            "enwiki"
+            "override"
           ],
-          "confidenceNote": "frwiki none (2024-08-18) is newer"
+          "confidenceNote": "decided by Jalel"
         },
         "history": {
           "source": "frwiki",
@@ -26817,16 +26837,14 @@
           "confidenceNote": "frwiki 6 clubs (2026-09-13) is within 90 days"
         },
         "caps": {
-          "source": "enwiki-national",
-          "retrievedAt": "2026-10-05",
-          "asOf": "2026-09-28",
-          "ref": "Tunisia national football team",
+          "source": "override",
+          "retrievedAt": "2026-10-07",
+          "by": "jalel",
           "confidence": "high",
           "agreeing": [
-            "enwiki-national",
-            "national-football-teams"
+            "override"
           ],
-          "bandAgreed": true
+          "confidenceNote": "decided by Jalel"
         },
         "goals": {
           "source": "enwiki-national",
@@ -28245,18 +28263,14 @@
           "confidenceNote": "one source, precise (P36)"
         },
         "clubId": {
-          "source": "frwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-08-26",
-          "ref": "Haykeul Chikhaoui",
-          "confidence": "low",
+          "source": "override",
+          "retrievedAt": "2026-10-07",
+          "by": "jalel",
+          "confidence": "high",
           "agreeing": [
-            "frwiki",
-            "enwiki-squad",
-            "frwiki-squad",
-            "transfermarkt"
+            "override"
           ],
-          "confidenceNote": "enwiki none (2026-07-20) is within 90 days"
+          "confidenceNote": "decided by Jalel"
         },
         "history": {
           "source": "frwiki",
@@ -28825,7 +28839,7 @@
       "birthPlace": "Tunisia",
       "birthCountry": "TN",
       "governorate": null,
-      "clubId": "the-white-s-c",
+      "clubId": "cs-hammam-lif",
       "caps": 0,
       "goals": 0,
       "capsAsOf": null,
@@ -28966,14 +28980,14 @@
           "confidenceNote": "born in Tunisia, town unknown"
         },
         "clubId": {
-          "source": "enwiki",
-          "retrievedAt": "2026-10-04",
-          "ref": "Haythem Mhamdi",
-          "confidence": "low",
+          "source": "override",
+          "retrievedAt": "2026-10-07",
+          "by": "jalel",
+          "confidence": "high",
           "agreeing": [
-            "enwiki"
+            "override"
           ],
-          "confidenceNote": "enwiki-squad Q1103140 (2026-09-27) is dated, the chosen value is not"
+          "confidenceNote": "decided by Jalel"
         },
         "history": {
           "source": "enwiki",
@@ -33321,10 +33335,10 @@
       "nameArabic": "عصام جمعة",
       "nameFrench": "Issam Jemâa",
       "aliases": [
+        "عصام جمعه",
         "Issam Jemaa",
         "Issam Jomaa",
-        "Issam Jomâa",
-        "عصام جمعه"
+        "Issam Jomâa"
       ],
       "position": "forward",
       "positionDetail": "Forward",
@@ -37967,7 +37981,7 @@
       "birthDate": "2007-05-21",
       "birthPlace": null,
       "birthCountry": null,
-      "governorate": null,
+      "governorate": "tunis",
       "clubId": "as-marsa",
       "caps": 0,
       "goals": 0,
@@ -38067,6 +38081,16 @@
             "frwiki",
             "wikidata"
           ]
+        },
+        "governorate": {
+          "source": "override",
+          "retrievedAt": "2026-10-07",
+          "by": "jalel",
+          "confidence": "high",
+          "agreeing": [
+            "override"
+          ],
+          "confidenceNote": "decided by Jalel"
         },
         "clubId": {
           "source": "frwiki",
@@ -40932,7 +40956,7 @@
       "birthPlace": "Aryanah",
       "birthCountry": "TN",
       "governorate": "ariana",
-      "clubId": "ca-bizertine",
+      "clubId": "us-monastir",
       "caps": 0,
       "goals": 0,
       "capsAsOf": null,
@@ -41047,15 +41071,14 @@
           "confidenceNote": "one source, precise (P36)"
         },
         "clubId": {
-          "source": "enwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2025-10-30",
-          "ref": "Malek Mehri",
-          "confidence": "low",
+          "source": "override",
+          "retrievedAt": "2026-10-07",
+          "by": "jalel",
+          "confidence": "high",
           "agreeing": [
-            "enwiki"
+            "override"
           ],
-          "confidenceNote": "transfermarkt checked on 2026-10-06: differs (P48)"
+          "confidenceNote": "decided by Jalel"
         },
         "history": {
           "source": "enwiki",
@@ -49084,7 +49107,7 @@
       "birthDate": "2002-08-18",
       "birthPlace": "Tunisia",
       "birthCountry": "TN",
-      "governorate": null,
+      "governorate": "sfax",
       "clubId": "nk-istra-1961",
       "caps": 1,
       "goals": 0,
@@ -49191,6 +49214,16 @@
           ],
           "confidenceNote": "born in Tunisia, town unknown"
         },
+        "governorate": {
+          "source": "override",
+          "retrievedAt": "2026-10-07",
+          "by": "jalel",
+          "confidence": "high",
+          "agreeing": [
+            "override"
+          ],
+          "confidenceNote": "decided by Jalel"
+        },
         "clubId": {
           "source": "enwiki",
           "retrievedAt": "2026-10-04",
@@ -49214,15 +49247,14 @@
           "confidenceNote": "one fresh source; the others are explained by their dates"
         },
         "caps": {
-          "source": "enwiki-national",
-          "retrievedAt": "2026-10-05",
-          "asOf": "2026-09-28",
-          "ref": "Tunisia national football team",
-          "confidence": "medium",
+          "source": "override",
+          "retrievedAt": "2026-10-07",
+          "by": "jalel",
+          "confidence": "high",
           "agreeing": [
-            "enwiki-national"
+            "override"
           ],
-          "confidenceNote": "one fresh source"
+          "confidenceNote": "decided by Jalel"
         },
         "goals": {
           "source": "enwiki-national",
@@ -54242,7 +54274,7 @@
       "birthCountry": "FR",
       "governorate": null,
       "clubId": "al-swehly-f-c",
-      "caps": 19,
+      "caps": 20,
       "goals": 0,
       "capsAsOf": "2026-09-29",
       "history": [
@@ -54365,7 +54397,7 @@
       },
       "pools": {
         "active": true,
-        "legend": false
+        "legend": true
       },
       "provenance": {
         "nameLatin": {
@@ -54455,15 +54487,14 @@
           "confidenceNote": "frwiki 8 clubs (2026-09-29) is within 90 days"
         },
         "caps": {
-          "source": "enwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-29",
-          "ref": "Nader Ghandri",
-          "confidence": "low",
+          "source": "override",
+          "retrievedAt": "2026-10-07",
+          "by": "jalel",
+          "confidence": "high",
           "agreeing": [
-            "enwiki"
+            "override"
           ],
-          "confidenceNote": "frwiki 20 (2026-09-29) is higher"
+          "confidenceNote": "decided by Jalel"
         },
         "goals": {
           "source": "enwiki",
@@ -54825,7 +54856,7 @@
       "birthPlace": "Marseille",
       "birthCountry": "FR",
       "governorate": null,
-      "clubId": "al-ahli-sc",
+      "clubId": null,
       "caps": 85,
       "goals": 16,
       "capsAsOf": "2026-08-03",
@@ -54939,8 +54970,9 @@
         "ar": "نعيم سليتي"
       },
       "pools": {
-        "active": true,
-        "legend": true
+        "active": false,
+        "legend": true,
+        "graceUntil": "2026-12-06"
       },
       "provenance": {
         "nameLatin": {
@@ -55008,16 +55040,14 @@
           "confidenceNote": "one source, precise (P36)"
         },
         "clubId": {
-          "source": "enwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-04-27",
-          "ref": "Naïm Sliti",
-          "confidence": "low",
+          "source": "override",
+          "retrievedAt": "2026-10-07",
+          "by": "jalel",
+          "confidence": "high",
           "agreeing": [
-            "enwiki",
-            "wikidata"
+            "override"
           ],
-          "confidenceNote": "frwiki none (2026-08-03) is newer"
+          "confidenceNote": "decided by Jalel"
         },
         "history": {
           "source": "frwiki",
@@ -56177,15 +56207,14 @@
           "confidenceNote": "one source, precise (P36)"
         },
         "clubId": {
-          "source": "frwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-06-27",
-          "ref": "Nour Zamen Zammouri",
-          "confidence": "low",
+          "source": "override",
+          "retrievedAt": "2026-10-07",
+          "by": "jalel",
+          "confidence": "high",
           "agreeing": [
-            "frwiki"
+            "override"
           ],
-          "confidenceNote": "transfermarkt checked on 2026-10-06: differs (P48)"
+          "confidenceNote": "decided by Jalel"
         },
         "history": {
           "source": "frwiki",
@@ -56605,7 +56634,7 @@
       "positionDetail": "Centre-back",
       "birthDate": "2001-12-20",
       "birthPlace": "Helmond",
-      "birthCountry": null,
+      "birthCountry": "NL",
       "governorate": null,
       "clubId": "pfc-ludogorets-1945",
       "caps": 8,
@@ -56733,14 +56762,14 @@
           ]
         },
         "birthPlace": {
-          "source": "wikidata",
-          "retrievedAt": "2026-10-04",
-          "ref": "P19 Q96678415",
-          "confidence": "low",
+          "source": "override",
+          "retrievedAt": "2026-10-07",
+          "by": "jalel",
+          "confidence": "high",
           "agreeing": [
-            "wikidata"
+            "override"
           ],
-          "confidenceNote": "no country for this birthplace"
+          "confidenceNote": "decided by Jalel"
         },
         "clubId": {
           "source": "frwiki",
@@ -57147,7 +57176,7 @@
       "birthDate": "1998-10-17",
       "birthPlace": null,
       "birthCountry": null,
-      "governorate": null,
+      "governorate": "kairouan",
       "clubId": "club-africain",
       "caps": 1,
       "goals": 0,
@@ -57263,6 +57292,16 @@
             "frwiki",
             "wikidata"
           ]
+        },
+        "governorate": {
+          "source": "override",
+          "retrievedAt": "2026-10-07",
+          "by": "jalel",
+          "confidence": "high",
+          "agreeing": [
+            "override"
+          ],
+          "confidenceNote": "decided by Jalel"
         },
         "clubId": {
           "source": "frwiki",
@@ -63589,15 +63628,14 @@
           "confidenceNote": "one fresh source"
         },
         "caps": {
-          "source": "enwiki-national",
-          "retrievedAt": "2026-10-05",
-          "asOf": "2026-09-28",
-          "ref": "Tunisia national football team",
-          "confidence": "medium",
+          "source": "override",
+          "retrievedAt": "2026-10-07",
+          "by": "jalel",
+          "confidence": "high",
           "agreeing": [
-            "enwiki-national"
+            "override"
           ],
-          "confidenceNote": "one fresh source"
+          "confidenceNote": "decided by Jalel"
         },
         "goals": {
           "source": "enwiki-national",
@@ -67047,7 +67085,7 @@
       "birthPlace": null,
       "birthCountry": null,
       "governorate": null,
-      "clubId": "us-ben-guerdane",
+      "clubId": "es-zarzis",
       "caps": 0,
       "goals": 0,
       "capsAsOf": null,
@@ -67151,15 +67189,14 @@
           ]
         },
         "clubId": {
-          "source": "frwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2023-08-19",
-          "ref": "Seifeddine Charfi",
-          "confidence": "low",
+          "source": "override",
+          "retrievedAt": "2026-10-07",
+          "by": "jalel",
+          "confidence": "high",
           "agreeing": [
-            "frwiki"
+            "override"
           ],
-          "confidenceNote": "transfermarkt checked on 2026-10-06: differs (P48)"
+          "confidenceNote": "decided by Jalel"
         },
         "history": {
           "source": "frwiki",
@@ -71122,7 +71159,7 @@
       "birthDate": "1996-03-25",
       "birthPlace": null,
       "birthCountry": null,
-      "governorate": null,
+      "governorate": "sfax",
       "clubId": "hidd-scc",
       "caps": 1,
       "goals": 0,
@@ -71238,6 +71275,16 @@
             "frwiki",
             "wikidata"
           ]
+        },
+        "governorate": {
+          "source": "override",
+          "retrievedAt": "2026-10-07",
+          "by": "jalel",
+          "confidence": "high",
+          "agreeing": [
+            "override"
+          ],
+          "confidenceNote": "decided by Jalel"
         },
         "clubId": {
           "source": "frwiki",
@@ -72542,7 +72589,7 @@
       "birthPlace": "Tunisia",
       "birthCountry": "TN",
       "governorate": null,
-      "clubId": "sitra-club",
+      "clubId": "cs-hammam-lif",
       "caps": 1,
       "goals": 0,
       "capsAsOf": "2025-10-15",
@@ -72669,15 +72716,14 @@
           "confidenceNote": "born in Tunisia, town unknown"
         },
         "clubId": {
-          "source": "frwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2025-10-15",
-          "ref": "Yassine Chamakhi",
-          "confidence": "low",
+          "source": "override",
+          "retrievedAt": "2026-10-07",
+          "by": "jalel",
+          "confidence": "high",
           "agreeing": [
-            "frwiki"
+            "override"
           ],
-          "confidenceNote": "transfermarkt checked on 2026-10-06: differs (P48)"
+          "confidenceNote": "decided by Jalel"
         },
         "history": {
           "source": "frwiki",
@@ -72955,7 +73001,7 @@
       "birthPlace": "Tunis",
       "birthCountry": "TN",
       "governorate": "tunis",
-      "clubId": null,
+      "clubId": "club-africain",
       "caps": 93,
       "goals": 5,
       "capsAsOf": "2026-09-27",
@@ -73051,7 +73097,7 @@
         "ar": "ياسين مرياح"
       },
       "pools": {
-        "active": false,
+        "active": true,
         "legend": true
       },
       "provenance": {
@@ -73129,6 +73175,16 @@
           ],
           "confidenceNote": "one source, precise (P36)"
         },
+        "clubId": {
+          "source": "override",
+          "retrievedAt": "2026-10-07",
+          "by": "jalel",
+          "confidence": "high",
+          "agreeing": [
+            "override"
+          ],
+          "confidenceNote": "decided by Jalel"
+        },
         "history": {
           "source": "frwiki",
           "retrievedAt": "2026-10-04",
@@ -73173,7 +73229,17 @@
           "confidenceNote": "one source"
         }
       },
-      "fame": null
+      "fame": {
+        "score": 4.78,
+        "tier": "B",
+        "views": {
+          "en": 14860,
+          "fr": 18330,
+          "ar": 5964
+        },
+        "window": "202510-202609",
+        "localStar": false
+      }
     },
     {
       "id": "youssef-abdelli",
@@ -73841,7 +73907,7 @@
       "birthPlace": null,
       "birthCountry": null,
       "governorate": null,
-      "clubId": "al-shamal-sports-club",
+      "clubId": "es-zarzis",
       "caps": 1,
       "goals": 0,
       "capsAsOf": "2025-10-27",
@@ -73945,15 +74011,14 @@
           ]
         },
         "clubId": {
-          "source": "enwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-06-26",
-          "ref": "Youssef Snana",
-          "confidence": "low",
+          "source": "override",
+          "retrievedAt": "2026-10-07",
+          "by": "jalel",
+          "confidence": "high",
           "agreeing": [
-            "enwiki"
+            "override"
           ],
-          "confidenceNote": "enwiki-squad Q1368447 (2026-09-22) is newer"
+          "confidenceNote": "decided by Jalel"
         },
         "history": {
           "source": "enwiki",
@@ -74234,7 +74299,7 @@
       "birthPlace": null,
       "birthCountry": null,
       "governorate": null,
-      "clubId": "as-soliman",
+      "clubId": "stade-tunisien",
       "caps": 0,
       "goals": 0,
       "capsAsOf": null,
@@ -74329,15 +74394,14 @@
           ]
         },
         "clubId": {
-          "source": "enwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2024-12-29",
-          "ref": "Zakaria El Ayeb",
-          "confidence": "low",
+          "source": "override",
+          "retrievedAt": "2026-10-07",
+          "by": "jalel",
+          "confidence": "high",
           "agreeing": [
-            "enwiki"
+            "override"
           ],
-          "confidenceNote": "transfermarkt checked on 2026-10-06: differs (P48)"
+          "confidenceNote": "decided by Jalel"
         },
         "history": {
           "source": "enwiki",
@@ -77623,17 +77687,6 @@
       "country": "SA",
       "confederation": "AFC",
       "leagueWikidataId": "Q255633",
-      "ligue1": false
-    },
-    {
-      "id": "al-wehdat-sc",
-      "wikidataId": "Q285649",
-      "nameLatin": "Al-Wehdat SC",
-      "nameArabic": "نادي الوحدات",
-      "nameFrench": "Al-Weehdat Club",
-      "country": "JO",
-      "confederation": "AFC",
-      "leagueWikidataId": "Q247767",
       "ligue1": false
     },
     {
@@ -84896,6 +84949,11 @@
       "detail": "frwiki-squad Espérance sportive de Tunis (football) (2026-07-01) does not list him at Espérance Sportive de Tunis"
     },
     {
+      "subject": "Q104406546",
+      "kind": "club-not-on-squad-list",
+      "detail": "enwiki-squad Étoile Sportive du Sahel (2026-09-15) and frwiki-squad Étoile sportive du Sahel (football) (2026-07-01) does not list him at Étoile Sportive du Sahel"
+    },
+    {
       "subject": "Q104440602",
       "kind": "club-not-on-squad-list",
       "detail": "enwiki-squad US Monastir (football) (2026-09-15) does not list him at US Monastir"
@@ -84936,6 +84994,11 @@
       "detail": "enwiki-squad US Monastir (football) (2026-09-15) does not list him at US Monastir"
     },
     {
+      "subject": "Q115747976",
+      "kind": "club-not-on-squad-list",
+      "detail": "enwiki-squad US Monastir (football) (2026-09-15) does not list him at US Monastir"
+    },
+    {
       "subject": "Q11891887",
       "kind": "club-not-on-squad-list",
       "detail": "enwiki-squad Étoile Sportive du Sahel (2026-09-15) and frwiki-squad Étoile sportive du Sahel (football) (2026-07-01) does not list him at Étoile Sportive du Sahel"
@@ -84954,6 +85017,11 @@
       "subject": "Q133130622",
       "kind": "club-not-on-squad-list",
       "detail": "enwiki-squad AS Marsa (2026-09-15) does not list him at AS Marsa"
+    },
+    {
+      "subject": "Q135526387",
+      "kind": "club-not-on-squad-list",
+      "detail": "enwiki-squad ES Zarzis (2026-09-22) does not list him at ES Zarzis"
     },
     {
       "subject": "Q16382870",
@@ -85021,6 +85089,16 @@
       "detail": "enwiki-squad Club Africain (2026-09-27) and frwiki-squad Club africain (football) (2026-07-01) does not list him at Club Africain"
     },
     {
+      "subject": "Q46019586",
+      "kind": "club-not-on-squad-list",
+      "detail": "enwiki-squad ES Zarzis (2026-09-22) does not list him at ES Zarzis"
+    },
+    {
+      "subject": "Q55806704",
+      "kind": "club-not-on-squad-list",
+      "detail": "enwiki-squad ES Métlaoui (2026-10-02) does not list him at Etoile Sportive de Metlaoui"
+    },
+    {
       "subject": "Q599802",
       "kind": "club-not-on-squad-list",
       "detail": "enwiki-squad Club Africain (2026-09-27) and frwiki-squad Club africain (football) (2026-07-01) does not list him at Club Africain"
@@ -85049,6 +85127,76 @@
       "subject": "Q85873925",
       "kind": "club-not-on-squad-list",
       "detail": "enwiki-squad CS Sfaxien (2026-09-15) does not list him at CS Sfaxien"
+    },
+    {
+      "subject": "Q104184413",
+      "kind": "club-override-disagrees",
+      "detail": "override Q1103140, enwiki Q1423655"
+    },
+    {
+      "subject": "Q104406546",
+      "kind": "club-override-disagrees",
+      "detail": "override Q290540, enwiki Q25450596"
+    },
+    {
+      "subject": "Q10513659",
+      "kind": "club-override-disagrees",
+      "detail": "override none, frwiki Q492159"
+    },
+    {
+      "subject": "Q115747976",
+      "kind": "club-override-disagrees",
+      "detail": "override Q2145744, enwiki Q1102961"
+    },
+    {
+      "subject": "Q121289354",
+      "kind": "club-override-disagrees",
+      "detail": "override Q1851954, enwiki Q56301186"
+    },
+    {
+      "subject": "Q128545284",
+      "kind": "club-override-disagrees",
+      "detail": "override Q290540, enwiki Q3550543"
+    },
+    {
+      "subject": "Q131100765",
+      "kind": "club-override-disagrees",
+      "detail": "override Q1368447, enwiki Q812760"
+    },
+    {
+      "subject": "Q135526387",
+      "kind": "club-override-disagrees",
+      "detail": "override Q1368447, enwiki Q75407"
+    },
+    {
+      "subject": "Q16641223",
+      "kind": "club-override-disagrees",
+      "detail": "override none, enwiki Q285649"
+    },
+    {
+      "subject": "Q20641502",
+      "kind": "club-override-disagrees",
+      "detail": "override none, enwiki Q284452"
+    },
+    {
+      "subject": "Q46019586",
+      "kind": "club-override-disagrees",
+      "detail": "override Q1368447, frwiki Q3550543"
+    },
+    {
+      "subject": "Q53575255",
+      "kind": "club-override-disagrees",
+      "detail": "override Q1103140, frwiki Q3480681"
+    },
+    {
+      "subject": "Q55806704",
+      "kind": "club-override-disagrees",
+      "detail": "override Q3592516, frwiki Q3550543"
+    },
+    {
+      "subject": "Q62082",
+      "kind": "club-override-disagrees",
+      "detail": "override Q920263, frwiki Q102720"
     },
     {
       "subject": "Q724024",
@@ -85206,36 +85354,6 @@
       "detail": "frwiki ES Hammam-Sousse (2026-08-30) vs enwiki Étoile Sportive du Sahel (2022-02-27)"
     },
     {
-      "subject": "Q104184413",
-      "kind": "club-squad-list-differs",
-      "detail": "enwiki-squad CS Hammam-Lif (2026-09-27) lists him at CS Hammam-Lif; chosen: the White S.C."
-    },
-    {
-      "subject": "Q121289354",
-      "kind": "club-squad-list-differs",
-      "detail": "enwiki-squad Stade Tunisien (2026-09-15) lists him at Stade Tunisien; chosen: AS Soliman"
-    },
-    {
-      "subject": "Q128545284",
-      "kind": "club-squad-list-differs",
-      "detail": "enwiki-squad Étoile Sportive du Sahel (2026-09-15) lists him at Étoile Sportive du Sahel; frwiki-squad Étoile sportive du Sahel (football) (2026-07-01) lists him at Étoile Sportive du Sahel; chosen: US Ben Guerdane"
-    },
-    {
-      "subject": "Q131100765",
-      "kind": "club-squad-list-differs",
-      "detail": "enwiki-squad ES Zarzis (2026-09-22) lists him at ES Zarzis; chosen: Al-Shamal Sports Club"
-    },
-    {
-      "subject": "Q19956607",
-      "kind": "club-squad-list-differs",
-      "detail": "frwiki-squad Club africain (football) (2026-07-01) lists him at Club Africain; chosen: none"
-    },
-    {
-      "subject": "Q53575255",
-      "kind": "club-squad-list-differs",
-      "detail": "enwiki-squad CS Hammam-Lif (2026-09-27) lists him at CS Hammam-Lif; chosen: Sitra Club"
-    },
-    {
       "subject": "Q221789",
       "kind": "club-staff-role",
       "detail": "enwiki: Anis Boussaïdi"
@@ -85326,49 +85444,9 @@
       "detail": "frwiki: Al Watan SC"
     },
     {
-      "subject": "Q104406546",
-      "kind": "club-witness-differs",
-      "detail": "transfermarkt checked on 2026-10-06: differs from Mudhar Club"
-    },
-    {
       "subject": "Q110989845",
       "kind": "club-witness-differs",
       "detail": "transfermarkt checked on 2026-10-06: differs from Alhiyad Sports Club"
-    },
-    {
-      "subject": "Q115747976",
-      "kind": "club-witness-differs",
-      "detail": "transfermarkt checked on 2026-10-06: differs from CA Bizertine"
-    },
-    {
-      "subject": "Q121289354",
-      "kind": "club-witness-differs",
-      "detail": "transfermarkt checked on 2026-10-06: differs from AS Soliman"
-    },
-    {
-      "subject": "Q128545284",
-      "kind": "club-witness-differs",
-      "detail": "transfermarkt checked on 2026-10-06: differs from US Ben Guerdane"
-    },
-    {
-      "subject": "Q135526387",
-      "kind": "club-witness-differs",
-      "detail": "transfermarkt checked on 2026-10-06: differs from Al-Mina'a SC"
-    },
-    {
-      "subject": "Q46019586",
-      "kind": "club-witness-differs",
-      "detail": "transfermarkt checked on 2026-10-06: differs from US Ben Guerdane"
-    },
-    {
-      "subject": "Q53575255",
-      "kind": "club-witness-differs",
-      "detail": "transfermarkt checked on 2026-10-06: differs from Sitra Club"
-    },
-    {
-      "subject": "Q55806704",
-      "kind": "club-witness-differs",
-      "detail": "transfermarkt checked on 2026-10-06: differs from US Ben Guerdane"
     },
     {
       "subject": "Q1342632",
@@ -85541,22 +85619,12 @@
       "detail": "Tunisia"
     },
     {
-      "subject": "Q111296675",
-      "kind": "governorate-unresolved",
-      "detail": "Tunisia"
-    },
-    {
       "subject": "Q112078374",
       "kind": "governorate-unresolved",
       "detail": "no birthplace"
     },
     {
       "subject": "Q113557114",
-      "kind": "governorate-unresolved",
-      "detail": "no birthplace"
-    },
-    {
-      "subject": "Q116589994",
       "kind": "governorate-unresolved",
       "detail": "no birthplace"
     },
@@ -85571,22 +85639,12 @@
       "detail": "no birthplace"
     },
     {
-      "subject": "Q120993438",
-      "kind": "governorate-unresolved",
-      "detail": "no birthplace"
-    },
-    {
       "subject": "Q121134575",
       "kind": "governorate-unresolved",
       "detail": "no birthplace"
     },
     {
       "subject": "Q121289354",
-      "kind": "governorate-unresolved",
-      "detail": "no birthplace"
-    },
-    {
-      "subject": "Q121890281",
       "kind": "governorate-unresolved",
       "detail": "no birthplace"
     },
@@ -85607,11 +85665,6 @@
     },
     {
       "subject": "Q132198135",
-      "kind": "governorate-unresolved",
-      "detail": "no birthplace"
-    },
-    {
-      "subject": "Q133130622",
       "kind": "governorate-unresolved",
       "detail": "no birthplace"
     },
@@ -85791,11 +85844,6 @@
       "detail": "no birthplace"
     },
     {
-      "subject": "Q58918091",
-      "kind": "governorate-unresolved",
-      "detail": "no birthplace"
-    },
-    {
       "subject": "Q60499799",
       "kind": "governorate-unresolved",
       "detail": "no birthplace"
@@ -85821,19 +85869,9 @@
       "detail": "no birthplace"
     },
     {
-      "subject": "Q90863388",
-      "kind": "governorate-unresolved",
-      "detail": "Tunisia"
-    },
-    {
       "subject": "Q925334",
       "kind": "governorate-unresolved",
       "detail": "no birthplace"
-    },
-    {
-      "subject": "Q96678415",
-      "kind": "governorate-unresolved",
-      "detail": "Helmond"
     },
     {
       "subject": "Q98684788",

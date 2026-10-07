@@ -12,47 +12,46 @@
 | squad-links | fresh | 2026-10-07 |  |
 | martj42 | fresh | 2026-10-07 |  |
 | martj42-goals | fresh | 2026-10-07 |  |
-| pageviews | fresh | 2026-10-07 | 0 of 0 articles read; 0 active footballers not measured yet |
+| pageviews | fresh | 2026-10-07 | 3 of 3 articles read; 0 active footballers not measured yet |
 
-**372 footballers** (245 active, 159 legends, 32 in both), 628 clubs, 111 honours.
+**372 footballers** (243 active, 160 legends, 33 in both), 627 clubs, 111 honours.
 
-Active footballers ready to be a daily answer (P27): 109 of 245.
+In grace (P54): 3
+- aymen-belaid (until 2026-12-06)
+- hamza-lahmar (until 2026-12-06)
+- naim-sliti (until 2026-12-06)
+
+Active footballers ready to be a daily answer (P27): 122 of 243.
 Of them, ready through caps agreed at band level (D-S2-6): 3.
-Fame tiers among them (D-S2-4; D is never an answer, C only at weekends): A 6, B 11, C 17, D 75, not measured yet 0.
+Fame tiers among them (D-S2-4; D is never an answer, C only at weekends): A 7, B 12, C 47, D 56, not measured yet 0.
 
-### One field away from a daily answer (74)
+### One field away from a daily answer (65)
 
 Active footballers who fail exactly one of the fields a puzzle needs: an override, or a local star tag for fame, can bring each in.
 
+- abdallah-amri: caps (low)
 - abdel-medioub: clubId (low)
 - abdelkader-oueslati: clubId (low)
-- achref-habessi: birthPlace (missing)
 - alaeddine-bouslimi: clubId (low)
 - alaeddine-marzouki: birthPlace (low)
-- alaeddine-zouhir: birthPlace (low)
 - amanallah-memmiche: birthPlace (missing)
 - amin-cherni: caps (low)
 - amine-haboubi: clubId (low)
-- anis-ben-hatira: clubId (low)
-- aymen-belaid: clubId (low)
 - aymen-mahmoud: birthPlace (low)
-- azmi-ghouma: birthPlace (missing)
+- ayoub-tlili: birthPlace (missing)
 - elyes-jlassi: clubId (low)
 - fakhreddine-ben-youssef: caps (low)
 - fakhreddine-jaziri: clubId (low)
 - fedi-ben-choug: clubId (low)
 - ferjani-sassi: caps (low)
 - firas-ben-larbi: birthPlace (missing)
-- firas-chaouat: clubId (low)
 - foued-khraifi: clubId (low)
 - ghaith-yeferni: birthPlace (low)
 - ghaith-zaalouni: birthPlace (missing)
 - hamza-agrebi: clubId (low)
 - hamza-hadda: clubId (low)
 - hamza-khadhraoui: birthPlace (missing)
-- hamza-lahmar: clubId (low)
 - hassan-ayari: caps (low)
-- haykeul-chikhaoui: clubId (low)
 - hazem-haj-hassen: clubId (low)
 - houssem-ben-ali: position (low)
 - imed-louati: clubId (low)
@@ -61,10 +60,10 @@ Active footballers who fail exactly one of the fields a puzzle needs: an overrid
 - jibril-othman: caps (low)
 - khaled-ayari: clubId (low)
 - khaled-yahia: clubId (low)
-- koussay-maacha: birthPlace (missing)
 - louay-ben-hassine: caps (low)
 - maher-ben-sghaier: birthPlace (missing)
 - mahmoud-ben-salah: clubId (low)
+- malek-mehri: caps (low)
 - manoubi-haddad: clubId (low)
 - mehdi-ben-mrad: birthPlace (missing)
 - moez-aloulou: clubId (low)
@@ -75,15 +74,9 @@ Active footballers who fail exactly one of the fields a puzzle needs: an overrid
 - mohamed-gouaida: clubId (low)
 - mohamed-hamrouni: birthPlace (low)
 - mohamed-iyadh-riahi: birthPlace (missing)
-- mohamed-nasraoui: birthPlace (low)
 - mohamed-wael-derbali: caps (low)
 - mohammad-mothnani: clubId (low)
-- nader-ghandri: caps (low)
-- naim-sliti: clubId (low)
 - najib-gandi: clubId (low)
-- nour-zamen-zammouri: clubId (low)
-- omar-rekik: birthPlace (low)
-- oussama-bouguerra: birthPlace (missing)
 - raed-bouchniba: caps (low)
 - raed-fedaa: position (low)
 - rafik-boujedra: clubId (low)
@@ -91,21 +84,23 @@ Active footballers who fail exactly one of the fields a puzzle needs: an overrid
 - sadok-kadida: birthPlace (missing)
 - salem-bouajila: caps (low)
 - seif-teka: clubId (low)
+- seifeddine-charfi: birthPlace (missing)
 - slim-rebai: clubId (low)
 - sliman-kchouk: clubId (low)
 - thameur-salhi: position (low)
-- walid-karoui: birthPlace (missing)
+- yassine-chamakhi: birthPlace (low)
+- yassine-meriah: caps (low)
 - youssef-abdelli: caps (low)
+- youssef-snana: birthPlace (missing)
 - zied-berrima: birthPlace (missing)
 - zied-machmoum: birthPlace (missing)
 
-## Low confidence, review first (553)
+## Low confidence, review first (534)
 
-Fields that two sources could confirm but do not, by footballer: the value, the sources that give it, and why it is low. Club histories are often low on a first build: French club titles often match no known club, so the French career cannot agree with the English one. 154 of the 553 are club histories; the rules are not tuned to hide them.
+Fields that two sources could confirm but do not, by footballer: the value, the sources that give it, and why it is low. Club histories are often low on a first build: French club titles often match no known club, so the French career cannot agree with the English one. 154 of the 534 are club histories; the rules are not tuned to hide them.
 
 - abdallah-amri: caps 0: no senior national row; sources: enwiki
 - abdallah-amri: goals 0: no senior national row; sources: enwiki
-- abdallah-amri: clubId us-ben-guerdane: transfermarkt checked on 2026-10-06: differs (P48); sources: enwiki
 - abdallah-amri: history 3 spells: one source, as of 2025-09-17; sources: enwiki
 - abdel-medioub: clubId club-africain: one source, as of 2024-07-16; sources: frwiki
 - abdel-medioub: history 7 spells: one source, as of 2024-07-16; sources: frwiki
@@ -123,7 +118,6 @@ Fields that two sources could confirm but do not, by footballer: the value, the 
 - abdessalem-hallaoui: history 6 spells: one undated source; sources: enwiki
 - achraf-ben-dhiaf: caps 0: no senior national row; sources: enwiki
 - achraf-ben-dhiaf: goals 0: no senior national row; sources: enwiki
-- achraf-ben-dhiaf: clubId mudhar-club: transfermarkt checked on 2026-10-06: differs (P48); sources: enwiki
 - achraf-ben-dhiaf: history 8 spells: one undated source; sources: enwiki
 - achraf-krir: clubId stade-gabesien: one source, as of 2025-07-29; sources: frwiki
 - achraf-krir: history 10 spells: one source, as of 2025-07-29; sources: frwiki
@@ -178,7 +172,6 @@ Fields that two sources could confirm but do not, by footballer: the value, the 
 - anis-ajroud: history 4 spells: one source, as of 2024-12-14; sources: enwiki
 - anis-ayari: caps 28 (as of 2022-02-24): enwiki 26 (2009-11-17): his national career ended in 2006; the dates cannot explain it; sources: frwiki, wikidata
 - anis-ayari: history 3 spells: one source, as of 2022-02-24; sources: frwiki
-- anis-ben-hatira: clubId hertha-bsc: enwiki Q920263 (2026-09-23) is within 90 days; sources: frwiki
 - anis-ben-hatira: history 13 spells: enwiki 13 clubs (2026-09-23) is within 90 days; sources: frwiki
 - anis-boussaidi: history 7 spells: one undated source; sources: enwiki
 - anis-khedher: caps 0: no senior national row; sources: enwiki
@@ -193,9 +186,7 @@ Fields that two sources could confirm but do not, by footballer: the value, the 
 - ayadi-hamrouni: history 6 spells: one undated source; sources: frwiki
 - aymen-abdennour: caps 57 (as of 2024-09-19): enwiki 53 (2023-01-08): his national career ended in 2019; the dates cannot explain it; sources: frwiki
 - aymen-belaid: caps 2 (as of 2024-08-31): enwiki 3 (2018-06-10) is higher; sources: frwiki
-- aymen-belaid: clubId us-creteil-lusitanos: enwiki none (2025-05-17) is newer; sources: frwiki
 - aymen-belaid: history 10 spells: one source, as of 2025-05-17; sources: enwiki
-- ayoub-tlili: clubId us-ben-guerdane: transfermarkt checked on 2026-10-06: differs (P48); sources: frwiki
 - ayoub-tlili: history 6 spells: one source, as of 2023-08-08; sources: frwiki
 - bassem-srarfi: history 6 spells: frwiki 4 clubs (2026-07-18) is within 90 days; sources: enwiki
 - bechir-sahbani: caps 30: wikidata 26 (undated) has the same date; sources: enwiki
@@ -225,7 +216,6 @@ Fields that two sources could confirm but do not, by footballer: the value, the 
 - chokri-el-ouaer: caps 93 (as of 2012-12-30): enwiki 97 (undated) is higher; sources: frwiki, wikidata
 - dhiaeddine-jouini: caps 0: no senior national row; sources: enwiki
 - dhiaeddine-jouini: goals 0: no senior national row; sources: enwiki
-- dhiaeddine-jouini: clubId al-mina-a-sc: transfermarkt checked on 2026-10-06: differs (P48); sources: enwiki
 - dhiaeddine-jouini: history 5 spells: one source, as of 2025-09-14; sources: enwiki
 - elias-achouri: goals 4: enwiki 5 (2026-06-26) is higher; sources: frwiki, enwiki-national
 - elias-achouri: history 5 spells: enwiki 6 clubs (2026-09-18) is within 90 days; sources: frwiki
@@ -253,9 +243,15 @@ Fields that two sources could confirm but do not, by footballer: the value, the 
 - farouk-mimouni: goals 0: no senior national row; sources: enwiki
 - farouk-mimouni: clubId esperance-sportive-de-tunis: one source, as of 2023-12-05; sources: enwiki
 - farouk-mimouni: birthDate 2001-06-23: wikidata 2001-06-13 (undated) differs; sources: enwiki
-- … 403 more in data/pool.json
+- farouk-mimouni: position forward: wikidata midfielder (undated) differs; sources: enwiki
+- farouk-mimouni: positionDetail Left winger: wikidata midfielder (undated) differs; sources: enwiki
+- farouk-mimouni: history 1 spells: one source, as of 2023-12-05; sources: enwiki
+- fedi-arfaoui: caps 0: no senior national row; sources: enwiki
+- fedi-arfaoui: goals 0: no senior national row; sources: enwiki
+- fedi-arfaoui: clubId us-monastir: one undated source; sources: enwiki
+- … 384 more in data/pool.json
 
-Single-source fields: one source each. The governorate and the birthplace are medium when Wikidata gives a precise place (P36), else low; the Arabic name and the photo stay low until Jalel confirms them. Low: governorate 0, birthPlace 29, nameArabic 353, photo 150.
+Single-source fields: one source each. The governorate and the birthplace are medium when Wikidata gives a precise place (P36), else low; the Arabic name and the photo stay low until Jalel confirms them. Low: governorate 0, birthPlace 28, nameArabic 353, photo 150.
 
 ### Rows the infobox parsers skipped (4)
 
@@ -316,41 +312,33 @@ Each list read tonight, by its own date or season (never the page edit). Only a 
 | Jeunesse sportive d'El Omrane | fr | none | none | 0 | 0 |
 | Progrès sportif de Sakiet Eddaïer | fr | none | none | 0 | 0 |
 
-Club: a squad list agrees with 65 footballers' club and differs for 6 (flag club-squad-list-differs). Caps: the national table agrees with 25 and differs for 1.
+Club: a squad list agrees with 64 footballers' club and differs for 0 (flag club-squad-list-differs). Caps: the national table agrees with 20 and differs for 1.
 
 - Stale, no vote (6): en:CA Bizertin (2025-01-13), en:US Ben Guerdane (2025-01-13), fr:Club sportif sfaxien (football) (2024-2025), fr:Union sportive de Ben Guerdane (2024-2025), fr:Avenir sportif de La Marsa (football) (2025-2026), fr:Club sportif de Hammam Lif (football) (2023-2024)
 - Undated, no vote (1): en:Espérance Sportive de Tunis
 - No list on the page (11): en:ES Hammam Sousse, en:PS Sakiet Eddaïer, fr:Espérance sportive de Zarzis, fr:Espoir sportif de Hammam Sousse, fr:Étoile sportive de Métlaoui, fr:Club athlétique bizertin (football), fr:Olympique de Béja (football), fr:Stade tunisien (football), fr:Union sportive monastirienne (football), fr:Jeunesse sportive d'El Omrane, fr:Progrès sportif de Sakiet Eddaïer
 
-## Private checks (P43): 133 verdicts in use
+## Private checks (P43): 124 verdicts in use
 
 Verdicts of the private witness (data/witness.json): which site was checked on which day, and whether it agrees with our published value. The sites' values are never stored or shown. A verdict counts for 21 days and only while we publish the value it was made on; an "agrees" is one more agreeing source, a "differs" is flagged and rates the field low until Jalel settles it with an override.
 
 | Field | Site | Agrees | Differs | Not found | Not comparable |
 | --- | --- | --- | --- | --- | --- |
-| caps | national-football-teams | 16 | 3 | 0 | 12 |
-| clubId | transfermarkt | 66 | 9 | 27 | 0 |
+| caps | national-football-teams | 16 | 3 | 0 | 11 |
+| clubId | transfermarkt | 66 | 1 | 27 | 0 |
 
-Stale (over 21 days): 0. Unused (our value changed, or no longer in the pool): 0.
+Stale (over 21 days): 0. Unused (our value changed, or no longer in the pool): 9.
 
-Each "differs", with our value only (12):
+Each "differs", with our value only (4):
 
 - Ferjani Sassi (Q16636036): caps 104 (as of 2026-09-28): national-football-teams checked on 2026-10-06: differs (same-date)
 - Yassine Meriah (Q19956607): caps 93 (as of 2026-09-27): national-football-teams checked on 2026-10-06: differs (same-date)
-- Seifeddine Charfi (Q46019586): club US Ben Guerdane: transfermarkt checked on 2026-10-06: differs
-- Yassine Chamakhi (Q53575255): club Sitra Club: transfermarkt checked on 2026-10-06: differs
-- Ayoub Tlili (Q55806704): club US Ben Guerdane: transfermarkt checked on 2026-10-06: differs
-- Achraf Ben Dhiaf (Q104406546): club Mudhar Club: transfermarkt checked on 2026-10-06: differs
 - Nour Zamen Zammouri (Q110989845): club Alhiyad Sports Club: transfermarkt checked on 2026-10-06: differs
-- Malek Mehri (Q115747976): club CA Bizertine: transfermarkt checked on 2026-10-06: differs
-- Zakaria Ayeb (Q121289354): club AS Soliman: transfermarkt checked on 2026-10-06: differs
 - Amin Cherni (Q121832277): caps 6 (as of 2026-09-28): national-football-teams checked on 2026-10-06: differs (same-date)
-- Abdallah Amri (Q128545284): club US Ben Guerdane: transfermarkt checked on 2026-10-06: differs
-- Dhiaeddine Jouini (Q135526387): club Al-Mina'a SC: transfermarkt checked on 2026-10-06: differs
 
 ## Photos (P30)
 
-147 of the 150 footballers with a Commons photo have a copy in public/photos/. Tonight: 22 downloaded, 0 waiting for a later night's budget.
+147 of the 150 footballers with a Commons photo have a copy in public/photos/. Tonight: 6 downloaded, 0 waiting for a later night's budget.
 
 ### Not copied (3)
 
@@ -403,8 +391,8 @@ None.
 | Arabic name | 353 of 372 | 95% |
 | French name | 372 of 372 | 100% |
 | Photo | 150 of 372 | 40% |
-| Governorate or born abroad | 289 of 372 | 78% |
-| Current club | 245 of 372 | 66% |
+| Governorate or born abroad | 297 of 372 | 80% |
+| Current club | 243 of 372 | 65% |
 | Caps with an as-of date | 181 of 372 | 49% |
 | Three or more career spells | 312 of 372 | 84% |
 | Detailed position | 361 of 372 | 97% |
@@ -417,16 +405,16 @@ None means the field has no value to rate (for example no current club).
 
 | Field | High | Medium | Low | None |
 | --- | --- | --- | --- | --- |
-| caps | 108 | 105 | 159 | 0 |
+| caps | 114 | 101 | 157 | 0 |
 | goals | 178 | 91 | 103 | 0 |
-| clubId | 127 | 39 | 80 | 126 |
+| clubId | 145 | 39 | 63 | 125 |
 | birthDate | 344 | 15 | 13 | 0 |
 | position | 305 | 45 | 22 | 0 |
 | positionDetail | 305 | 45 | 11 | 11 |
 | history | 108 | 108 | 154 | 2 |
 | nameLatin | 339 | 22 | 11 | 0 |
-| governorate | 1 | 203 | 0 | 168 |
-| birthPlace | 0 | 289 | 29 | 54 |
+| governorate | 8 | 203 | 0 | 161 |
+| birthPlace | 1 | 289 | 28 | 54 |
 | nameArabic | 0 | 0 | 353 | 19 |
 | photo | 0 | 0 | 150 | 222 |
 
@@ -434,17 +422,31 @@ None means the field has no value to rate (for example no current club).
 
 372 footballers before, 372 now. Shrink guard passed (it refuses a loss of more than a tenth).
 
-## Club changes, review each (0)
+## Club changes, review each (15)
 
-None.
+- abdallah-amri: US Ben Guerdane → Étoile Sportive du Sahel
+- achraf-ben-dhiaf: Mudhar Club → Étoile Sportive du Sahel
+- anis-ben-hatira: Hertha BSC → Hertha BSC II
+- aymen-belaid: US Créteil-Lusitanos → none
+- ayoub-tlili: US Ben Guerdane → Etoile Sportive de Metlaoui
+- dhiaeddine-jouini: Al-Mina'a SC → ES Zarzis
+- hamza-lahmar: al-wehdat-sc → none
+- haythem-mhamdi: the White S.C. → CS Hammam-Lif
+- malek-mehri: CA Bizertine → US Monastir
+- naim-sliti: Al Ahli SC → none
+- seifeddine-charfi: US Ben Guerdane → ES Zarzis
+- yassine-chamakhi: Sitra Club → CS Hammam-Lif
+- yassine-meriah: none → Club Africain
+- youssef-snana: Al-Shamal Sports Club → ES Zarzis
+- zakaria-ayeb: AS Soliman → Stade Tunisien
 
 ## Other changes
 
 - Added (0): none
 - Removed (0): none
-- Caps or goals changed: 0. Other fields changed: 14.
+- Caps or goals changed: 2. Other fields changed: 15.
 
-## Flags (429)
+## Flags (426)
 
 ### birthdate-january-first (5)
 
@@ -633,10 +635,11 @@ None.
 - Ali Boumnijel (Q354220): frwiki parcours senior (years): ||{{FRA-d}} [[Club sportif Le Thillot|CS Le Thillot]]|
 - Mokhtar Dhouieb (Q777204): frwiki parcours senior (years): ||{{TUN-d}} [[Club sportif sfaxien (football)|Club sportif sfaxien]]|
 
-### club-not-on-squad-list (33)
+### club-not-on-squad-list (38)
 
 - Abdel Medioub (Q100252023): enwiki-squad Club Africain (2026-09-27) and frwiki-squad Club africain (football) (2026-07-01) does not list him at Club Africain
 - Fahmi Ben Romdhane (Q100626510): frwiki-squad Espérance sportive de Tunis (football) (2026-07-01) does not list him at Espérance Sportive de Tunis
+- Achraf Ben Dhiaf (Q104406546): enwiki-squad Étoile Sportive du Sahel (2026-09-15) and frwiki-squad Étoile sportive du Sahel (football) (2026-07-01) does not list him at Étoile Sportive du Sahel
 - Fedi Arfaoui (Q104440602): enwiki-squad US Monastir (football) (2026-09-15) does not list him at US Monastir
 - Youssef Abdelli (Q105675305): enwiki-squad US Monastir (football) (2026-09-15) does not list him at US Monastir
 - Chaouki Ben Khader (Q105737050): enwiki-squad CS Sfaxien (2026-09-15) does not list him at CS Sfaxien
@@ -645,10 +648,12 @@ None.
 - Farouk Mimouni (Q109710185): frwiki-squad Espérance sportive de Tunis (football) (2026-07-01) does not list him at Espérance Sportive de Tunis
 - Elyas Bouzaiene (Q113272697): frwiki-squad Espérance sportive de Tunis (football) (2026-07-01) does not list him at Espérance Sportive de Tunis
 - Chaïm El Djebali (Q113955868): enwiki-squad US Monastir (football) (2026-09-15) does not list him at US Monastir
+- Malek Mehri (Q115747976): enwiki-squad US Monastir (football) (2026-09-15) does not list him at US Monastir
 - Saddam Ben Aziza (Q11891887): enwiki-squad Étoile Sportive du Sahel (2026-09-15) and frwiki-squad Étoile sportive du Sahel (football) (2026-07-01) does not list him at Étoile Sportive du Sahel
 - Mohamed Amine Ben Amor (Q123336254): enwiki-squad JS El Omrane (2026-09-27) does not list him at Jeunesse sportive d'El Omrane
 - Mahmoud Ghorbel (Q130241890): enwiki-squad US Monastir (football) (2026-09-15) does not list him at US Monastir
 - Koussay Maacha (Q133130622): enwiki-squad AS Marsa (2026-09-15) does not list him at AS Marsa
+- Dhiaeddine Jouini (Q135526387): enwiki-squad ES Zarzis (2026-09-22) does not list him at ES Zarzis
 - Alaeddine Bouslimi (Q16382870): enwiki-squad ES Métlaoui (2026-10-02) does not list him at Etoile Sportive de Metlaoui
 - Fakhreddine Jaziri (Q16635642): enwiki-squad Club Africain (2026-09-27) and frwiki-squad Club africain (football) (2026-07-01) does not list him at Club Africain
 - Mohamed Amine Nefzi (Q16664913): enwiki-squad US Monastir (football) (2026-09-15) does not list him at US Monastir
@@ -662,6 +667,8 @@ None.
 - Hamza Agrebi (Q3126597): enwiki-squad Club Africain (2026-09-27) and frwiki-squad Club africain (football) (2026-07-01) does not list him at Club Africain
 - Hamza Hadda (Q3126608): enwiki-squad Stade Tunisien (2026-09-15) does not list him at Stade Tunisien
 - Mehdi Ressaissi (Q3304526): enwiki-squad Club Africain (2026-09-27) and frwiki-squad Club africain (football) (2026-07-01) does not list him at Club Africain
+- Seifeddine Charfi (Q46019586): enwiki-squad ES Zarzis (2026-09-22) does not list him at ES Zarzis
+- Ayoub Tlili (Q55806704): enwiki-squad ES Métlaoui (2026-10-02) does not list him at Etoile Sportive de Metlaoui
 - Abdelkader Oueslati (Q599802): enwiki-squad Club Africain (2026-09-27) and frwiki-squad Club africain (football) (2026-07-01) does not list him at Club Africain
 - Jasser Khmiri (Q61342214): enwiki-squad Olympique Béja (2026-09-15) does not list him at Olympique Béja
 - Assil Jaziri (Q62929773): enwiki-squad JS El Omrane (2026-09-27) does not list him at Jeunesse sportive d'El Omrane
@@ -669,8 +676,22 @@ None.
 - Youssef Mosraty (Q66779637): enwiki-squad CS Hammam-Lif (2026-09-27) does not list him at CS Hammam-Lif
 - Ghaith Sghaier (Q85873925): enwiki-squad CS Sfaxien (2026-09-15) does not list him at CS Sfaxien
 
-### club-override-disagrees (1)
+### club-override-disagrees (15)
 
+- Haythem Mhamdi (Q104184413): override Q1103140, enwiki Q1423655
+- Achraf Ben Dhiaf (Q104406546): override Q290540, enwiki Q25450596
+- Aymen Belaïd (Q10513659): override none, frwiki Q492159
+- Malek Mehri (Q115747976): override Q2145744, enwiki Q1102961
+- Zakaria Ayeb (Q121289354): override Q1851954, enwiki Q56301186
+- Abdallah Amri (Q128545284): override Q290540, enwiki Q3550543
+- Youssef Snana (Q131100765): override Q1368447, enwiki Q812760
+- Dhiaeddine Jouini (Q135526387): override Q1368447, enwiki Q75407
+- Hamza Lahmar (Q16641223): override none, enwiki Q285649
+- Naïm Sliti (Q20641502): override none, enwiki Q284452
+- Seifeddine Charfi (Q46019586): override Q1368447, frwiki Q3550543
+- Yassine Chamakhi (Q53575255): override Q1103140, frwiki Q3480681
+- Ayoub Tlili (Q55806704): override Q3592516, frwiki Q3550543
+- Änis Ben-Hatira (Q62082): override Q920263, frwiki Q102720
 - Selim Benachour (Q724024): override none, frwiki Q290540
 
 ### club-sources-disagree (30)
@@ -706,15 +727,6 @@ None.
 - Karim Laribi (Q723767): frwiki A.S.D. Albalonga (2026-10-05) vs enwiki Anzio (undated)
 - Malek Baayou (Q90820356): frwiki ES Hammam-Sousse (2026-08-30) vs enwiki Étoile Sportive du Sahel (2022-02-27)
 
-### club-squad-list-differs (6)
-
-- Haythem Mhamdi (Q104184413): enwiki-squad CS Hammam-Lif (2026-09-27) lists him at CS Hammam-Lif; chosen: the White S.C.
-- Zakaria Ayeb (Q121289354): enwiki-squad Stade Tunisien (2026-09-15) lists him at Stade Tunisien; chosen: AS Soliman
-- Abdallah Amri (Q128545284): enwiki-squad Étoile Sportive du Sahel (2026-09-15) lists him at Étoile Sportive du Sahel; frwiki-squad Étoile sportive du Sahel (football) (2026-07-01) lists him at Étoile Sportive du Sahel; chosen: US Ben Guerdane
-- Youssef Snana (Q131100765): enwiki-squad ES Zarzis (2026-09-22) lists him at ES Zarzis; chosen: Al-Shamal Sports Club
-- Yassine Meriah (Q19956607): frwiki-squad Club africain (football) (2026-07-01) lists him at Club Africain; chosen: none
-- Yassine Chamakhi (Q53575255): enwiki-squad CS Hammam-Lif (2026-09-27) lists him at CS Hammam-Lif; chosen: Sitra Club
-
 ### club-staff-role (14)
 
 - Anis Boussaïdi (Q221789): enwiki: Anis Boussaïdi
@@ -739,17 +751,9 @@ None.
 - Mohamed Gouaida (Q18572053): frwiki: ESV Südstern Singen
 - Mohamed Amine Meskini (Q58469424): frwiki: Al Watan SC
 
-### club-witness-differs (9)
+### club-witness-differs (1)
 
-- Achraf Ben Dhiaf (Q104406546): transfermarkt checked on 2026-10-06: differs from Mudhar Club
 - Nour Zamen Zammouri (Q110989845): transfermarkt checked on 2026-10-06: differs from Alhiyad Sports Club
-- Malek Mehri (Q115747976): transfermarkt checked on 2026-10-06: differs from CA Bizertine
-- Zakaria Ayeb (Q121289354): transfermarkt checked on 2026-10-06: differs from AS Soliman
-- Abdallah Amri (Q128545284): transfermarkt checked on 2026-10-06: differs from US Ben Guerdane
-- Dhiaeddine Jouini (Q135526387): transfermarkt checked on 2026-10-06: differs from Al-Mina'a SC
-- Seifeddine Charfi (Q46019586): transfermarkt checked on 2026-10-06: differs from US Ben Guerdane
-- Yassine Chamakhi (Q53575255): transfermarkt checked on 2026-10-06: differs from Sitra Club
-- Ayoub Tlili (Q55806704): transfermarkt checked on 2026-10-06: differs from US Ben Guerdane
 
 ### fr-undated-spell (7)
 
@@ -768,7 +772,7 @@ None.
 - Lotfi Rouissi (Q3259997): 1 goals; martj42 lists 2 goals by him
 - Mohieddine Habita (Q3319127): 0 goals; martj42 lists 2 goals by him
 
-### governorate-unresolved (83)
+### governorate-unresolved (75)
 
 - Malek Miladi (Q102401313): Tunisia
 - Haythem Mhamdi (Q104184413): Tunisia
@@ -793,21 +797,16 @@ None.
 - Mohamed Hedi Gaaloul (Q110062659): Tunisia
 - Houssem Dagdoug (Q110063582): Tunisia
 - Mohamed Hamrouni (Q110372422): Tunisia
-- Mohamed Nasraoui (Q111296675): Tunisia
 - Rayanne Fabre (Q112078374): no birthplace
 - Raki Aouani (Q113557114): no birthplace
-- Azmi Ghouma (Q116589994): no birthplace
 - Rayan Nasraoui (Q116880431): no birthplace
 - Nadhir Sahli (Q120123000): no birthplace
-- Oussama Bouguerra (Q120993438): no birthplace
 - Zinedine Sassi (Q121134575): no birthplace
 - Zakaria Ayeb (Q121289354): no birthplace
-- Achref Habessi (Q121890281): no birthplace
 - Mohamed Amine Ben Amor (Q123336254): no birthplace
 - Amanallah Memmiche (Q126231513): no birthplace
 - Youssef Snana (Q131100765): no birthplace
 - Anisse Saidi (Q132198135): no birthplace
-- Koussay Maacha (Q133130622): no birthplace
 - Houssem Hassen Romdhane (Q135299465): no birthplace
 - Dhiaeddine Jouini (Q135526387): no birthplace
 - Sadok Kadida (Q137970986): no birthplace
@@ -843,15 +842,12 @@ None.
 - Sabri Ameri (Q55806802): no birthplace
 - Ali Ben Neji (Q58174585): no birthplace
 - Imad Mizouri (Q58174660): no birthplace
-- Walid Karoui (Q58918091): no birthplace
 - Jassem Hamdouni (Q60499799): no birthplace
 - Mehdi Ben Mrad (Q64746218): no birthplace
 - Seddik Majeri (Q68169135): Tunisia
 - Ghaith Sghaier (Q85873925): no birthplace
 - Zied Berrima (Q90816875): no birthplace
-- Alaeddine Zouhir (Q90863388): Tunisia
 - Lotfi Hsoumi (Q925334): no birthplace
-- Omar Rekik (Q96678415): Helmond
 - Firas Ben Larbi (Q98684788): no birthplace
 
 ### photo-small (27)
