@@ -135,81 +135,81 @@
   },
   "sources": {
     "meta": {
-      "description": "D'où viennent les données et les photos de Kora."
+      "description": "منين جاية معلومات كورة و تصاورها."
     },
-    "title": "Sources et crédits",
-    "unofficial": "Kora est un projet de fan, non officiel. Il n'a aucun lien avec un club, la FTF, la CAF ou la FIFA.",
+    "title": "المصادر و الحقوق",
+    "unofficial": "كورة مشروع متاع سوبورتار، موش رسمي. ما عندو حتى علاقة بأي نادي، ولا بالجامعة (FTF)، ولا الكاف (CAF)، ولا الفيفا (FIFA).",
     "data": {
-      "title": "Les données",
-      "wikidata": "Wikidata : identités des joueurs, clubs, postes, dates et lieux de naissance (CC0).",
-      "wikipedia": "Wikipédia en anglais et en français : carrières, clubs et sélections, d'après les infobox et les effectifs (CC BY-SA 4.0).",
-      "results": "Résultats et buteurs des matchs internationaux : jeu de données martj42/international_results (CC0).",
-      "checks": "Kora compare les sources entre elles. Un fait douteux n'est jamais la réponse du jour, et chaque valeur garde la trace de sa source."
+      "title": "المعلومات",
+      "wikidata": "Wikidata: هوية اللاعبين، النوادي، البوسطات، تواريخ و بلايص الولادة (CC0).",
+      "wikipedia": "Wikipédia بالإنڨليزية و بالفرنسية: الكاريار، النوادي و المنتخب، من الـinfobox و قوائم الفرق (CC BY-SA 4.0).",
+      "results": "نتائج و هدّافة الماتشات الدولية: قاعدة بيانات martj42/international_results (CC0).",
+      "checks": "كورة تقارن المصادر مع بعضها. معلومة فيها شك ما تكون أبدا جواب اليوم، و كل قيمة تحفظ منين جات."
     },
     "photos": {
-      "title": "Photos des joueurs",
-      "intro": "Les photos viennent de Wikimedia Commons. Chacune garde sa propre licence ; elles sont copiées sans recadrage ni retouche.",
-      "footballer": "Joueur",
-      "author": "Auteur",
-      "licence": "Licence",
-      "file": "Fichier",
-      "changes": "Modifications",
-      "none": "aucune",
-      "empty": "Aucune photo pour l'instant."
+      "title": "تصاور اللاعبين",
+      "intro": "التصاور جايين من Wikimedia Commons. كل وحدة تحفظ الليسانس متاعها؛ منسوخين كيما هوما، بلا قص و بلا رتوش.",
+      "footballer": "اللاعب",
+      "author": "المصوّر",
+      "licence": "الليسانس",
+      "file": "الملف",
+      "changes": "تبديلات",
+      "none": "حتى شي",
+      "empty": "مازال ما فماش تصاور."
     },
     "licence": {
-      "title": "Licences de Kora",
-      "code": "Le code de Kora est sous licence MIT.",
-      "data": "Les données de Kora sont sous licence CC BY-SA 4.0. Les photos n'en font pas partie."
+      "title": "ليسانس كورة",
+      "code": "الكود متاع كورة تحت ليسانس MIT.",
+      "data": "معلومات كورة تحت ليسانس CC BY-SA 4.0. التصاور موش داخلين فيها."
     },
-    "contact": "Une erreur, ou une photo à retirer ? Dis-le-nous sur GitHub."
+    "contact": "فما غلطة، ولا تصويرة لازم تتنحّى؟ قلّنا على GitHub."
   },
   "privacy": {
     "meta": {
-      "description": "Ce que Kora garde quand tu joues, et pour combien de temps."
+      "description": "شنوّة تحفظ كورة كي تلعب، و قدّاش من وقت."
     },
-    "title": "Vie privée",
-    "draft": "Brouillon : cette page n'est pas encore validée et peut changer.",
-    "date": "Mise à jour : 6 octobre 2026",
+    "title": "الخصوصية",
+    "draft": "مسودّة: الصفحة هاذي مازالت ما تأكّدتش و تنجم تتبدّل.",
+    "date": "آخر تحديث: 7 أكتوبر 2026",
     "device": {
-      "title": "Sur ton appareil",
-      "body": "Le navigateur garde la partie du jour (tes essais et leur résultat) et tes stats (série, parties, victoires) dans son stockage local. Kora ne les lit pas à distance : ils restent sur ton appareil."
+      "title": "على جهازك",
+      "body": "النافيڨاتور يحفظ بارتية اليوم (محاولاتك و نتيجتها) و الستات متاعك (السيري، البارتيات، الربحات) في الستوكاج اللوكال متاعو. كورة ما تقراهمش عن بعد: يقعدو على جهازك."
     },
     "cookie": {
-      "title": "Un seul cookie, strictement nécessaire",
-      "body": "Quand les résultats sont gardés sur le serveur, Kora pose un cookie quand tu finis ta première partie : kora_v, un numéro tiré au hasard, sans aucune donnée sur toi. Il est envoyé seulement au jeu (/api/chkoun), il est illisible par les scripts de la page, et il dure 13 mois. Il sert seulement à relier tes parties pour ta série. Il n'y a aucun autre cookie."
+      "title": "كوكي واحد برك، ضروري",
+      "body": "كي النتائج تتحفظ على السرفور، كورة تحط كوكي كي تكمّل أوّل بارتية: kora_v، نومرو مسحوب بالصدفة، بلا حتى معلومة عليك. يتبعث كان للعبة (/api/chkoun)، ما ينجموش يقراوه السكريبتات متاع الصفحة، و يقعد 13 شهر. يخدم كان باش يربط بارتياتك للسيري متاعك. ما فماش حتى كوكي آخر."
     },
     "server": {
-      "title": "Sur le serveur",
-      "body": "Pour chaque partie finie, le serveur garde le jour, ton numéro kora_v, si tu as trouvé, le nombre d'essais et la grille de couleurs, jamais les noms essayés. Ces parties restent 8 jours dans Redis (Upstash), puis sont copiées chaque nuit dans la base de données (Neon), gardées jusqu'à nouvel ordre. Tes stats restent 13 mois après ta dernière partie. Pour limiter les abus, le serveur compte les essais par adresse réseau pendant 10 minutes, sous une empreinte salée qui change chaque jour : l'adresse elle-même n'est jamais enregistrée. L'hébergeur (Vercel) tient aussi ses propres journaux techniques des requêtes."
+      "title": "على السرفور",
+      "body": "لكل بارتية مكمّلة، السرفور يحفظ النهار، النومرو kora_v متاعك، إذا لقيت ولا لا، عدد المحاولات و شبكة الألوان، أبدا الأسامي اللي جرّبتهم. البارتيات هاذم يقعدو 8 أيام في Redis (Upstash)، و من بعد يتنسخو كل ليلة في قاعدة البيانات (Neon)، و يتحفظو حتى إشعار آخر. الستات متاعك تقعد 13 شهر بعد آخر بارتية. باش نحدّو من التجاوزات، السرفور يعدّ المحاولات حسب عنوان الشبكة لمدّة 10 دقايق، تحت بصمة مملّحة تتبدّل كل يوم: العنوان نفسو ما يتسجّل أبدا. المستضيف (Vercel) عندو زادة الجورنالات التقنية متاعو للطلبات."
     },
     "serverOff": {
-      "title": "Quand le serveur ne garde rien",
-      "body": "Si le stockage des résultats est éteint, le jeu marche quand même : tout reste sur ton appareil, aucun cookie n'est posé et rien de tes parties n'est gardé sur le serveur. Le jeu l'indique par « Enregistré sur cet appareil »."
+      "title": "كي السرفور ما يحفظ شي",
+      "body": "إذا حفظ النتائج مطفي، اللعبة تمشي الكل: كل شي يقعد على جهازك، حتى كوكي ما يتحط و حتى شي من بارتياتك ما يتحفظ على السرفور. اللعبة تبيّنها بـ«محفوظ في التليفون هذا»."
     },
     "analytics": {
-      "title": "Mesure d'audience",
-      "body": "Kora compte les visites sans cookie avec Vercel Web Analytics. PostHog (serveurs en Europe), sans cookie et sans profil, reçoit seulement cinq événements du jeu : partie ouverte, essai fait, partie finie, partage, recherche sans résultat. Ils portent le numéro du jour, le nombre d'essais, gagné ou non, la langue et la façon de partager ; jamais ce que tu tapes, un joueur, ni ton numéro kora_v. La bibliothèque de PostHog y ajoute d'elle-même l'adresse de la page, la page d'où tu viens, le navigateur, le système et la taille de l'écran. PostHog reçoit ton adresse IP pour calculer son empreinte sans cookie, sans l'enregistrer : l'enregistrement des adresses IP est désactivé dans le projet PostHog."
+      "title": "قياس الجمهور",
+      "body": "كورة تعدّ الزيارات بلا كوكي بـVercel Web Analytics. PostHog (سرفورات في أوروبا)، بلا كوكي و بلا بروفيل، يوصلو كان خمسة أحداث من اللعبة: بارتية محلولة، محاولة، بارتية مكمّلة، مشاركة، تفتيش بلا نتيجة. يحملو نومرو النهار، عدد المحاولات، ربحت ولا لا، اللغة و كيفاش شاركت؛ أبدا اللي تكتبو، لا لاعب، لا النومرو kora_v متاعك. المكتبة متاع PostHog تزيد وحدها عنوان الصفحة، الصفحة اللي جيت منها، النافيڨاتور، السيستام و قياس الشاشة. PostHog يوصلو عنوان IP متاعك باش يحسب البصمة متاعو بلا كوكي، من غير ما يسجّلو: تسجيل عناوين IP مطفي في مشروع PostHog."
     },
     "errors": {
-      "title": "Erreurs",
-      "body": "Les erreurs du serveur peuvent être envoyées à Sentry, depuis le serveur seulement : sans cookie, sans adresse IP, sans corps de requête ni paramètres d'URL. Ton navigateur n'envoie rien à Sentry."
+      "title": "الغلطات",
+      "body": "غلطات السرفور تنجم تتبعث لـSentry، من السرفور برك: بلا كوكي، بلا عنوان IP، بلا محتوى الطلب و لا باراميترات الـURL. النافيڨاتور متاعك ما يبعث شي لـSentry."
     },
     "processors": {
-      "title": "Qui traite les données, et où",
-      "body": "Vercel (hébergement, fonctions à Francfort), Neon (base de données, Francfort), Upstash (Redis, région européenne choisie à la création), PostHog (Europe), Sentry (région à confirmer)."
+      "title": "شكون يعالج المعلومات، و وين",
+      "body": "Vercel (الاستضافة، الفونكسيونات في فرانكفورت)، Neon (قاعدة البيانات، فرانكفورت)، Upstash (Redis، منطقة أوروبية مختارة وقت الإنشاء)، PostHog (أوروبا)، Sentry (المنطقة لازم تتأكّد)."
     },
     "children": {
-      "title": "Enfants",
-      "body": "Kora ne demande ni compte, ni nom, ni e-mail, ni âge, à personne."
+      "title": "الصغار",
+      "body": "كورة ما تطلب لا كونت، لا اسم، لا إيميل، لا عمر، من حتى حد."
     },
     "clear": {
-      "title": "Tout effacer",
-      "body": "Pour effacer ce que garde ton appareil, supprime les données du site dans ton navigateur (cela efface aussi le cookie). Pour effacer ce que garde le serveur, écris-nous avec les jours où tu as joué : ton numéro kora_v n'est pas encore affiché."
+      "title": "امسح الكل",
+      "body": "باش تمسح اللي حافظو جهازك، فسّخ معطيات الموقع من النافيڨاتور متاعك (هذا يمسح زادة الكوكي). باش تمسح اللي حافظو السرفور، اكتبلنا مع الأيام اللي لعبت فيهم: النومرو kora_v متاعك مازال ما يتعرضش."
     },
     "contact": {
-      "title": "Contact",
-      "body": "Une question sur cette page ? Écris-nous sur GitHub."
+      "title": "اتصل بينا",
+      "body": "عندك سؤال على الصفحة هاذي؟ اكتبلنا على GitHub."
     }
   }
 }
