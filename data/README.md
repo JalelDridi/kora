@@ -102,6 +102,37 @@ A weekly run asks Wikidata once for the sites' ids (P2446, P2574, P7223), reads 
 
 **Fixing a "differs".** Look the footballer up by hand, then write the right value as an override in `overrides.json` (with who decided and when) in a small pull request on `main`. An override always wins and stays high; the next weekly run checks the new value.
 
+## 30–0 ratings (D-S3-5, D-S3-6)
+
+The season simulator drafts footballers by club, decade and line. A candidate is a footballer with a spell at one of the 16 Ligue 1 clubs (`clubs[].ligue1`) that is not a loan and has a start year, overlapping a decade (1990s to 2020s; an open spell runs to the current year): one candidate per club, decade and line, whatever the number of spells. Its rating comes from one formula, in `src/engine/season/rating.ts`:
+
+    raw    = w.caps   · log01(caps · eraCaps[decade], 100)
+           + w.goals  · min(1, goalsPerCap / gpcFull[line])        (0 for a goalkeeper)
+           + w.apps   · log01(apps, 200)                           (0 when no apps are known)
+           + w.titles · min(1, (league · 1 + cup · 0.5 + caf · 1.5) / 6)
+           + 0.05 if he won AFCON 2004
+    rating = round(60 + 39 · min(1, raw) ^ 0.8)
+    log01(x, full) = min(1, ln(1 + x) / ln(1 + full))
+
+In words: four parts, each scaled from 0 to 1, are weighted by his line and added. Caps and club appearances count on a logarithmic scale, so the first matches count most and 100 caps or 200 appearances is the top; caps in the 1990s count 15% more (Tunisia played fewer matches) and in the 2020s 10% more (careers still open). Goals count as goals per cap against what is excellent for his line, and not at all for a goalkeeper. Titles are the league, cup and CAF club titles his club won in a season ending inside one of his spells there, a CAF title worth one and a half league titles, a cup half; six league titles' worth is the top. An AFCON 2004 winner (`data/curated/afcon-2004.json`, Jalel's list of Wikidata ids) gets a small bonus. The sum is capped at 1, bent upwards a little and mapped onto 60 to 99: nobody with nothing rates above 60, and a full career reaches the 90s. A rating is the same for every candidate of the footballer except the decade's caps factor, the spell's appearances and its titles. The caps and goals used are his Tunisia totals, not those of the decade.
+
+| Constant                              | Value                                                                                                                     | Meaning                                             |
+| ------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------- |
+| `floor`, `span`, `curve`              | 60, 39, 0.8                                                                                                               | the scale: 60 to 99, a slight upward bend           |
+| `capsFull`                            | 100                                                                                                                       | caps for the top of the caps part                   |
+| `appsFull`                            | 200                                                                                                                       | club appearances for the top of the apps part       |
+| `titlesFull`                          | 6                                                                                                                         | league titles' worth for the top of the titles part |
+| `eraCaps`                             | 1990s 1.15, 2000s 1, 2010s 1, 2020s 1.1                                                                                   | caps multiplier by decade                           |
+| `gpcFull`                             | goalkeeper 0, defender 0.1, midfielder 0.25, forward 0.5                                                                  | goals per cap for the top of the goals part         |
+| `titleWeight`                         | league 1, cup 0.5, CAF 1.5                                                                                                | a title's worth                                     |
+| `afconBonus`                          | 0.05                                                                                                                      | added for AFCON 2004                                |
+| `bandCaps`                            | 0, 5, 20, 45, 75                                                                                                          | caps used for a doubtful count, by band (D-S3-6)    |
+| `weights` (caps, goals, apps, titles) | goalkeeper 0.5, 0, 0.3, 0.2; defender 0.45, 0.05, 0.3, 0.2; midfielder 0.4, 0.15, 0.25, 0.2; forward 0.35, 0.3, 0.2, 0.15 | each part's weight by line                          |
+
+**The band rule (D-S3-6).** A caps count rated high or medium, or low but band-agreed (D-S2-6), is used as it is. Any other count is replaced by its band's midpoint: 0 for 0, 5 for 1-9, 20 for 10-29, 45 for 30-59, 75 for 60+ (the D-S2-13 bands), and the card says so (`capsFromBand`). Goals per cap are counted on the stored count, and only from 5 caps up.
+
+**What "?" means.** A part shown with "?" on the card is one the pool rates low or gives no confidence for: the career (`history`, so the spells, appearances and titles) or the goals. The footballer stays draftable and his rating uses the values as they are; nothing is hidden. Appearances no spell gives count as 0 and show as "?".
+
 ## Sources and licences
 
 The pool data and the hints written from it are under [CC BY-SA 4.0](LICENSE) (decision P29). Photos, cropped or not, stay under each Commons file's own licence and are credited per file. The code keeps the repository's MIT licence.
