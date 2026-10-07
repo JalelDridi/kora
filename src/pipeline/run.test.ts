@@ -275,6 +275,9 @@ describe("run", () => {
     });
     const report = await readFile(file(root, "report.md"), "utf8");
     expect(report).toContain("# Nightly pool, 2026-10-04");
+    // 30–0: the spins the new pool offers, per club, decade and line.
+    expect(report).toContain("## 30–0 spins");
+    expect(report).toMatch(/\n- \d+ of \d+ triples can be spun\n/);
     for (const source of [
       "wikidata",
       "infobox-en",

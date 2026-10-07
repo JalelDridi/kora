@@ -407,6 +407,16 @@ function witnessSection(w: WitnessSummary): string[] {
   ];
 }
 
+function seasonSpinsSection(lines: string[]): string[] {
+  return [
+    "## 30–0 spins",
+    "",
+    "Per Ligue 1 club, how many footballers each decade and line can offer a spin. A spin that finds nobody widens: the same club in another decade, then any club in the same decade, then any club and decade (D-S3-2).",
+    "",
+    ...lines.map((l) => `- ${l}`),
+  ];
+}
+
 /** What parseHonoursReport corrected or dropped while reading Wikidata's honours. */
 export type HonoursReading = {
   issues: HonourIssue[];
@@ -441,6 +451,8 @@ export function renderReport(input: {
   witness?: WitnessSummary;
   /** P30: the thumbnails copied into public/photos/; absent: no section. */
   photos?: PhotoSummary;
+  /** 30–0: spinSummary of the season data; absent: no section. */
+  seasonSpins?: string[];
 }): string {
   const { pool, diff, statuses, today } = input;
   const clubName = new Map(pool.clubs.map((c) => [c.id, c.nameLatin]));
@@ -589,6 +601,9 @@ export function renderReport(input: {
     ...(input.photos === undefined
       ? []
       : [...photoSection(input.photos, pool), ""]),
+    ...(input.seasonSpins === undefined
+      ? []
+      : [...seasonSpinsSection(input.seasonSpins), ""]),
     `## Left out of the pool (${pool.dropped.length})`,
     "",
     ...droppedReasons.map(

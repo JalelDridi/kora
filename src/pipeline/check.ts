@@ -1,5 +1,6 @@
 import { access, readFile } from "node:fs/promises";
 import path from "node:path";
+import { buildSeasonData, seasonProblems } from "../engine/season/data.ts";
 import { validateOverrides } from "./overrides.ts";
 import type { KnownIds } from "./overrides.ts";
 import { competitions, regions } from "./types.ts";
@@ -298,12 +299,35 @@ export async function inspectData(
     ? { players: strings(registry.players), clubs: strings(registry.clubs) }
     : undefined;
 
-  if (pool !== undefined)
-    errors.push(
-      ...validatePool(pool, ids, usableRegistry).map(
-        (e) => `data/pool.json: ${e}`,
-      ),
+  const poolErrors =
+    pool === undefined ? [] : validatePool(pool, ids, usableRegistry);
+  errors.push(...poolErrors.map((e) => `data/pool.json: ${e}`));
+
+  // 30–0 (D-S3-2): no slot of the 1-4-3-3 can come up empty. Checked once the
+  // pool and the strength file are sound; an AFCON file with errors (already
+  // reported) counts as empty, since it changes ratings, not who is offered.
+  if (
+    usablePool(pool) &&
+    poolErrors.length === 0 &&
+    strength !== undefined &&
+    validateStrength(
+      strength,
+      pool.clubs.filter((c) => c.ligue1).map((c) => c.id),
+    ).length === 0
+  ) {
+    const season = buildSeasonData(
+      pool,
+      {
+        strength: strength as StrengthFile,
+        afcon:
+          afcon !== undefined && validateAfcon(afcon).length === 0
+            ? (afcon as AfconFile)
+            : { footballers: [] },
+      },
+      new Date().getUTCFullYear(),
     );
+    errors.push(...seasonProblems(season).map((e) => `data/pool.json: ${e}`));
+  }
 
   // A photo path must name a file in public/ (review 1, L6): a pool
   // committed without its photos would show a broken image with a credit.

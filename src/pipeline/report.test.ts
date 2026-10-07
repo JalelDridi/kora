@@ -168,6 +168,35 @@ describe("renderReport", () => {
     );
   });
 
+  it("lists the 30–0 spins when given, and has no such section otherwise", () => {
+    const p = pool([player("x")]);
+    const base = {
+      pool: p,
+      diff: diffPools(null, p),
+      statuses: {},
+      today: "2026-10-07",
+    };
+    const report = renderReport({
+      ...base,
+      seasonSpins: [
+        "club-a: 1990s GK 1 DEF 7 MID 5 FWD 5 · 2000s GK 0 DEF 0 MID 0 FWD 0",
+        "1 of 8 triples can be spun",
+      ],
+    });
+    expect(report).toContain(
+      [
+        "## 30–0 spins",
+        "",
+        "Per Ligue 1 club, how many footballers each decade and line can offer a spin. A spin that finds nobody widens: the same club in another decade, then any club in the same decade, then any club and decade (D-S3-2).",
+        "",
+        "- club-a: 1990s GK 1 DEF 7 MID 5 FWD 5 · 2000s GK 0 DEF 0 MID 0 FWD 0",
+        "- 1 of 8 triples can be spun",
+        "",
+      ].join("\n"),
+    );
+    expect(renderReport(base)).not.toContain("30–0 spins");
+  });
+
   it("counts and lists footballers in grace under the pool counts (P54)", () => {
     const p = pool([
       player("x"),

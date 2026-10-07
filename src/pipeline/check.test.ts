@@ -8,6 +8,7 @@ import {
   rm,
   writeFile,
 } from "node:fs/promises";
+import { readFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
@@ -121,6 +122,56 @@ const pool: Pool = {
   dropped: [],
 };
 const by = { by: "jalel", at: "2026-10-05" };
+
+// 30–0 (Sprint 3): data:check builds the season from any pool, so the
+// fixture holds the 16 Ligue 1 clubs and a 1-4-3-3 that can be drafted. Their
+// ids are real entries of data/ids.json, which every copy of data/ holds.
+const realIds = JSON.parse(
+  readFileSync(path.join(process.cwd(), "data", "ids.json"), "utf8"),
+) as { players: Record<string, string>; clubs: Record<string, string> };
+const ligue1Clubs: Pool["clubs"] = Object.entries(realIds.clubs)
+  .filter(([qid]) => qid !== "Q1024482" && qid !== "Q44897")
+  .slice(0, 15)
+  .map(([wikidataId, id]) => ({
+    ...pool.clubs[0],
+    id,
+    wikidataId,
+    nameLatin: id,
+  }));
+const squadLines = [
+  "goalkeeper",
+  ...Array<"defender">(4).fill("defender"),
+  ...Array<"midfielder">(3).fill("midfielder"),
+  ...Array<"forward">(3).fill("forward"),
+] as const;
+const squad: Pool["players"] = Object.entries(realIds.players)
+  .filter(([qid]) => qid !== "Q2836275")
+  .slice(0, squadLines.length)
+  .map(([wikidataId, id], i) => ({
+    ...pool.players[0],
+    id,
+    wikidataId,
+    nameLatin: id,
+    position: squadLines[i],
+    history: [
+      {
+        clubId: "cs-sfaxien",
+        clubName: "CS Sfaxien",
+        from: 2010,
+        to: 2012,
+        apps: 30,
+        goals: 1,
+        loan: false,
+      },
+    ],
+  }));
+pool.clubs.push(...ligue1Clubs);
+pool.players.push(...squad);
+/** The ids.json entries of the clubs and footballers added above. */
+const squadIds = {
+  players: Object.fromEntries(squad.map((p) => [p.wikidataId, p.id])),
+  clubs: Object.fromEntries(ligue1Clubs.map((c) => [c.wikidataId, c.id])),
+};
 
 describe("checkData", () => {
   it("passes on the repository's own data", async () => {
@@ -293,8 +344,8 @@ describe("data/ids.json (fix round 1, finding 2)", () => {
     const { root, write } = await copyOfData();
     await write("pool.json", pool);
     await write("ids.json", {
-      players: { Q1: "ali-maaloul", Q2: "ali-maaloul" },
-      clubs: { Q1024482: "cs-sfaxien" },
+      players: { Q1: "ali-maaloul", Q2: "ali-maaloul", ...squadIds.players },
+      clubs: { Q1024482: "cs-sfaxien", ...squadIds.clubs },
     });
     expect(await checkData(root)).toEqual([
       "data/ids.json: players: id ali-maaloul given to Q1 and Q2",
@@ -328,8 +379,12 @@ describe("data:check agrees with the build about overrides (fix round 3)", () =>
     const { root, write } = await copyOfData();
     await write("pool.json", leftOut);
     await write("ids.json", {
-      players: { Q2836275: "ali-maaloul", Q8: "gone-for-good" },
-      clubs: { Q1024482: "cs-sfaxien" },
+      players: {
+        Q2836275: "ali-maaloul",
+        Q8: "gone-for-good",
+        ...squadIds.players,
+      },
+      clubs: { Q1024482: "cs-sfaxien", ...squadIds.clubs },
     });
     await write("overrides.json", {
       players: {
@@ -452,6 +507,19 @@ describe("the 30–0 curated files (Sprint 3)", () => {
     ).toContain("afcon-2004.json: Msakni is not a Wikidata id");
   });
 
+  it("checkData refuses a pool that could leave a 30–0 slot empty (D-S3-2)", async () => {
+    const { root, write } = await copyOfData();
+    await write("pool.json", pool);
+    expect(await checkData(root)).toEqual([]);
+    await write("pool.json", {
+      ...pool,
+      players: pool.players.filter((p) => p.position !== "goalkeeper"),
+    });
+    expect(await checkData(root)).toEqual([
+      "data/pool.json: 30–0: 0 goalkeepers can be drafted, 1 needed",
+    ]);
+  });
+
   it("checkData reports a missing ligue1-strength.json", async () => {
     const { root } = await copyOfData();
     expect(await checkData(root)).toEqual([]);
@@ -499,8 +567,8 @@ describe("data/witness.json (P48, B6)", () => {
     const { root, write } = await copyOfData();
     await write("pool.json", pool);
     await write("ids.json", {
-      players: { Q2836275: "ali-maaloul" },
-      clubs: { Q1024482: "cs-sfaxien" },
+      players: { Q2836275: "ali-maaloul", ...squadIds.players },
+      clubs: { Q1024482: "cs-sfaxien", ...squadIds.clubs },
     });
     await write("overrides.json", { players: {}, clubTitles: {} });
     await write("witness.json", {
