@@ -137,7 +137,7 @@
           "agreeing": [
             "enwiki"
           ],
-          "confidenceNote": "enwiki-squad Q290540 (2026-09-15) is newer; frwiki-squad Q290540 (2026-07-01) is newer"
+          "confidenceNote": "transfermarkt checked on 2026-10-06: differs (P48)"
         },
         "history": {
           "source": "enwiki",
@@ -1157,12 +1157,12 @@
           "source": "enwiki",
           "retrievedAt": "2026-10-04",
           "ref": "Abderraouf Ben Aziza",
-          "confidence": "low",
+          "confidence": "high",
           "agreeing": [
             "enwiki",
             "frwiki"
           ],
-          "confidenceNote": "Tunisia played 33 matches in his national years"
+          "bandAgreed": true
         },
         "goals": {
           "source": "enwiki",
@@ -1338,7 +1338,8 @@
           "confidence": "high",
           "agreeing": [
             "enwiki",
-            "enwiki-squad"
+            "enwiki-squad",
+            "transfermarkt"
           ]
         },
         "history": {
@@ -1554,7 +1555,7 @@
           "agreeing": [
             "enwiki"
           ],
-          "confidenceNote": "one undated source"
+          "confidenceNote": "transfermarkt checked on 2026-10-06: differs (P48)"
         },
         "history": {
           "source": "enwiki",
@@ -2165,7 +2166,8 @@
           "agreeing": [
             "frwiki",
             "wikidata",
-            "frwiki-squad"
+            "frwiki-squad",
+            "transfermarkt"
           ]
         },
         "history": {
@@ -3922,7 +3924,7 @@
           "agreeing": [
             "enwiki"
           ],
-          "confidenceNote": "one undated source"
+          "confidenceNote": "Tunisia played 22 matches in his national years"
         },
         "goals": {
           "source": "enwiki",
@@ -4066,12 +4068,12 @@
           "source": "enwiki",
           "retrievedAt": "2026-10-04",
           "ref": "Ahmed Sghaïer",
-          "confidence": "high",
+          "confidence": "low",
           "agreeing": [
             "enwiki",
             "frwiki"
           ],
-          "bandAgreed": true
+          "confidenceNote": "Tunisia played 40 matches in his national years"
         },
         "goals": {
           "source": "enwiki",
@@ -5831,7 +5833,8 @@
           "confidence": "high",
           "agreeing": [
             "enwiki",
-            "frwiki"
+            "frwiki",
+            "national-football-teams"
           ],
           "bandAgreed": true
         },
@@ -6812,7 +6815,8 @@
           "agreeing": [
             "enwiki"
           ],
-          "confidenceNote": "frwiki 72 (undated) has the same date; Tunisia played 43 matches in his national years"
+          "confidenceNote": "frwiki 72 (undated) has the same date",
+          "bandAgreed": true
         },
         "goals": {
           "source": "enwiki",
@@ -7140,7 +7144,8 @@
             "enwiki",
             "frwiki",
             "enwiki-national",
-            "enwiki-squad"
+            "enwiki-squad",
+            "transfermarkt"
           ]
         },
         "history": {
@@ -7381,7 +7386,7 @@
       "clubId": "mjallby-aif",
       "caps": 5,
       "goals": 0,
-      "capsAsOf": "2026-09-20",
+      "capsAsOf": "2026-10-07",
       "history": [
         {
           "clubId": "bk-hacken",
@@ -7406,7 +7411,7 @@
           "clubName": "Mjällby AIF",
           "from": 2026,
           "to": null,
-          "apps": 14,
+          "apps": 15,
           "goals": 1,
           "loan": true
         }
@@ -7500,7 +7505,7 @@
         "clubId": {
           "source": "frwiki",
           "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-20",
+          "asOf": "2026-10-07",
           "ref": "Ali Youssef",
           "confidence": "medium",
           "agreeing": [
@@ -7510,8 +7515,8 @@
         },
         "history": {
           "source": "frwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-20",
+          "retrievedAt": "2026-10-07",
+          "asOf": "2026-10-07",
           "ref": "Ali Youssef",
           "confidence": "medium",
           "agreeing": [
@@ -7521,8 +7526,8 @@
         },
         "caps": {
           "source": "frwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-20",
+          "retrievedAt": "2026-10-07",
+          "asOf": "2026-10-07",
           "ref": "Ali Youssef",
           "confidence": "high",
           "agreeing": [
@@ -7534,7 +7539,7 @@
         "goals": {
           "source": "frwiki",
           "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-20",
+          "asOf": "2026-10-07",
           "ref": "Ali Youssef",
           "confidence": "high",
           "agreeing": [
@@ -7931,7 +7936,8 @@
           "agreeing": [
             "enwiki",
             "frwiki",
-            "frwiki-squad"
+            "frwiki-squad",
+            "transfermarkt"
           ]
         },
         "history": {
@@ -8155,8 +8161,7 @@
           "agreeing": [
             "frwiki"
           ],
-          "confidenceNote": "enwiki-national 5 (2026-09-28) has the same date",
-          "bandAgreed": true
+          "confidenceNote": "national-football-teams checked on 2026-10-06: differs (P48)"
         },
         "goals": {
           "source": "frwiki",
@@ -8602,7 +8607,8 @@
           "confidence": "low",
           "agreeing": [
             "enwiki",
-            "enwiki-squad"
+            "enwiki-squad",
+            "transfermarkt"
           ],
           "confidenceNote": "frwiki none (2025-08-19) is within 90 days"
         },
@@ -11789,7 +11795,8 @@
           "agreeing": [
             "enwiki",
             "frwiki",
-            "enwiki-squad"
+            "enwiki-squad",
+            "transfermarkt"
           ]
         },
         "history": {
@@ -12244,7 +12251,8 @@
           "agreeing": [
             "enwiki",
             "frwiki",
-            "enwiki-squad"
+            "enwiki-squad",
+            "transfermarkt"
           ]
         },
         "history": {
@@ -12942,7 +12950,8 @@
             "frwiki",
             "wikidata",
             "enwiki-national",
-            "enwiki-squad"
+            "enwiki-squad",
+            "transfermarkt"
           ]
         },
         "history": {
@@ -13172,7 +13181,8 @@
             "enwiki",
             "frwiki",
             "enwiki-squad",
-            "frwiki-squad"
+            "frwiki-squad",
+            "transfermarkt"
           ]
         },
         "history": {
@@ -13816,7 +13826,7 @@
           "agreeing": [
             "frwiki"
           ],
-          "confidenceNote": "one source, as of 2023-08-08"
+          "confidenceNote": "transfermarkt checked on 2026-10-06: differs (P48)"
         },
         "history": {
           "source": "frwiki",
@@ -13995,7 +14005,8 @@
           "agreeing": [
             "frwiki",
             "enwiki-squad",
-            "frwiki-squad"
+            "frwiki-squad",
+            "transfermarkt"
           ]
         },
         "history": {
@@ -14222,7 +14233,8 @@
             "enwiki",
             "frwiki",
             "enwiki-squad",
-            "frwiki-squad"
+            "frwiki-squad",
+            "transfermarkt"
           ]
         },
         "history": {
@@ -14423,7 +14435,8 @@
           "agreeing": [
             "enwiki",
             "frwiki",
-            "frwiki-squad"
+            "frwiki-squad",
+            "transfermarkt"
           ]
         },
         "history": {
@@ -14839,7 +14852,8 @@
             "frwiki",
             "wikidata",
             "enwiki-squad",
-            "frwiki-squad"
+            "frwiki-squad",
+            "transfermarkt"
           ]
         },
         "history": {
@@ -15173,7 +15187,7 @@
         "author": "Tunisia football team 2010.jpg: mustapha_ennaimi derivative work: — Habib M'HENNI [¿tell me?]",
         "sourceUrl": "https://commons.wikimedia.org/wiki/File:Bilel_Ifa,_Tunisia.jpg",
         "attributionRequired": true,
-        "path": null
+        "path": "/photos/bilel-ifa.jpg"
       },
       "wiki": {
         "en": "Bilel Ifa",
@@ -15464,11 +15478,11 @@
           "retrievedAt": "2026-10-04",
           "asOf": "2026-07-24",
           "ref": "Bilel Mejri",
-          "confidence": "medium",
+          "confidence": "high",
           "agreeing": [
-            "frwiki"
-          ],
-          "confidenceNote": "one fresh source; the others are explained by their dates"
+            "frwiki",
+            "transfermarkt"
+          ]
         },
         "history": {
           "source": "frwiki",
@@ -15684,11 +15698,11 @@
           "retrievedAt": "2026-10-04",
           "asOf": "2026-03-27",
           "ref": "Borhen Hkimi",
-          "confidence": "medium",
+          "confidence": "high",
           "agreeing": [
-            "frwiki"
-          ],
-          "confidenceNote": "one fresh source; the others are explained by their dates"
+            "frwiki",
+            "transfermarkt"
+          ]
         },
         "history": {
           "source": "frwiki",
@@ -15975,7 +15989,7 @@
         "author": "Tunisia football team 2010.jpg: mustapha_ennaimi derivative work: — Habib M'HENNI [¿tell me?]",
         "sourceUrl": "https://commons.wikimedia.org/wiki/File:Chedi_Hammemi,_Tunisia.jpg",
         "attributionRequired": true,
-        "path": null
+        "path": "/photos/chadi-hammami.jpg"
       },
       "wiki": {
         "en": "Chadi Hammami",
@@ -16225,11 +16239,11 @@
           "retrievedAt": "2026-10-04",
           "asOf": "2025-11-09",
           "ref": "Chaïm El Djebali",
-          "confidence": "medium",
+          "confidence": "high",
           "agreeing": [
-            "frwiki"
-          ],
-          "confidenceNote": "one fresh source; the others are explained by their dates"
+            "frwiki",
+            "transfermarkt"
+          ]
         },
         "history": {
           "source": "frwiki",
@@ -16829,11 +16843,11 @@
           "retrievedAt": "2026-10-04",
           "asOf": "2026-06-08",
           "ref": "Chiheb Ben Fradj",
-          "confidence": "medium",
+          "confidence": "high",
           "agreeing": [
-            "frwiki"
-          ],
-          "confidenceNote": "one fresh source; the others are explained by their dates"
+            "frwiki",
+            "transfermarkt"
+          ]
         },
         "history": {
           "source": "frwiki",
@@ -17279,11 +17293,11 @@
           "retrievedAt": "2026-10-04",
           "asOf": "2026-08-04",
           "ref": "Chiheb Zoghlami",
-          "confidence": "medium",
+          "confidence": "high",
           "agreeing": [
-            "frwiki"
-          ],
-          "confidenceNote": "one fresh source; the others are explained by their dates"
+            "frwiki",
+            "transfermarkt"
+          ]
         },
         "history": {
           "source": "frwiki",
@@ -17865,7 +17879,7 @@
           "agreeing": [
             "enwiki"
           ],
-          "confidenceNote": "one source, as of 2025-09-14"
+          "confidenceNote": "transfermarkt checked on 2026-10-06: differs (P48)"
         },
         "history": {
           "source": "enwiki",
@@ -18100,7 +18114,8 @@
           "confidence": "high",
           "agreeing": [
             "enwiki",
-            "frwiki"
+            "frwiki",
+            "national-football-teams"
           ],
           "bandAgreed": true
         },
@@ -18549,7 +18564,8 @@
           "confidence": "high",
           "agreeing": [
             "enwiki",
-            "frwiki"
+            "frwiki",
+            "national-football-teams"
           ],
           "bandAgreed": true
         },
@@ -18594,8 +18610,8 @@
       "nameArabic": "إلياس الصخيري",
       "nameFrench": "Ellyes Skhiri",
       "aliases": [
-        "إلياس السخيري",
-        "Ellyes Joris Skhiri"
+        "Ellyes Joris Skhiri",
+        "إلياس السخيري"
       ],
       "position": "midfielder",
       "positionDetail": "Defensive midfielder",
@@ -18772,7 +18788,8 @@
           "agreeing": [
             "enwiki",
             "frwiki",
-            "wikidata"
+            "wikidata",
+            "national-football-teams"
           ],
           "bandAgreed": true
         },
@@ -18987,7 +19004,8 @@
           "confidence": "high",
           "agreeing": [
             "enwiki",
-            "frwiki"
+            "frwiki",
+            "transfermarkt"
           ]
         },
         "history": {
@@ -20124,7 +20142,8 @@
             "enwiki",
             "frwiki",
             "wikidata",
-            "enwiki-squad"
+            "enwiki-squad",
+            "transfermarkt"
           ]
         },
         "history": {
@@ -20240,7 +20259,7 @@
         "author": "محمد أمين الطرابلسي",
         "sourceUrl": "https://commons.wikimedia.org/wiki/File:Fakhreddine_Jaziri.png",
         "attributionRequired": true,
-        "path": null
+        "path": "/photos/fakhreddine-jaziri.png"
       },
       "wiki": {
         "en": "Fakhreddine Jaziri",
@@ -21911,12 +21930,12 @@
           "retrievedAt": "2026-10-04",
           "asOf": "2026-09-28",
           "ref": "Ferjani Sassi",
-          "confidence": "high",
+          "confidence": "low",
           "agreeing": [
             "frwiki",
             "enwiki-national"
           ],
-          "bandAgreed": true
+          "confidenceNote": "national-football-teams checked on 2026-10-06: differs (P48)"
         },
         "goals": {
           "source": "frwiki",
@@ -23223,11 +23242,11 @@
           "retrievedAt": "2026-10-04",
           "asOf": "2026-07-30",
           "ref": "Ghaith Sghaier",
-          "confidence": "medium",
+          "confidence": "high",
           "agreeing": [
-            "frwiki"
-          ],
-          "confidenceNote": "one fresh source"
+            "frwiki",
+            "transfermarkt"
+          ]
         },
         "history": {
           "source": "frwiki",
@@ -23408,7 +23427,8 @@
           "agreeing": [
             "frwiki",
             "wikidata",
-            "frwiki-squad"
+            "frwiki-squad",
+            "transfermarkt"
           ]
         },
         "history": {
@@ -23544,7 +23564,8 @@
           "confidence": "high",
           "agreeing": [
             "frwiki",
-            "frwiki-squad"
+            "frwiki-squad",
+            "transfermarkt"
           ]
         },
         "history": {
@@ -23726,7 +23747,8 @@
           "confidence": "high",
           "agreeing": [
             "frwiki",
-            "frwiki-squad"
+            "frwiki-squad",
+            "transfermarkt"
           ]
         },
         "history": {
@@ -23945,11 +23967,11 @@
           "retrievedAt": "2026-10-04",
           "asOf": "2026-08-09",
           "ref": "Ghazi Ayadi",
-          "confidence": "medium",
+          "confidence": "high",
           "agreeing": [
-            "frwiki"
-          ],
-          "confidenceNote": "one fresh source; the others are explained by their dates"
+            "frwiki",
+            "transfermarkt"
+          ]
         },
         "history": {
           "source": "frwiki",
@@ -24574,7 +24596,8 @@
           "agreeing": [
             "enwiki",
             "frwiki",
-            "enwiki-squad"
+            "enwiki-squad",
+            "transfermarkt"
           ]
         },
         "history": {
@@ -25952,7 +25975,8 @@
             "enwiki",
             "frwiki",
             "wikidata",
-            "frwiki-squad"
+            "frwiki-squad",
+            "transfermarkt"
           ]
         },
         "history": {
@@ -26106,7 +26130,8 @@
           "confidence": "high",
           "agreeing": [
             "frwiki",
-            "frwiki-squad"
+            "frwiki-squad",
+            "transfermarkt"
           ]
         },
         "history": {
@@ -26515,7 +26540,8 @@
           "agreeing": [
             "enwiki",
             "frwiki",
-            "enwiki-squad"
+            "enwiki-squad",
+            "transfermarkt"
           ]
         },
         "history": {
@@ -26775,7 +26801,8 @@
             "frwiki",
             "wikidata",
             "enwiki-national",
-            "frwiki-squad"
+            "frwiki-squad",
+            "transfermarkt"
           ]
         },
         "history": {
@@ -26794,11 +26821,11 @@
           "retrievedAt": "2026-10-05",
           "asOf": "2026-09-28",
           "ref": "Tunisia national football team",
-          "confidence": "medium",
+          "confidence": "high",
           "agreeing": [
-            "enwiki-national"
+            "enwiki-national",
+            "national-football-teams"
           ],
-          "confidenceNote": "one fresh source; the others are explained by their dates",
           "bandAgreed": true
         },
         "goals": {
@@ -26982,11 +27009,11 @@
           "retrievedAt": "2026-10-04",
           "asOf": "2026-07-09",
           "ref": "Hani Amamou",
-          "confidence": "medium",
+          "confidence": "high",
           "agreeing": [
-            "frwiki"
-          ],
-          "confidenceNote": "one fresh source; the others are explained by their dates"
+            "frwiki",
+            "transfermarkt"
+          ]
         },
         "history": {
           "source": "frwiki",
@@ -27207,7 +27234,8 @@
           "confidence": "high",
           "agreeing": [
             "enwiki",
-            "frwiki"
+            "frwiki",
+            "national-football-teams"
           ],
           "bandAgreed": true
         },
@@ -28225,7 +28253,8 @@
           "agreeing": [
             "frwiki",
             "enwiki-squad",
-            "frwiki-squad"
+            "frwiki-squad",
+            "transfermarkt"
           ],
           "confidenceNote": "enwiki none (2026-07-20) is within 90 days"
         },
@@ -29379,7 +29408,8 @@
             "enwiki",
             "frwiki",
             "enwiki-national",
-            "frwiki-squad"
+            "frwiki-squad",
+            "transfermarkt"
           ]
         },
         "history": {
@@ -29579,7 +29609,7 @@
           "agreeing": [
             "frwiki"
           ],
-          "confidenceNote": "one undated source"
+          "confidenceNote": "Tunisia played 35 matches in his national years"
         },
         "goals": {
           "source": "frwiki",
@@ -29914,7 +29944,8 @@
           "confidence": "high",
           "agreeing": [
             "enwiki",
-            "enwiki-squad"
+            "enwiki-squad",
+            "transfermarkt"
           ]
         },
         "history": {
@@ -30328,7 +30359,8 @@
           "confidence": "high",
           "agreeing": [
             "frwiki",
-            "frwiki-squad"
+            "frwiki-squad",
+            "transfermarkt"
           ]
         },
         "history": {
@@ -30672,7 +30704,8 @@
           "agreeing": [
             "enwiki",
             "enwiki-squad",
-            "frwiki-squad"
+            "frwiki-squad",
+            "transfermarkt"
           ]
         },
         "history": {
@@ -31219,7 +31252,8 @@
           "confidence": "high",
           "agreeing": [
             "frwiki",
-            "frwiki-squad"
+            "frwiki-squad",
+            "transfermarkt"
           ]
         },
         "history": {
@@ -31833,11 +31867,11 @@
           "retrievedAt": "2026-10-04",
           "asOf": "2026-07-11",
           "ref": "Idriss Mhirsi",
-          "confidence": "medium",
+          "confidence": "high",
           "agreeing": [
-            "frwiki"
-          ],
-          "confidenceNote": "one fresh source; the others are explained by their dates"
+            "frwiki",
+            "transfermarkt"
+          ]
         },
         "history": {
           "source": "frwiki",
@@ -33287,10 +33321,10 @@
       "nameArabic": "عصام جمعة",
       "nameFrench": "Issam Jemâa",
       "aliases": [
-        "عصام جمعه",
         "Issam Jemaa",
         "Issam Jomaa",
-        "Issam Jomâa"
+        "Issam Jomâa",
+        "عصام جمعه"
       ],
       "position": "forward",
       "positionDetail": "Forward",
@@ -33650,7 +33684,8 @@
           "agreeing": [
             "enwiki",
             "frwiki",
-            "enwiki-squad"
+            "enwiki-squad",
+            "transfermarkt"
           ]
         },
         "history": {
@@ -37185,7 +37220,7 @@
         "author": "Tunisia football team 2010.jpg: mustapha_ennaimi derivative work: — Habib M'HENNI [¿tell me?]",
         "sourceUrl": "https://commons.wikimedia.org/wiki/File:Khaled_Korbi,_Tunisia.jpg",
         "attributionRequired": true,
-        "path": null
+        "path": "/photos/khaled-korbi.jpg"
       },
       "wiki": {
         "en": "Khaled Korbi",
@@ -37291,19 +37326,19 @@
           "agreeing": [
             "frwiki"
           ],
-          "confidenceNote": "one source, as of 2015-05-27"
+          "confidenceNote": "one source, as of 2015-05-27",
+          "bandAgreed": true
         },
         "goals": {
           "source": "frwiki",
           "retrievedAt": "2026-10-04",
           "asOf": "2015-05-27",
           "ref": "Khaled Korbi",
-          "confidence": "medium",
+          "confidence": "high",
           "agreeing": [
             "enwiki",
             "frwiki"
-          ],
-          "confidenceNote": "frwiki skipped rows of this field"
+          ]
         },
         "photo": {
           "source": "commons",
@@ -37697,7 +37732,8 @@
           "confidence": "high",
           "agreeing": [
             "frwiki",
-            "enwiki-national"
+            "enwiki-national",
+            "national-football-teams"
           ],
           "bandAgreed": true
         },
@@ -38040,7 +38076,8 @@
           "confidence": "high",
           "agreeing": [
             "enwiki",
-            "frwiki"
+            "frwiki",
+            "transfermarkt"
           ]
         },
         "history": {
@@ -38517,11 +38554,11 @@
       "nameArabic": "لاري العزوني",
       "nameFrench": "Larry Azouni",
       "aliases": [
-        "لاري أزوني",
         "لاري عزوني",
         "لاري فرانسيس عبد العزوني",
         "Larry El-Azouni",
-        "Larry Francis Abdel El-Azouni"
+        "Larry Francis Abdel El-Azouni",
+        "لاري أزوني"
       ],
       "position": "midfielder",
       "positionDetail": "Midfielder",
@@ -39432,7 +39469,7 @@
           "clubName": "Karlsruher SC",
           "from": 2024,
           "to": 2026,
-          "apps": 35,
+          "apps": 33,
           "goals": 9,
           "loan": false
         },
@@ -39450,7 +39487,7 @@
           "clubName": "Karlsruher SC",
           "from": 2026,
           "to": null,
-          "apps": 2,
+          "apps": 5,
           "goals": 0,
           "loan": true
         }
@@ -39531,9 +39568,9 @@
           "confidenceNote": "one source, precise (P36)"
         },
         "clubId": {
-          "source": "frwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-16",
+          "source": "enwiki",
+          "retrievedAt": "2026-10-07",
+          "asOf": "2026-09-19",
           "ref": "Louey Ben Farhat",
           "confidence": "high",
           "agreeing": [
@@ -39542,15 +39579,15 @@
           ]
         },
         "history": {
-          "source": "frwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-16",
+          "source": "enwiki",
+          "retrievedAt": "2026-10-07",
+          "asOf": "2026-09-19",
           "ref": "Louey Ben Farhat",
-          "confidence": "medium",
+          "confidence": "high",
           "agreeing": [
+            "enwiki",
             "frwiki"
-          ],
-          "confidenceNote": "one fresh source; the others are explained by their dates"
+          ]
         },
         "caps": {
           "source": "enwiki",
@@ -40589,11 +40626,11 @@
           "retrievedAt": "2026-10-04",
           "asOf": "2026-07-31",
           "ref": "Mahmoud Ghorbel",
-          "confidence": "medium",
+          "confidence": "high",
           "agreeing": [
-            "frwiki"
-          ],
-          "confidenceNote": "one fresh source"
+            "frwiki",
+            "transfermarkt"
+          ]
         },
         "history": {
           "source": "frwiki",
@@ -40817,11 +40854,11 @@
           "retrievedAt": "2026-10-04",
           "asOf": "2026-08-30",
           "ref": "Malek Baayou",
-          "confidence": "medium",
+          "confidence": "high",
           "agreeing": [
-            "frwiki"
-          ],
-          "confidenceNote": "one fresh source; the others are explained by their dates"
+            "frwiki",
+            "transfermarkt"
+          ]
         },
         "history": {
           "source": "frwiki",
@@ -41014,11 +41051,11 @@
           "retrievedAt": "2026-10-04",
           "asOf": "2025-10-30",
           "ref": "Malek Mehri",
-          "confidence": "medium",
+          "confidence": "low",
           "agreeing": [
             "enwiki"
           ],
-          "confidenceNote": "one fresh source"
+          "confidenceNote": "transfermarkt checked on 2026-10-06: differs (P48)"
         },
         "history": {
           "source": "enwiki",
@@ -41461,7 +41498,8 @@
           "ref": "Manoubi Haddad",
           "confidence": "low",
           "agreeing": [
-            "frwiki"
+            "frwiki",
+            "transfermarkt"
           ],
           "confidenceNote": "enwiki Q56301186 (2026-08-04) is within 90 days"
         },
@@ -41918,7 +41956,8 @@
           "agreeing": [
             "enwiki",
             "frwiki",
-            "frwiki-squad"
+            "frwiki-squad",
+            "transfermarkt"
           ]
         },
         "history": {
@@ -42083,7 +42122,8 @@
           "agreeing": [
             "enwiki",
             "wikidata",
-            "enwiki-squad"
+            "enwiki-squad",
+            "transfermarkt"
           ]
         },
         "history": {
@@ -42944,18 +42984,18 @@
           "agreeing": [
             "enwiki"
           ],
-          "confidenceNote": "frwiki 42 (undated) is higher"
+          "confidenceNote": "frwiki 42 (undated) is higher",
+          "bandAgreed": true
         },
         "goals": {
           "source": "enwiki",
           "retrievedAt": "2026-10-04",
           "ref": "Mejdi Traoui",
-          "confidence": "medium",
+          "confidence": "high",
           "agreeing": [
             "enwiki",
             "frwiki"
-          ],
-          "confidenceNote": "frwiki skipped rows of this field"
+          ]
         },
         "photo": {
           "source": "commons",
@@ -43587,7 +43627,8 @@
           "agreeing": [
             "enwiki",
             "frwiki",
-            "enwiki-squad"
+            "enwiki-squad",
+            "transfermarkt"
           ]
         },
         "history": {
@@ -43780,7 +43821,8 @@
           "confidence": "high",
           "agreeing": [
             "frwiki",
-            "frwiki-squad"
+            "frwiki-squad",
+            "transfermarkt"
           ]
         },
         "history": {
@@ -45657,11 +45699,11 @@
           "retrievedAt": "2026-10-04",
           "asOf": "2026-06-01",
           "ref": "Mohamed Amine Ben Amor (football, 1997)",
-          "confidence": "medium",
+          "confidence": "high",
           "agreeing": [
-            "frwiki"
-          ],
-          "confidenceNote": "one fresh source"
+            "frwiki",
+            "transfermarkt"
+          ]
         },
         "history": {
           "source": "frwiki",
@@ -45904,7 +45946,8 @@
           "agreeing": [
             "enwiki",
             "frwiki",
-            "enwiki-national"
+            "enwiki-national",
+            "national-football-teams"
           ]
         },
         "goals": {
@@ -46545,7 +46588,8 @@
           "agreeing": [
             "enwiki",
             "frwiki",
-            "frwiki-squad"
+            "frwiki-squad",
+            "transfermarkt"
           ]
         },
         "history": {
@@ -46567,7 +46611,8 @@
           "confidence": "high",
           "agreeing": [
             "enwiki",
-            "frwiki"
+            "frwiki",
+            "national-football-teams"
           ],
           "bandAgreed": true
         },
@@ -46735,7 +46780,8 @@
           "agreeing": [
             "enwiki",
             "frwiki",
-            "frwiki-squad"
+            "frwiki-squad",
+            "transfermarkt"
           ]
         },
         "history": {
@@ -47998,7 +48044,8 @@
           "agreeing": [
             "enwiki",
             "frwiki",
-            "frwiki-squad"
+            "frwiki-squad",
+            "transfermarkt"
           ]
         },
         "history": {
@@ -48609,7 +48656,8 @@
           "confidence": "high",
           "agreeing": [
             "enwiki",
-            "enwiki-squad"
+            "enwiki-squad",
+            "transfermarkt"
           ]
         },
         "history": {
@@ -48962,11 +49010,11 @@
           "retrievedAt": "2026-10-04",
           "asOf": "2024-09-16",
           "ref": "Mohamed Lahbib Yeken",
-          "confidence": "low",
+          "confidence": "high",
           "agreeing": [
-            "frwiki"
-          ],
-          "confidenceNote": "one source, as of 2024-09-16"
+            "frwiki",
+            "transfermarkt"
+          ]
         },
         "history": {
           "source": "frwiki",
@@ -49361,7 +49409,7 @@
           "agreeing": [
             "frwiki"
           ],
-          "confidenceNote": "Tunisia played 38 matches in his national years"
+          "confidenceNote": "one undated source"
         },
         "goals": {
           "source": "frwiki",
@@ -50332,7 +50380,7 @@
           "agreeing": [
             "enwiki"
           ],
-          "confidenceNote": "one undated source"
+          "confidenceNote": "Tunisia played 39 matches in his national years"
         },
         "goals": {
           "source": "enwiki",
@@ -50517,7 +50565,7 @@
           "agreeing": [
             "enwiki"
           ],
-          "confidenceNote": "Tunisia played 43 matches in his national years"
+          "confidenceNote": "one undated source"
         },
         "goals": {
           "source": "enwiki",
@@ -51586,7 +51634,8 @@
             "enwiki",
             "frwiki",
             "enwiki-squad",
-            "frwiki-squad"
+            "frwiki-squad",
+            "transfermarkt"
           ]
         },
         "history": {
@@ -51842,7 +51891,8 @@
           "confidence": "high",
           "agreeing": [
             "enwiki",
-            "frwiki"
+            "frwiki",
+            "national-football-teams"
           ],
           "bandAgreed": true
         },
@@ -52102,11 +52152,11 @@
           "retrievedAt": "2026-10-04",
           "asOf": "2026-04-25",
           "ref": "Mossaâb Sassi",
-          "confidence": "medium",
+          "confidence": "high",
           "agreeing": [
-            "frwiki"
-          ],
-          "confidenceNote": "one fresh source; the others are explained by their dates"
+            "frwiki",
+            "transfermarkt"
+          ]
         },
         "history": {
           "source": "frwiki",
@@ -52523,7 +52573,8 @@
             "frwiki",
             "enwiki-national",
             "enwiki-squad",
-            "frwiki-squad"
+            "frwiki-squad",
+            "transfermarkt"
           ]
         },
         "history": {
@@ -52545,7 +52596,8 @@
           "confidence": "high",
           "agreeing": [
             "frwiki",
-            "enwiki-national"
+            "enwiki-national",
+            "national-football-teams"
           ],
           "bandAgreed": true
         },
@@ -55620,7 +55672,7 @@
           "agreeing": [
             "enwiki"
           ],
-          "confidenceNote": "frwiki 53 (undated) is higher; Tunisia played 33 matches in his national years"
+          "confidenceNote": "frwiki 53 (undated) is higher; Tunisia played 50 matches in his national years"
         },
         "goals": {
           "source": "enwiki",
@@ -56129,11 +56181,11 @@
           "retrievedAt": "2026-10-04",
           "asOf": "2026-06-27",
           "ref": "Nour Zamen Zammouri",
-          "confidence": "medium",
+          "confidence": "low",
           "agreeing": [
             "frwiki"
           ],
-          "confidenceNote": "one fresh source; the others are explained by their dates"
+          "confidenceNote": "transfermarkt checked on 2026-10-06: differs (P48)"
         },
         "history": {
           "source": "frwiki",
@@ -56720,7 +56772,8 @@
           "confidence": "high",
           "agreeing": [
             "enwiki",
-            "frwiki"
+            "frwiki",
+            "national-football-teams"
           ],
           "bandAgreed": true
         },
@@ -57221,7 +57274,8 @@
             "enwiki",
             "frwiki",
             "enwiki-squad",
-            "frwiki-squad"
+            "frwiki-squad",
+            "transfermarkt"
           ]
         },
         "history": {
@@ -57399,7 +57453,7 @@
         "author": "Tunisia football team 2010.jpg: mustapha_ennaimi derivative work: — Habib M'HENNI [¿tell me?]",
         "sourceUrl": "https://commons.wikimedia.org/wiki/File:Oussama_Darragi,_Tunisia.jpg",
         "attributionRequired": true,
-        "path": null
+        "path": "/photos/oussama-darragi.jpg"
       },
       "wiki": {
         "en": "Oussama Darragi",
@@ -57501,24 +57555,23 @@
           "retrievedAt": "2026-10-04",
           "asOf": "2025-08-05",
           "ref": "Oussama Darragi",
-          "confidence": "medium",
+          "confidence": "high",
           "agreeing": [
             "enwiki",
             "frwiki"
           ],
-          "confidenceNote": "frwiki skipped rows of this field"
+          "bandAgreed": true
         },
         "goals": {
           "source": "frwiki",
           "retrievedAt": "2026-10-04",
           "asOf": "2025-08-05",
           "ref": "Oussama Darragi",
-          "confidence": "medium",
+          "confidence": "high",
           "agreeing": [
             "enwiki",
             "frwiki"
-          ],
-          "confidenceNote": "frwiki skipped rows of this field"
+          ]
         },
         "photo": {
           "source": "commons",
@@ -58700,7 +58753,8 @@
           "confidence": "high",
           "agreeing": [
             "enwiki",
-            "enwiki-squad"
+            "enwiki-squad",
+            "transfermarkt"
           ]
         },
         "history": {
@@ -58889,7 +58943,8 @@
           "agreeing": [
             "enwiki",
             "frwiki",
-            "frwiki-squad"
+            "frwiki-squad",
+            "transfermarkt"
           ]
         },
         "history": {
@@ -60313,7 +60368,8 @@
           "confidence": "high",
           "agreeing": [
             "enwiki",
-            "frwiki"
+            "frwiki",
+            "national-football-teams"
           ],
           "bandAgreed": true
         },
@@ -60683,7 +60739,8 @@
           "confidence": "high",
           "agreeing": [
             "frwiki",
-            "enwiki-national"
+            "enwiki-national",
+            "national-football-teams"
           ],
           "bandAgreed": true
         },
@@ -62270,12 +62327,12 @@
           "source": "enwiki",
           "retrievedAt": "2026-10-04",
           "ref": "Ridha Rouatbi",
-          "confidence": "high",
+          "confidence": "low",
           "agreeing": [
             "enwiki",
             "frwiki"
           ],
-          "bandAgreed": true
+          "confidenceNote": "Tunisia played 34 matches in his national years"
         },
         "goals": {
           "source": "enwiki",
@@ -63138,7 +63195,8 @@
             "enwiki",
             "enwiki-national",
             "enwiki-squad",
-            "frwiki-squad"
+            "frwiki-squad",
+            "transfermarkt"
           ]
         },
         "history": {
@@ -63159,7 +63217,8 @@
           "ref": "Tunisia national football team",
           "confidence": "low",
           "agreeing": [
-            "enwiki-national"
+            "enwiki-national",
+            "national-football-teams"
           ],
           "confidenceNote": "enwiki 2 (2026-05-15) is higher",
           "bandAgreed": true
@@ -63514,7 +63573,8 @@
           "agreeing": [
             "frwiki",
             "enwiki-national",
-            "frwiki-squad"
+            "frwiki-squad",
+            "transfermarkt"
           ]
         },
         "history": {
@@ -64592,11 +64652,11 @@
           "retrievedAt": "2026-10-04",
           "asOf": "2026-08-02",
           "ref": "Sami Hlel",
-          "confidence": "medium",
+          "confidence": "high",
           "agreeing": [
-            "frwiki"
-          ],
-          "confidenceNote": "one fresh source; the others are explained by their dates"
+            "frwiki",
+            "transfermarkt"
+          ]
         },
         "history": {
           "source": "frwiki",
@@ -65306,12 +65366,12 @@
           "source": "enwiki",
           "retrievedAt": "2026-10-04",
           "ref": "Samir Bakaou",
-          "confidence": "low",
+          "confidence": "high",
           "agreeing": [
             "enwiki",
             "wikidata"
           ],
-          "confidenceNote": "Tunisia played 17 matches in his national years"
+          "bandAgreed": true
         },
         "goals": {
           "source": "enwiki",
@@ -67099,7 +67159,7 @@
           "agreeing": [
             "frwiki"
           ],
-          "confidenceNote": "one source, as of 2023-08-19"
+          "confidenceNote": "transfermarkt checked on 2026-10-06: differs (P48)"
         },
         "history": {
           "source": "frwiki",
@@ -68699,7 +68759,7 @@
         "author": "Tunisia football team 2010.jpg: mustapha_ennaimi derivative work: — Habib M'HENNI [¿tell me?]",
         "sourceUrl": "https://commons.wikimedia.org/wiki/File:Syam_Ben_Youssef,_Tunisia.jpg",
         "attributionRequired": true,
-        "path": null
+        "path": "/photos/syam-ben-youssef.jpg"
       },
       "wiki": {
         "en": "Syam Ben Youssef",
@@ -69726,7 +69786,8 @@
           "agreeing": [
             "enwiki"
           ],
-          "confidenceNote": "frwiki 108 (undated) is higher; wikidata 101 (undated) is higher"
+          "confidenceNote": "frwiki 108 (undated) is higher; wikidata 101 (undated) is higher",
+          "bandAgreed": true
         },
         "goals": {
           "source": "enwiki",
@@ -70997,7 +71058,8 @@
             "enwiki",
             "frwiki",
             "enwiki-squad",
-            "frwiki-squad"
+            "frwiki-squad",
+            "transfermarkt"
           ]
         },
         "history": {
@@ -71304,7 +71366,7 @@
         "author": "Tunisia football team 2010.jpg: mustapha_ennaimi derivative work: — Habib M'HENNI [¿tell me?]",
         "sourceUrl": "https://commons.wikimedia.org/wiki/File:Wissem_Ben_Yahia,_Tunisia.jpg",
         "attributionRequired": true,
-        "path": null
+        "path": "/photos/wissem-ben-yahia.jpg"
       },
       "wiki": {
         "en": "Wissem Ben Yahia",
@@ -71608,7 +71670,8 @@
           "agreeing": [
             "enwiki",
             "frwiki",
-            "enwiki-national"
+            "enwiki-national",
+            "national-football-teams"
           ],
           "bandAgreed": true
         },
@@ -71670,8 +71733,8 @@
           "clubName": "AIK Fotboll",
           "from": 2020,
           "to": 2023,
-          "apps": 37,
-          "goals": 4,
+          "apps": 48,
+          "goals": 6,
           "loan": false
         },
         {
@@ -71679,7 +71742,7 @@
           "clubName": "Brighton & Hove Albion F.C.",
           "from": 2023,
           "to": null,
-          "apps": 70,
+          "apps": 82,
           "goals": 6,
           "loan": false
         },
@@ -71697,7 +71760,7 @@
           "clubName": "Blackburn Rovers F.C.",
           "from": 2024,
           "to": 2024,
-          "apps": 10,
+          "apps": 13,
           "goals": 0,
           "loan": true
         }
@@ -71789,9 +71852,9 @@
           "confidenceNote": "one source, precise (P36)"
         },
         "clubId": {
-          "source": "enwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-19",
+          "source": "frwiki",
+          "retrievedAt": "2026-10-07",
+          "asOf": "2026-10-06",
           "ref": "Yasin Ayari",
           "confidence": "high",
           "agreeing": [
@@ -71801,9 +71864,9 @@
           ]
         },
         "history": {
-          "source": "enwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-19",
+          "source": "frwiki",
+          "retrievedAt": "2026-10-07",
+          "asOf": "2026-10-06",
           "ref": "Yasin Ayari",
           "confidence": "high",
           "agreeing": [
@@ -72209,7 +72272,8 @@
           "confidence": "high",
           "agreeing": [
             "frwiki",
-            "frwiki-squad"
+            "frwiki-squad",
+            "transfermarkt"
           ]
         },
         "history": {
@@ -72613,7 +72677,7 @@
           "agreeing": [
             "frwiki"
           ],
-          "confidenceNote": "enwiki none (2025-07-25) is within 90 days; enwiki-squad Q1103140 (2026-09-27) is newer"
+          "confidenceNote": "transfermarkt checked on 2026-10-06: differs (P48)"
         },
         "history": {
           "source": "frwiki",
@@ -73085,8 +73149,7 @@
           "agreeing": [
             "frwiki"
           ],
-          "confidenceNote": "enwiki 95 (undated) is higher",
-          "bandAgreed": true
+          "confidenceNote": "national-football-teams checked on 2026-10-06: differs (P48)"
         },
         "goals": {
           "source": "frwiki",
@@ -73497,11 +73560,11 @@
           "retrievedAt": "2026-10-04",
           "asOf": "2025-09-17",
           "ref": "Youssef Mosraty",
-          "confidence": "low",
+          "confidence": "high",
           "agreeing": [
-            "frwiki"
-          ],
-          "confidenceNote": "one source, as of 2025-09-17"
+            "frwiki",
+            "transfermarkt"
+          ]
         },
         "history": {
           "source": "frwiki",
@@ -74274,7 +74337,7 @@
           "agreeing": [
             "enwiki"
           ],
-          "confidenceNote": "enwiki-squad Q1851954 (2026-09-15) is newer"
+          "confidenceNote": "transfermarkt checked on 2026-10-06: differs (P48)"
         },
         "history": {
           "source": "enwiki",
@@ -75007,11 +75070,11 @@
           "retrievedAt": "2026-10-04",
           "asOf": "2023-08-27",
           "ref": "Zied Berrima",
-          "confidence": "low",
+          "confidence": "high",
           "agreeing": [
-            "enwiki"
-          ],
-          "confidenceNote": "one source, as of 2023-08-27"
+            "enwiki",
+            "transfermarkt"
+          ]
         },
         "history": {
           "source": "enwiki",
@@ -76228,7 +76291,7 @@
         "author": "Tunisia football team 2010.jpg: mustapha_ennaimi derivative work: — Habib M'HENNI [¿tell me?]",
         "sourceUrl": "https://commons.wikimedia.org/wiki/File:Zouhaier_Dhaouadi,_Tunisia.jpg",
         "attributionRequired": true,
-        "path": null
+        "path": "/photos/zouheir-dhaouadi.jpg"
       },
       "wiki": {
         "en": "Zouheir Dhaouadi",
@@ -84308,19 +84371,24 @@
       "detail": "born in Tunisia, town unknown"
     },
     {
+      "subject": "Q16104768",
+      "kind": "caps-above-ceiling",
+      "detail": "41 caps; Tunisia played 40 matches in his national years"
+    },
+    {
+      "subject": "Q16104970",
+      "kind": "caps-above-ceiling",
+      "detail": "35 caps; Tunisia played 34 matches in his national years"
+    },
+    {
       "subject": "Q2527189",
       "kind": "caps-above-ceiling",
       "detail": "69 caps; Tunisia played 46 matches in his national years"
     },
     {
-      "subject": "Q2642003",
-      "kind": "caps-above-ceiling",
-      "detail": "77 caps; Tunisia played 43 matches in his national years"
-    },
-    {
       "subject": "Q2704705",
       "kind": "caps-above-ceiling",
-      "detail": "52 caps; Tunisia played 33 matches in his national years"
+      "detail": "52 caps; Tunisia played 50 matches in his national years"
     },
     {
       "subject": "Q2704716",
@@ -84328,9 +84396,9 @@
       "detail": "70 caps; Tunisia played 41 matches in his national years"
     },
     {
-      "subject": "Q2705732",
+      "subject": "Q2827622",
       "kind": "caps-above-ceiling",
-      "detail": "43 caps; Tunisia played 33 matches in his national years"
+      "detail": "34 caps; Tunisia played 22 matches in his national years"
     },
     {
       "subject": "Q3062878",
@@ -84338,24 +84406,19 @@
       "detail": "40 caps; Tunisia played 39 matches in his national years"
     },
     {
-      "subject": "Q3318793",
+      "subject": "Q3144579",
       "kind": "caps-above-ceiling",
-      "detail": "40 caps; Tunisia played 38 matches in his national years"
+      "detail": "58 caps; Tunisia played 35 matches in his national years"
+    },
+    {
+      "subject": "Q3319145",
+      "kind": "caps-above-ceiling",
+      "detail": "48 caps; Tunisia played 39 matches in his national years"
     },
     {
       "subject": "Q3513876",
       "kind": "caps-above-ceiling",
       "detail": "34 caps; Tunisia played 27 matches in his national years"
-    },
-    {
-      "subject": "Q5564378",
-      "kind": "caps-above-ceiling",
-      "detail": "45 caps; Tunisia played 17 matches in his national years"
-    },
-    {
-      "subject": "Q777204",
-      "kind": "caps-above-ceiling",
-      "detail": "52 caps; Tunisia played 43 matches in his national years"
     },
     {
       "subject": "Q1354973",
@@ -84638,21 +84701,6 @@
       "detail": "frwiki 23 (2020-11-23) < enwiki 25 (undated)"
     },
     {
-      "subject": "Q779396",
-      "kind": "caps-row-skipped",
-      "detail": "frwiki sélection nationale (no-club): |[[2011 en football|2011]]|{{TUN-d}} Tunisie A'|{{0|00}}6 (1)"
-    },
-    {
-      "subject": "Q937102",
-      "kind": "caps-row-skipped",
-      "detail": "frwiki sélection nationale (no-club): |[[2011 en football|2011]]|{{TUN-d}} Tunisie A'|{{0}}{{0}}6 {{0}}(1)"
-    },
-    {
-      "subject": "Q967841",
-      "kind": "caps-row-skipped",
-      "detail": "frwiki sélection nationale (no-club): |[[2010 en football|2010]]-[[2011 en football|2011]]|{{TUN-d}} Tunisie A'|{{0}}{{0}}7 {{0}}(2)"
-    },
-    {
       "subject": "Q121832277",
       "kind": "caps-sources-disagree",
       "detail": "frwiki 6 (2026-09-28) vs enwiki-national 5 (2026-09-28)"
@@ -84801,6 +84849,21 @@
       "subject": "Q2868801",
       "kind": "caps-unknown",
       "detail": "enwiki has a senior Tunisia row with no readable caps"
+    },
+    {
+      "subject": "Q121832277",
+      "kind": "caps-witness-differs",
+      "detail": "national-football-teams checked on 2026-10-06: differs from 6"
+    },
+    {
+      "subject": "Q16636036",
+      "kind": "caps-witness-differs",
+      "detail": "national-football-teams checked on 2026-10-06: differs from 104"
+    },
+    {
+      "subject": "Q19956607",
+      "kind": "caps-witness-differs",
+      "detail": "national-football-teams checked on 2026-10-06: differs from 93"
     },
     {
       "subject": "Q26838700",
@@ -85130,7 +85193,7 @@
     {
       "subject": "Q71806775",
       "kind": "club-sources-disagree",
-      "detail": "frwiki Mjällby AIF (2026-09-20) vs enwiki Apollon Limassol FC (2026-05-17)"
+      "detail": "frwiki Mjällby AIF (2026-10-07) vs enwiki Apollon Limassol FC (2026-05-17)"
     },
     {
       "subject": "Q723767",
@@ -85261,6 +85324,51 @@
       "subject": "Q58469424",
       "kind": "club-unresolved",
       "detail": "frwiki: Al Watan SC"
+    },
+    {
+      "subject": "Q104406546",
+      "kind": "club-witness-differs",
+      "detail": "transfermarkt checked on 2026-10-06: differs from Mudhar Club"
+    },
+    {
+      "subject": "Q110989845",
+      "kind": "club-witness-differs",
+      "detail": "transfermarkt checked on 2026-10-06: differs from Alhiyad Sports Club"
+    },
+    {
+      "subject": "Q115747976",
+      "kind": "club-witness-differs",
+      "detail": "transfermarkt checked on 2026-10-06: differs from CA Bizertine"
+    },
+    {
+      "subject": "Q121289354",
+      "kind": "club-witness-differs",
+      "detail": "transfermarkt checked on 2026-10-06: differs from AS Soliman"
+    },
+    {
+      "subject": "Q128545284",
+      "kind": "club-witness-differs",
+      "detail": "transfermarkt checked on 2026-10-06: differs from US Ben Guerdane"
+    },
+    {
+      "subject": "Q135526387",
+      "kind": "club-witness-differs",
+      "detail": "transfermarkt checked on 2026-10-06: differs from Al-Mina'a SC"
+    },
+    {
+      "subject": "Q46019586",
+      "kind": "club-witness-differs",
+      "detail": "transfermarkt checked on 2026-10-06: differs from US Ben Guerdane"
+    },
+    {
+      "subject": "Q53575255",
+      "kind": "club-witness-differs",
+      "detail": "transfermarkt checked on 2026-10-06: differs from Sitra Club"
+    },
+    {
+      "subject": "Q55806704",
+      "kind": "club-witness-differs",
+      "detail": "transfermarkt checked on 2026-10-06: differs from US Ben Guerdane"
     },
     {
       "subject": "Q1342632",
@@ -87667,6 +87775,11 @@
           "subject": "Q3064697",
           "kind": "caps-maybe-stale",
           "detail": "enwiki as of 2006-06-23; Tunisia has played 249 matches since"
+        },
+        {
+          "subject": "Q3064697",
+          "kind": "caps-above-ceiling",
+          "detail": "13 caps; Tunisia played 12 matches in his national years"
         }
       ]
     },
@@ -88290,13 +88403,7 @@
       "wikidataId": "Q3277689",
       "name": "Maher Haddad",
       "reason": "no-pool",
-      "flags": [
-        {
-          "subject": "Q3277689",
-          "kind": "caps-row-skipped",
-          "detail": "frwiki sélection nationale (no-club): |[[2011 en football|2011]]|{{TUN-d}} Tunisie A'|{{0}}1 (0)"
-        }
-      ]
+      "flags": []
     },
     {
       "wikidataId": "Q3277690",
