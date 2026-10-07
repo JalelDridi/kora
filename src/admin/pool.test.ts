@@ -9,6 +9,7 @@ import {
   matches,
   paginate,
   parseFilters,
+  poolsLabel,
   provenanceLabel,
   provenanceRows,
   sourceLabel,
@@ -171,6 +172,26 @@ describe("words", () => {
       fieldValue(player({ clubId: "esperance" }), "clubId", () => "EST"),
     ).toBe("EST");
     expect(fieldValue(player(), "positionDetail", (id) => id)).toBe("none");
+  });
+
+  it("shows the grace date in the pools column (P54)", () => {
+    expect(poolsLabel(player({ pools: { active: true, legend: true } }))).toBe(
+      "active, legend",
+    );
+    expect(
+      poolsLabel(
+        player({
+          pools: { active: false, legend: true, graceUntil: "2026-12-03" },
+        }),
+      ),
+    ).toBe("legend, grace until 2026-12-03");
+    expect(
+      poolsLabel(
+        player({
+          pools: { active: false, legend: false, graceUntil: "2026-12-03" },
+        }),
+      ),
+    ).toBe("grace until 2026-12-03");
   });
 
   it("links the articles and the Wikidata item", () => {
