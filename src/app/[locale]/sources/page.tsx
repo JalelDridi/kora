@@ -44,10 +44,12 @@ export default async function SourcesPage({
   const { pool } = await readGameFiles();
   const credits = photoCredits(pool);
   const link = "text-mint underline underline-offset-2";
-  // Authors and file names come in every script (Cyrillic, Arabic, extended
-  // Latin). Drawn with the site's fonts they pull Inter's other subsets and
-  // the Arabic 600 face, 140 KB the Lighthouse font budget has no room for;
-  // the system font draws them as well.
+  // The credits table is drawn with the system font. Authors and file names
+  // come in every script (Cyrillic, Arabic, extended Latin): with the site's
+  // fonts they pulled Inter's other subsets and the Arabic 600 face, 140 KB
+  // the Lighthouse font budget has no room for; and 147 rows of names set in
+  // a web font that arrives after first paint shifted the page (CLS 0.127 on
+  // CI's Linux Chromium). A reference table reads as well in the system font.
   const credit = "font-[system-ui,sans-serif]";
 
   const data: { text: string; links: [string, string][] }[] = [
@@ -128,7 +130,7 @@ export default async function SourcesPage({
             </p>
           ) : (
             <div className="mt-4 max-w-full overflow-x-auto">
-              <table className="w-full text-start text-base">
+              <table className={`w-full text-start text-base ${credit}`}>
                 <thead className="text-chalk-dim">
                   <tr>
                     <th scope="col" className="p-2 text-start">
@@ -158,7 +160,7 @@ export default async function SourcesPage({
                       <th scope="row" className="p-2 text-start font-bold">
                         <bdi>{localName(c, locale)}</bdi>
                       </th>
-                      <td className={`p-2 ${credit}`}>
+                      <td className="p-2">
                         <bdi>{c.author ?? "—"}</bdi>
                       </td>
                       <td className="p-2">
@@ -170,7 +172,7 @@ export default async function SourcesPage({
                           <bdi>{c.licence}</bdi>
                         )}
                       </td>
-                      <td className={`p-2 ${credit}`}>
+                      <td className="p-2">
                         <a href={c.sourceUrl} className={link}>
                           <bdi>{c.file}</bdi>
                         </a>
