@@ -178,6 +178,7 @@ Every country the game can show today: the current clubs' countries and the birt
 | LY   | Libya                | Libye               | ليبيا                   | Libya                  |
 | MA   | Morocco              | Maroc               | المغرب                  | Maghreb                |
 | MR   | Mauritania           | Mauritanie          | موريتانيا               | Mouritania             |
+| NL   | Netherlands          | Pays-Bas            | هولاندا                 | Holanda                | DRAFT (7 Oct 2026, Omar Rekik's birth country) |
 | NO   | Norway               | Norvège             | النرويج                 | Norvège                |
 | PL   | Poland               | Pologne             | بولونيا                 | Polonia                |
 | PT   | Portugal             | Portugal            | البرتڨال                | Portugal               |
