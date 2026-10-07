@@ -265,7 +265,12 @@ export function fieldValue(
 }
 
 export function poolsLabel(player: PoolPlayer): string {
-  return [player.pools.active && "active", player.pools.legend && "legend"]
+  return [
+    player.pools.active && "active",
+    player.pools.legend && "legend",
+    // P54: out of the active pool, still guessable until then.
+    player.pools.graceUntil && `grace until ${player.pools.graceUntil}`,
+  ]
     .filter(Boolean)
     .join(", ");
 }

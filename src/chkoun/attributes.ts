@@ -1,11 +1,13 @@
 import { capsBand } from "@/engine/chkoun/caps-band.ts";
 import type { Line, TileFacts } from "@/engine/chkoun/types.ts";
+import { isGuessable } from "@/pipeline/grace.ts";
 import type { GovernorateRow, Pool } from "@/pipeline/types.ts";
 
 // What the guess endpoint knows about every footballer: the six tiles'
-// facts, who may be guessed (the active pool, D-S2-12), and the answer's
-// card shown once a game ends. Built from the public data/pool.json; pure,
-// so it is tested without files. Only attributes.server.ts loads it.
+// facts, who may be guessed (the active pool, D-S2-12, and footballers in
+// grace, P54), and the answer's card shown once a game ends. Built from the
+// public data/pool.json; pure, so it is tested without files. Only
+// attributes.server.ts loads it.
 
 /** The footballer card, sent only when a game has ended. */
 export type Card = {
@@ -33,7 +35,7 @@ export type Card = {
 export type Footballers = {
   /** Facts of every footballer in the pool (an answer may have left the active pool). */
   facts: Map<string, TileFacts>;
-  /** Footballers a visitor may guess: the active pool. */
+  /** Footballers a visitor may guess: the active pool and those in grace (P54). */
   guessable: Set<string>;
   card(id: string): Card | null;
 };
@@ -68,7 +70,9 @@ export function buildFootballers(
         ),
       ],
     });
-    if (p.pools.active) guessable.add(p.id);
+    // The pool carries no build day: a grace date present is in effect (the
+    // nightly build removes it once it has passed).
+    if (isGuessable(p.pools)) guessable.add(p.id);
     const birth = p.governorate
       ? `gov:${p.governorate}`
       : p.birthCountry && p.birthCountry !== "TN"

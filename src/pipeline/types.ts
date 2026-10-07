@@ -323,7 +323,12 @@ export type PoolPlayer = {
   history: PoolSpell[];
   photo: Photo | null;
   wiki: { en: string | null; fr: string | null; ar: string | null };
-  pools: { active: boolean; legend: boolean };
+  /**
+   * `graceUntil` (P54): only on a footballer out of the active pool tonight
+   * who was in it on an earlier night, until that date (60 days after he
+   * left). He stays in the pool, and guessable, until then.
+   */
+  pools: { active: boolean; legend: boolean; graceUntil?: string };
   provenance: Partial<Record<ProvenancedField, Provenance>>;
   /**
    * D-S2-4: active footballers only; null for legends only. Absent in a pool

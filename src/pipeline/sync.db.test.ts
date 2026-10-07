@@ -377,6 +377,37 @@ describe("syncPool", () => {
     expect(left.career).toHaveLength(1);
   });
 
+  it("writes the grace date of a footballer in grace, with pool_active false, and clears it after (P54)", async () => {
+    const inGrace: PoolPlayer = {
+      ...msakni,
+      pools: { active: false, legend: false, graceUntil: "2026-12-03" },
+    };
+    await syncPool(sql, pool([maaloul, inGrace]), governorates);
+    const read = () =>
+      db.player.findUniqueOrThrow({
+        where: { id: "youssef-msakni" },
+        select: { poolActive: true, poolLegend: true, poolGraceUntil: true },
+      });
+    expect(await read()).toEqual({
+      poolActive: false,
+      poolLegend: false,
+      poolGraceUntil: new Date("2026-12-03T00:00:00Z"),
+    });
+    expect(await syncPool(sql, pool([maaloul, inGrace]), governorates)).toEqual(
+      NOTHING,
+    );
+    // His grace ends: he leaves the pool, and the date goes with him.
+    expect(await syncPool(sql, pool([maaloul]), governorates)).toEqual({
+      ...NOTHING,
+      leftPool: 1,
+    });
+    expect((await read()).poolGraceUntil).toBeNull();
+    // Active again: no date.
+    await syncPool(sql, pool([maaloul, inGrace]), governorates);
+    await syncPool(sql, pool([maaloul, msakni]), governorates);
+    expect((await read()).poolGraceUntil).toBeNull();
+  });
+
   it("keeps the puzzle and the report that point at a footballer who left the pool", async () => {
     await syncPool(sql, pool([maaloul, msakni]), governorates);
     const puzzle = await db.puzzle.create({

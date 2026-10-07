@@ -1090,4 +1090,172 @@ describe("buildPool", () => {
       ).toBe(true);
     });
   });
+
+  describe("a footballer who leaves the active pool keeps 60 days of grace (P54)", () => {
+    const first = () => buildPool(input()).pool;
+    /** The previous pool, with one footballer's pools changed, or one added from Mejbri's row. */
+    function previousWith(
+      changes: Record<string, PoolPlayer["pools"]>,
+      added: {
+        wikidataId: string;
+        name: string;
+        pools: PoolPlayer["pools"];
+      }[] = [],
+    ) {
+      const pool = first();
+      const mejbri = pool.players.find((p) => p.wikidataId === "Q96755704")!;
+      return {
+        ...pool,
+        players: [
+          ...pool.players.map((p) =>
+            changes[p.wikidataId] ? { ...p, pools: changes[p.wikidataId] } : p,
+          ),
+          ...added.map((a) => ({
+            ...mejbri,
+            id: a.name.toLowerCase().replace(/ /g, "-"),
+            wikidataId: a.wikidataId,
+            nameLatin: a.name,
+            pools: a.pools,
+          })),
+        ],
+      };
+    }
+    const tonight = (
+      previous: ReturnType<typeof previousWith>,
+      day = today,
+      base: BuildInput = input(),
+    ) => build({ ...base, today: day, previous });
+    const poolsOf = (pool: ReturnType<typeof build>, qid: string) =>
+      pool.players.find((p) => p.wikidataId === qid)?.pools;
+
+    it("first night out of the active pool: grace until today + 60 days", () => {
+      const pool = tonight(
+        previousWith({ Q331918: { active: true, legend: true } }),
+      );
+      expect(poolsOf(pool, "Q331918")).toEqual({
+        active: false,
+        legend: true,
+        graceUntil: "2026-12-03",
+      });
+    });
+
+    it("later nights keep the same date while it is today or later", () => {
+      const previous = previousWith({
+        Q331918: { active: false, legend: true, graceUntil: "2026-12-03" },
+      });
+      for (const day of ["2026-11-01", "2026-12-03"])
+        expect(poolsOf(tonight(previous, day), "Q331918")).toEqual({
+          active: false,
+          legend: true,
+          graceUntil: "2026-12-03",
+        });
+    });
+
+    it("the day after it expires, it is dropped", () => {
+      const previous = previousWith({
+        Q331918: { active: false, legend: true, graceUntil: "2026-12-03" },
+      });
+      expect(poolsOf(tonight(previous, "2026-12-04"), "Q331918")).toEqual({
+        active: false,
+        legend: true,
+      });
+    });
+
+    it("active again: no grace", () => {
+      const pool = tonight(
+        previousWith({
+          Q96755704: { active: false, legend: true, graceUntil: "2026-11-01" },
+        }),
+      );
+      expect(poolsOf(pool, "Q96755704")).toEqual({
+        active: true,
+        legend: true,
+      });
+    });
+
+    it("never gives grace to a footballer who was not active", () => {
+      expect(poolsOf(tonight(first()), "Q331918")).toEqual({
+        active: false,
+        legend: true,
+      });
+    });
+
+    it("keeps a footballer in neither pool while his grace lasts, then drops him as before", () => {
+      const base = input();
+      const withFewCaps: BuildInput = {
+        ...base,
+        players: [...base.players, wd("Q800", "Few Caps", "1990-01-01")],
+        memberships: new Map([
+          ...base.memberships,
+          [
+            "Q800",
+            [
+              m("Q800", "Q27971", 2010, 2012, {
+                national: true,
+                apps: 8,
+                goals: 0,
+              }),
+            ],
+          ],
+        ]),
+      };
+      const out = (pools: PoolPlayer["pools"], day = today) =>
+        tonight(
+          previousWith({}, [{ wikidataId: "Q800", name: "Few Caps", pools }]),
+          day,
+          withFewCaps,
+        );
+
+      const kept = out({ active: true, legend: false });
+      expect(poolsOf(kept, "Q800")).toEqual({
+        active: false,
+        legend: false,
+        graceUntil: "2026-12-03",
+      });
+      expect(kept.dropped.map((d) => d.wikidataId)).not.toContain("Q800");
+
+      const expired = out(
+        { active: false, legend: false, graceUntil: "2026-12-03" },
+        "2026-12-04",
+      );
+      expect(poolsOf(expired, "Q800")).toBeUndefined();
+      expect(expired.dropped.find((d) => d.wikidataId === "Q800")?.reason).toBe(
+        "no-pool",
+      );
+    });
+
+    it("keeps a footballer the candidate rule no longer takes (no club, no caps) during his grace", () => {
+      const pool = tonight(
+        previousWith({}, [
+          {
+            wikidataId: "Q500",
+            name: "Old Reserve",
+            pools: { active: true, legend: false },
+          },
+        ]),
+      );
+      expect(poolsOf(pool, "Q500")).toEqual({
+        active: false,
+        legend: false,
+        graceUntil: "2026-12-03",
+      });
+      expect(pool.dropped.map((d) => d.wikidataId)).not.toContain("Q500");
+    });
+
+    it("still drops a footballer missing a field, grace or not", () => {
+      const pool = tonight(
+        previousWith({}, [
+          {
+            wikidataId: "Q600",
+            name: "No Position",
+            pools: { active: true, legend: false },
+          },
+        ]),
+      );
+      expect(poolsOf(pool, "Q600")).toBeUndefined();
+      expect(pool.dropped.find((d) => d.wikidataId === "Q600")?.reason).toBe(
+        "missing-field",
+      );
+    });
+  });
 });

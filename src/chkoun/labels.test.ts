@@ -7,6 +7,7 @@ import {
   format,
   frenchCountryName,
   localName,
+  shownCountryCodes,
   tileText,
 } from "./labels";
 
@@ -94,6 +95,22 @@ describe("labels", () => {
   it("lists only the clubs of active footballers", () => {
     const fr = buildLabels(pool, governorates, "fr", null);
     expect(Object.keys(fr.clubs).sort()).toEqual(["abroad-fc", "est"]);
+  });
+
+  it("lists the clubs and countries of footballers in grace too, who may be guessed (P54)", () => {
+    const inGrace = {
+      ...player("in-grace", "legend-club", false),
+      birthCountry: "IT",
+      pools: { active: false, legend: false, graceUntil: "2026-12-03" },
+    } as Pool["players"][number];
+    const withGrace = { ...pool, players: [...pool.players, inGrace] } as Pool;
+    const fr = buildLabels(withGrace, governorates, "fr", null);
+    expect(Object.keys(fr.clubs).sort()).toEqual([
+      "abroad-fc",
+      "est",
+      "legend-club",
+    ]);
+    expect(shownCountryCodes(withGrace)).toContain("IT");
   });
 
   it("French country names come from Intl.DisplayNames", () => {

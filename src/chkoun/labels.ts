@@ -1,5 +1,6 @@
 import type { Line, Tile, TileRow } from "@/engine/chkoun/types.ts";
 import type { Locale } from "@/i18n/locales";
+import { isGuessable } from "@/pipeline/grace.ts";
 import type { GovernorateRow, Pool } from "@/pipeline/types.ts";
 
 // What the tiles and the card print, per locale (plan Task 12). The page
@@ -34,14 +35,14 @@ export function frenchCountryName(code: string): string {
 
 /**
  * Every country the game can print: the current clubs' countries and the
- * birth countries abroad of the active footballers (the guessable ones;
- * the answer is one of them).
+ * birth countries abroad of the guessable footballers (the active pool and
+ * those in grace, P54; the answer is one of them).
  */
 export function shownCountryCodes(pool: Pool): string[] {
   const clubs = new Map(pool.clubs.map((c) => [c.id, c]));
   const codes = new Set<string>();
   for (const p of pool.players) {
-    if (!p.pools.active) continue;
+    if (!isGuessable(p.pools)) continue;
     const club = p.clubId ? clubs.get(p.clubId) : undefined;
     if (club) codes.add(club.country);
     if (p.birthCountry && p.birthCountry !== "TN") codes.add(p.birthCountry);
@@ -56,8 +57,8 @@ export function buildLabels(
   /** Jalel's country names for a Derja locale; null for French. */
   derjaCountries: Record<string, string> | null,
 ): Labels {
-  const active = pool.players.filter((p) => p.pools.active);
-  const clubIds = new Set(active.map((p) => p.clubId));
+  const guessable = pool.players.filter((p) => isGuessable(p.pools));
+  const clubIds = new Set(guessable.map((p) => p.clubId));
   const clubs: Record<string, string> = {};
   for (const c of pool.clubs)
     if (clubIds.has(c.id)) clubs[c.id] = localName(c, locale);

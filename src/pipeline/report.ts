@@ -463,6 +463,9 @@ export function renderReport(input: {
   const both = pool.players.filter(
     (p) => p.pools.active && p.pools.legend,
   ).length;
+  const inGrace = pool.players
+    .filter((p) => p.pools.graceUntil !== undefined)
+    .sort((a, b) => a.id.localeCompare(b.id));
   const low = lowFields(pool.players);
   const lowHistories = low.filter((l) => l.field === "history").length;
   const skipped = pool.flags.filter((f) => SKIP_KINDS.includes(f.kind));
@@ -532,6 +535,10 @@ export function renderReport(input: {
   out.push(
     "",
     `**${pool.players.length} footballers** (${active} active, ${legend} legends, ${both} in both), ${pool.clubs.length} clubs, ${pool.honours.length} honours.`,
+    "",
+    // P54: out of the active pool, still guessable until the date.
+    `In grace (P54): ${inGrace.length}`,
+    ...inGrace.map((p) => `- ${p.id} (until ${p.pools.graceUntil})`),
     "",
     `Active footballers ready to be a daily answer (P27): ${answerReady} of ${active}.`,
     `Of them, ready through caps agreed at band level (D-S2-6): ${byBand}.`,

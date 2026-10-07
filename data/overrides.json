@@ -263,6 +263,54 @@
         "at": "2026-10-07",
         "note": "Oussama Bouguerra: enwiki '[[Chebika, Kairouan|Chebika]], Tunisia' (1 Aug 2026), a town of Kairouan governorate; frwiki gives no place; Wikidata has no birthplace. One page (data review v2, approved 7 Oct 2026)"
       }
+    },
+    "Q46019586": {
+      "club": {
+        "value": "Q1368447",
+        "by": "jalel",
+        "at": "2026-10-07",
+        "note": "Seifeddine Charfi: ES Zarzis since July 2024 (soccerway transfer 22 Jul 2024; two-season extension, Tunisie Numérique 28 Jun 2025; ES Zarzis squad list 22 Sept 2026, shirt 22); pool US Ben Guerdane was stale (P56, researched 7 Oct 2026, confirmed by Jalel)"
+      }
+    },
+    "Q55806704": {
+      "club": {
+        "value": "Q3592516",
+        "by": "jalel",
+        "at": "2026-10-07",
+        "note": "Ayoub Tlili: ES Métlaoui since 29 July 2026, contract to June 2028 (africasoccer.com, soccerway); pool US Ben Guerdane was two moves stale (Al Najma 2024, Tadamon Hadramout 2025) (P56, researched 7 Oct 2026, confirmed by Jalel)"
+      }
+    },
+    "Q104406546": {
+      "club": {
+        "value": "Q290540",
+        "by": "jalel",
+        "at": "2026-10-07",
+        "note": "Achraf Ben Dhiaf: Étoile du Sahel since 1 July 2026, contract to June 2028 (La Presse 25 Jul 2026, soccerway); pool Mudhar Club was two moves stale (ES Zarzis 2025) (P56, researched 7 Oct 2026, confirmed by Jalel)"
+      }
+    },
+    "Q115747976": {
+      "club": {
+        "value": "Q2145744",
+        "by": "jalel",
+        "at": "2026-10-07",
+        "note": "Malek Mehri: US Monastir since 1 July 2026, contract to 2029 (soccerway: CA Bizertin to AS Soliman 22 Jan 2026, then Monastir); the English page still says CA Bizertin (P56, researched 7 Oct 2026, confirmed by Jalel)"
+      }
+    },
+    "Q135526387": {
+      "club": {
+        "value": "Q1368447",
+        "by": "jalel",
+        "at": "2026-10-07",
+        "note": "Dhiaeddine Jouini: ES Zarzis since 21 Aug 2026, free transfer from Al-Minaa (soccerway); not yet on the Zarzis squad list of 22 Sept 2026 (P56, researched 7 Oct 2026, confirmed by Jalel)"
+      }
+    },
+    "Q110989845": {
+      "club": {
+        "value": "Q4724477",
+        "by": "jalel",
+        "at": "2026-10-07",
+        "note": "Nour Zamen Zammouri: Al Ittihad Misurata (Wikidata Q4724477, labelled Alhiyad Sports Club), on loan from US Monastir since early 2026 (English page, stats of 14 Mar 2026); the private check differs, confirmed by Jalel on the public evidence (P56, researched 7 Oct 2026, confirmed by Jalel)"
+      }
     }
   },
   "clubTitles": {}
