@@ -15,6 +15,254 @@
         "at": "2026-10-04",
         "note": "Selim Benachour: the French page's ES Sahel entry (dated 10 Dec 2016) is a staff post; he stopped playing in 2015 (P46)"
       }
+    },
+    "Q58815643": {
+      "club": {
+        "value": "Q166724",
+        "by": "jalel",
+        "at": "2026-10-07",
+        "note": "Firas Chaouat: frwiki club actuel Al Ahly Benghazi SC, page dated 11 Sept 2026; enwiki currentclub blank, dated 29 July 2026 (older); he is not on Club Africain's squad lists of 13 and 27 Sept 2026. The pool already shows Benghazi, rated low; this confirms it (data review v2, approved 7 Oct 2026)"
+      },
+      "caps": {
+        "value": 33,
+        "by": "jalel",
+        "at": "2026-10-07",
+        "note": "Firas Chaouat: enwiki 33 dated 26 June 2026; the 2026 World Cup squad list gave 30 on 11 June 2026 (3 group matches later: 33); the national team page's Recent call-ups table (revision 1 Oct 2026) also says 33. frwiki 31 (11 Sept 2026) is lower, and caps cannot go down (data review v2, approved 7 Oct 2026)"
+      },
+      "capsAsOf": {
+        "value": "2026-06-26",
+        "by": "jalel",
+        "at": "2026-10-07",
+        "note": "Firas Chaouat: the date of the enwiki caps figure (data review v2, approved 7 Oct 2026)"
+      }
+    },
+    "Q20641502": {
+      "club": {
+        "value": null,
+        "by": "jalel",
+        "at": "2026-10-07",
+        "note": "Naïm Sliti: frwiki club actuel blank, page dated 3 Aug 2026, newer than enwiki's Al-Ahli (club-update 27 April 2026); the national team page's Recent call-ups table (revision 1 Oct 2026) says 'Unattached'. He leaves the active pool and stays a legend. Use Q284452 (Al-Ahli) instead if you know he is still there (data review v2, approved 7 Oct 2026)"
+      }
+    },
+    "Q19956607": {
+      "club": {
+        "value": "Q1102938",
+        "by": "jalel",
+        "at": "2026-10-07",
+        "note": "Yassine Meriah: frwiki Club africain squad list 'Effectif professionnel (2026-2027)' (page revision 13 Sept 2026) lists him with his birth date 2 July 1993, previous club ES Tunis, contract 2026-2028; the frwiki 'Saison 2026-2027 du Club africain' list agrees. enwiki currentclub blank (revision 26 Sept 2026). He becomes active again (data review v2, approved 7 Oct 2026)"
+      }
+    },
+    "Q96678415": {
+      "birthCountry": {
+        "value": "NL",
+        "by": "jalel",
+        "at": "2026-10-07",
+        "note": "Omar Rekik: enwiki birth_place '[[Helmond]], Netherlands' (revision 8 Sept 2026) and frwiki '[[Helmond]] ([[Pays-Bas]])' (11 Sept 2026) agree; Wikidata's Helmond gives no country (data review v2, approved 7 Oct 2026)"
+      }
+    },
+    "Q2836275": {
+      "caps": {
+        "value": 96,
+        "by": "jalel",
+        "at": "2026-10-07",
+        "note": "Ali Maâloul: the national team page's Current squad table, 'correct as of 28 September 2026', says 96 (en and fr tables agree); the AFCON 2025 squad list already gave 94 on 21 Dec 2025, so the pool's 91 (frwiki, 25 July 2026) is stale (data review v2, approved 7 Oct 2026)"
+      },
+      "capsAsOf": {
+        "value": "2026-09-28",
+        "by": "jalel",
+        "at": "2026-10-07",
+        "note": "Ali Maâloul: the date of the national squad table (data review v2, approved 7 Oct 2026)"
+      }
+    },
+    "Q64520753": {
+      "caps": {
+        "value": 41,
+        "by": "jalel",
+        "at": "2026-10-07",
+        "note": "Aymen Dahmen: national team Current squad table, 'correct as of 28 September 2026' (en and fr agree), says 41; pool 40 (frwiki, 26 Sept 2026, before the match against Botswana) (data review v2, approved 7 Oct 2026)"
+      },
+      "capsAsOf": {
+        "value": "2026-09-28",
+        "by": "jalel",
+        "at": "2026-10-07",
+        "note": "Aymen Dahmen: the date of the national squad table (data review v2, approved 7 Oct 2026)"
+      }
+    },
+    "Q64736331": {
+      "caps": {
+        "value": 38,
+        "by": "jalel",
+        "at": "2026-10-07",
+        "note": "Hamza Rafia: national team Current squad table, 'correct as of 28 September 2026' (en and fr agree), says 38; pool 37 (frwiki, 13 Sept 2026) (data review v2, approved 7 Oct 2026)"
+      },
+      "capsAsOf": {
+        "value": "2026-09-28",
+        "by": "jalel",
+        "at": "2026-10-07",
+        "note": "Hamza Rafia: the date of the national squad table (data review v2, approved 7 Oct 2026)"
+      }
+    },
+    "Q111296675": {
+      "caps": {
+        "value": 1,
+        "by": "jalel",
+        "at": "2026-10-07",
+        "note": "Mohamed Nasraoui: national team Current squad table, 'correct as of 28 September 2026' (en and fr agree), says 1 cap; pool 0 (enwiki shows only a U23 row, page of 1 June 2026) (data review v2, approved 7 Oct 2026)"
+      },
+      "capsAsOf": {
+        "value": "2026-09-28",
+        "by": "jalel",
+        "at": "2026-10-07",
+        "note": "Mohamed Nasraoui: the date of the national squad table (data review v2, approved 7 Oct 2026)"
+      },
+      "governorate": {
+        "value": "sfax",
+        "by": "jalel",
+        "at": "2026-10-07",
+        "note": "Mohamed Nasraoui: enwiki birth_place '[[Sfax]], [[Tunisia]]' (revision 1 June 2026); Wikidata says only Tunisia; no frwiki page (data review v2, approved 7 Oct 2026)"
+      }
+    },
+    "Q137970986": {
+      "caps": {
+        "value": 1,
+        "by": "jalel",
+        "at": "2026-10-07",
+        "note": "Sadok Kadida: national team Current squad table, 'correct as of 28 September 2026' (en and fr agree), says 1 cap; frwiki infobox has no senior row (21 Sept 2026) (data review v2, approved 7 Oct 2026)"
+      },
+      "capsAsOf": {
+        "value": "2026-09-28",
+        "by": "jalel",
+        "at": "2026-10-07",
+        "note": "Sadok Kadida: the date of the national squad table (data review v2, approved 7 Oct 2026)"
+      }
+    },
+    "Q20089300": {
+      "caps": {
+        "value": 20,
+        "by": "jalel",
+        "at": "2026-10-07",
+        "note": "Nader Ghandri: frwiki 20 and enwiki 19, both dated 29 Sept 2026; the national team page's Recent call-ups table (revision 1 Oct 2026) says 20. Two against one. With 20 caps he also becomes a legend (data review v2, approved 7 Oct 2026)"
+      }
+    },
+    "Q128545284": {
+      "club": {
+        "value": "Q290540",
+        "by": "jalel",
+        "at": "2026-10-07",
+        "note": "Abdallah Amri: Étoile du Sahel squad lists, enwiki 'updated 15 September 2026' and frwiki 2026-2027 (birth date 6 Sept 2001 matches, previous club US Ben Guerdane, contract 2026-2028); pool US Ben Guerdane from enwiki infobox dated 17 Sept 2025 (data review v2, approved 7 Oct 2026)"
+      }
+    },
+    "Q104184413": {
+      "club": {
+        "value": "Q1103140",
+        "by": "jalel",
+        "at": "2026-10-07",
+        "note": "Haythem Mhamdi: CS Hammam-Lif enwiki squad list 'updated 27 September 2026' links his page; pool The White SC (Al Akhdar) from an undated enwiki infobox (data review v2, approved 7 Oct 2026)"
+      }
+    },
+    "Q53575255": {
+      "club": {
+        "value": "Q1103140",
+        "by": "jalel",
+        "at": "2026-10-07",
+        "note": "Yassine Chamakhi: CS Hammam-Lif enwiki squad list 'updated 27 September 2026' links his page; pool Sitra Club from an infobox dated 15 Oct 2025 (data review v2, approved 7 Oct 2026)"
+      }
+    },
+    "Q121289354": {
+      "club": {
+        "value": "Q1851954",
+        "by": "jalel",
+        "at": "2026-10-07",
+        "note": "Zakaria Ayeb: Stade Tunisien enwiki squad list 'updated 15 September 2026' links his page ('Zakaria El Ayeb'); pool AS Soliman from an infobox dated 29 Dec 2024 (data review v2, approved 7 Oct 2026)"
+      }
+    },
+    "Q131100765": {
+      "club": {
+        "value": "Q1368447",
+        "by": "jalel",
+        "at": "2026-10-07",
+        "note": "Youssef Snana: ES Zarzis enwiki squad list 'updated 22 September 2026' links his page; pool Al-Shamal from enwiki dated 26 June 2026 (older). The national team's Recent call-ups table says Al-Sailiya, but that column is the club at his last call-up (Oct 2025) (data review v2, approved 7 Oct 2026)"
+      }
+    },
+    "Q16641223": {
+      "club": {
+        "value": null,
+        "by": "jalel",
+        "at": "2026-10-07",
+        "note": "Hamza Lahmar: frwiki période pro 2010-2021 and club actuel blank (page dated 18 Aug 2024); pool Al-Wehdat from enwiki club-update 17 Feb 2022 (older). He then leaves the pool (15 caps, under the 20 for a legend) (data review v2, approved 7 Oct 2026)"
+      }
+    },
+    "Q10513659": {
+      "club": {
+        "value": null,
+        "by": "jalel",
+        "at": "2026-10-07",
+        "note": "Aymen Belaïd: enwiki currentclub blank, club-update 17 May 2025; frwiki US Créteil dated 31 Aug 2024 (older). Aged 37. He then leaves the pool (2 caps) (data review v2, approved 7 Oct 2026)"
+      }
+    },
+    "Q62082": {
+      "club": {
+        "value": "Q920263",
+        "by": "jalel",
+        "at": "2026-10-07",
+        "note": "Änis Ben-Hatira: enwiki currentclub '[[Hertha BSC II]]' (club-update 23 Sept 2026); frwiki shows 'Hertha Berlin II' but links the first team (27 Sept 2026). Both say the reserve team (data review v2, approved 7 Oct 2026)"
+      }
+    },
+    "Q18002271": {
+      "club": {
+        "value": "Q1102938",
+        "by": "jalel",
+        "at": "2026-10-07",
+        "note": "Haykeul Chikhaoui: Club Africain squad lists, enwiki updated 27 September 2026 and frwiki 2026-2027 (birth date 4 Sept 1996 matches, previous club Al-Nasr SC, contract 2026-2029); frwiki infobox also says Club africain (26 Aug 2026); enwiki currentclub blank (20 July 2026, older). The pool already shows Club Africain, rated low; this confirms it (data review v2, approved 7 Oct 2026)"
+      }
+    },
+    "Q121890281": {
+      "governorate": {
+        "value": "siliana",
+        "by": "jalel",
+        "at": "2026-10-07",
+        "note": "Achref Habessi: enwiki '[[Siliana]], [[Tunisia]]' (revision 21 Aug 2025) and frwiki '[[Siliana]] ([[Tunisie]])' (16 Sept 2026) agree; Wikidata has no birthplace (data review v2, approved 7 Oct 2026)"
+      }
+    },
+    "Q133130622": {
+      "governorate": {
+        "value": "tunis",
+        "by": "jalel",
+        "at": "2026-10-07",
+        "note": "Koussay Maacha: enwiki '[[Tunis]], Tunisia' (19 Sept 2026) and frwiki '[[Tunis]] ([[Tunisie]])' (22 Aug 2026) agree; Wikidata has no birthplace (data review v2, approved 7 Oct 2026)"
+      }
+    },
+    "Q90863388": {
+      "governorate": {
+        "value": "monastir",
+        "by": "jalel",
+        "at": "2026-10-07",
+        "note": "Alaeddine Zouhir: enwiki '[[Monastir, Tunisia|Monastir]], Tunisia' (20 Sept 2026); Wikidata says only Tunisia; no frwiki page. One page, like P36's single precise source (data review v2, approved 7 Oct 2026)"
+      }
+    },
+    "Q116589994": {
+      "governorate": {
+        "value": "sfax",
+        "by": "jalel",
+        "at": "2026-10-07",
+        "note": "Azmi Ghouma: enwiki '[[Sfax]], Tunisia' (23 Aug 2025); frwiki gives no place; Wikidata has no birthplace. One page (data review v2, approved 7 Oct 2026)"
+      }
+    },
+    "Q58918091": {
+      "governorate": {
+        "value": "sfax",
+        "by": "jalel",
+        "at": "2026-10-07",
+        "note": "Walid Karoui: enwiki '[[Sfax]], Tunisia' (25 July 2025); frwiki gives no place; Wikidata has no birthplace. One page (data review v2, approved 7 Oct 2026)"
+      }
+    },
+    "Q120993438": {
+      "governorate": {
+        "value": "kairouan",
+        "by": "jalel",
+        "at": "2026-10-07",
+        "note": "Oussama Bouguerra: enwiki '[[Chebika, Kairouan|Chebika]], Tunisia' (1 Aug 2026), a town of Kairouan governorate; frwiki gives no place; Wikidata has no birthplace. One page (data review v2, approved 7 Oct 2026)"
+      }
     }
   },
   "clubTitles": {}
