@@ -116,6 +116,7 @@ const PLAYERS = upsert(
     text("wiki_ar"),
     { name: "pool_active", type: "boolean" },
     { name: "pool_legend", type: "boolean" },
+    { name: "pool_grace_until", type: "date" },
     { name: "provenance", type: "jsonb" },
     { name: "fame", type: "real" },
     text("fame_tier"),
@@ -125,8 +126,10 @@ const PLAYERS = upsert(
 );
 
 const PLAYERS_LEFT_POOL = `
-UPDATE players SET pool_active = false, pool_legend = false, updated_at = now()
-WHERE (pool_active OR pool_legend) AND NOT (id = ANY($1::text[]))`;
+UPDATE players SET pool_active = false, pool_legend = false,
+  pool_grace_until = NULL, updated_at = now()
+WHERE (pool_active OR pool_legend OR pool_grace_until IS NOT NULL)
+  AND NOT (id = ANY($1::text[]))`;
 
 const SPELL_RECORD = `jsonb_to_recordset($1::jsonb)
   AS r(player_id text, seq int, club_id text, club_name text, from_year int,
@@ -280,6 +283,8 @@ export async function syncPool(
             wiki_ar: p.wiki.ar,
             pool_active: p.pools.active,
             pool_legend: p.pools.legend,
+            // P54: only /admin/pool reads it; the calendar needs pool_active.
+            pool_grace_until: p.pools.graceUntil ?? null,
             provenance: p.provenance,
             // D-S2-4; a pool built before Sprint 2 has no fame.
             fame: p.fame?.score ?? null,

@@ -141,6 +141,8 @@ model Player {
   poolActive       Boolean   @default(false) @map("pool_active")
   /// 30–0 and Masira.
   poolLegend       Boolean   @default(false) @map("pool_legend")
+  /// P54: out of the active pool, still guessable in Chkoun? until this day (shown on /admin/pool).
+  poolGraceUntil   DateTime? @map("pool_grace_until") @db.Date
   /// Where each field came from: { field: { source, retrievedAt, asOf?, ref?, by? } }.
   provenance       Json      @default("{}")
   createdAt        DateTime  @default(now()) @map("created_at")
