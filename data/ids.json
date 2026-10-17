@@ -8,6 +8,7 @@
     "Q2674": "palermo-f-c",
     "Q2693": "parma-calcio-1913",
     "Q2710": "delfino-pescara-1936",
+    "Q2739": "as-roma",
     "Q4512": "vfb-stuttgart",
     "Q6463": "fc-st-pauli",
     "Q6641": "ssc-bari",
@@ -184,6 +185,7 @@
     "Q285649": "al-wehdat-sc",
     "Q285702": "al-faisaly-sc",
     "Q285722": "gaziantepspor",
+    "Q286191": "al-qadsiah-fc",
     "Q286490": "al-masry-sc",
     "Q286504": "zamalek-sc",
     "Q286659": "al-ahli-club",
@@ -243,6 +245,7 @@
     "Q500988": "fk-zalgiris",
     "Q501693": "es-troyes-ac",
     "Q503317": "dijon-fco",
+    "Q504661": "tozeur",
     "Q508322": "fc-gueugnon",
     "Q513840": "konyaspor",
     "Q522283": "red-star-f-c",
@@ -445,6 +448,7 @@
     "Q2470274": "al-wahda-sc",
     "Q2491267": "as-kasserine",
     "Q2494171": "fc-dynamo-makhachkala",
+    "Q2499386": "degache",
     "Q2499905": "al-hazem-sc",
     "Q2529734": "stade-gabesien",
     "Q2541016": "tala-ea-el-gaish-sc",
@@ -1007,6 +1011,7 @@
     "Q141131522": "hamza-khadhraoui",
     "Q141159171": "moez-haj-ali",
     "Q141391810": "ghassen-mahersi",
-    "Q141442304": "iyed-belwafi"
+    "Q141442304": "iyed-belwafi",
+    "Q141679966": "slim-bouaskar"
   }
 }
