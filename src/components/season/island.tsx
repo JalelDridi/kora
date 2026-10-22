@@ -10,6 +10,8 @@ import {
 } from "@/season/device";
 import type { DeviceSeason, DraftView } from "@/season/device";
 import type { SeasonView } from "@/season/replay";
+import { ratingBand } from "@/season/labels";
+import { track } from "@/analytics/events";
 import { format } from "@/chkoun/labels";
 import type { Locale } from "@/i18n/locales";
 import type fr from "../../../messages/fr.json";
@@ -51,6 +53,8 @@ function isView(v: unknown): v is DraftView {
       (b.status === "drafting" && typeof b.spin === "object" && !!b.spin))
   );
 }
+
+type Sent = "ok" | "restarted" | null;
 
 type Answer =
   | { kind: "ok"; view: DraftView }
@@ -158,8 +162,20 @@ export function SeasonIsland({
   /** Set by a pick or a re-spin: the next place's heading takes focus. */
   const moved = useRef(false);
 
-  /** True when the server answered with a draft (the view is shown). */
-  const send = useCallback(async (body: Request): Promise<boolean> => {
+  /** board_viewed is sent once per page view. */
+  const boardSeen = useRef(false);
+  const onBoardViewed = useCallback(() => {
+    if (boardSeen.current) return;
+    boardSeen.current = true;
+    track("board_viewed", { locale });
+  }, [locale]);
+
+  /**
+   * "ok" when the server took the request, "restarted" when a stale draft
+   * was replaced by a new one, null when nothing was shown. Truthy: the
+   * view is shown.
+   */
+  const send = useCallback(async (body: Request): Promise<Sent> => {
     setPending(true);
     setNotice(null);
     try {
@@ -172,13 +188,13 @@ export function SeasonIsland({
       }
       if (answer.kind !== "ok") {
         setNotice(answer.kind === "notice" ? answer.notice : "network");
-        return false;
+        return null;
       }
       saveDraft(answer.view.token, answer.view);
       setView(answer.view);
       setPhase(answer.view.status === "complete" ? "complete" : "drafting");
       if (stale) setNotice("expired");
-      return true;
+      return stale ? "restarted" : "ok";
     } finally {
       setPending(false);
     }
@@ -188,6 +204,7 @@ export function SeasonIsland({
     // The draft kept on this device, or a new one; state is set once the
     // page runs (storage and fetch are browser-only).
     const id = window.setTimeout(() => {
+      track("season_opened", { locale });
       setHall(bestSeasons());
       const saved = loadDraftView();
       if (isView(saved)) {
@@ -196,7 +213,7 @@ export function SeasonIsland({
       } else void send({ action: "start" });
     }, 0);
     return () => window.clearTimeout(id);
-  }, [send]);
+  }, [send, locale]);
 
   useEffect(() => {
     if (!moved.current) return;
@@ -216,13 +233,25 @@ export function SeasonIsland({
   function pick(id: string) {
     if (!view || pending) return;
     moved.current = true;
-    void send({ action: "pick", token: view.token, pick: id });
+    // D-S3-13: the line and the rating band only, never who was picked.
+    const line = view.spin?.line;
+    const picked = view.spin?.candidates.find((c) => c.id === id);
+    void send({ action: "pick", token: view.token, pick: id }).then((sent) => {
+      if (sent === "ok" && line && picked)
+        track("slot_drafted", {
+          line,
+          band: ratingBand(picked.rating),
+          locale,
+        });
+    });
   }
 
   function respin() {
     if (!view || pending || !view.respinLeft) return;
     moved.current = true;
-    void send({ action: "respin", token: view.token });
+    void send({ action: "respin", token: view.token }).then((sent) => {
+      if (sent === "ok") track("respin_used", { locale });
+    });
   }
 
   async function play() {
@@ -245,6 +274,14 @@ export function SeasonIsland({
       }
       if (answer.kind !== "ok") return setNotice(answer.notice);
       const { season } = answer.view;
+      // D-S3-13: the record and the rounded rating, never the squad's code.
+      track("season_simulated", {
+        w: season.w,
+        d: season.d,
+        l: season.l,
+        rating: season.rating,
+        locale,
+      });
       saveSeason({
         day: answer.view.day,
         xi: answer.view.code,
@@ -337,6 +374,9 @@ export function SeasonIsland({
               origin={shareOrigin}
               prefix={prefix}
               strings={t}
+              onShared={(channel) =>
+                track("season_shared", { channel, locale })
+              }
             />
             <button
               type="button"
@@ -349,8 +389,12 @@ export function SeasonIsland({
           </Result>
         ) : null}
         <Hall seasons={hall} prefix={prefix} strings={t} />
-        {/* Task 14: pass onViewed to send board_viewed. */}
-        <Board locale={locale} strings={t} ownCode={lastCode} />
+        <Board
+          locale={locale}
+          strings={t}
+          ownCode={lastCode}
+          onViewed={onBoardViewed}
+        />
       </div>
       <Pitch
         squad={squad}

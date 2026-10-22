@@ -44,8 +44,8 @@ type Props = {
   /** The squad code of the visitor's last play, marked on the board. */
   ownCode: string | null;
   /**
-   * Task 14 hook point (board_viewed): fired once, the first time the board
-   * is on screen. No analytics call here.
+   * board_viewed (Task 14): fired once, the first time the board is on
+   * screen. Read on the first render only. No analytics call here.
    */
   onViewed?: () => void;
 };
@@ -79,7 +79,7 @@ export function Board({ locale, strings: t, ownCode, onViewed }: Props) {
     };
   }, [ownCode]);
 
-  // Task 14: board_viewed, once, through the onViewed prop.
+  // board_viewed, once, through the onViewed prop.
   useEffect(() => {
     const el = section.current;
     if (!el || !viewed.current || typeof IntersectionObserver === "undefined")
