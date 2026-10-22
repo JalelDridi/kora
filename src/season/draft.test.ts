@@ -1,83 +1,14 @@
 import { beforeAll, describe, expect, it } from "vitest";
 import { FakeKv } from "@/chkoun/kv.ts";
-import { buildSeasonData } from "@/engine/season/data.ts";
 import { FORMATION } from "@/engine/season/draft.ts";
-import type { Line } from "@/engine/chkoun/types.ts";
-import type { SeasonSource, SourcePlayer } from "@/engine/season/types.ts";
 import { handleDraft } from "./draft.ts";
 import type { SeasonDeps } from "./draft.ts";
+import { TEST_SEED, testData } from "./test-data.ts";
 import { draftKeys, signDraft } from "./token.ts";
 import type { CandidateView, SpinView } from "./views.ts";
 
-// The small source of src/engine/season/data.test.ts, extended to every
-// line: two Ligue 1 clubs and enough footballers for a full 4-3-3.
-
-const sure = { confidence: "high" as const };
-const player = (
-  id: string,
-  position: Line,
-  clubId: string,
-  from: number,
-  to: number | null,
-): SourcePlayer => ({
-  id,
-  wikidataId: `Q-${id}`,
-  nameLatin: id.toUpperCase(),
-  nameArabic: null,
-  nameFrench: null,
-  position,
-  caps: 30,
-  goals: 3,
-  history: [{ clubId, from, to, apps: 40, loan: false }],
-  provenance: { caps: sure, goals: sure, history: sure },
-});
-
-const lines: [Line, number][] = [
-  ["goalkeeper", 3],
-  ["defender", 6],
-  ["midfielder", 5],
-  ["forward", 5],
-];
-const source: SeasonSource = {
-  clubs: [
-    {
-      id: "club-a",
-      ligue1: true,
-      nameLatin: "Club A",
-      nameArabic: null,
-      nameFrench: null,
-    },
-    {
-      id: "club-b",
-      ligue1: true,
-      nameLatin: "Club B",
-      nameArabic: "نادي ب",
-      nameFrench: "Club B",
-    },
-  ],
-  honours: [],
-  players: lines.flatMap(([line, n]) =>
-    Array.from({ length: n }, (_, i) =>
-      player(
-        `${line}-${i}`,
-        line,
-        i % 2 ? "club-b" : "club-a",
-        [1995, 2004, 2013, 2021][i % 4],
-        i % 4 === 3 ? null : [1999, 2008, 2017][i % 4],
-      ),
-    ),
-  ),
-};
-const data = buildSeasonData(
-  source,
-  {
-    strength: { clubs: { "club-a": 70, "club-b": 60 } },
-    afcon: { footballers: [] },
-  },
-  2026,
-);
-
-const seed = "test-seed-not-the-real-one";
+const data = testData;
+const seed = TEST_SEED;
 const now = new Date("2026-10-20T10:00:00Z");
 const deps: SeasonDeps = {
   now,
