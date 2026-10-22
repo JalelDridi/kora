@@ -6,10 +6,12 @@ import type { CopyResult } from "./copy.ts";
 
 // GET /api/cron/nightly, without Next (N2 (a)): Vercel Cron calls it once a
 // day with `Authorization: Bearer <CRON_SECRET>`. It copies the last 7 days
-// of finished games from Redis to Postgres, then tops up the calendar, and
-// keeps the outcome in Redis (job:nightly, 30 days) for /admin/chkoun. A
-// missing or wrong secret does nothing at all. A failed copy still runs the
-// top-up. Outcomes hold counts, days and error codes, never a footballer.
+// of finished Chkoun? games, then of 30–0's first seasons, from Redis to
+// Postgres, then tops up the calendar, and keeps the outcome in Redis
+// (job:nightly, 30 days) for /admin/chkoun. A missing or wrong secret does
+// nothing at all. Each step runs in its own try: a failed one still runs the
+// next and the answer is 500. Outcomes hold counts, days and error codes,
+// never a footballer.
 
 export const JOB_TTL_SECONDS = 30 * 86_400;
 
@@ -20,6 +22,8 @@ export type NightlyJob = {
   ok: boolean;
   copied: number | null;
   skipped: number | null;
+  /** First seasons of 30–0 copied; null when the season copy failed. */
+  seasons: number | null;
   written: number | null;
   filled: number | null;
   window: number | null;
@@ -35,6 +39,7 @@ export async function runNightly(deps: {
   env: string;
   now: Date;
   copy: () => Promise<CopyResult>;
+  copySeasons: () => Promise<CopyResult>;
   topUp: () => Promise<TopUpResult>;
   /** An error's code or class, never its message's data. */
   describe: (error: unknown) => string;
@@ -49,6 +54,7 @@ export async function runNightly(deps: {
     ok: true,
     copied: null,
     skipped: null,
+    seasons: null,
     written: null,
     filled: null,
     window: null,
@@ -62,6 +68,16 @@ export async function runNightly(deps: {
   } catch (error) {
     job.ok = false;
     job.notes.push(`copy failed (${deps.describe(error)})`);
+  }
+  try {
+    const seasons = await deps.copySeasons();
+    job.seasons = seasons.copied;
+    // "Redis is off" is said once for both copies.
+    for (const note of seasons.notes)
+      if (!job.notes.includes(note)) job.notes.push(note);
+  } catch (error) {
+    job.ok = false;
+    job.notes.push(`season copy failed (${deps.describe(error)})`);
   }
   try {
     const topUp = await deps.topUp();

@@ -54,6 +54,6 @@ The day's footballer is generated 30 days ahead, at deploy and every night, from
 
 ## Results
 
-Finished games are kept in Redis for 8 days under `kora:{env}:chkoun:r:{day}` and copied to `results` every night with `ON CONFLICT (game, day, visitor_id) DO NOTHING`.
+Finished games are kept in Redis for 8 days under `kora:{env}:chkoun:r:{day}`, and each visitor's first 30–0 season of the day under `kora:{env}:season:r:{day}`; the nightly job (`/api/cron/nightly`) copies the last 7 days of both to `results` with `ON CONFLICT (game, day, visitor_id) DO NOTHING`, so a missed night is caught up the next one. Malformed entries are skipped and counted.
 
 Not stored: search keys and tile facts (built from the public `pool.json`), the seed, the token key, raw network addresses.

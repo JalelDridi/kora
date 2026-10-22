@@ -11,11 +11,13 @@ import {
 } from "@/pipeline/calendar.ts";
 import { describeError } from "@/pipeline/wake.ts";
 import { openPg } from "@/db/pg";
+import { copySeasons } from "@/season/copy.ts";
 
 // Vercel Cron, once a day at 02:40 UTC (vercel.json, N2 (a)): the copy of
-// finished games to Postgres, then the calendar top-up. The work and the
-// CRON_SECRET check are in src/chkoun/nightly.ts. One pg connection for both
-// steps (src/db/pg.ts), opened only after the secret matched.
+// finished Chkoun? games and of 30–0's first seasons to Postgres, then the
+// calendar top-up. The work and the CRON_SECRET check are in
+// src/chkoun/nightly.ts. One pg connection for every step (src/db/pg.ts),
+// opened only after the secret matched.
 
 export const dynamic = "force-dynamic";
 
@@ -23,8 +25,8 @@ export async function GET(request: Request) {
   const now = new Date();
   const kv = getKv();
   const env = kvEnv();
-  // Opened only once the secret matched: runNightly calls copy and topUp
-  // after the check, and they share this one connection.
+  // Opened only once the secret matched: runNightly calls copy, copySeasons
+  // and topUp after the check, and they share this one connection.
   let opened: Promise<pg.Client> | null = null;
   const db = () => (opened ??= openPg());
   try {
@@ -36,6 +38,8 @@ export async function GET(request: Request) {
       now,
       copy: async () =>
         copyResults({ kv, db: await db(), env, today: tunisDay(now) }),
+      copySeasons: async () =>
+        copySeasons({ kv, db: await db(), env, today: tunisDay(now) }),
       topUp: async () => {
         const client = await db();
         return topUpCalendar({

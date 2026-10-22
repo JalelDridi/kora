@@ -24,6 +24,10 @@ const run = (over: Partial<Parameters<typeof runNightly>[0]> = {}) =>
       calls.push("copy");
       return { copied: 3, already: 1, skipped: 0, notes: [] };
     },
+    copySeasons: async () => {
+      calls.push("seasons");
+      return { copied: 2, already: 0, skipped: 0, notes: [] };
+    },
     topUp: async () => {
       calls.push("topUp");
       return { written: 1, filled: 30, window: 44 };
@@ -56,14 +60,15 @@ describe("the nightly cron job", () => {
     expect(kv.commands).toEqual([]);
   });
 
-  it("right bearer → runs copy then top-up, stores job:nightly, returns counts", async () => {
+  it("right bearer → runs copy, season copy, then top-up, stores job:nightly, returns counts", async () => {
     const r = await run();
-    expect(calls).toEqual(["copy", "topUp"]);
+    expect(calls).toEqual(["copy", "seasons", "topUp"]);
     const job = {
       at: "2026-10-20T02:40:00.000Z",
       ok: true,
       copied: 3,
       skipped: 0,
+      seasons: 2,
       written: 1,
       filled: 30,
       window: 44,
@@ -81,7 +86,7 @@ describe("the nightly cron job", () => {
         throw Object.assign(new Error("secret detail"), { code: "ECONNRESET" });
       },
     });
-    expect(calls).toEqual(["copy", "topUp"]);
+    expect(calls).toEqual(["copy", "seasons", "topUp"]);
     expect(r.status).toBe(500);
     expect(r.body).toMatchObject({
       ok: false,
@@ -93,9 +98,60 @@ describe("the nightly cron job", () => {
     expect((await readNightly(kv, "test"))?.ok).toBe(false);
   });
 
+  it("a failed season copy still runs the Chkoun? copy and the top-up, and answers 500", async () => {
+    const r = await run({
+      copySeasons: async () => {
+        calls.push("seasons");
+        throw Object.assign(new Error("secret detail"), { code: "ETIMEDOUT" });
+      },
+    });
+    expect(calls).toEqual(["copy", "seasons", "topUp"]);
+    expect(r.status).toBe(500);
+    expect(r.body).toMatchObject({
+      ok: false,
+      copied: 3,
+      seasons: null,
+      written: 1,
+      notes: ["season copy failed (ETIMEDOUT)"],
+    });
+    expect(JSON.stringify(r.body)).not.toContain("secret detail");
+    expect((await readNightly(kv, "test"))?.seasons).toBeNull();
+  });
+
+  it("the season copy's notes join the job's", async () => {
+    const r = await run({
+      copySeasons: async () => ({
+        copied: 1,
+        already: 0,
+        skipped: 1,
+        notes: ["2026-10-18: 1 malformed season(s) skipped"],
+      }),
+    });
+    expect(r.body).toMatchObject({
+      ok: true,
+      seasons: 1,
+      notes: ["2026-10-18: 1 malformed season(s) skipped"],
+    });
+  });
+
+  it("Redis off is noted once for both copies", async () => {
+    const off = async () => ({
+      copied: 0,
+      already: 0,
+      skipped: 0,
+      notes: ["Redis is off: nothing to copy"],
+    });
+    const r = await run({ kv: null, copy: off, copySeasons: off });
+    expect(r.body).toMatchObject({
+      copied: 0,
+      seasons: 0,
+      notes: ["Redis is off: nothing to copy"],
+    });
+  });
+
   it("with Redis off the job runs and keeps nothing", async () => {
     const r = await run({ kv: null });
     expect(r.status).toBe(200);
-    expect(calls).toEqual(["copy", "topUp"]);
+    expect(calls).toEqual(["copy", "seasons", "topUp"]);
   });
 });

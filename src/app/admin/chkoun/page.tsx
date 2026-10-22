@@ -33,8 +33,9 @@ function Job({ job, redis }: { job: NightlyJob | null; redis: boolean }) {
   return (
     <>
       {job.at.slice(0, 16).replace("T", " ")} UTC: {job.ok ? "ok" : "failed"};
-      copied {job.copied ?? "none"}, skipped {job.skipped ?? "none"}, days
-      written {job.written ?? "none"}, filled {job.filled ?? "none"}
+      copied {job.copied ?? "none"}, skipped {job.skipped ?? "none"}, seasons
+      copied {job.seasons ?? "none"}, days written {job.written ?? "none"},
+      filled {job.filled ?? "none"}
       {job.notes.length > 0 ? `; ${job.notes.join("; ")}` : ""}
     </>
   );
