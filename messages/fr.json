@@ -211,5 +211,46 @@
       "title": "Contact",
       "body": "Une question sur cette page ? Écris-nous sur GitHub."
     }
+  },
+  "season": {
+    "meta": {
+      "title": "30–0 · Kora",
+      "description": "Monte ton équipe de joueurs tunisiens, place par place, puis joue une saison de 30 matchs."
+    },
+    "rules": "Pour chaque place, un club et une décennie sont tirés : choisis un joueur parmi cinq, puis joue 30 matchs.",
+    "noscript": "Ce jeu a besoin de JavaScript.",
+    "lines": {
+      "goalkeeper": "Gardien",
+      "defender": "Défense",
+      "midfielder": "Milieu",
+      "forward": "Attaque"
+    },
+    "slot": "Place {n} sur 11",
+    "decade": "Années {decade}",
+    "widened": "Plus aucun joueur là pour cette place : voici le tirage le plus proche",
+    "pick": "Choisir",
+    "respin": "Relancer (une fois par partie)",
+    "respinUsed": "Relance déjà utilisée",
+    "play": "Jouer la saison",
+    "squad": "Ton équipe",
+    "rating": "Note",
+    "empty": "Place libre",
+    "inputs": {
+      "caps": "Sélections",
+      "goalsPerCap": "Buts par sélection",
+      "apps": "Matchs avec le club",
+      "titles": "Titres",
+      "titlesValue": "{league} championnat, {cup} coupe, {caf} CAF",
+      "afcon": "Vainqueur de la CAN 2004",
+      "band": "environ {band} ?",
+      "doubt": "? = pas sûr, voir Sources"
+    },
+    "error": {
+      "network": "La connexion a échoué.",
+      "tooMany": "Trop de parties. Réessaie dans quelques minutes.",
+      "expired": "Cette partie a expiré : une nouvelle commence.",
+      "closed": "30–0 n'est pas disponible pour l'instant.",
+      "retry": "Réessayer"
+    }
   }
 }

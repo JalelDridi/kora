@@ -211,5 +211,46 @@
       "title": "Contact",
       "body": "Une question sur cette page ? Écris-nous sur GitHub."
     }
+  },
+  "season": {
+    "meta": {
+      "title": "30–0 · Kora",
+      "description": "Kawwen far9tek men la3ba tounsiyin, blasa blasa, w ba3d el3ab mawsem kemel: 30 match."
+    },
+    "rules": "Fi kol blasa yetla3lek far9 w 3achriya: ekhtar la3eb men khamsa, w ba3d el3ab 30 match.",
+    "noscript": "El le3ba hedhi test7a99 JavaScript.",
+    "lines": {
+      "goalkeeper": "El 7ares",
+      "defender": "El difa3",
+      "midfielder": "El wost",
+      "forward": "El hjoum"
+    },
+    "slot": "Blasa {n} men 11",
+    "decade": "3achriyet {decade}",
+    "widened": "Ma 3adech famma 7atta la3eb lel blasa hedhi ghadi: hew a9rab far9 w 3achriya",
+    "pick": "Ekhtar",
+    "respin": "3awed dawwer (marra bark fel le3ba)",
+    "respinUsed": "Dawwert marra, ma 3adech tnajem",
+    "play": "El3ab el mawsem",
+    "squad": "Far9tek",
+    "rating": "Ta9yim",
+    "empty": "Blasa fergha",
+    "inputs": {
+      "caps": "Matchet el mountakhab",
+      "goalsPerCap": "Ahdef fi kol match m3a el mountakhab",
+      "apps": "Matchet m3a el far9",
+      "titles": "Al9ab",
+      "titlesValue": "{league} botola, {cup} kas, {caf} Ifrikia",
+      "afcon": "Rbe7 kas Ifrikia 2004",
+      "band": "Ta9rib {band} ?",
+      "doubt": "? = mouch met2akdin, chouf el masader"
+    },
+    "error": {
+      "network": "Saret mochkla fel connexion.",
+      "tooMany": "Barcha le3bet. 3awed ba3d chwaya d9aye9.",
+      "expired": "El le3ba hedhi fetet: hew wa7da jdida.",
+      "closed": "30–0 mouch mawjouda tawa.",
+      "retry": "3awed jarreb"
+    }
   }
 }

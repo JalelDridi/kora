@@ -1,0 +1,204 @@
+import AxeBuilder from "@axe-core/playwright";
+import { expect, test, type Page } from "@playwright/test";
+import arLatnTN from "../messages/ar-Latn-TN.json";
+import arTN from "../messages/ar-TN.json";
+import fr from "../messages/fr.json";
+import { localeInfo, locales } from "../src/i18n/locales";
+import { noSidewaysScroll, shot } from "./chkoun-helpers";
+
+// The 30–0 draft page on the built server (Redis off: no rate limit, the
+// draft lives in its signed token). Each test has its own browser context,
+// so its own storage and its own draft.
+
+const messages = { "ar-TN": arTN, "ar-Latn-TN": arLatnTN, fr };
+const fill = (s: string, values: Record<string, string | number>) =>
+  s.replace(/\{(\w+)\}/g, (_, k: string) => String(values[k]));
+const escape = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+const axe = async (page: Page) =>
+  (await new AxeBuilder({ page }).analyze()).violations;
+
+for (const locale of locales) {
+  const { prefix } = localeInfo[locale];
+  const t = messages[locale].season;
+  const url = `${prefix}/season`;
+  /** Screenshot names use the URL's locale: ar, tn, fr. */
+  const slug = prefix.slice(1);
+  const pickButtons = (page: Page) =>
+    page.getByRole("button", { name: new RegExp(escape(t.pick)) });
+  const spinning = async (page: Page, n: number) =>
+    expect(page.getByText(fill(t.slot, { n }))).toBeVisible();
+
+  test(`${url} drafts eleven at 320 px`, async ({ page }) => {
+    await page.setViewportSize({ width: 320, height: 640 });
+    await page.goto(url);
+    for (let slot = 0; slot < 11; slot++) {
+      await spinning(page, slot + 1);
+      if (slot === 0) {
+        expect(await noSidewaysScroll(page)).toBe(0);
+        await page.screenshot({
+          path: shot(10, slug, 320, "spinning"),
+          fullPage: true,
+        });
+      }
+      await pickButtons(page).first().click();
+    }
+    await expect(page.getByRole("button", { name: t.play })).toBeEnabled();
+    await expect(pickButtons(page)).toHaveCount(0);
+    await expect(
+      page.getByRole("region", { name: t.squad }).locator("[data-picked]"),
+    ).toHaveCount(11);
+    expect(await noSidewaysScroll(page)).toBe(0);
+    await page.screenshot({
+      path: shot(10, slug, 320, "drafted"),
+      fullPage: true,
+    });
+  });
+
+  test(`${url} re-spins once`, async ({ page }) => {
+    await page.goto(url);
+    await spinning(page, 1);
+    await page.getByRole("button", { name: t.respin }).click();
+    await expect(page.getByRole("button", { name: t.respin })).toBeDisabled();
+    await expect(page.getByText(t.respinUsed)).toBeVisible();
+    // Still the first place: a re-spin changes the spin, not the slot.
+    await spinning(page, 1);
+    await pickButtons(page).first().click();
+    await spinning(page, 2);
+    await expect(page.getByRole("button", { name: t.respin })).toBeDisabled();
+  });
+
+  test(`${url} the pitch reads in the page's direction`, async ({ page }) => {
+    await page.goto(url);
+    await spinning(page, 1);
+    const [a, b] = await Promise.all(
+      [0, 1].map((k) =>
+        page.locator('[data-line="defender"]').nth(k).boundingBox(),
+      ),
+    );
+    expect(locale === "ar-TN" ? a!.x > b!.x : a!.x < b!.x).toBe(true);
+    // Forwards sit above the goalkeeper: the pitch seen from the stands.
+    const forward = await page
+      .locator('[data-line="forward"]')
+      .first()
+      .boundingBox();
+    const keeper = await page
+      .locator('[data-line="goalkeeper"]')
+      .first()
+      .boundingBox();
+    expect(forward!.y).toBeLessThan(keeper!.y);
+  });
+
+  test(`${url} a reload keeps the draft`, async ({ page }) => {
+    await page.goto(url);
+    await spinning(page, 1);
+    const name = (
+      await page.locator("[data-candidate] [data-name]").first().innerText()
+    ).trim();
+    await pickButtons(page).first().click();
+    await spinning(page, 2);
+    await page.reload();
+    await spinning(page, 2);
+    await expect(page.getByRole("region", { name: t.squad })).toContainText(
+      name,
+    );
+  });
+
+  test(`${url} candidates show a rating of 60 to 99 and the caps input`, async ({
+    page,
+  }) => {
+    await page.goto(url);
+    await spinning(page, 1);
+    const cards = page.locator("[data-candidate]");
+    expect(await cards.count()).toBeGreaterThanOrEqual(1);
+    expect(await cards.count()).toBeLessThanOrEqual(5);
+    for (const text of await page
+      .locator("[data-candidate] [data-rating]")
+      .allInnerTexts()) {
+      const rating = Number(text.trim());
+      expect(rating).toBeGreaterThanOrEqual(60);
+      expect(rating).toBeLessThanOrEqual(99);
+    }
+    for (const card of await cards.all())
+      await expect(card.getByText(t.inputs.caps)).toBeVisible();
+    // A candidate is a button named after him.
+    const first = (
+      await cards.first().locator("[data-name]").innerText()
+    ).trim();
+    await expect(
+      cards.first().getByRole("button", { name: new RegExp(escape(first)) }),
+    ).toBeVisible();
+  });
+
+  test(`${url} axe finds nothing while drafting`, async ({ page }) => {
+    await page.goto(url);
+    await spinning(page, 1);
+    expect(await axe(page)).toEqual([]);
+    await pickButtons(page).first().click();
+    await spinning(page, 2);
+    expect(await axe(page)).toEqual([]);
+  });
+
+  test(`${url} with JavaScript off, the rules and the noscript line show`, async ({
+    browser,
+    request,
+  }) => {
+    // Chromium with scripts disabled by Playwright still parses <noscript>
+    // as text (as in chkoun.spec.ts), so the line is checked in the HTML.
+    const html = await (await request.get(url)).text();
+    const noscript = /<noscript>([\s\S]*?)<\/noscript>/.exec(html)?.[1];
+    expect(noscript).toContain(t.noscript);
+    const context = await browser.newContext({ javaScriptEnabled: false });
+    const page = await context.newPage();
+    await page.goto(url);
+    await expect(page.getByText(t.rules)).toBeVisible();
+    await context.close();
+  });
+
+  test(`${url} is noindex until 30–0 goes live`, async ({ page }) => {
+    await page.goto(url);
+    await expect(page.locator('meta[name="robots"]')).toHaveAttribute(
+      "content",
+      /noindex/,
+    );
+    await expect(page).toHaveTitle(t.meta.title);
+  });
+
+  for (const width of [1280, 320]) {
+    test(`${url} screenshots at ${width} px: idle, spinning, drafted`, async ({
+      page,
+    }) => {
+      await page.setViewportSize({ width, height: width === 320 ? 640 : 800 });
+      // Idle: the page before the draft endpoint answers.
+      let release: () => void = () => {};
+      const held = new Promise<void>((resolve) => (release = resolve));
+      await page.route("**/api/season/draft", async (route) => {
+        await held;
+        await route.continue();
+      });
+      await page.goto(url);
+      await expect(page.locator('[data-line="goalkeeper"]')).toBeVisible();
+      expect(await noSidewaysScroll(page)).toBe(0);
+      await page.screenshot({
+        path: shot(10, slug, width, "idle"),
+        fullPage: true,
+      });
+      release();
+      await spinning(page, 1);
+      await page.screenshot({
+        path: shot(10, slug, width, "spinning"),
+        fullPage: true,
+      });
+      for (let slot = 0; slot < 11; slot++) {
+        await spinning(page, slot + 1);
+        await pickButtons(page).first().click();
+      }
+      await expect(page.getByRole("button", { name: t.play })).toBeEnabled();
+      expect(await noSidewaysScroll(page)).toBe(0);
+      await page.screenshot({
+        path: shot(10, slug, width, "drafted"),
+        fullPage: true,
+      });
+    });
+  }
+}
