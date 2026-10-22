@@ -101,6 +101,12 @@ describe("30–0 events (D-S3-13: no names, ids, codes or squads)", () => {
       cleanProps({ w: 28, d: 2, l: 0, rating: 91.2, xi: "a_0~b_1", code: "x" }),
     ).toEqual({ w: 28, d: 2, l: 0, rating: 91 }));
 
-  it("an out-of-range W-D-L or band is dropped", () =>
-    expect(cleanProps({ w: 31, band: "50" })).toEqual({}));
+  it("an out-of-range W-D-L or band is dropped", () => {
+    expect(cleanProps({ w: 31, band: "50" })).toEqual({});
+    expect(cleanProps({ rating: 59.4 })).toEqual({});
+    expect(cleanProps({ rating: 99.6 })).toEqual({});
+    expect(cleanProps({ w: 2.5 })).toEqual({});
+    expect(cleanProps({ line: "libero" })).toEqual({});
+    expect(cleanProps({ rating: 89.5 })).toEqual({ rating: 90 });
+  });
 });
