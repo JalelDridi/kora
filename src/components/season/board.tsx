@@ -18,23 +18,37 @@ export const BOARD_EVERY = 30_000;
 
 type Board = { status: "on" | "off"; rows: BoardRow[] };
 
-function isBoard(v: unknown): v is Board {
-  if (typeof v !== "object" || v === null) return false;
-  const b = v as Record<string, unknown>;
+const OFF: Board = { status: "off", rows: [] };
+
+const isRecord = (v: unknown): v is Record<string, unknown> =>
+  typeof v === "object" && v !== null;
+
+/** A squad entry the list can render: its key and its Latin name. */
+function isSquadEntry(v: unknown): boolean {
   return (
-    (b.status === "on" || b.status === "off") &&
-    Array.isArray(b.rows) &&
-    b.rows.every((r: unknown) => {
-      if (typeof r !== "object" || r === null) return false;
-      const row = r as Record<string, unknown>;
-      return (
+    isRecord(v) &&
+    typeof v.id === "string" &&
+    isRecord(v.names) &&
+    typeof v.names.nameLatin === "string"
+  );
+}
+
+/** The endpoint's answer, checked before render (a bad row would throw). */
+export function isBoard(v: unknown): v is Board {
+  if (!isRecord(v)) return false;
+  return (
+    (v.status === "on" || v.status === "off") &&
+    Array.isArray(v.rows) &&
+    v.rows.every(
+      (row: unknown) =>
+        isRecord(row) &&
         typeof row.code === "string" &&
         Array.isArray(row.squad) &&
+        row.squad.every(isSquadEntry) &&
         ["rank", "w", "d", "l", "points", "rating"].every(
           (k) => typeof row[k] === "number",
-        )
-      );
-    })
+        ),
+    )
   );
 }
 
@@ -62,10 +76,21 @@ export function Board({ locale, strings: t, ownCode, onViewed }: Props) {
   // Re-started when the visitor plays: their new side shows at once.
   useEffect(() => {
     let alive = true;
+    // A failed or refused fetch before any board shows the "off" line, not
+    // a bare heading; after one, the board keeps what it showed.
     const fetchBoard = async () => {
-      const response = await fetch("/api/season/board");
-      const json: unknown = await response.json().catch(() => null);
-      if (alive && response.ok && isBoard(json)) setBoard(json);
+      let json: unknown = null;
+      let ok = false;
+      try {
+        const response = await fetch("/api/season/board");
+        ok = response.ok;
+        json = await response.json().catch(() => null);
+      } catch {
+        ok = false;
+      }
+      if (!alive) return;
+      if (ok && isBoard(json)) setBoard(json);
+      else setBoard((shown) => shown ?? OFF);
     };
     const stop = startPolling({
       fetchBoard,
