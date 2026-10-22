@@ -269,6 +269,67 @@ for (const locale of locales) {
     });
   });
 
+  test(`${url} draft, re-spin, play, share, at 320 px in three locales, axe clean at each state`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 320, height: 640 });
+    await page.goto(url);
+    // Drafting: the first spin, re-spun once, then eleven picks.
+    await spinning(page, 1);
+    await page.getByRole("button", { name: t.respin }).click();
+    await expect(page.getByRole("button", { name: t.respin })).toBeDisabled();
+    await spinning(page, 1);
+    expect(await axe(page)).toEqual([]);
+    expect(await noSidewaysScroll(page)).toBe(0);
+    await page.screenshot({
+      path: shot(15, slug, 320, "drafting"),
+      fullPage: true,
+    });
+    for (let slot = 0; slot < 11; slot++) {
+      await spinning(page, slot + 1);
+      await pickButtons(page).first().click();
+    }
+    // Complete: eleven drafted, the play button ready.
+    await expect(page.getByRole("button", { name: t.play })).toBeEnabled();
+    expect(await axe(page)).toEqual([]);
+    expect(await noSidewaysScroll(page)).toBe(0);
+    await page.screenshot({
+      path: shot(15, slug, 320, "complete"),
+      fullPage: true,
+    });
+    // Simulated: the season, then the share (no system sheet: the clipboard).
+    await page.getByRole("button", { name: t.play }).click();
+    await expect(page.locator("#season-result")).toBeVisible();
+    await expect(page.locator("[data-record]")).toBeVisible();
+    await page.evaluate(() => {
+      const probe = window as unknown as { copied?: string };
+      Object.defineProperty(navigator, "share", {
+        configurable: true,
+        value: undefined,
+      });
+      Object.defineProperty(navigator, "clipboard", {
+        configurable: true,
+        value: {
+          writeText: async (text: string) => {
+            probe.copied = text;
+          },
+        },
+      });
+    });
+    await page.getByRole("button", { name: t.share.button }).click();
+    await expect(page.getByText(t.share.copied)).toBeVisible();
+    const copied = await page.evaluate(
+      () => (window as unknown as { copied?: string }).copied,
+    );
+    expect(copied).toContain(`${prefix}/season/r/`);
+    expect(await axe(page)).toEqual([]);
+    expect(await noSidewaysScroll(page)).toBe(0);
+    await page.screenshot({
+      path: shot(15, slug, 320, "simulated"),
+      fullPage: true,
+    });
+  });
+
   for (const width of [1280, 320]) {
     test(`${url} screenshots at ${width} px: idle, spinning, drafted`, async ({
       page,
