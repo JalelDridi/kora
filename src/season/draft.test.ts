@@ -96,6 +96,18 @@ describe("POST /api/season/draft", () => {
     });
     expect(r.status).toBe(422);
     expect(r.body).toEqual({ error: "refused" });
+    // A real footballer of another line, at the goalkeeper's slot.
+    const defender = [...data.people.values()].find(
+      (p) => p.line === "defender" && data.combos.has(p.id),
+    );
+    expect(defender).toBeDefined();
+    const other = await post({
+      action: "pick",
+      token: draftToken,
+      pick: defender!.id,
+    });
+    expect(other.status).toBe(422);
+    expect(other.body).toEqual({ error: "refused" });
   });
 
   it("a second re-spin is refused", async () => {
