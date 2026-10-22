@@ -251,6 +251,49 @@
       "expired": "El le3ba hedhi fetet: hew wa7da jdida.",
       "closed": "30–0 mouch mawjouda tawa.",
       "retry": "3awed jarreb"
+    },
+    "result": {
+      "title": "Mawsmek",
+      "record": "{w}-{d}-{l}",
+      "points": "No9at",
+      "goals": "Ahdef (leha-3liha)",
+      "teamRating": "Ta9yim el far9",
+      "replaces": "Tal3ab fi blaset {club}",
+      "matches": "El 30 match",
+      "round": "Jawla {n}",
+      "home": "Fi darha",
+      "away": "Barra",
+      "win": "Rbe7",
+      "draw": "T3adel",
+      "loss": "Khsara",
+      "onDevice": "El mawsem ma7fouth fel telifoun hedha",
+      "again": "3awed el3ab"
+    },
+    "share": {
+      "header": "Kora · 30–0",
+      "points": "no9ta",
+      "button": "Partagi",
+      "copy": "Copi",
+      "copied": "Tcopa!",
+      "whatsapp": "Eb3ath 3la WhatsApp",
+      "longPress": "Edhghat mtawwel 3al ktiba bech tcopiha"
+    },
+    "hall": {
+      "title": "A7sen el mawasem mte3ek",
+      "note": "Ma7foutha fel telifoun hedha",
+      "day": "En nhar",
+      "record": "El natija",
+      "points": "No9at",
+      "rating": "Ta9yim"
+    },
+    "board": {
+      "notCounted": "Ken awwel mawsem fel nhar yodkhel lel tartib.",
+      "rank": "#{rank} el youm"
+    },
+    "replay": {
+      "note": "T3awed bel ta9yimet mta3 el youm",
+      "draft": "Kawwen far9tek enti",
+      "squad": "El far9"
     }
   }
 }

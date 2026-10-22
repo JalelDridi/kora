@@ -67,7 +67,12 @@ export default async function SeasonPage({
         <noscript>
           <p className="mt-6 text-xl font-semibold">{t("season.noscript")}</p>
         </noscript>
-        <SeasonIsland locale={locale} strings={messages.season} />
+        <SeasonIsland
+          locale={locale}
+          strings={messages.season}
+          prefix={localeInfo[locale].prefix}
+          shareOrigin={site.url}
+        />
       </main>
     </div>
   );

@@ -24,7 +24,9 @@ const forbiddenFile = [
   /^src\/db\//,
   /data\.server/,
   /pool\.json$/,
-  /^src\/engine\//,
+  // The engine, except the share text: pure, no imports beyond types, and
+  // the island builds the text the visitor shares (plan Task 11).
+  /^src\/engine\/(?!season\/share\.ts$)/,
   /^src\/season\/(draft|token|play|replay|store)\.ts$/,
   /^src\/chkoun\/kv\.ts$/,
 ];
@@ -127,6 +129,51 @@ describe("the 30–0 page's imports", () => {
         "src/season/labels.ts",
       ]),
     );
+  });
+});
+
+describe("the share text the island loads", () => {
+  it("is the only engine file it reaches, and it imports nothing at runtime", () => {
+    const reached: string[] = [];
+    const spy: Files = {
+      read: (f) => (reached.push(f), disk.read(f)),
+      exists: disk.exists,
+    };
+    expect(
+      forbiddenReach(["src/components/season/share-button.tsx"], spy),
+    ).toEqual([]);
+    expect(reached.filter((f) => f.startsWith("src/engine/"))).toEqual([
+      "src/engine/season/share.ts",
+    ]);
+    expect(runtimeSpecifiers(disk.read("src/engine/season/share.ts"))).toEqual(
+      [],
+    );
+  });
+
+  it("any other engine file is still refused", () => {
+    const files: Files = {
+      read: (f) =>
+        ({
+          "a.ts": 'import { x } from "@/engine/season/simulate.ts";\n',
+        })[f] ?? "",
+      exists: (f) => f === "a.ts" || f === "src/engine/season/simulate.ts",
+    };
+    expect(forbiddenReach(["a.ts"], files)).toEqual([
+      "a.ts → src/engine/season/simulate.ts",
+    ]);
+  });
+});
+
+describe("the replay page", () => {
+  it("never loads the draft island (plan Task 11)", () => {
+    const reached: string[] = [];
+    const spy: Files = {
+      read: (f) => (reached.push(f), disk.read(f)),
+      exists: disk.exists,
+    };
+    forbiddenReach(["src/app/[locale]/season/r/[day]/[xi]/page.tsx"], spy);
+    expect(reached).toContain("src/components/season/result.tsx");
+    expect(reached).not.toContain("src/components/season/island.tsx");
   });
 });
 

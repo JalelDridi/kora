@@ -251,6 +251,49 @@
       "expired": "Cette partie a expiré : une nouvelle commence.",
       "closed": "30–0 n'est pas disponible pour l'instant.",
       "retry": "Réessayer"
+    },
+    "result": {
+      "title": "Ta saison",
+      "record": "{w}-{d}-{l}",
+      "points": "Points",
+      "goals": "Buts pour-contre",
+      "teamRating": "Note de l'équipe",
+      "replaces": "Joue à la place de {club}",
+      "matches": "Les 30 matchs",
+      "round": "Journée {n}",
+      "home": "Domicile",
+      "away": "Extérieur",
+      "win": "Victoire",
+      "draw": "Nul",
+      "loss": "Défaite",
+      "onDevice": "Saison enregistrée sur cet appareil",
+      "again": "Rejouer"
+    },
+    "share": {
+      "header": "Kora · 30–0",
+      "points": "points",
+      "button": "Partager",
+      "copy": "Copier",
+      "copied": "Copié !",
+      "whatsapp": "Envoyer sur WhatsApp",
+      "longPress": "Appuie longuement sur le texte pour le copier"
+    },
+    "hall": {
+      "title": "Tes meilleures saisons",
+      "note": "Enregistrées sur cet appareil",
+      "day": "Jour",
+      "record": "Bilan",
+      "points": "Points",
+      "rating": "Note"
+    },
+    "board": {
+      "notCounted": "Seule ta première saison du jour entre au classement.",
+      "rank": "#{rank} aujourd'hui"
+    },
+    "replay": {
+      "note": "Rejouée avec les notes d'aujourd'hui",
+      "draft": "Monte ton équipe",
+      "squad": "L'équipe"
     }
   }
 }
