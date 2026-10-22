@@ -1,12 +1,12 @@
 import type { Line } from "@/engine/chkoun/types";
 
 // The games' few analytics events (design §12, plan Task 15; 30–0: Sprint 3
-// Task 14). Cookieless
-// PostHog sends them only when a key is configured: the instance is
-// registered by src/instrumentation-client.ts after it loads, and until
-// then (or forever, without a key) track() does nothing. An event carries
-// only the day's number, the number of guesses, solved or not, the share
-// channel and the locale: never a visitor id, a footballer or a typed query.
+// Task 14). Cookieless PostHog sends them only when a key is configured:
+// the instance is registered by src/instrumentation-client.ts after it
+// loads, and until then (or forever, without a key) track() does nothing.
+// An event carries only the day's number, the number of guesses, solved or
+// not, the share channel and the locale: never a visitor id, a footballer
+// or a typed query.
 // A 30–0 event adds only a slot's line, its rating band, the season's W-D-L
 // and its rounded rating (D-S3-13): never a name, an id, a code or a squad.
 
