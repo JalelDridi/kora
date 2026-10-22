@@ -41,7 +41,7 @@ export type Season = {
  * λ = base · e^(±edge), edge = k · (rating − strength) ± home. Tuned by
  * src/season/tuning.test.ts; data/README.md ("30–0 season") gives the rates.
  */
-export const SIM = { base: 1.3, k: 0.055, home: 0.15, maxGoals: 9 };
+export const SIM = { base: 1.25, k: 0.05, home: 0.15, maxGoals: 9 };
 
 /** The squad's seed text: codes sorted within each line, lines in formation order. */
 export function canonicalXi(xi: readonly RatedSlot[]): string {

@@ -141,19 +141,19 @@ The drafted XI takes the place of the club that gave it most footballers (a tie 
     goals for    = Poisson(base · e^edge),  at most maxGoals
     goals against = Poisson(base · e^−edge), at most maxGoals
 
-`rating` is the XI's mean rating to one decimal. Constants: `base` 1.3, `k` 0.055, `home` 0.15, `maxGoals` 9 (the planned values; the tuning tests passed on them without adjustment).
+`rating` is the XI's mean rating to one decimal. Constants: `base` 1.25, `k` 0.05, `home` 0.15, `maxGoals` 9 (T-S3-13; the planned 1.3 and 0.055 let a side rated 90 go 30–0 in 2.9% of seasons, D-S3-8 wants under about 1%).
 
 How often a side goes 30–0 (`src/season/tuning.test.ts`, 20,000 consecutive days from 2026-10-07 for a side whose 11 footballers share one rating; 3,000 drafts of a visitor who always takes the best candidate):
 
-| Side           | 30–0 rate | Test bound  |
-| -------------- | --------- | ----------- |
-| all rated 80   | 0%        | under 0.05% |
-| all rated 85   | 0.075%    | under 0.25% |
-| all rated 90   | 2.9%      | 0.25% to 5% |
-| all rated 95   | 21.9%     | over 2%     |
-| greedy drafter | 0%        | under 1%    |
+| Side           | 30–0 rate | Test bound   |
+| -------------- | --------- | ------------ |
+| all rated 80   | 0%        | under 0.05%  |
+| all rated 85   | 0.015%    | under 0.25%  |
+| all rated 90   | 0.89%     | 0.4% to 1.2% |
+| all rated 95   | 10.6%     | over 2%      |
+| greedy drafter | 0%        | under 1%     |
 
-The greedy drafter's XI rates 78.1 at the median (74.5 to 81.8 from the 10th to the 90th percentile, 87.5 at best): the spins rarely offer eleven top footballers, so a 30–0 takes luck in the draft as well as in the season.
+The greedy drafter's XI rates 74.1 at the median (70.8 to 77.5 from the 10th to the 90th percentile, 82.7 at best): the spins rarely offer eleven top footballers, so a 30–0 takes luck in the draft as well as in the season.
 
 ## Sources and licences
 

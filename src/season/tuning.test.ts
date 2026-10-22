@@ -56,8 +56,8 @@ describe("30–0 tuning", { timeout: 120_000 }, () => {
     expect(rate30(85)).toBeLessThan(0.0025));
   it("a side rated 90 sometimes does", () => {
     const p = rate30(90);
-    expect(p).toBeGreaterThan(0.0025);
-    expect(p).toBeLessThan(0.05);
+    expect(p).toBeGreaterThan(0.004);
+    expect(p).toBeLessThan(0.012);
   });
   it("a side rated 95 does more often", () =>
     expect(rate30(95)).toBeGreaterThan(0.02));
