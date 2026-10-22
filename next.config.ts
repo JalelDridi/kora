@@ -26,6 +26,15 @@ const nextConfig: NextConfig = {
     // Next's matcher takes literally.
     "/api/season/**": ["./data/pool.json", "./data/curated/*.json"],
     "/[locale]/season/r/**": ["./data/pool.json", "./data/curated/*.json"],
+    // The squad card's font, read at its first request (Task 17).
+    "/api/season/card": [
+      "./node_modules/@fontsource/inter/files/inter-latin-600-normal.woff",
+    ],
+  },
+  // The squad card renders through next/og's resvg wasm, never sharp, yet
+  // Next traces sharp and its libvips builds (about 37 MB) into the route.
+  outputFileTracingExcludes: {
+    "/api/season/card": ["./node_modules/sharp/**", "./node_modules/@img/**"],
   },
   // Every response, the admin pages included (src/security-headers.ts).
   async headers() {

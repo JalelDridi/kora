@@ -11,11 +11,11 @@ import type { SeasonStrings } from "@/components/season/island";
 import { Pitch } from "@/components/season/pitch";
 import { Result } from "@/components/season/result";
 import { isLocale, localeInfo } from "@/i18n/locales";
+import type { Locale } from "@/i18n/locales";
 import { pageMetadata } from "@/i18n/page-metadata";
 import { getSeasonData } from "@/season/data.server";
 import { handleReplay } from "@/season/replay";
 import type { SeasonView } from "@/season/replay";
-import { gameShareImagePath } from "@/share";
 import { site } from "@/site";
 
 // A shared 30–0 season (plan Task 11): /{prefix}/season/r/{day}/{code},
@@ -52,6 +52,16 @@ const replay = cache(
 
 const path = ({ day, xi }: Params) => `/season/r/${day}/${xi}`;
 
+/** The replay's squad card (src/app/api/season/card/route.tsx). */
+function cardPath(view: SeasonView, locale: Locale): string {
+  const query = new URLSearchParams({
+    d: view.day,
+    xi: view.code,
+    l: localeInfo[locale].prefix.slice(1),
+  });
+  return `/api/season/card?${query.toString().replace(/%7E/gi, "~")}`;
+}
+
 export async function generateMetadata({
   params,
 }: PageProps<"/[locale]/season/r/[day]/[xi]">) {
@@ -66,9 +76,10 @@ export async function generateMetadata({
     path: path(p),
     title: `${t("season.result.record", { w, d, l })} · 30–0 · ${site.name}`,
     description: t("season.meta.description"),
-    // The game's static preview until Task 17's squad card.
+    // The squad card (Task 17, T-S3-14), drawn from the same day and code;
+    // a refused replay has no metadata, so the layout's image stays.
     image: {
-      url: gameShareImagePath("season", localeInfo[p.locale].prefix),
+      url: cardPath(view, p.locale),
       alt: `${site.name} · ${t("games.season.name")}`,
     },
     index: false,
