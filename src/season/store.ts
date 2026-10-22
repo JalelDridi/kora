@@ -1,6 +1,7 @@
 import { seasonKey } from "@/chkoun/kv.ts";
 import type { Kv } from "@/chkoun/kv.ts";
 import type { Day } from "@/engine/chkoun/types.ts";
+import { SIM } from "@/engine/season/simulate.ts";
 
 // 30–0 seasons in Redis (D-S3-9, D-S3-11). A day's seasons are one hash,
 // kora:{env}:season:r:{day}, visitor id → his first season of the day, kept
@@ -13,6 +14,8 @@ import type { Day } from "@/engine/chkoun/types.ts";
 export const SEASON_TTL_SECONDS = 691_200;
 export const BOARD_KEEP = 50;
 const MATCHES = 30;
+/** The most goals a season can hold on one side: 30 matches × 9. */
+const MAX_SEASON_GOALS = MATCHES * SIM.maxGoals;
 
 export type SeasonEntry = {
   xi: string;
@@ -84,6 +87,11 @@ export function parseSeasonEntry(text: string): SeasonEntry | null {
   if (![w, d, l, gf, ga, points].every(count)) return null;
   const [W, D, L] = [w, d, l] as number[];
   if (W + D + L !== MATCHES || points !== 3 * W + D) return null;
+  // A corrupt entry is skipped here rather than failing the nightly copy's
+  // integer columns for the whole day.
+  if ((gf as number) > MAX_SEASON_GOALS || (ga as number) > MAX_SEASON_GOALS) {
+    return null;
+  }
   if (typeof rating !== "number" || !Number.isFinite(rating)) return null;
   return {
     xi,

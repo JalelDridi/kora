@@ -92,4 +92,14 @@ describe("30–0 seasons in Redis", () => {
     expect(parseSeasonEntry("{")).toBeNull();
     expect(parseSeasonEntry("null")).toBeNull();
   });
+
+  it("parseSeasonEntry bounds the goals to 30 matches × 9 (0..270)", () => {
+    const at = (gf: number, ga: number) =>
+      parseSeasonEntry(JSON.stringify({ ...entry, gf, ga }));
+    expect(at(270, 270)).toEqual({ ...entry, gf: 270, ga: 270 });
+    expect(at(0, 0)).toEqual({ ...entry, gf: 0, ga: 0 });
+    expect(at(271, 0)).toBeNull();
+    expect(at(0, 271)).toBeNull();
+    expect(at(1e12, 0)).toBeNull();
+  });
 });
