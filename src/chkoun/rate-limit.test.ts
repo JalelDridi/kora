@@ -1,9 +1,11 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { FakeKv } from "./kv.ts";
+import { FakeKv, seasonKey } from "./kv.ts";
 import {
   allowGuess,
+  allowRequest,
   GUESS_LIMIT,
   rateLimitSalt,
+  SEASON_LIMIT,
   WINDOW_SECONDS,
 } from "./rate-limit.ts";
 
@@ -91,5 +93,45 @@ describe("the guess rate limit (N4)", () => {
   it("an unknown address is not limited", async () => {
     expect((await guesses(100, at(0), "")).every((r) => r.allowed)).toBe(true);
     expect(kv.entries.size).toBe(0);
+  });
+});
+
+describe("a rate limit per game", () => {
+  it("allowRequest counts under the scope's own key and limit", async () => {
+    const now = at(0);
+    const input = {
+      key: (r: string) => seasonKey("local", r),
+      limit: 2,
+      ip,
+      now,
+      salt: "s",
+    };
+    expect((await allowRequest(kv, input)).allowed).toBe(true);
+    await allowRequest(kv, input);
+    const over = await allowRequest(kv, input);
+    expect(over.allowed).toBe(false);
+    expect(over.retryAfter).toBe(600);
+    expect([...kv.entries.keys()]).toEqual([
+      expect.stringMatching(/^kora:local:season:rl:[0-9a-f]{16}:\d+$/),
+    ]);
+    // The guesses' count is apart: a full 30–0 window leaves Chkoun? open.
+    expect(
+      (await allowGuess(kv, { ip, now, salt: "s", env: "local" })).allowed,
+    ).toBe(true);
+  });
+
+  it("the 30–0 limit is 80 per window, like the guesses'", () => {
+    expect(SEASON_LIMIT).toBe(80);
+  });
+
+  it("allowRequest fails open without Redis or an address", async () => {
+    const input = {
+      key: (r: string) => seasonKey("local", r),
+      limit: 0,
+      now: at(0),
+      salt: "s",
+    };
+    expect((await allowRequest(null, { ...input, ip })).allowed).toBe(true);
+    expect((await allowRequest(kv, { ...input, ip: null })).allowed).toBe(true);
   });
 });
