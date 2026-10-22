@@ -17,6 +17,11 @@ export const LEGACY_COOKIE_PATH = "/api/chkoun";
 const UUID_V4 =
   /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
 
+/** Whether `value` is a visitor id: a lowercase UUID v4. */
+export function isVisitorId(value: string): boolean {
+  return UUID_V4.test(value);
+}
+
 /** The visitor id in a Cookie header, or null when absent or malformed. */
 export function readVisitorId(cookieHeader: string | null): string | null {
   if (!cookieHeader) return null;
@@ -25,7 +30,7 @@ export function readVisitorId(cookieHeader: string | null): string | null {
     if (eq === -1) continue;
     if (part.slice(0, eq).trim() !== VISITOR_COOKIE) continue;
     const value = part.slice(eq + 1).trim();
-    return UUID_V4.test(value) ? value : null;
+    return isVisitorId(value) ? value : null;
   }
   return null;
 }

@@ -3,6 +3,7 @@ import type { Day } from "@/engine/chkoun/types.ts";
 import type { SqlClient } from "@/pipeline/calendar.ts";
 import type { Kv } from "./kv.ts";
 import { parseEntry, resultsKey } from "./store.ts";
+import { isVisitorId } from "./visitor.ts";
 
 // The nightly copy of finished games from Redis to Postgres (D-S2-1, N2,
 // N3): the last 7 days before today, one INSERT per day, each game at most
@@ -23,9 +24,6 @@ export type CopyResult = {
   skipped: number;
   notes: string[];
 };
-
-const UUID_V4 =
-  /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
 
 const PUZZLE_SQL = `
 SELECT id FROM puzzles WHERE game = 'chkoun' AND day = $1::date`;
@@ -64,7 +62,7 @@ export async function copyResults(input: {
     }[] = [];
     for (const [visitorId, text] of all) {
       const game = parseEntry(text);
-      if (!game || !UUID_V4.test(visitorId)) continue;
+      if (!game || !isVisitorId(visitorId)) continue;
       rows.push({
         visitor_id: visitorId,
         solved: game.solved,

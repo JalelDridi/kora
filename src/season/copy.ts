@@ -1,6 +1,7 @@
 import { COPY_DAYS } from "@/chkoun/copy.ts";
 import type { CopyResult } from "@/chkoun/copy.ts";
 import type { Kv } from "@/chkoun/kv.ts";
+import { isVisitorId } from "@/chkoun/visitor.ts";
 import { addDays } from "@/engine/chkoun/day.ts";
 import type { Day } from "@/engine/chkoun/types.ts";
 import type { SqlClient } from "@/pipeline/calendar.ts";
@@ -14,9 +15,6 @@ import { parseSeasonEntry, seasonResultsKey } from "./store.ts";
 // per season: day, visitor id, points as the score, solved when all 30
 // matches are won, no puzzle, and in detail the squad's share code and its
 // record (xi, w, d, l, gf, ga, rating). Notes name days and counts only.
-
-const UUID_V4 =
-  /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
 
 const INSERT_SQL = `
 INSERT INTO results (id, game, day, visitor_id, puzzle_id, solved, score, detail)
@@ -51,7 +49,7 @@ export async function copySeasons(input: {
     const rows = [];
     for (const [visitorId, text] of all) {
       const season = parseSeasonEntry(text);
-      if (!season || !UUID_V4.test(visitorId)) continue;
+      if (!season || !isVisitorId(visitorId)) continue;
       rows.push({ visitor_id: visitorId, ...season });
     }
     const malformed = all.length - rows.length;
