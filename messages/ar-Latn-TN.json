@@ -217,7 +217,7 @@
       "title": "30–0 · Kora",
       "description": "Kawwen far9tek men la3ba tounsiyin, blasa blasa, w ba3d el3ab mawsem kemel: 30 match."
     },
-    "rules": "Fi kol blasa yetla3lek far9 w 3achriya: ekhtar la3eb men khamsa, w ba3d el3ab 30 match.",
+    "rules": "Fi kol blasa yetla3lek far9 w 3achriya: ekhtar la3eb men khamsa wala a9al, w ba3d el3ab 30 match.",
     "noscript": "El le3ba hedhi test7a99 JavaScript.",
     "lines": {
       "goalkeeper": "El 7ares",
@@ -242,7 +242,7 @@
       "titles": "Al9ab",
       "titlesValue": "{league} botola, {cup} kas, {caf} Ifrikia",
       "afcon": "Rbe7 kas Ifrikia 2004",
-      "band": "Ta9rib {band} ?",
+      "band": "Ta9riban {band} ?",
       "doubt": "? = mouch met2akdin, chouf el masader"
     },
     "error": {

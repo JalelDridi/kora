@@ -217,7 +217,7 @@
       "title": "30–0 · Kora",
       "description": "Monte ton équipe de joueurs tunisiens, place par place, puis joue une saison de 30 matchs."
     },
-    "rules": "Pour chaque place, un club et une décennie sont tirés : choisis un joueur parmi cinq, puis joue 30 matchs.",
+    "rules": "Pour chaque place, un club et une décennie sont tirés : choisis un joueur parmi cinq au plus, puis joue 30 matchs.",
     "noscript": "Ce jeu a besoin de JavaScript.",
     "lines": {
       "goalkeeper": "Gardien",

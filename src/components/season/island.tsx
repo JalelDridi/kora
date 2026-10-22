@@ -36,8 +36,10 @@ function isView(v: unknown): v is DraftView {
 type Answer =
   | { kind: "ok"; view: DraftView }
   | { kind: "notice"; notice: Exclude<Notice, null> }
-  /** The token was refused as too old or invalid. */
+  /** The token or the pick was refused: the device's copy is stale. */
   | { kind: "stale" };
+
+const STALE = new Set([400, 403, 409, 422]);
 
 async function post(body: Request): Promise<Answer> {
   try {
@@ -50,10 +52,10 @@ async function post(body: Request): Promise<Answer> {
     const json: unknown = await response.json().catch(() => null);
     if (response.status === 429) return { kind: "notice", notice: "tooMany" };
     if (response.status === 503) return { kind: "notice", notice: "closed" };
-    if (
-      body.action !== "start" &&
-      (response.status === 409 || response.status === 403)
-    )
+    // On a pick or a re-spin, 409 (too old), 403 (not ours), 400 and 422
+    // (refused) all mean the device's copy is no longer a draft the server
+    // takes: a new one starts in its place.
+    if (body.action !== "start" && STALE.has(response.status))
       return { kind: "stale" };
     if (!response.ok || !isView(json))
       return { kind: "notice", notice: "network" };
