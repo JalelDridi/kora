@@ -371,9 +371,11 @@ for (const locale of locales) {
 
 // No layout shift while drafting: the spin area keeps at least a screen's
 // height until the 11th pick, so the first spin's arrival moves nothing the
-// visitor can see. At 1280 px the pitch is beside the spin and stays put; at
-// 320 px it is below the spin, and stays below the fold (a spin of five
-// cards is taller than a screen, so it may move further down, unseen).
+// visitor can see. At 1280 px the pitch has its own column, so it stays put
+// with or without the reservation: there the board's bound below the fold is
+// the guard. At 320 px the pitch is below the spin and stays below the fold
+// (a spin of five cards is taller than a screen, so it may move further
+// down, unseen).
 for (const width of [320, 1280]) {
   test(`/ar/season the first spin moves nothing on screen at ${width} px`, async ({
     page,
@@ -412,3 +414,42 @@ for (const width of [320, 1280]) {
     expect(await axe(page)).toEqual([]);
   });
 }
+
+test("/ar/season a failed start keeps the spin area: the notice shows and the board stays below the fold", async ({
+  page,
+}) => {
+  const t = arTN.season;
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await page.route("**/api/season/draft", (route) =>
+    route.fulfill({ status: 503, json: { error: "closed" } }),
+  );
+  await page.goto("/ar/season");
+  await expect(page.getByText(t.error.closed)).toBeVisible();
+  const board = page.getByRole("region", { name: t.board.title });
+  expect((await board.boundingBox())!.y).toBeGreaterThanOrEqual(800);
+  expect(await axe(page)).toEqual([]);
+});
+
+// Accepted trade-off: the server renders every visit at idle, so a visitor
+// whose saved draft is already complete sees the reserved area collapse once
+// on mount; the play button then comes straight after the intro.
+test("/fr/season a restored complete draft shows the play button with no reserved area", async ({
+  page,
+}) => {
+  const t = fr.season;
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await page.goto("/fr/season");
+  const pick = page.getByRole("button", { name: new RegExp(escape(t.pick)) });
+  for (let slot = 0; slot < 11; slot++) {
+    await expect(page.getByText(fill(t.slot, { n: slot + 1 }))).toBeVisible();
+    await pick.first().click();
+  }
+  await expect(page.getByRole("button", { name: t.play })).toBeEnabled();
+  await page.reload();
+  const play = page.getByRole("button", { name: t.play });
+  await expect(play).toBeVisible();
+  await expect(play).toBeEnabled();
+  const board = page.getByRole("region", { name: t.board.title });
+  await expect(board).toBeVisible();
+  expect((await board.boundingBox())!.y).toBeLessThan(800);
+});

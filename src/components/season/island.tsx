@@ -315,47 +315,53 @@ export function SeasonIsland({
 
   const squad = view?.squad ?? [];
   const spin = view?.status === "drafting" ? view.spin : null;
-  /** A draft on its way or in progress; a failed start shows its notice instead. */
-  const reserve = phase === "drafting" || (phase === "idle" && !notice);
+  // Until the 11th pick (idle or drafting, a failed start included), the
+  // spin area keeps at least a screen's height, so the board and the pitch
+  // start below the fold and do not move when the first spin (or the next)
+  // arrives. The server renders every visit at idle, as it cannot know what
+  // the device keeps: a returning visitor whose saved draft is already
+  // complete sees the play button jump up once, on mount. Accepted.
+  const reserve = phase === "idle" || phase === "drafting";
 
   return (
     <div className="mt-8 grid gap-6 lg:grid-cols-2 lg:items-start">
       <div className="flex flex-col gap-3">
-        <p
-          role="status"
-          aria-live="polite"
-          className="min-h-6 text-base font-semibold"
+        <div
+          className={
+            reserve
+              ? "flex min-h-[100vh] flex-col gap-3 supports-[min-height:100dvh]:min-h-dvh"
+              : "flex flex-col gap-3"
+          }
         >
-          {notice ? t.error[notice] : null}
-        </p>
-        {notice === "network" && !view ? (
-          <button
-            type="button"
-            disabled={pending}
-            onClick={() => void send({ action: "start" })}
-            className="min-h-11 self-start rounded-full bg-mint px-5 font-semibold text-pitch-950"
+          <p
+            role="status"
+            aria-live="polite"
+            className="min-h-6 text-base font-semibold"
           >
-            {t.error.retry}
-          </button>
-        ) : null}
-        {reserve ? (
-          // Until the 11th pick, the spin area keeps at least a screen's
-          // height, so the board and the pitch start below the fold and do
-          // not move when the first spin (or the next) arrives.
-          <div className="min-h-[100vh] supports-[min-height:100dvh]:min-h-dvh">
-            {spin ? (
-              <SpinPanel
-                spin={spin}
-                locale={locale}
-                strings={t}
-                respinLeft={view?.respinLeft ?? false}
-                pending={pending}
-                onPick={pick}
-                onRespin={respin}
-              />
-            ) : null}
-          </div>
-        ) : null}
+            {notice ? t.error[notice] : null}
+          </p>
+          {notice === "network" && !view ? (
+            <button
+              type="button"
+              disabled={pending}
+              onClick={() => void send({ action: "start" })}
+              className="min-h-11 self-start rounded-full bg-mint px-5 font-semibold text-pitch-950"
+            >
+              {t.error.retry}
+            </button>
+          ) : null}
+          {spin ? (
+            <SpinPanel
+              spin={spin}
+              locale={locale}
+              strings={t}
+              respinLeft={view?.respinLeft ?? false}
+              pending={pending}
+              onPick={pick}
+              onRespin={respin}
+            />
+          ) : null}
+        </div>
         {phase === "complete" ? (
           <button
             id="season-play"
