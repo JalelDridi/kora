@@ -60,6 +60,8 @@ function createResult(
     day?: Date;
     visitorId?: string;
     score?: number;
+    puzzleId?: string;
+    detail?: Record<string, string | number>;
   } = {},
 ) {
   return db.result.create({
@@ -108,6 +110,27 @@ describe("results", () => {
     );
     await createResult({ score: 1 });
     await createResult({ score: 8, visitorId: otherVisitor });
+  });
+
+  const season = { game: "season" as const, detail: { xi: "a-squad-code" } };
+
+  it("a 30–0 result scores 0 to 90 points", async () => {
+    await expect(createResult({ ...season, score: 91 })).rejects.toThrow(
+      /results_season_score/,
+    );
+    await createResult({ ...season, score: 0 });
+    await createResult({ ...season, score: 90, visitorId: otherVisitor });
+  });
+
+  it("a 30–0 result has no puzzle and names its squad", async () => {
+    const puzzle = await db.puzzle.create({ data: { game: "season", day } });
+    await expect(
+      createResult({ ...season, score: 60, puzzleId: puzzle.id }),
+    ).rejects.toThrow(/results_season_score/);
+    await expect(
+      createResult({ ...season, score: 60, detail: { w: 20 } }),
+    ).rejects.toThrow(/results_season_score/);
+    await createResult({ ...season, score: 60 });
   });
 });
 
