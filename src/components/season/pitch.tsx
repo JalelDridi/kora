@@ -25,7 +25,9 @@ export const SQUAD_HEADING = "season-squad";
 
 // The visitor's eleven (plan Task 10): four rows, each a list of its places
 // in the page's direction, with the line, the name (the Latin name under
-// it on /ar) and the rating. Logical properties only.
+// it on /ar) and the rating. Logical properties only. A name is a flex
+// child that may shrink and wrap anywhere: four cells share 320 px, and a
+// long Latin name must never widen the page (the e2e measures it).
 export function Pitch({ squad, current, locale, strings: t }: Props) {
   const slots = SLOT_LINES.map((line, slot) => ({ line, slot }));
   return (
@@ -58,14 +60,14 @@ export function Pitch({ squad, current, locale, strings: t }: Props) {
                   <span className="text-xs text-chalk-dim">{t.lines[row]}</span>
                   {picked ? (
                     <>
-                      <span className="text-xs font-semibold break-words sm:text-sm">
+                      <span className="min-w-0 max-w-full text-xs font-semibold [overflow-wrap:anywhere] sm:text-sm">
                         <bdi>{name}</bdi>
                       </span>
                       {latin ? (
                         <span
                           lang="en"
                           dir="ltr"
-                          className="text-[0.6875rem] text-chalk-dim break-words sm:text-xs"
+                          className="min-w-0 max-w-full text-[0.6875rem] text-chalk-dim [overflow-wrap:anywhere] sm:text-xs"
                         >
                           <bdi>{latin}</bdi>
                         </span>
