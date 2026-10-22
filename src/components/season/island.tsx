@@ -315,6 +315,8 @@ export function SeasonIsland({
 
   const squad = view?.squad ?? [];
   const spin = view?.status === "drafting" ? view.spin : null;
+  /** A draft on its way or in progress; a failed start shows its notice instead. */
+  const reserve = phase === "drafting" || (phase === "idle" && !notice);
 
   return (
     <div className="mt-8 grid gap-6 lg:grid-cols-2 lg:items-start">
@@ -336,16 +338,23 @@ export function SeasonIsland({
             {t.error.retry}
           </button>
         ) : null}
-        {spin ? (
-          <SpinPanel
-            spin={spin}
-            locale={locale}
-            strings={t}
-            respinLeft={view?.respinLeft ?? false}
-            pending={pending}
-            onPick={pick}
-            onRespin={respin}
-          />
+        {reserve ? (
+          // Until the 11th pick, the spin area keeps at least a screen's
+          // height, so the board and the pitch start below the fold and do
+          // not move when the first spin (or the next) arrives.
+          <div className="min-h-[100vh] supports-[min-height:100dvh]:min-h-dvh">
+            {spin ? (
+              <SpinPanel
+                spin={spin}
+                locale={locale}
+                strings={t}
+                respinLeft={view?.respinLeft ?? false}
+                pending={pending}
+                onPick={pick}
+                onRespin={respin}
+              />
+            ) : null}
+          </div>
         ) : null}
         {phase === "complete" ? (
           <button
