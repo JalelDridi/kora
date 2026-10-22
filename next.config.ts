@@ -26,6 +26,18 @@ const nextConfig: NextConfig = {
     // Next's matcher takes literally.
     "/api/season/**": ["./data/pool.json", "./data/curated/*.json"],
     "/[locale]/season/r/**": ["./data/pool.json", "./data/curated/*.json"],
+    // The squad card's font, read at its first request (Task 17).
+    "/api/season/card": [
+      "./node_modules/@fontsource/inter/files/inter-latin-600-normal.woff",
+    ],
+  },
+  // next/og's Node build draws with sharp when `import("sharp")` succeeds
+  // and falls back to resvg (wasm) when it throws. Sharp and its libvips
+  // builds (about 37 MB) are excluded here, so the squad card is drawn by
+  // resvg on Vercel; the e2e card test was run once with sharp hidden to
+  // prove that path (Task 17, fix round 2).
+  outputFileTracingExcludes: {
+    "/api/season/card": ["./node_modules/sharp/**", "./node_modules/@img/**"],
   },
   // Every response, the admin pages included (src/security-headers.ts).
   async headers() {

@@ -1,4 +1,9 @@
+import { mkdirSync, writeFileSync } from "node:fs";
+import { dirname } from "node:path";
 import { expect, test } from "@playwright/test";
+import arLatnTN from "../messages/ar-Latn-TN.json";
+import arTN from "../messages/ar-TN.json";
+import fr from "../messages/fr.json";
 import { localeInfo, locales } from "../src/i18n/locales";
 import {
   alternateOpenGraphLocales,
@@ -9,6 +14,7 @@ import {
   shareImageSize,
 } from "../src/share";
 import { site } from "../src/site";
+import { shot } from "./chkoun-helpers";
 
 for (const locale of locales) {
   const { prefix } = localeInfo[locale];
@@ -99,5 +105,90 @@ for (const locale of locales) {
       width: body.readUInt32BE(16),
       height: body.readUInt32BE(20),
     }).toEqual(shareImageSize);
+  });
+}
+
+// A shared season's preview is its squad card (Task 17, T-S3-14): drafted
+// here (first candidate each time) and played, then the replay page's
+// og:image is fetched from the test server. The PNG is kept for review.
+const seasonMessages = { "ar-TN": arTN, "ar-Latn-TN": arLatnTN, fr };
+const escapeRe = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+for (const locale of locales) {
+  const { prefix } = localeInfo[locale];
+  test(`${prefix}: a replay page's og:image is a PNG of 1200×630 under 250,000 bytes`, async ({
+    page,
+    request,
+  }) => {
+    const t = seasonMessages[locale].season;
+    await page.goto(`${prefix}/season`);
+    const pick = page.getByRole("button", {
+      name: new RegExp(escapeRe(t.pick)),
+    });
+    for (let slot = 0; slot < 11; slot++) {
+      await expect(
+        page.getByText(t.slot.replace("{n}", String(slot + 1))),
+      ).toBeVisible();
+      await pick.first().click();
+    }
+    const answer = page.waitForResponse("**/api/season/play");
+    await page.getByRole("button", { name: t.play }).click();
+    const played = (await (await answer).json()) as {
+      day: string;
+      code: string;
+    };
+
+    await page.goto(`${prefix}/season/r/${played.day}/${played.code}`);
+    const og = (p: string) => page.locator(`head meta[property="${p}"]`);
+    const imageUrl = (await og("og:image").getAttribute("content")) ?? "";
+    expect(
+      await page
+        .locator('head meta[name="twitter:image"]')
+        .getAttribute("content"),
+    ).toBe(imageUrl);
+    const url = new URL(imageUrl);
+    expect(url.pathname).toBe("/api/season/card");
+    expect(url.searchParams.get("d")).toBe(played.day);
+    expect(url.searchParams.get("xi")).toBe(played.code);
+    await expect(og("og:image:width")).toHaveAttribute(
+      "content",
+      String(shareImageSize.width),
+    );
+    await expect(og("og:image:height")).toHaveAttribute(
+      "content",
+      String(shareImageSize.height),
+    );
+
+    const image = await request.get(url.pathname + url.search);
+    expect(image.status()).toBe(200);
+    expect(image.headers()["content-type"]).toBe("image/png");
+    expect(image.headers()["cache-control"]).toBe(
+      "public, s-maxage=86400, stale-while-revalidate=3600",
+    );
+    const body = await image.body();
+    expect(body.length).toBeLessThanOrEqual(shareImageMaxBytes);
+    expect({
+      width: body.readUInt32BE(16),
+      height: body.readUInt32BE(20),
+    }).toEqual(shareImageSize);
+    mkdirSync(dirname(shot(17, prefix.slice(1), 1200, "card")), {
+      recursive: true,
+    });
+    writeFileSync(shot(17, prefix.slice(1), 1200, "card"), body);
+
+    // A refused squad, a bad day or an unknown locale slug has no card:
+    // 404, private, and no image (a squad has at most four public entries).
+    for (const query of [
+      `d=${played.day}&xi=nobody_0&l=${prefix.slice(1)}`,
+      `d=2026-13-45&xi=${played.code}&l=${prefix.slice(1)}`,
+      `d=${played.day}&xi=${played.code}&l=zz`,
+    ]) {
+      const refused = await request.get(`/api/season/card?${query}`);
+      expect(refused.status(), query).toBe(404);
+      expect(refused.headers()["content-type"], query).not.toBe("image/png");
+      expect(refused.headers()["cache-control"], query).toBe(
+        "private, no-store",
+      );
+    }
   });
 }
