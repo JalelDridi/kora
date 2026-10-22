@@ -202,7 +202,9 @@ export function SeasonIsland({
 
   useEffect(() => {
     // The draft kept on this device, or a new one; state is set once the
-    // page runs (storage and fetch are browser-only).
+    // page runs (storage and fetch are browser-only). Runs once per mount:
+    // `send` has no dependencies and `locale` is a stable prop (a locale
+    // switch is a new page), so season_opened is not sent twice.
     const id = window.setTimeout(() => {
       track("season_opened", { locale });
       setHall(bestSeasons());
