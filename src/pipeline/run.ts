@@ -8,6 +8,7 @@ import {
   writeFile,
 } from "node:fs/promises";
 import path from "node:path";
+import { buildSeasonData, spinSummary } from "../engine/season/data.ts";
 import { knownIds } from "./check.ts";
 import { commonsUrl, parseCommons } from "./commons.ts";
 import { GOALSCORERS_URL, goalsFloors, tunisiaScorers } from "./goalscorers.ts";
@@ -1331,6 +1332,15 @@ async function build(deps: RunDeps): Promise<RunResult> {
         overrideWarnings: checked.warnings,
         offline: deps.offline === true,
         witness: witnessSummary(witness, pool, today),
+        // 30–0: who each club, decade and line can offer. The strength
+        // and AFCON files only change ratings, never who is offered.
+        seasonSpins: spinSummary(
+          buildSeasonData(
+            pool,
+            { strength: { clubs: {} }, afcon: { footballers: [] } },
+            Number(today.slice(0, 4)),
+          ),
+        ),
         photos: {
           downloaded: photoRun.downloaded,
           waiting: photoRun.waiting,

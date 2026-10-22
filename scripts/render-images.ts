@@ -3,12 +3,14 @@
 // it reverses Arabic words and crashes on IBM Plex Sans Arabic). Run by hand
 // after changing a tagline, the mark or this design: `pnpm images`, then bump
 // shareImageVersion in src/share.ts if an existing image changed. Locally it
-// uses the installed Chrome, like scripts/render-deck.mjs. Name sets to render
+// uses the installed Chrome, like scripts/render-deck.mjs (or the Chromium
+// that KORA_CHROMIUM names). Name sets to render
 // only those: `pnpm images games` renders the game pages' previews alone
 // (sets: share, games, icons; none named renders all).
 import { mkdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { chromium, type Page } from "@playwright/test";
+import { launchGames } from "../src/games.ts";
 import { localeInfo, locales } from "../src/i18n/locales.ts";
 import {
   gameShareImagePath,
@@ -86,25 +88,31 @@ async function renderShareImages(page: Page) {
 }
 
 // A game page's preview: the mark, the game's name large and "Kora" under
-// it (plan Task 15). No footballer, no crest (P33).
+// it (plan Task 15). No footballer, no crest (P33). One per game that has a
+// page (live or not: a page reachable by URL still needs its preview).
 async function renderGameImages(page: Page) {
   mkdirSync(out("public/og"), { recursive: true });
   await page.setViewportSize(shareImageSize);
+  const games = launchGames.filter((game) => game.route !== null);
   for (const locale of locales) {
     const { prefix, dir } = localeInfo[locale];
     const messages = JSON.parse(
       read(`messages/${locale}.json`).toString("utf8"),
     );
-    await page.setContent(
-      `<!doctype html><html lang="${locale}" dir="${dir}"><head><meta charset="utf-8"><style>${shareCss}</style></head>
-       <body>${mark}<h1><bdi>${messages.games.chkoun.name}</bdi></h1><p>${site.name}</p><div class="bar"></div></body></html>`,
-    );
-    await waitForFonts(page);
-    const path = out(`public${gameShareImagePath("chkoun", prefix)}`);
-    await page.screenshot({ path, type: "png" });
-    const bytes = statSync(path).size;
-    if (bytes > shareImageMaxBytes) throw new Error(`${path}: ${bytes} bytes`);
-    console.log(`${path} (${bytes} bytes)`);
+    for (const { id } of games) {
+      await page.setContent(
+        `<!doctype html><html lang="${locale}" dir="${dir}"><head><meta charset="utf-8"><style>${shareCss}</style></head>
+         <body>${mark}<h1><bdi>${messages.games[id].name}</bdi></h1><p>${site.name}</p><div class="bar"></div></body></html>`,
+      );
+      await waitForFonts(page);
+      const path = out(`public${gameShareImagePath(id, prefix)}`);
+      await page.screenshot({ path, type: "png" });
+      const bytes = statSync(path).size;
+      if (bytes > shareImageMaxBytes) {
+        throw new Error(`${path}: ${bytes} bytes`);
+      }
+      console.log(`${path} (${bytes} bytes)`);
+    }
   }
 }
 
@@ -163,8 +171,13 @@ async function renderIcons(page: Page) {
   write("src/app/favicon.ico", ico(small));
 }
 
+// KORA_CHROMIUM points at a Chromium binary where Chrome is not installed
+// (a sandbox, a container); otherwise CI uses Playwright's Chromium and a
+// local run the installed Chrome.
+const executablePath = process.env.KORA_CHROMIUM || undefined;
 const browser = await chromium.launch({
-  channel: process.env.CI ? undefined : "chrome",
+  executablePath,
+  channel: process.env.CI || executablePath ? undefined : "chrome",
 });
 const page = await browser.newPage({ deviceScaleFactor: 1 });
 const sets = process.argv.slice(2);

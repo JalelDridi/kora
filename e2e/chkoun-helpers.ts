@@ -39,3 +39,13 @@ export async function noSidewaysScroll(page: Page) {
       document.documentElement.clientWidth,
   );
 }
+
+/** Where a task's screenshots go: `screens/task-N/<locale>-<width>-<state>.png`. */
+export function shot(
+  task: number,
+  locale: string,
+  width: number,
+  state: string,
+): string {
+  return `.superpowers/sdd/2026-10-07-sprint-3/screens/task-${task}/${locale}-${width}-${state}.png`;
+}

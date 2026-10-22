@@ -25,6 +25,8 @@ export function toResponse(result: ApiResult): Response {
   const headers = new Headers({ ...PRIVATE, ...result.headers });
   if (result.setCookie)
     headers.append("Set-Cookie", serializeCookie(result.setCookie));
+  for (const cookie of result.setCookies ?? [])
+    headers.append("Set-Cookie", serializeCookie(cookie));
   return Response.json(result.body, { status: result.status, headers });
 }
 

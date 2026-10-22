@@ -1,5 +1,6 @@
 import { access, readFile } from "node:fs/promises";
 import path from "node:path";
+import { buildSeasonData, seasonProblems } from "../engine/season/data.ts";
 import { validateOverrides } from "./overrides.ts";
 import type { KnownIds } from "./overrides.ts";
 import { competitions, regions } from "./types.ts";
@@ -77,6 +78,77 @@ export function knownIds(
     clubs: new Set(clubs.filter((q): q is string => typeof q === "string")),
     seen: new Set(),
   };
+}
+
+/** data/curated/ligue1-strength.json: each Ligue 1 club's strength this season (30–0). */
+export type StrengthFile = {
+  season: string;
+  by: string;
+  at: string;
+  note: string;
+  clubs: Record<string, number>;
+};
+
+/** data/curated/afcon-2004.json: the AFCON 2004 winners, by Wikidata id (30–0). */
+export type AfconFile = {
+  by: string;
+  at: string | null;
+  footballers: string[];
+};
+
+/** Every Ligue 1 club of the pool once, nothing else, a whole number from 55 to 90. */
+export function validateStrength(
+  json: unknown,
+  ligue1ClubIds: string[],
+): string[] {
+  const at = "ligue1-strength.json";
+  if (!isRecord(json) || !isRecord(json.clubs))
+    return [`${at}: must be { season, by, at, note, clubs }`];
+  const errors: string[] = [];
+  for (const key of ["season", "by", "at", "note"])
+    if (typeof json[key] !== "string" || json[key] === "")
+      errors.push(`${at}: ${key} must be a string`);
+  for (const id of ligue1ClubIds)
+    if (!(id in json.clubs)) errors.push(`${at}: no strength for ${id}`);
+  for (const [id, value] of Object.entries(json.clubs)) {
+    if (!ligue1ClubIds.includes(id))
+      errors.push(`${at}: ${id} is not a Ligue 1 club`);
+    else if (
+      !Number.isInteger(value) ||
+      (value as number) < 55 ||
+      (value as number) > 90
+    )
+      errors.push(
+        `${at}: ${id}: strength must be a whole number from 55 to 90, not ${String(value)}`,
+      );
+  }
+  return errors;
+}
+
+/** Wikidata ids, each once, at most 23 (a tournament squad). */
+export function validateAfcon(json: unknown): string[] {
+  const at = "afcon-2004.json";
+  if (
+    !isRecord(json) ||
+    typeof json.by !== "string" ||
+    json.by === "" ||
+    !(json.at === null || typeof json.at === "string") ||
+    !Array.isArray(json.footballers)
+  )
+    return [`${at}: must be { by, at, footballers: [Wikidata ids] }`];
+  const errors: string[] = [];
+  if (json.footballers.length > 23)
+    errors.push(
+      `${at}: at most 23 footballers, not ${json.footballers.length}`,
+    );
+  const seen = new Set<unknown>();
+  for (const q of json.footballers as unknown[]) {
+    if (typeof q !== "string" || !QID.test(q))
+      errors.push(`${at}: ${String(q)} is not a Wikidata id`);
+    else if (seen.has(q)) errors.push(`${at}: ${q} is listed twice`);
+    seen.add(q);
+  }
+  return errors;
 }
 
 /** The errors of checkData. */
@@ -193,6 +265,26 @@ export async function inspectData(
     }
   }
 
+  // 30–0 (Sprint 3). The strength file is required once there is a pool to
+  // read the Ligue 1 clubs from; the AFCON 2004 file is checked when present.
+  const strength = await read("curated/ligue1-strength.json");
+  if (usablePool(pool)) {
+    if (strength === undefined) {
+      // read() has already named a file that is there but not JSON.
+      if (!errors.some((e) => e.startsWith("data/curated/ligue1-strength")))
+        errors.push("data/curated/ligue1-strength.json: missing");
+    } else
+      errors.push(
+        ...validateStrength(
+          strength,
+          pool.clubs.filter((c) => isRecord(c) && c.ligue1).map((c) => c.id),
+        ).map((e) => `data/curated/${e}`),
+      );
+  }
+  const afcon = await read("curated/afcon-2004.json");
+  if (afcon !== undefined)
+    errors.push(...validateAfcon(afcon).map((e) => `data/curated/${e}`));
+
   const registryErrors =
     registry === undefined ? [] : validateIdRegistry(registry);
   errors.push(...registryErrors.map((e) => `data/ids.json: ${e}`));
@@ -207,12 +299,35 @@ export async function inspectData(
     ? { players: strings(registry.players), clubs: strings(registry.clubs) }
     : undefined;
 
-  if (pool !== undefined)
-    errors.push(
-      ...validatePool(pool, ids, usableRegistry).map(
-        (e) => `data/pool.json: ${e}`,
-      ),
+  const poolErrors =
+    pool === undefined ? [] : validatePool(pool, ids, usableRegistry);
+  errors.push(...poolErrors.map((e) => `data/pool.json: ${e}`));
+
+  // 30–0 (D-S3-2): no slot of the 1-4-3-3 can come up empty. Checked once the
+  // pool and the strength file are sound; an AFCON file with errors (already
+  // reported) counts as empty, since it changes ratings, not who is offered.
+  if (
+    usablePool(pool) &&
+    poolErrors.length === 0 &&
+    strength !== undefined &&
+    validateStrength(
+      strength,
+      pool.clubs.filter((c) => c.ligue1).map((c) => c.id),
+    ).length === 0
+  ) {
+    const season = buildSeasonData(
+      pool,
+      {
+        strength: strength as StrengthFile,
+        afcon:
+          afcon !== undefined && validateAfcon(afcon).length === 0
+            ? (afcon as AfconFile)
+            : { footballers: [] },
+      },
+      new Date().getUTCFullYear(),
     );
+    errors.push(...seasonProblems(season).map((e) => `data/pool.json: ${e}`));
+  }
 
   // A photo path must name a file in public/ (review 1, L6): a pool
   // committed without its photos would show a broken image with a credit.

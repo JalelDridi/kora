@@ -177,7 +177,7 @@
     },
     "cookie": {
       "title": "Cookie we7ed barka, dharouri",
-      "body": "Ki ennateyej tet7fedh 3al serveur, Kora t7ott cookie ki tkammel awel partie: kora_v, numéro mas7oub bessodfa, bla 7atta ma3louma 3lik. Yetba3th ken lel la3ba (/api/chkoun), ma ynajmouch ya9rawh les scripts mta3 essaf7a, w yo93od 13 chhar. Yekhdem ken bech yorbot partiyetek lel série mte3ek. Mafamech 7atta cookie ekher."
+      "body": "Ki ennateyej tet7fedh 3al serveur, Kora t7ott cookie ki tkammel awel partie: kora_v, numéro mas7oub bessodfa, bla 7atta ma3louma 3lik. Yetba3th ken lel al3ab (/api), ma ynajmouch ya9rawh les scripts mta3 essaf7a, w yo93od 13 chhar. Yekhdem ken bech yorbot partiyetek lel série mte3ek. Mafamech 7atta cookie ekher."
     },
     "server": {
       "title": "3al serveur",
@@ -189,7 +189,7 @@
     },
     "analytics": {
       "title": "9yes el jomhour",
-      "body": "Kora t3edd ezziyarat bla cookie b Vercel Web Analytics. PostHog (serveurs fi Europa), bla cookie w bla profil, youslou ken khamsa a7deth mel la3ba: partie ma7loula, mou7awla, partie mkammla, mocharka, taftich bla natija. Ya7mlou numéro ennhar, 3adad el mou7awlet, rba7t wala le, ellougha w kifech cherekt; abadan elli tektbou, la la3eb, la ennuméro kora_v mte3ek. El bibliothèque mta3 PostHog tzid wa7adha 3onwen essaf7a, essaf7a elli jit menha, ennavigateur, essystème w 9yes el écran. PostHog youslou 3onwen IP mte3ek bech ya7seb el basma mte3ou bla cookie, men ghir ma ysajlou: tasjil 3anawin IP metfi fi machrou3 PostHog."
+      "body": "Kora t3edd ezziyarat bla cookie b Vercel Web Analytics. PostHog (serveurs fi Europa), bla cookie w bla profil, youslou ken a7deth mel le3bet. Fi Chkoun? khamsa: partie ma7loula, mou7awla, partie mkammla, mocharka, taftich bla natija; ya7mlou numéro ennhar, 3adad el mou7awlet, rba7t wala le, ellougha w kifech cherekt. Fi 30–0 setta: saf7a ma7loula, la3eb mekhtar fi blasa, 3awed dawwer, el matchet tel3bou, mocharka, chift ettartib; ya7mlou el khatt mta3 el blasa, etta9yim bet9rib, rbe7-t3adel-khsara, ta9yim el far9, ellougha w kifech cherekt. Abadan elli tektbou, la esm, la la3eb, la far9tek, la ennuméro kora_v mte3ek. El bibliothèque mta3 PostHog tzid wa7adha 3onwen essaf7a, essaf7a elli jit menha, ennavigateur, essystème w 9yes el écran. PostHog youslou 3onwen IP mte3ek bech ya7seb el basma mte3ou bla cookie, men ghir ma ysajlou: tasjil 3anawin IP metfi fi machrou3 PostHog."
     },
     "errors": {
       "title": "El ghaltat",
@@ -210,6 +210,94 @@
     "contact": {
       "title": "Ettasel bina",
       "body": "3andek sou'el 3al saf7a hedhi? Ekteblna 3la GitHub."
+    }
+  },
+  "season": {
+    "meta": {
+      "title": "30–0 · Kora",
+      "description": "Kawwen far9tek men la3ba tounsiyin, blasa blasa, w ba3d el3ab mawsem kemel: 30 match."
+    },
+    "rules": "Fi kol blasa yetla3lek far9 w 3achriya: ekhtar la3eb men khamsa wala a9al, w ba3d el3ab 30 match.",
+    "noscript": "El le3ba hedhi test7a99 JavaScript.",
+    "lines": {
+      "goalkeeper": "El 7ares",
+      "defender": "El difa3",
+      "midfielder": "El wost",
+      "forward": "El hjoum"
+    },
+    "slot": "Blasa {n} men 11",
+    "decade": "3achriyet {decade}",
+    "widened": "Ma 3adech famma 7atta la3eb lel blasa hedhi ghadi: hew a9rab far9 w 3achriya",
+    "pick": "Ekhtar",
+    "respin": "3awed dawwer (marra bark fel le3ba)",
+    "respinUsed": "Dawwert marra, ma 3adech tnajem",
+    "play": "El3ab el mawsem",
+    "squad": "Far9tek",
+    "rating": "Ta9yim",
+    "empty": "Blasa fergha",
+    "inputs": {
+      "caps": "Matchet el mountakhab",
+      "goalsPerCap": "Ahdef fi kol match m3a el mountakhab",
+      "apps": "Matchet m3a el far9",
+      "titles": "Al9ab",
+      "titlesValue": "{league} botola, {cup} kas, {caf} Ifrikia",
+      "afcon": "Rbe7 kas Ifrikia 2004",
+      "band": "Ta9riban {band} ?",
+      "doubt": "? = mouch met2akdin, chouf el masader"
+    },
+    "error": {
+      "network": "Saret mochkla fel connexion.",
+      "tooMany": "Barcha le3bet. 3awed ba3d chwaya d9aye9.",
+      "expired": "El le3ba hedhi fetet: hew wa7da jdida.",
+      "closed": "30–0 mouch mawjouda tawa.",
+      "retry": "3awed jarreb"
+    },
+    "result": {
+      "title": "Mawsmek",
+      "record": "{w}-{d}-{l}",
+      "points": "No9at",
+      "goals": "Ahdef (leha-3liha)",
+      "teamRating": "Ta9yim el far9",
+      "replaces": "Tal3ab fi blaset {club}",
+      "matches": "El 30 match",
+      "round": "Jawla {n}",
+      "home": "Fi darha",
+      "away": "Barra",
+      "win": "Rbe7",
+      "draw": "T3adel",
+      "loss": "Khsara",
+      "onDevice": "El mawsem ma7fouth fel telifoun hedha",
+      "again": "3awed el3ab"
+    },
+    "share": {
+      "header": "Kora · 30–0",
+      "points": "no9ta",
+      "button": "Partagi",
+      "copy": "Copi",
+      "copied": "Tcopa!",
+      "whatsapp": "Eb3ath 3la WhatsApp",
+      "longPress": "Edhghat mtawwel 3al ktiba bech tcopiha"
+    },
+    "hall": {
+      "title": "A7sen el mawasem mte3ek",
+      "note": "Ma7foutha fel telifoun hedha",
+      "day": "En nhar",
+      "record": "El natija",
+      "points": "No9at",
+      "rating": "Ta9yim"
+    },
+    "board": {
+      "title": "A7sen el fra9 el youm",
+      "off": "El tartib mta3 el youm mouch mawjoud tawa.",
+      "empty": "7atta 7ad ma le3eb el youm.",
+      "you": "Hedha enti",
+      "notCounted": "Ken awwel mawsem fel nhar yodkhel lel tartib.",
+      "rank": "#{rank} el youm"
+    },
+    "replay": {
+      "note": "T3awed bel ta9yimet mta3 el youm",
+      "draft": "Kawwen far9tek enti",
+      "squad": "El far9"
     }
   }
 }

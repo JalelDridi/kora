@@ -40,6 +40,8 @@ export type ApiResult = {
   body: Record<string, unknown>;
   headers?: Record<string, string>;
   setCookie?: VisitorCookie;
+  /** Several cookies, each its own Set-Cookie header (the widened id). */
+  setCookies?: VisitorCookie[];
 };
 
 export type Store = "server" | "device";

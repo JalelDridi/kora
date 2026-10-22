@@ -31,6 +31,20 @@ export interface Kv {
   hgetall(key: string): Promise<Record<string, string>>;
   /** INCR and EXPIRE in one transaction (MULTI); returns the new count. */
   incrEx(key: string, seconds: number): Promise<number>;
+  /**
+   * ZADD, then ZREMRANGEBYRANK 0 -(keep+1) (only the best `keep` stay),
+   * EXPIRE and ZREVRANK, in one transaction (MULTI): the member's rank from
+   * the top (0 is the best), or null when it was trimmed away.
+   */
+  zaddTop(
+    key: string,
+    member: string,
+    score: number,
+    keep: number,
+    seconds: number,
+  ): Promise<number | null>;
+  /** The best `n` members, highest score first; none when `n <= 0`. */
+  ztop(key: string, n: number): Promise<{ member: string; score: number }[]>;
   del(key: string): Promise<void>;
 }
 
@@ -42,6 +56,11 @@ export function kvEnv(): string {
 /** Every Chkoun? key: kora:{env}:chkoun:… */
 export function chkounKey(env: string, rest: string): string {
   return `kora:${env}:chkoun:${rest}`;
+}
+
+/** Every 30–0 key: kora:{env}:season:… */
+export function seasonKey(env: string, rest: string): string {
+  return `kora:${env}:season:${rest}`;
 }
 
 function asText(value: unknown): string | null {
@@ -91,6 +110,30 @@ export function upstashKv(redis: Redis): Kv {
         .exec<[number, number]>();
       return count;
     },
+    zaddTop: async (key, member, score, keep, seconds) => {
+      const [, , , rank] = await redis
+        .multi()
+        .zadd(key, { score, member })
+        .zremrangebyrank(key, 0, -(keep + 1))
+        .expire(key, seconds)
+        .zrevrank(key, member)
+        .exec<[number | null, number, number, number | null]>();
+      return rank ?? null;
+    },
+    ztop: async (key, n) => {
+      // ZRANGE 0 -1 would answer the whole set: n <= 0 asks for nothing.
+      if (n <= 0) return [];
+      // With withScores, Upstash answers a flat [member, score, …], each
+      // parsed as JSON when it can be: members are turned back into text.
+      const flat = await redis.zrange<unknown[]>(key, 0, n - 1, {
+        rev: true,
+        withScores: true,
+      });
+      const out: { member: string; score: number }[] = [];
+      for (let i = 0; i + 1 < flat.length; i += 2)
+        out.push({ member: asText(flat[i]) ?? "", score: Number(flat[i + 1]) });
+      return out;
+    },
     del: async (key) => {
       await redis.del(key);
     },
@@ -108,13 +151,18 @@ export function getKv(): Kv | null {
   return shared;
 }
 
-type Entry = { value: string | Map<string, string>; expiresAt: number | null };
+/** A sorted set, lowest first, ties by member: Redis's own order. */
+type Sorted = { member: string; score: number }[];
+type Entry = {
+  value: string | Map<string, string> | Sorted;
+  expiresAt: number | null;
+};
 
 /**
  * An in-memory Kv for tests, with a clock the test moves. `failing` makes
  * every command throw, like an unreachable Upstash; `failOn` makes only the
- * named commands throw. A transaction (hsetnxEx, incrEx) is one command: it
- * applies all of its parts or none.
+ * named commands throw. A transaction (hsetnxEx, incrEx, zaddTop) is one
+ * command: it applies all of its parts or none.
  */
 export class FakeKv implements Kv {
   readonly entries = new Map<string, Entry>();
@@ -232,6 +280,51 @@ export class FakeKv implements Kv {
       expiresAt: entry?.expiresAt ?? null,
     });
     return next;
+  }
+
+  async zaddTop(
+    key: string,
+    member: string,
+    score: number,
+    keep: number,
+    seconds: number,
+  ): Promise<number | null> {
+    this.run("zaddTop", key);
+    const entry = this.live(key);
+    const set: Sorted = (Array.isArray(entry?.value) ? entry.value : [])
+      .filter((e) => e.member !== member)
+      .concat({ member, score })
+      .sort((a, b) =>
+        a.score !== b.score
+          ? a.score - b.score
+          : a.member < b.member
+            ? -1
+            : a.member > b.member
+              ? 1
+              : 0,
+      );
+    // ZREMRANGEBYRANK 0 -(keep+1): drop the lowest, keep the best `keep`.
+    const kept = set.slice(Math.max(0, set.length - keep));
+    this.entries.set(key, {
+      value: kept,
+      expiresAt: this.nowMs + seconds * 1000,
+    });
+    const at = kept.findIndex((e) => e.member === member);
+    return at === -1 ? null : kept.length - 1 - at;
+  }
+
+  async ztop(
+    key: string,
+    n: number,
+  ): Promise<{ member: string; score: number }[]> {
+    this.run("ztop", key);
+    const entry = this.live(key);
+    if (n <= 0 || !Array.isArray(entry?.value)) return [];
+    return entry.value
+      .slice()
+      .reverse()
+      .slice(0, n)
+      .map((e) => ({ ...e }));
   }
 
   async del(key: string): Promise<void> {

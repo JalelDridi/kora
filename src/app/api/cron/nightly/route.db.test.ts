@@ -82,7 +82,7 @@ describe("GET /api/cron/nightly", () => {
     expect(await puzzles()).toBe(0);
   });
 
-  it("the right secret copies (nothing, Redis is off) and tops up the calendar", async () => {
+  it("the right secret copies games and seasons (nothing, Redis is off) and tops up the calendar", async () => {
     const r = await call(`Bearer ${secret}`);
     expect(r.status).toBe(200);
     expect(r.headers.get("cache-control")).toBe("private, no-store");
@@ -91,6 +91,7 @@ describe("GET /api/cron/nightly", () => {
       ok: true,
       copied: 0,
       skipped: 0,
+      seasons: 0,
       written: 30,
       filled: 30,
       window: 44,

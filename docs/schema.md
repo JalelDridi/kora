@@ -10,7 +10,7 @@ Eight tables. A **player** is a footballer; the person playing a game is a **vis
 | `governorates` | The 24 governorates with their names and region                                                                                                                                                                                                                                                                                                   |
 | `honours`      | Which club won which competition in which season                                                                                                                                                                                                                                                                                                  |
 | `puzzles`      | The day's answer for each game, with how it was chosen (generator, pin, reserve) and a note. Chkoun? puzzle numbers are computed from the day, not stored                                                                                                                                                                                         |
-| `results`      | A finished game, copied from Redis once a night (Chkoun?: guesses 1 to 8, the colour grid in `detail.grid`)                                                                                                                                                                                                                                       |
+| `results`      | A finished game, copied from Redis once a night (Chkoun?: guesses 1 to 8, the colour grid in `detail.grid`; 30–0: the first season of the day, points 0 to 90, solved when all 30 matches are won, no puzzle, the squad code and the record in `detail` as `xi`, `w`, `d`, `l`, `gf`, `ga`, `rating`)                                             |
 | `reports`      | Corrections sent by visitors; nothing changes until Jalel accepts one                                                                                                                                                                                                                                                                             |
 
 The pool tables are written only by the data sync (`src/pipeline/sync.ts`), from `data/pool.json`, when a deploy builds. A player who leaves the pool keeps his row with both pool flags off, so puzzles and results that point at him stay valid.
@@ -42,6 +42,7 @@ Each is proven by a test in `src/db/invariants.db.test.ts` or `src/db/pool.db.te
 | A fame tier is A to D; a fame score is 0 to 10                                                                                           | `players_fame_tier`, `players_fame_range`                                                                                    |
 | A copied photo is credited and lives under `/photos/`                                                                                    | `players_photo_path_credited`, `players_photo_path_shape`                                                                    |
 | A Chkoun? result has 1 to 8 guesses                                                                                                      | `results_chkoun_score`                                                                                                       |
+| A 30–0 result scores 0 to 90 points, has no puzzle and names its squad (`detail.xi`)                                                     | `results_season_score`                                                                                                       |
 
 Check constraints are SQL at the end of each migration, because Prisma's schema language cannot express them.
 
@@ -53,6 +54,6 @@ The day's footballer is generated 30 days ahead, at deploy and every night, from
 
 ## Results
 
-Finished games are kept in Redis for 8 days under `kora:{env}:chkoun:r:{day}` and copied to `results` every night with `ON CONFLICT (game, day, visitor_id) DO NOTHING`.
+Finished games are kept in Redis for 8 days under `kora:{env}:chkoun:r:{day}`, and each visitor's first 30–0 season of the day under `kora:{env}:season:r:{day}`; the nightly job (`/api/cron/nightly`) copies the last 7 days of both to `results` with `ON CONFLICT (game, day, visitor_id) DO NOTHING`, so a missed night is caught up the next one. Malformed entries are skipped and counted.
 
 Not stored: search keys and tile facts (built from the public `pool.json`), the seed, the token key, raw network addresses.
