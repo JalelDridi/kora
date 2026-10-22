@@ -176,12 +176,19 @@ for (const locale of locales) {
     });
     writeFileSync(shot(17, prefix.slice(1), 1200, "card"), body);
 
-    // A refused squad has no card: 404, private, and no image.
-    const refused = await request.get(
-      `/api/season/card?d=${played.day}&xi=nobody_0&l=${prefix.slice(1)}`,
-    );
-    expect(refused.status()).toBe(404);
-    expect(refused.headers()["content-type"]).not.toBe("image/png");
-    expect(refused.headers()["cache-control"]).toBe("private, no-store");
+    // A refused squad, a bad day or an unknown locale slug has no card:
+    // 404, private, and no image (a squad has at most four public entries).
+    for (const query of [
+      `d=${played.day}&xi=nobody_0&l=${prefix.slice(1)}`,
+      `d=2026-13-45&xi=${played.code}&l=${prefix.slice(1)}`,
+      `d=${played.day}&xi=${played.code}&l=zz`,
+    ]) {
+      const refused = await request.get(`/api/season/card?${query}`);
+      expect(refused.status(), query).toBe(404);
+      expect(refused.headers()["content-type"], query).not.toBe("image/png");
+      expect(refused.headers()["cache-control"], query).toBe(
+        "private, no-store",
+      );
+    }
   });
 }

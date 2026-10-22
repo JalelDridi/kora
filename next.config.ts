@@ -31,8 +31,11 @@ const nextConfig: NextConfig = {
       "./node_modules/@fontsource/inter/files/inter-latin-600-normal.woff",
     ],
   },
-  // The squad card renders through next/og's resvg wasm, never sharp, yet
-  // Next traces sharp and its libvips builds (about 37 MB) into the route.
+  // next/og's Node build draws with sharp when `import("sharp")` succeeds
+  // and falls back to resvg (wasm) when it throws. Sharp and its libvips
+  // builds (about 37 MB) are excluded here, so the squad card is drawn by
+  // resvg on Vercel; the e2e card test was run once with sharp hidden to
+  // prove that path (Task 17, fix round 2).
   outputFileTracingExcludes: {
     "/api/season/card": ["./node_modules/sharp/**", "./node_modules/@img/**"],
   },

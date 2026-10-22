@@ -2,6 +2,7 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { ImageResponse } from "next/og";
 import { toResponse } from "@/chkoun/http";
+import { localeInfo, locales } from "@/i18n/locales";
 import { cardLines } from "@/season/card";
 import { getSeasonData } from "@/season/data.server";
 import { handleReplay, REPLAY_CACHE } from "@/season/replay";
@@ -11,9 +12,10 @@ import { shareImageSize } from "@/share";
 // GET /api/season/card?d=&xi=&l= (plan Task 17, T-S3-14): a shared season's
 // link preview, a text-only card drawn by next/og. Latin-only in every
 // locale (src/season/card.ts): Satori cannot shape Arabic. `l` is the
-// sharer's locale slug, unused by the layout today. The season comes from
-// handleReplay, so the same squad on the same day is the same card: public
-// and cached a day at the CDN. Anything handleReplay refuses is a private
+// sharer's locale slug (ar, tn or fr, or none; anything else is a 404, so
+// a squad has at most four public CDN entries), unused by the layout today.
+// The season comes from handleReplay, so the same squad on the same day is
+// the same card: public and cached a day at the CDN. Anything handleReplay refuses is a private
 // 404 with no image. The font is Inter 600, latin subset, read from
 // @fontsource/inter at the first request (traced by next.config.ts).
 
@@ -126,8 +128,14 @@ function Card({ view }: { view: SeasonView }) {
   );
 }
 
+/** The sharer's locale slug, or none: any other value would be its own CDN entry. */
+const SLUGS = new Set(locales.map((l) => localeInfo[l].prefix.slice(1)));
+
 export async function GET(request: Request) {
   const params = new URL(request.url).searchParams;
+  const slug = params.get("l");
+  if (slug !== null && !SLUGS.has(slug))
+    return toResponse({ status: 404, body: { error: "notFound" } });
   let view: SeasonView;
   let data: Buffer;
   try {

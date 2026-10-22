@@ -21,7 +21,7 @@ const deps: SeasonDeps = {
   secureCookie: false,
 };
 
-const ARABIC = /[؀-ۿݐ-ݿࢠ-ࣿﭐ-﷿ﹰ-﻿]/;
+const ARABIC = /\p{Script=Arabic}/u;
 const NON_WESTERN_DIGIT = /[٠-٩۰-۹]/;
 
 let view: SeasonView;

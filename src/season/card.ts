@@ -12,7 +12,7 @@ import type { SeasonView } from "./replay.ts";
 
 const t = fr.season;
 
-const ARABIC = /[؀-ۿݐ-ݿࢠ-ࣿﭐ-﷿ﹰ-﻿]/;
+const ARABIC = /\p{Script=Arabic}/u;
 
 /** The footballer's Latin name; his French one if that is in Arabic letters; else none. */
 function latinName(names: Names): string | null {
