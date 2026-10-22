@@ -18,7 +18,7 @@ export type LaunchGame = {
 
 export const launchGames: readonly LaunchGame[] = [
   { id: "chkoun", badge: "daily", route: "/chkoun", live: true },
-  { id: "season", badge: "simulator", route: "/season", live: false },
+  { id: "season", badge: "simulator", route: "/season", live: true },
   { id: "aktar", badge: "endless", route: null, live: false },
 ];
 

@@ -155,12 +155,9 @@ for (const locale of locales) {
     await context.close();
   });
 
-  test(`${url} is noindex until 30–0 goes live`, async ({ page }) => {
+  test(`${url} is indexed now 30–0 is live (P57)`, async ({ page }) => {
     await page.goto(url);
-    await expect(page.locator('meta[name="robots"]')).toHaveAttribute(
-      "content",
-      /noindex/,
-    );
+    await expect(page.locator('head meta[name="robots"]')).toHaveCount(0);
     await expect(page).toHaveTitle(t.meta.title);
   });
 

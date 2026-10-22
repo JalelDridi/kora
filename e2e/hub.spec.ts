@@ -33,7 +33,9 @@ for (const locale of locales) {
         await expect(
           card.getByRole("link", { name: strings.games[game.id].name }),
         ).toHaveAttribute("href", `${prefix}${route}`);
-        await expect(card.getByText(strings.hub.play)).toBeVisible();
+        await expect(
+          card.getByText(strings.hub.play, { exact: true }),
+        ).toBeVisible();
         await expect(card.getByText(strings.hub.soon)).toHaveCount(0);
       } else {
         await expect(card.getByText(strings.hub.soon)).toBeVisible();
@@ -121,28 +123,29 @@ test("/ar keeps 30–0 left to right and Arabic names right to left (P7)", async
   );
 });
 
-test("the 30–0 card says soon while not live; /ar/season answers 200 with noindex", async ({
-  page,
-  request,
-}) => {
-  await page.goto("/ar");
-  await expect(
-    page.getByRole("heading", { name: arTN.games.season.name }),
-  ).toBeVisible();
-  await expect(
-    page.getByRole("link", { name: arTN.games.season.name }),
-  ).toHaveCount(0);
-  const season = page.getByRole("article").filter({
-    has: page.getByRole("heading", { name: arTN.games.season.name }),
-  });
-  await expect(season.getByText(arTN.hub.soon)).toBeVisible();
+for (const locale of locales) {
+  const { prefix } = localeInfo[locale];
+  const strings = messages[locale];
 
-  const response = await request.get("/ar/season");
-  expect(response.status()).toBe(200);
-  expect(await response.text()).toContain(
-    '<meta name="robots" content="noindex',
-  );
-});
+  test(`the 30–0 card links to ${prefix}/season and the page is indexed`, async ({
+    page,
+    request,
+  }) => {
+    await page.goto(prefix);
+    await expect(
+      page.getByRole("link", { name: strings.games.season.name }),
+    ).toHaveAttribute("href", `${prefix}/season`);
+
+    const response = await request.get(`${prefix}/season`);
+    expect(response.status()).toBe(200);
+    expect(await response.text()).not.toContain(
+      '<meta name="robots" content="noindex',
+    );
+
+    const sitemap = await (await request.get("/sitemap.xml")).text();
+    expect(sitemap).toMatch(new RegExp(`<loc>[^<]*${prefix}/season</loc>`));
+  });
+}
 
 test("the language switcher changes language and direction", async ({
   page,

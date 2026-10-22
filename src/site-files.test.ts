@@ -42,10 +42,10 @@ describe("site files", () => {
   };
 
   it("the sitemap lists the hub, the live games, Sources and privacy in three languages, with alternates and x-default", () => {
-    const live = getGame("chkoun").live ? entries("/chkoun") : [];
     expect(sitemap()).toEqual([
       ...entries(""),
-      ...live,
+      ...entries("/chkoun"),
+      ...entries("/season"),
       ...entries("/sources"),
       ...entries("/privacy"),
     ]);
@@ -66,12 +66,9 @@ describe("site files", () => {
     );
   });
 
-  it("the sitemap leaves /season out while it is not live", () => {
-    expect(
-      sitemap()
-        .map((e) => e.url)
-        .some((u) => u.endsWith("/season")),
-    ).toBe(false);
+  it("the sitemap lists /season in three locales with alternates", () => {
+    const season = sitemap().filter((e) => e.url.endsWith("/season"));
+    expect(season).toEqual(entries("/season"));
   });
 
   it("the sitemap leaves out the admin pages", () => {

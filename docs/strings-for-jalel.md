@@ -339,3 +339,13 @@ The game page is reachable by its URL but hidden until all of these are done, in
    - TalkBack on: a tile reads its column, its value and its colour word; the arrows read their meaning; each guess is announced; focus lands on the result at the end.
    - `/tn` and `/fr` once each; switch language mid-game.
    - Look at `/sources` and `/privacy` on the phone.
+
+## Go-live checklist (30–0)
+
+Released on 22 October 2026 (P57), soft launch, not promoted:
+
+- [x] **Strings in.** Claude's Derja drafts ship marked DRAFT (P51, the "Sprint 3: 30–0" section above); Jalel corrects them whenever he likes.
+- [x] **Flip the switch.** `live: true` on 30–0 in `src/games.ts`: the hub card opens the game, the page drops `noindex` and enters the sitemap; the browser tests check all three.
+- [x] **Full SEO check.** In `lighthouserc.json`, `/ar/season` shares the `/chkoun` entry: `categories:seo` 0.95, hreflang and canonical.
+- [x] **Checks pass** before the commit (the fast check, the build, the browser tests of the hub, the site files and 30–0, Lighthouse).
+- [ ] **Phone checks, after the release** (waived before it by Jalel on 22 October 2026, 10 minutes, Android): draft and play in Chrome and in the Facebook in-app browser; share to WhatsApp (the link is alone on the last line and replays the same record); reload mid-draft keeps the squad; TalkBack reads a candidate's rating and its "?".

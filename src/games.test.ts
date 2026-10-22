@@ -42,8 +42,8 @@ describe("launch games", () => {
     expect(getGame("season").route).toBe("/season");
   });
 
-  it("30–0 is not live until the release task flips it", () => {
-    expect(getGame("season").live).toBe(false);
+  it("30–0 is live (soft launch, P57)", () => {
+    expect(getGame("season").live).toBe(true);
   });
 
   it("a game is linked from the hub only when its switch is on", () => {
