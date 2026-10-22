@@ -135,9 +135,9 @@ export async function handleDraft(
   if (!token) return fail(403, { error: "forbidden" });
   if (deps.now.getTime() - token.t > DRAFT_TTL_MS)
     return fail(409, { error: "expired" });
-  // The counts the signed token carries, checked before any work.
-  const respins = token.respin !== null ? 1 : 0;
-  if (token.picks.length > FORMATION.length || respins > 1)
+  // The pick count the signed token carries, checked before any work (the
+  // token holds one re-spin slot at most, so there is no re-spin count).
+  if (token.picks.length > FORMATION.length)
     return fail(400, { error: "refused" });
 
   const state: DraftState = {

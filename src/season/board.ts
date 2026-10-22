@@ -63,14 +63,12 @@ export async function handleBoard(deps: BoardDeps): Promise<ApiResult> {
 
   const played: { code: string; season: Season; squad: BoardRow["squad"] }[] =
     [];
-  const seen = new Set<string>();
+  // Sorted-set members are unique, so no code appears twice here.
   for (const { member } of members) {
-    if (seen.has(member)) continue;
     const picks = decodeXi(deps.data, member);
     if (!picks) continue;
     const xi = rateXi(deps.data, picks);
     if (canonicalXi(xi) !== member) continue;
-    seen.add(member);
     played.push({
       code: member,
       season: simulateSeason({ day, xi, table: deps.data.table }),
