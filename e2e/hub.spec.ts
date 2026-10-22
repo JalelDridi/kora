@@ -121,6 +121,29 @@ test("/ar keeps 30–0 left to right and Arabic names right to left (P7)", async
   );
 });
 
+test("the 30–0 card says soon while not live; /ar/season answers 200 with noindex", async ({
+  page,
+  request,
+}) => {
+  await page.goto("/ar");
+  await expect(
+    page.getByRole("heading", { name: arTN.games.season.name }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("link", { name: arTN.games.season.name }),
+  ).toHaveCount(0);
+  const season = page.getByRole("article").filter({
+    has: page.getByRole("heading", { name: arTN.games.season.name }),
+  });
+  await expect(season.getByText(arTN.hub.soon)).toBeVisible();
+
+  const response = await request.get("/ar/season");
+  expect(response.status()).toBe(200);
+  expect(await response.text()).toContain(
+    '<meta name="robots" content="noindex',
+  );
+});
+
 test("the language switcher changes language and direction", async ({
   page,
 }) => {

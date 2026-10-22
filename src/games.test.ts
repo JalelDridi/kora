@@ -34,11 +34,16 @@ describe("launch games", () => {
     }
   });
 
-  it("only Chkoun? has a route", () => {
+  it("Chkoun? and 30–0 have a route; Aktar wala A9all not yet", () => {
     expect(
       launchGames.filter((game) => game.route !== null).map((g) => g.id),
-    ).toEqual(["chkoun"]);
+    ).toEqual(["chkoun", "season"]);
     expect(getGame("chkoun").route).toBe("/chkoun");
+    expect(getGame("season").route).toBe("/season");
+  });
+
+  it("30–0 is not live until the release task flips it", () => {
+    expect(getGame("season").live).toBe(false);
   });
 
   it("a game is linked from the hub only when its switch is on", () => {
@@ -47,7 +52,7 @@ describe("launch games", () => {
     const on: LaunchGame = { ...chkoun, live: true };
     expect(liveRoute(off)).toBeNull();
     expect(liveRoute(on)).toBe("/chkoun");
-    expect(liveRoute({ ...getGame("season"), live: true })).toBeNull();
+    expect(liveRoute({ ...getGame("season"), live: true })).toBe("/season");
   });
 
   it("only a game with a route can be live", () => {

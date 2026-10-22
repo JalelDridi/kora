@@ -66,6 +66,14 @@ describe("site files", () => {
     );
   });
 
+  it("the sitemap leaves /season out while it is not live", () => {
+    expect(
+      sitemap()
+        .map((e) => e.url)
+        .some((u) => u.endsWith("/season")),
+    ).toBe(false);
+  });
+
   it("the sitemap leaves out the admin pages", () => {
     expect(JSON.stringify(sitemap())).not.toContain("/admin");
   });
