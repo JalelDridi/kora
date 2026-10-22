@@ -194,20 +194,15 @@ Sources (Wikidata, 6 Oct 2026): the Arabic script is Wikidata's `aeb-arab` (Tuni
 
 Existing strings now used in new places (no new wording): `games.chkoun.name` (page heading, preview images `public/og/chkoun-*-v1.png`, share header draft); `notFound.home` (the link back to the games on the game, Sources and privacy pages); `hub.language` (the language switcher on those pages, which now keeps the page); `hub.tagline` (the preview image alt text on Sources and privacy). If `games.chkoun.name` changes, re-render the previews with `pnpm images games` and bump `shareImageVersion` in `src/share.ts`.
 
-## Sprint 3: 30–0 (Tasks 10 and 11)
+## Sprint 3: 30–0
 
-The draft page (`/season`, noindex until Task 18). All DRAFT: drafted by Claude from the Chkoun? wording (لاعب/la3eb, فريق/far9, العب/el3ab, عاود/3awed, بلاصة/blasa, ماتشات المنتخب/matchet el mountakhab), not checked by a Derja speaker; Task 16 completes the list. Keep `{n}`, `{decade}`, `{band}`, `{league}`, `{cup}`, `{caf}` as they are.
+Every key of the 30–0 game (Tasks 10, 11 and 12: the draft page, the result, the share text, the hall, the replay page and the board) and the one privacy text Task 5 changed, with the English gloss, the French draft and the two Derja values **as shipped**. All DRAFT: drafted by Claude (an AI) from the Chkoun? wording (لاعب/la3eb, فريق/far9, العب/el3ab, عاود/3awed, بلاصة/blasa, ماتشات المنتخب/matchet el mountakhab), not run through a translation tool, not checked by a Derja speaker (P51). Jalel rewrites or approves each one after they ship; the open questions are gathered at the end of the section.
 
-Open questions:
+Keep `{n}`, `{decade}`, `{band}`, `{league}`, `{cup}`, `{caf}`, `{w}`, `{d}`, `{l}`, `{club}` and `{rank}` as they are. Western digits only. `src/i18n/messages.test.ts` checks every key exists in every locale.
 
-- `season.decade`: drafted as عشرية {decade} / 3achriyet {decade} ("the decade of 1990"); التسعينات-style names would need one string per decade.
-- `season.respin`: دوّر / dawwer for "spin"; `season.rating`: تقييم / Ta9yim (Task 11's share text uses the same word).
-- `season.inputs.titlesValue`: إفريقيا / Ifrikia stands for the CAF club competitions (Champions League and Confederation Cup together).
-- `season.inputs.goalsPerCap`: أهداف / Ahdef is the standard word; spoken Tunisian says قول / goal (plural قوال, "goulet"). Kept as drafted until Jalel picks.
-- `season.rating`: تقييم / Ta9yim is closer to the standard register; the spoken form is نوتة / nota. Kept as drafted (Task 11's share text uses the same word, so change both together).
-- `season.inputs.titles`: ألقاب / Al9ab is press register; spoken alternatives are بطولات or تيتروات / titrouet. Kept as drafted.
-- Plural of "footballers" in `season.meta.description`: the Arabizi says "la3ba tounsiyin" and the Arabic script لاعبين تونسيين; the Derja plural is لعّابة / la3ba (the hub strings already pair these two forms). Jalel picks one form for both scripts.
-- `season.rules` now says "up to five" (خمسة ولا أقل / khamsa wala a9al / cinq au plus): a spin can offer fewer than five candidates (a widened spin often offers 1 or 2).
+### Task 10: the draft page
+
+The draft page (`/season`, noindex until Task 18).
 
 | Key                         | English gloss                                                                         | French draft                                                                                                       | `ar-TN` as shipped                                                             | `ar-Latn-TN` as shipped                                                                           | Status |
 | --------------------------- | ------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------- | ------ |
@@ -245,21 +240,7 @@ Open questions:
 
 ### Task 11: result, share, hall, replay
 
-The season after a play, the share text, the hall of fame on the device and the replay page. All DRAFT, drafted by Claude, not checked by a Derja speaker. The share buttons reuse Chkoun?'s words (بارطاجي/Partagi, كوبي/Copi, WhatsApp); "again" reuses عاود/3awed; "today" reuses Chkoun?'s اليوم/el youm; "on this device" reuses محفوظ في التليفون هذا / ma7fouth fel telifoun hedha. Western digits. Keep `{w}`, `{d}`, `{l}`, `{club}`, `{n}`, `{rank}` as they are. The share text is four lines, pinned by `src/engine/season/share.test.ts`: `Kora · 30–0`, then `28-2-0 · 86 نقطة` (record, points and `season.share.points`), then `تقييم 91.2` (`season.rating` and the team rating), then the replay link alone; the second, third and fourth lines carry invisible left-to-right marks in every language.
-
-Open questions:
-
-- `season.result.home` / `away`: في دارها / برّا (Fi darha / Barra). Commentators also say على ميدانها for home; Jalel picks.
-- `season.share.points`: نقطة / no9ta after the number (Arabic takes the singular after 11 and more; with 3 to 10 points it would read نقاط). A season always has 0 to 90 points, so the singular is wrong only for 3 to 10.
-- `season.result.goals`: الأهداف (لها-عليها) / Ahdef (leha-3liha) for "goals for-against"; أهداف keeps the word open in Task 10's `goalsPerCap` question (قوال / goulet).
-- `season.result.win|draw|loss`: ربح / تعادل / خسارة (Rbe7 / T3adel / Khsara): verbs and nouns mixed; spoken alternatives are ربحنا / تعادلنا / خسرنا.
-- Standard Arabic (MSA) words in these drafts, with spoken candidates, so Jalel rules on each once (strings unchanged until then):
-  - `season.result.round`: الجولة / Jawla is MSA; sports talk says الجورني / el journée.
-  - `season.rating`, `season.result.teamRating`, `season.hall.rating`, `season.replay.note`: تقييم / بالتقييمات are MSA nominal forms; spoken نوتة / nota (plural نوتات / notet), already open under Task 10.
-  - `season.hall.record`: النتيجة / El natija is MSA; spoken candidates السكور / es-score, or the bare record with no label.
-  - `season.result.points`, `season.hall.points`: النقاط / No9at is MSA; spoken النقط / en-no9ot.
-  - `season.result.draw`: تعادل / T3adel is MSA (beyond the verb/noun mix above); spoken نول / nul (from French) or ماتش نول.
-  - `season.share.longPress` and `chkoun.share.longPress`: اضغط / Edhghat (copied from Chkoun?, so it predates this task) is MSA; spoken candidate خلّي صبعك على الكتيبة / khalli sob3ek 3al ktiba.
+The season after a play, the share text, the hall of fame on the device and the replay page. The share buttons reuse Chkoun?'s words (بارطاجي/Partagi, كوبي/Copi, WhatsApp); "again" reuses عاود/3awed; "today" reuses Chkoun?'s اليوم/el youm; "on this device" reuses محفوظ في التليفون هذا / ma7fouth fel telifoun hedha. The share text is four lines, pinned by `src/engine/season/share.test.ts`: `Kora · 30–0`, then `28-2-0 · 86 نقطة` (record, points and `season.share.points`), then `تقييم 91.2` (`season.rating` and the team rating), then the replay link alone; the second, third and fourth lines carry invisible left-to-right marks in every language.
 
 | Key                        | English gloss                                                  | French draft                                          | `ar-TN` as shipped                   | `ar-Latn-TN` as shipped                       | Status |
 | -------------------------- | -------------------------------------------------------------- | ----------------------------------------------------- | ------------------------------------ | --------------------------------------------- | ------ |
@@ -299,13 +280,7 @@ Open questions:
 
 ### Task 12: the board on the page
 
-Today's top sides under the hall (`GET /api/season/board`, polled every 30 s while the tab is visible). All DRAFT, drafted by Claude, not checked by a Derja speaker. Reused, not duplicated: `season.board.rank` (#{rank} today, the rank as text on each row), `season.board.notCounted`, `season.result.record`, `season.result.points`, `season.rating`, and `season.replay.squad` (the label of each side's closed list of eleven). "Today" reuses اليوم / el youm; "not available right now" reuses `season.error.closed`'s موش موجودة توّا / mouch mawjouda tawa.
-
-Open questions:
-
-- `season.board.title`: الفرق / el fra9 for "sides" (plural of فريق / far9, as Task 10's `season.squad`); "today's best sides" could also be أحسن فرق النهار / a7sen fra9 en nhar.
-- `season.board.you`: هذا إنت / Hedha enti ("that's you"); إنتي is the spoken spelling some prefer in Arabic script.
-- `season.board.off`: الترتيب / el tartib is the word Task 11's `notCounted` uses; spoken alternative الكلاسمون / el classement.
+Today's top sides under the hall (`GET /api/season/board`, polled every 30 s while the tab is visible). Reused, not duplicated: `season.board.rank` (#{rank} today, the rank as text on each row), `season.board.notCounted`, `season.result.record`, `season.result.points`, `season.rating`, and `season.replay.squad` (the label of each side's closed list of eleven). "Today" reuses اليوم / el youm; "not available right now" reuses `season.error.closed`'s موش موجودة توّا / mouch mawjouda tawa.
 
 | Key                  | English gloss                                        | French draft                                               | `ar-TN` as shipped                 | `ar-Latn-TN` as shipped                    | Status |
 | -------------------- | ---------------------------------------------------- | ---------------------------------------------------------- | ---------------------------------- | ------------------------------------------ | ------ |
@@ -313,6 +288,37 @@ Open questions:
 | `season.board.off`   | Today's board is not available right now (Redis off) | Le classement du jour n'est pas disponible pour l'instant. | الترتيب متاع اليوم موش موجود توّا. | El tartib mta3 el youm mouch mawjoud tawa. | DRAFT  |
 | `season.board.empty` | Nobody has played yet today                          | Personne n'a encore joué aujourd'hui.                      | حتى حد ما لعب اليوم.               | 7atta 7ad ma le3eb el youm.                | DRAFT  |
 | `season.board.you`   | That's you (on the visitor's own side)               | C'est toi                                                  | هذا إنت                            | Hedha enti                                 | DRAFT  |
+
+### Task 5: the cookie text
+
+The visitor cookie now serves every game's API (`/api`), not only Chkoun?'s, so the privacy page says so. Like the rest of the privacy page, both Derja files ship the French draft as a placeholder until Jalel writes the Derja (see "Sources and privacy pages" above, where the row now holds this text).
+
+| Key                   | English gloss                                                                                                                                                                                                                                                                                                                             | French draft                                                                                                                                                                                                                                                                                                                                                       | `ar-TN` as shipped                          | `ar-Latn-TN` as shipped                     | Status |
+| --------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------- | ------------------------------------------- | ------ |
+| `privacy.cookie.body` | When results are kept on the server, Kora sets one cookie when you finish your first game: kora_v, a random number holding nothing about you, sent only to the games' API (/api), unreadable by page scripts, kept 13 months, used only to link your games for your streak; no other cookie. Changed from "the game's API (/api/chkoun)". | Quand les résultats sont gardés sur le serveur, Kora pose un cookie quand tu finis ta première partie : kora_v, un numéro tiré au hasard, sans aucune donnée sur toi. Il est envoyé seulement aux jeux (/api), il est illisible par les scripts de la page, et il dure 13 mois. Il sert seulement à relier tes parties pour ta série. Il n'y a aucun autre cookie. | The French draft (placeholder, needs Jalel) | The French draft (placeholder, needs Jalel) | DRAFT  |
+
+### Open questions (30–0)
+
+- `season.decade`: سنين or عشرية for "decade"? Drafted as عشرية {decade} / 3achriyet {decade} ("the decade of 1990"; `season.rules` and `season.widened` say عشرية / 3achriya too); سنين {decade} / snin {decade} may be closer to how people speak. التسعينات-style names would need one string per decade.
+- `season.respin` and `season.respinUsed`: how is "re-spin" said in Derja? Drafted as عاود دوّر / 3awed dawwer and دوّرت مرة / dawwert marra (دوّر / dawwer for "spin").
+- `season.result.record`: should "30-0-0" read wins-draws-losses ({w}-{d}-{l}, as shipped, also the share text's second line) or only wins-losses like "82-0"? The game's name, 30–0, reads W-L; a season can have draws, so W-L alone would need the draws said elsewhere.
+- `season.inputs.afcon`: the AFCON 2004 label. Drafted as ربح كاس إفريقيا 2004 / Rbe7 kas Ifrikia 2004; Tunisians also say الكان 2004 / el CAN 2004.
+- `season.rating`, `season.result.teamRating`, `season.hall.rating`, `season.replay.note`: تقييم / Ta9yim and بالتقييمات / bel ta9yimet are standard-Arabic (MSA) nominal forms; the spoken form is نوتة / nota (plural نوتات / notet). The share text's third line uses `season.rating`, so change them together.
+- Goals: `season.inputs.goalsPerCap` and `season.result.goals` say أهداف / Ahdef, the standard word; spoken Tunisian says قول / goal (plural قوال, "goulet"). `season.result.goals` is الأهداف (لها-عليها) / Ahdef (leha-3liha) for "goals for-against".
+- `season.inputs.titles`: ألقاب / Al9ab is press register; spoken alternatives are بطولات or تيتروات / titrouet.
+- `season.inputs.titlesValue`: إفريقيا / Ifrikia stands for the CAF club competitions (Champions League and Confederation Cup together).
+- Plural of "footballers" in `season.meta.description`: the Arabizi says "la3ba tounsiyin" and the Arabic script لاعبين تونسيين; the Derja plural is لعّابة / la3ba (the hub strings already pair these two forms). Jalel picks one form for both scripts.
+- `season.rules` says "up to five" (خمسة ولا أقل / khamsa wala a9al / cinq au plus): a spin can offer fewer than five candidates (a widened spin often offers 1 or 2).
+- `season.result.home` / `away`: في دارها / برّا (Fi darha / Barra). Commentators also say على ميدانها for home.
+- `season.result.win|draw|loss`: ربح / تعادل / خسارة (Rbe7 / T3adel / Khsara) mix verbs and nouns; spoken alternatives are ربحنا / تعادلنا / خسرنا. تعادل / T3adel is also MSA; spoken نول / nul (from French) or ماتش نول.
+- `season.result.round`: الجولة / Jawla is MSA; sports talk says الجورني / el journée.
+- `season.hall.record`: النتيجة / El natija is MSA; spoken candidates السكور / es-score, or the bare record with no label.
+- `season.result.points`, `season.hall.points`: النقاط / No9at is MSA; spoken النقط / en-no9ot.
+- `season.share.points`: نقطة / no9ta after the number (Arabic takes the singular after 11 and more; with 3 to 10 points it would read نقاط). A season always has 0 to 90 points, so the singular is wrong only for 3 to 10.
+- `season.share.longPress` and `chkoun.share.longPress`: اضغط / Edhghat (copied from Chkoun?, so it predates Sprint 3) is MSA; spoken candidate خلّي صبعك على الكتيبة / khalli sob3ek 3al ktiba.
+- `season.board.title`: الفرق / el fra9 for "sides" (plural of فريق / far9, as `season.squad`); "today's best sides" could also be أحسن فرق النهار / a7sen fra9 en nhar.
+- `season.board.you`: هذا إنت / Hedha enti ("that's you"); إنتي is the spoken spelling some prefer in Arabic script.
+- `season.board.off` and `season.board.notCounted`: الترتيب / el tartib; spoken alternative الكلاسمون / el classement.
 
 ## Go-live checklist (Chkoun?)
 
