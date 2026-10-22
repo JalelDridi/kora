@@ -15,7 +15,11 @@ const page = "src/app/[locale]/season/page.tsx";
 const components = readdirSync(path.join(root, "src/components/season"))
   .filter((f) => f.endsWith(".tsx") || f.endsWith(".ts"))
   .map((f) => `src/components/season/${f}`);
-const browserModules = ["src/season/device.ts", "src/season/labels.ts"];
+const browserModules = [
+  "src/season/device.ts",
+  "src/season/labels.ts",
+  "src/season/poll.ts",
+];
 
 /** A specifier refused before it is resolved. */
 const forbiddenSpecifier = [/^node:/];
@@ -27,7 +31,7 @@ const forbiddenFile = [
   // The engine, except the share text: pure, no imports beyond types, and
   // the island builds the text the visitor shares (plan Task 11).
   /^src\/engine\/(?!season\/share\.ts$)/,
-  /^src\/season\/(draft|token|play|replay|store)\.ts$/,
+  /^src\/season\/(draft|token|play|replay|store|board)\.ts$/,
   /^src\/chkoun\/kv\.ts$/,
 ];
 
@@ -107,6 +111,7 @@ describe("the 30–0 page's imports", () => {
         "src/components/season/pitch.tsx",
         "src/components/season/spin-panel.tsx",
         "src/components/season/candidate-card.tsx",
+        "src/components/season/board.tsx",
       ]),
     );
   });

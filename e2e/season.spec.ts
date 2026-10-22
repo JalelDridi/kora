@@ -164,6 +164,111 @@ for (const locale of locales) {
     await expect(page).toHaveTitle(t.meta.title);
   });
 
+  /** Drafts eleven (first candidate each time) and plays; the squad code. */
+  const playSeason = async (page: Page): Promise<string> => {
+    for (let slot = 0; slot < 11; slot++) {
+      await spinning(page, slot + 1);
+      await pickButtons(page).first().click();
+    }
+    const answer = page.waitForResponse("**/api/season/play");
+    await page.getByRole("button", { name: t.play }).click();
+    const { code } = (await (await answer).json()) as { code: string };
+    await expect(page.locator("#season-result")).toBeVisible();
+    return code;
+  };
+  const board = (page: Page) =>
+    page.getByRole("region", { name: t.board.title });
+
+  test(`${url} with Redis off the board says it is off and the season says saved on this device`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 320, height: 640 });
+    await page.goto(url);
+    await expect(board(page).getByText(t.board.off)).toBeVisible();
+    await playSeason(page);
+    await expect(page.getByText(t.result.onDevice)).toBeVisible();
+    await expect(board(page).getByText(t.board.off)).toBeVisible();
+    await expect(board(page).getByRole("list")).toHaveCount(0);
+    for (const width of [320, 1280]) {
+      await page.setViewportSize({ width, height: width === 320 ? 640 : 800 });
+      expect(await noSidewaysScroll(page)).toBe(0);
+      await page.screenshot({
+        path: shot(12, slug, width, "board-off"),
+        fullPage: true,
+      });
+    }
+    expect(await axe(page)).toEqual([]);
+  });
+
+  test(`${url} the board lists today's sides in order and marks the visitor's own`, async ({
+    page,
+  }) => {
+    let own = "own-code-not-played-yet";
+    const row = (rank: number, code: string, points: number) => ({
+      rank,
+      code,
+      w: 20 + rank,
+      d: 3,
+      l: 7 - rank,
+      points,
+      gf: 60,
+      ga: 20,
+      rating: 88.4 - rank,
+      squad: Array.from({ length: 11 }, (_, i) => ({
+        id: `Q${rank}${i}`,
+        names: {
+          nameLatin: `Latin ${rank}-${i + 1}`,
+          nameArabic: `عربي ${rank}-${i + 1}`,
+          nameFrench: null,
+        },
+        line: i === 0 ? "goalkeeper" : "defender",
+      })),
+    });
+    await page.route("**/api/season/board", (route) =>
+      route.fulfill({
+        json: {
+          day: "2026-10-22",
+          status: "on",
+          rows: [row(1, "a-top-side", 75), row(2, own, 70)],
+        },
+      }),
+    );
+    // The real play, its code read before the page gets the answer, so the
+    // board's fetch after the play already lists the visitor's side.
+    await page.route("**/api/season/play", async (route) => {
+      const response = await route.fetch();
+      const json = (await response.json()) as { code: string };
+      own = json.code;
+      await route.fulfill({ response, json });
+    });
+    await page.goto(url);
+    const list = board(page).getByRole("list").first();
+    await expect(list.locator(":scope > li")).toHaveCount(2);
+    await expect(board(page).getByText(t.board.you)).toHaveCount(0);
+    expect(await playSeason(page)).toBe(own);
+    // A play fetches the board again: the visitor's side is marked in words.
+    const items = list.locator(":scope > li");
+    await expect(items.nth(1).getByText(t.board.you)).toBeVisible();
+    await expect(items.nth(0).getByText(t.board.you)).toHaveCount(0);
+    await expect(items.nth(0)).toContainText(fill(t.board.rank, { rank: 1 }));
+    await expect(items.nth(1)).toContainText(fill(t.board.rank, { rank: 2 }));
+    await expect(items.nth(0)).toContainText(
+      fill(t.result.record, { w: 21, d: 3, l: 6 }),
+    );
+    const details = items.nth(0).locator("details");
+    await expect(details).not.toHaveAttribute("open");
+    await expect(details.locator("li")).toHaveCount(11);
+    const first = locale === "ar-TN" ? "عربي 1-1" : "Latin 1-1";
+    await expect(details.getByText(first, { exact: true })).toBeHidden();
+    await details.locator("summary").click();
+    await expect(details.getByText(first, { exact: true })).toBeVisible();
+    expect(await noSidewaysScroll(page)).toBe(0);
+    expect(await axe(page)).toEqual([]);
+    await board(page).screenshot({
+      path: shot(12, slug, 1280, "board-on"),
+    });
+  });
+
   for (const width of [1280, 320]) {
     test(`${url} screenshots at ${width} px: idle, spinning, drafted`, async ({
       page,

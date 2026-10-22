@@ -297,6 +297,23 @@ Open questions:
 | `season.replay.draft`      | Draft your own (link to /season)                               | Monte ton équipe                                      | كوّن فريقك إنت                       | Kawwen far9tek enti                           | DRAFT  |
 | `season.replay.squad`      | The team (pitch heading on the replay page)                    | L'équipe                                              | الفريق                               | El far9                                       | DRAFT  |
 
+### Task 12: the board on the page
+
+Today's top sides under the hall (`GET /api/season/board`, polled every 30 s while the tab is visible). All DRAFT, drafted by Claude, not checked by a Derja speaker. Reused, not duplicated: `season.board.rank` (#{rank} today, the rank as text on each row), `season.board.notCounted`, `season.result.record`, `season.result.points`, `season.rating`, and `season.replay.squad` (the label of each side's closed list of eleven). "Today" reuses اليوم / el youm; "not available right now" reuses `season.error.closed`'s موش موجودة توّا / mouch mawjouda tawa.
+
+Open questions:
+
+- `season.board.title`: الفرق / el fra9 for "sides" (plural of فريق / far9, as Task 10's `season.squad`); "today's best sides" could also be أحسن فرق النهار / a7sen fra9 en nhar.
+- `season.board.you`: هذا إنت / Hedha enti ("that's you"); إنتي is the spoken spelling some prefer in Arabic script.
+- `season.board.off`: الترتيب / el tartib is the word Task 11's `notCounted` uses; spoken alternative الكلاسمون / el classement.
+
+| Key                  | English gloss                                        | French draft                                               | `ar-TN` as shipped                 | `ar-Latn-TN` as shipped                    | Status |
+| -------------------- | ---------------------------------------------------- | ---------------------------------------------------------- | ---------------------------------- | ------------------------------------------ | ------ |
+| `season.board.title` | Today's best sides (board heading)                   | Les meilleures équipes du jour                             | أحسن الفرق اليوم                   | A7sen el fra9 el youm                      | DRAFT  |
+| `season.board.off`   | Today's board is not available right now (Redis off) | Le classement du jour n'est pas disponible pour l'instant. | الترتيب متاع اليوم موش موجود توّا. | El tartib mta3 el youm mouch mawjoud tawa. | DRAFT  |
+| `season.board.empty` | Nobody has played yet today                          | Personne n'a encore joué aujourd'hui.                      | حتى حد ما لعب اليوم.               | 7atta 7ad ma le3eb el youm.                | DRAFT  |
+| `season.board.you`   | That's you (on the visitor's own side)               | C'est toi                                                  | هذا إنت                            | Hedha enti                                 | DRAFT  |
+
 ## Go-live checklist (Chkoun?)
 
 The game page is reachable by its URL but hidden until all of these are done, in this order:

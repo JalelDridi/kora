@@ -13,6 +13,7 @@ import type { SeasonView } from "@/season/replay";
 import { format } from "@/chkoun/labels";
 import type { Locale } from "@/i18n/locales";
 import type fr from "../../../messages/fr.json";
+import { Board } from "./board";
 import { Hall } from "./hall";
 import { Pitch } from "./pitch";
 import { RESULT_HEADING, Result } from "./result";
@@ -149,6 +150,8 @@ export function SeasonIsland({
   const [phase, setPhase] = useState<Phase>("idle");
   const [view, setView] = useState<DraftView | null>(null);
   const [played, setPlayed] = useState<PlayView | null>(null);
+  /** The squad code of the last play: the board marks it (Task 12). */
+  const [lastCode, setLastCode] = useState<string | null>(null);
   const [hall, setHall] = useState<DeviceSeason[]>([]);
   const [notice, setNotice] = useState<Notice>(null);
   const [pending, setPending] = useState(false);
@@ -255,6 +258,7 @@ export function SeasonIsland({
       });
       setHall(bestSeasons());
       setPlayed(answer.view);
+      setLastCode(answer.view.code);
       moved.current = true;
       setPhase("simulated");
     } finally {
@@ -345,6 +349,8 @@ export function SeasonIsland({
           </Result>
         ) : null}
         <Hall seasons={hall} prefix={prefix} strings={t} />
+        {/* Task 14: pass onViewed to send board_viewed. */}
+        <Board locale={locale} strings={t} ownCode={lastCode} />
       </div>
       <Pitch
         squad={squad}

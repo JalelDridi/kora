@@ -287,6 +287,10 @@
       "rating": "Note"
     },
     "board": {
+      "title": "Les meilleures équipes du jour",
+      "off": "Le classement du jour n'est pas disponible pour l'instant.",
+      "empty": "Personne n'a encore joué aujourd'hui.",
+      "you": "C'est toi",
       "notCounted": "Seule ta première saison du jour entre au classement.",
       "rank": "#{rank} aujourd'hui"
     },

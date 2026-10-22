@@ -287,6 +287,10 @@
       "rating": "Ta9yim"
     },
     "board": {
+      "title": "A7sen el fra9 el youm",
+      "off": "El tartib mta3 el youm mouch mawjoud tawa.",
+      "empty": "7atta 7ad ma le3eb el youm.",
+      "you": "Hedha enti",
       "notCounted": "Ken awwel mawsem fel nhar yodkhel lel tartib.",
       "rank": "#{rank} el youm"
     },
