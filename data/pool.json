@@ -14,7 +14,7 @@
       "birthPlace": "Sfax",
       "birthCountry": "TN",
       "governorate": "sfax",
-      "clubId": "us-ben-guerdane",
+      "clubId": "etoile-sportive-du-sahel",
       "caps": 0,
       "goals": 0,
       "capsAsOf": null,
@@ -129,15 +129,14 @@
           "confidenceNote": "one source, precise (P36)"
         },
         "clubId": {
-          "source": "enwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2025-09-17",
-          "ref": "Abdallah Amri",
-          "confidence": "low",
+          "source": "override",
+          "retrievedAt": "2026-10-07",
+          "by": "jalel",
+          "confidence": "high",
           "agreeing": [
-            "enwiki"
+            "override"
           ],
-          "confidenceNote": "transfermarkt checked on 2026-10-06: differs (P48)"
+          "confidenceNote": "decided by Jalel"
         },
         "history": {
           "source": "enwiki",
@@ -1398,7 +1397,7 @@
       "birthPlace": "Tunisia",
       "birthCountry": "TN",
       "governorate": null,
-      "clubId": "mudhar-club",
+      "clubId": "etoile-sportive-du-sahel",
       "caps": 0,
       "goals": 0,
       "capsAsOf": null,
@@ -1548,14 +1547,14 @@
           "confidenceNote": "born in Tunisia, town unknown"
         },
         "clubId": {
-          "source": "enwiki",
-          "retrievedAt": "2026-10-04",
-          "ref": "Achraf Ben Dhiaf",
-          "confidence": "low",
+          "source": "override",
+          "retrievedAt": "2026-10-07",
+          "by": "jalel",
+          "confidence": "high",
           "agreeing": [
-            "enwiki"
+            "override"
           ],
-          "confidenceNote": "transfermarkt checked on 2026-10-06: differs (P48)"
+          "confidenceNote": "decided by Jalel"
         },
         "history": {
           "source": "enwiki",
@@ -1849,7 +1848,7 @@
       "birthDate": "2001-12-08",
       "birthPlace": null,
       "birthCountry": null,
-      "governorate": null,
+      "governorate": "siliana",
       "clubId": "zakho-s-c",
       "caps": 0,
       "goals": 0,
@@ -1887,7 +1886,7 @@
           "clubName": "Zakho S.C.",
           "from": 2026,
           "to": null,
-          "apps": 3,
+          "apps": 4,
           "goals": 0,
           "loan": false
         }
@@ -1968,10 +1967,20 @@
             "wikidata"
           ]
         },
+        "governorate": {
+          "source": "override",
+          "retrievedAt": "2026-10-07",
+          "by": "jalel",
+          "confidence": "high",
+          "agreeing": [
+            "override"
+          ],
+          "confidenceNote": "decided by Jalel"
+        },
         "clubId": {
           "source": "frwiki",
           "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-16",
+          "asOf": "2026-10-08",
           "ref": "Achref Habessi",
           "confidence": "medium",
           "agreeing": [
@@ -1981,8 +1990,8 @@
         },
         "history": {
           "source": "frwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-16",
+          "retrievedAt": "2026-10-22",
+          "asOf": "2026-10-08",
           "ref": "Achref Habessi",
           "confidence": "medium",
           "agreeing": [
@@ -3077,22 +3086,22 @@
           "retrievedAt": "2026-10-04",
           "asOf": "2026-08-01",
           "ref": "Adel Sellimi",
-          "confidence": "low",
+          "confidence": "medium",
           "agreeing": [
             "frwiki"
           ],
-          "confidenceNote": "enwiki 80 (2007-04-22) is higher"
+          "confidenceNote": "one fresh source; the others are explained by their dates"
         },
         "goals": {
           "source": "frwiki",
           "retrievedAt": "2026-10-04",
           "asOf": "2026-08-01",
           "ref": "Adel Sellimi",
-          "confidence": "high",
+          "confidence": "medium",
           "agreeing": [
-            "enwiki",
             "frwiki"
-          ]
+          ],
+          "confidenceNote": "one fresh source; the others are explained by their dates"
         }
       },
       "fame": null
@@ -3115,24 +3124,24 @@
       "clubId": "kas-mpasa-s-k",
       "caps": 4,
       "goals": 1,
-      "capsAsOf": "2026-09-28",
+      "capsAsOf": "2026-10-21",
       "history": [
         {
           "clubId": "stade-tunisien",
           "clubName": "Stade Tunisien",
           "from": 2022,
           "to": 2025,
-          "apps": 45,
+          "apps": 34,
           "goals": 1,
           "loan": false
         },
         {
-          "clubId": "avenir-sportif-d-oued-ellil",
+          "clubId": null,
           "clubName": "Avenir sportif d'Oued Ellil",
           "from": 2023,
           "to": 2024,
-          "apps": 0,
-          "goals": 0,
+          "apps": null,
+          "goals": null,
           "loan": true
         },
         {
@@ -3140,8 +3149,8 @@
           "clubName": "Kasımpaşa S.K.",
           "from": 2025,
           "to": null,
-          "apps": 26,
-          "goals": 1,
+          "apps": 28,
+          "goals": 3,
           "loan": false
         }
       ],
@@ -3221,9 +3230,9 @@
           "confidenceNote": "one source, precise (P36)"
         },
         "clubId": {
-          "source": "frwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-28",
+          "source": "enwiki",
+          "retrievedAt": "2026-10-22",
+          "asOf": "2026-10-21",
           "ref": "Adem Arous",
           "confidence": "high",
           "agreeing": [
@@ -3233,32 +3242,33 @@
           ]
         },
         "history": {
-          "source": "frwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-28",
+          "source": "enwiki",
+          "retrievedAt": "2026-10-22",
+          "asOf": "2026-10-21",
           "ref": "Adem Arous",
-          "confidence": "medium",
+          "confidence": "low",
           "agreeing": [
-            "frwiki"
+            "enwiki"
           ],
-          "confidenceNote": "one fresh source; the others are explained by their dates"
+          "confidenceNote": "frwiki 3 clubs (2026-09-28) is within 90 days"
         },
         "caps": {
-          "source": "frwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-28",
+          "source": "enwiki",
+          "retrievedAt": "2026-10-22",
+          "asOf": "2026-10-21",
           "ref": "Adem Arous",
           "confidence": "high",
           "agreeing": [
+            "enwiki",
             "frwiki",
             "enwiki-national"
           ],
           "bandAgreed": true
         },
         "goals": {
-          "source": "frwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-28",
+          "source": "enwiki",
+          "retrievedAt": "2026-10-22",
+          "asOf": "2026-10-21",
           "ref": "Adem Arous",
           "confidence": "high",
           "agreeing": [
@@ -3293,7 +3303,7 @@
       "birthPlace": "Tunis",
       "birthCountry": "TN",
       "governorate": "tunis",
-      "clubId": "anwar-al-abyar",
+      "clubId": "al-mina-a-sc",
       "caps": 0,
       "goals": 0,
       "capsAsOf": null,
@@ -3356,9 +3366,18 @@
           "clubId": "anwar-al-abyar",
           "clubName": "Anwar Al-Abyar",
           "from": 2025,
-          "to": null,
+          "to": 2026,
           "apps": 22,
           "goals": 0,
+          "loan": false
+        },
+        {
+          "clubId": null,
+          "clubName": "Al-Butnan FC",
+          "from": 2026,
+          "to": null,
+          "apps": 2,
+          "goals": 2,
           "loan": false
         }
       ],
@@ -3448,20 +3467,19 @@
           "confidenceNote": "one source, precise (P36)"
         },
         "clubId": {
-          "source": "frwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-04-24",
+          "source": "enwiki",
+          "retrievedAt": "2026-10-22",
           "ref": "Afif Jebali",
-          "confidence": "medium",
+          "confidence": "low",
           "agreeing": [
-            "frwiki"
+            "enwiki"
           ],
-          "confidenceNote": "one fresh source; the others are explained by their dates"
+          "confidenceNote": "one undated source"
         },
         "history": {
           "source": "frwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-04-24",
+          "retrievedAt": "2026-10-22",
+          "asOf": "2026-10-21",
           "ref": "Afif Jebali",
           "confidence": "medium",
           "agreeing": [
@@ -4106,7 +4124,7 @@
       "clubId": "al-wakrah-sports-club",
       "caps": 60,
       "goals": 2,
-      "capsAsOf": "2026-09-28",
+      "capsAsOf": "2026-10-17",
       "history": [
         {
           "clubId": "angers-sco",
@@ -4167,8 +4185,8 @@
           "clubName": "Al-Wakrah Sports Club",
           "from": 2024,
           "to": null,
-          "apps": 56,
-          "goals": 4,
+          "apps": 58,
+          "goals": 5,
           "loan": false
         }
       ],
@@ -4261,7 +4279,7 @@
         "clubId": {
           "source": "frwiki",
           "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-28",
+          "asOf": "2026-10-17",
           "ref": "Aïssa Laïdouni",
           "confidence": "high",
           "agreeing": [
@@ -4273,8 +4291,8 @@
         },
         "history": {
           "source": "frwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-28",
+          "retrievedAt": "2026-10-22",
+          "asOf": "2026-10-17",
           "ref": "Aïssa Laïdouni",
           "confidence": "high",
           "agreeing": [
@@ -4284,8 +4302,8 @@
         },
         "caps": {
           "source": "frwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-28",
+          "retrievedAt": "2026-10-22",
+          "asOf": "2026-10-17",
           "ref": "Aïssa Laïdouni",
           "confidence": "high",
           "agreeing": [
@@ -4296,7 +4314,7 @@
         "goals": {
           "source": "frwiki",
           "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-28",
+          "asOf": "2026-10-17",
           "ref": "Aïssa Laïdouni",
           "confidence": "high",
           "agreeing": [
@@ -4992,22 +5010,22 @@
           "retrievedAt": "2026-10-04",
           "asOf": "2026-07-28",
           "ref": "Alaeddine Marzouki",
-          "confidence": "medium",
+          "confidence": "high",
           "agreeing": [
+            "enwiki",
             "frwiki"
-          ],
-          "confidenceNote": "one fresh source; the others are explained by their dates"
+          ]
         },
         "history": {
           "source": "frwiki",
           "retrievedAt": "2026-10-04",
           "asOf": "2026-07-28",
           "ref": "Alaeddine Marzouki",
-          "confidence": "medium",
+          "confidence": "high",
           "agreeing": [
+            "enwiki",
             "frwiki"
-          ],
-          "confidenceNote": "one fresh source; the others are explained by their dates"
+          ]
         },
         "caps": {
           "source": "frwiki",
@@ -5262,19 +5280,18 @@
           "agreeing": [
             "frwiki"
           ],
-          "confidenceNote": "enwiki 25 (undated) is higher",
-          "bandAgreed": true
+          "confidenceNote": "one source, as of 2020-11-23"
         },
         "goals": {
           "source": "frwiki",
           "retrievedAt": "2026-10-04",
           "asOf": "2020-11-23",
           "ref": "Alaeddine Yahia",
-          "confidence": "high",
+          "confidence": "low",
           "agreeing": [
-            "enwiki",
             "frwiki"
-          ]
+          ],
+          "confidenceNote": "one source, as of 2020-11-23"
         },
         "photo": {
           "source": "commons",
@@ -5301,7 +5318,7 @@
       "birthDate": "2000-03-07",
       "birthPlace": "Tunisia",
       "birthCountry": "TN",
-      "governorate": null,
+      "governorate": "monastir",
       "clubId": "al-wahda-s-c-c",
       "caps": 0,
       "goals": 0,
@@ -5396,6 +5413,16 @@
             "wikidata"
           ],
           "confidenceNote": "born in Tunisia, town unknown"
+        },
+        "governorate": {
+          "source": "override",
+          "retrievedAt": "2026-10-07",
+          "by": "jalel",
+          "confidence": "high",
+          "agreeing": [
+            "override"
+          ],
+          "confidenceNote": "decided by Jalel"
         },
         "clubId": {
           "source": "enwiki",
@@ -5834,6 +5861,7 @@
           "agreeing": [
             "enwiki",
             "frwiki",
+            "wikidata",
             "national-football-teams"
           ],
           "bandAgreed": true
@@ -6459,7 +6487,7 @@
           "agreeing": [
             "frwiki"
           ],
-          "confidenceNote": "enwiki 51 (undated) is higher; wikidata 51 (undated) is higher",
+          "confidenceNote": "wikidata 51 (undated) is higher",
           "bandAgreed": true
         },
         "goals": {
@@ -6469,7 +6497,6 @@
           "ref": "Ali Boumnijel",
           "confidence": "high",
           "agreeing": [
-            "enwiki",
             "frwiki",
             "wikidata"
           ]
@@ -7161,16 +7188,14 @@
           ]
         },
         "caps": {
-          "source": "enwiki-national",
-          "retrievedAt": "2026-10-05",
-          "asOf": "2026-09-28",
-          "ref": "Tunisia national football team",
-          "confidence": "medium",
+          "source": "override",
+          "retrievedAt": "2026-10-07",
+          "by": "jalel",
+          "confidence": "high",
           "agreeing": [
-            "enwiki-national"
+            "override"
           ],
-          "confidenceNote": "one fresh source; the others are explained by their dates",
-          "bandAgreed": true
+          "confidenceNote": "decided by Jalel"
         },
         "goals": {
           "source": "enwiki-national",
@@ -7797,24 +7822,22 @@
           "confidenceNote": "one undated source"
         },
         "caps": {
-          "source": "enwiki",
-          "retrievedAt": "2026-10-04",
+          "source": "frwiki",
+          "retrievedAt": "2026-10-22",
           "ref": "Ali Zitouni",
           "confidence": "high",
           "agreeing": [
-            "enwiki",
             "frwiki",
             "wikidata"
           ],
           "bandAgreed": true
         },
         "goals": {
-          "source": "enwiki",
-          "retrievedAt": "2026-10-04",
+          "source": "frwiki",
+          "retrievedAt": "2026-10-22",
           "ref": "Ali Zitouni",
           "confidence": "high",
           "agreeing": [
-            "enwiki",
             "frwiki",
             "wikidata"
           ]
@@ -9300,7 +9323,7 @@
       "clubId": "aek-larnaca-f-c",
       "caps": 16,
       "goals": 2,
-      "capsAsOf": "2026-09-18",
+      "capsAsOf": "2026-10-12",
       "history": [
         {
           "clubId": "ik-brage",
@@ -9379,7 +9402,7 @@
           "clubName": "AEK Larnaca F.C.",
           "from": 2026,
           "to": null,
-          "apps": 5,
+          "apps": 6,
           "goals": 0,
           "loan": false
         }
@@ -9473,7 +9496,7 @@
         "clubId": {
           "source": "frwiki",
           "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-18",
+          "asOf": "2026-10-12",
           "ref": "Amor Layouni",
           "confidence": "high",
           "agreeing": [
@@ -9483,19 +9506,19 @@
         },
         "history": {
           "source": "frwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-18",
+          "retrievedAt": "2026-10-22",
+          "asOf": "2026-10-12",
           "ref": "Amor Layouni",
-          "confidence": "low",
+          "confidence": "medium",
           "agreeing": [
             "frwiki"
           ],
-          "confidenceNote": "enwiki 9 clubs (2026-06-26) is within 90 days"
+          "confidenceNote": "one fresh source; the others are explained by their dates"
         },
         "caps": {
           "source": "frwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-18",
+          "retrievedAt": "2026-10-22",
+          "asOf": "2026-10-12",
           "ref": "Amor Layouni",
           "confidence": "medium",
           "agreeing": [
@@ -9507,7 +9530,7 @@
         "goals": {
           "source": "frwiki",
           "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-18",
+          "asOf": "2026-10-12",
           "ref": "Amor Layouni",
           "confidence": "medium",
           "agreeing": [
@@ -9554,7 +9577,7 @@
       "clubId": "k-beerschot-va",
       "caps": 4,
       "goals": 0,
-      "capsAsOf": "2026-09-19",
+      "capsAsOf": "2026-10-10",
       "history": [
         {
           "clubId": "parma-calcio-1913",
@@ -9570,8 +9593,8 @@
           "clubName": "K Beerschot VA",
           "from": 2025,
           "to": null,
-          "apps": 11,
-          "goals": 1,
+          "apps": 12,
+          "goals": 2,
           "loan": false
         }
       ],
@@ -9653,7 +9676,7 @@
         "clubId": {
           "source": "frwiki",
           "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-19",
+          "asOf": "2026-10-10",
           "ref": "Anas Haj Mohamed",
           "confidence": "high",
           "agreeing": [
@@ -9663,8 +9686,8 @@
         },
         "history": {
           "source": "frwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-19",
+          "retrievedAt": "2026-10-22",
+          "asOf": "2026-10-10",
           "ref": "Anas Haj Mohamed",
           "confidence": "high",
           "agreeing": [
@@ -9674,8 +9697,8 @@
         },
         "caps": {
           "source": "frwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-19",
+          "retrievedAt": "2026-10-22",
+          "asOf": "2026-10-10",
           "ref": "Anas Haj Mohamed",
           "confidence": "medium",
           "agreeing": [
@@ -9687,7 +9710,7 @@
         "goals": {
           "source": "frwiki",
           "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-19",
+          "asOf": "2026-10-10",
           "ref": "Anas Haj Mohamed",
           "confidence": "high",
           "agreeing": [
@@ -10281,12 +10304,12 @@
           "retrievedAt": "2026-10-04",
           "asOf": "2022-02-24",
           "ref": "Anis Ayari",
-          "confidence": "low",
+          "confidence": "high",
           "agreeing": [
             "frwiki",
             "wikidata"
           ],
-          "confidenceNote": "enwiki 26 (2009-11-17): his national career ended in 2006; the dates cannot explain it"
+          "bandAgreed": true
         },
         "goals": {
           "source": "frwiki",
@@ -10295,7 +10318,6 @@
           "ref": "Anis Ayari",
           "confidence": "high",
           "agreeing": [
-            "enwiki",
             "frwiki",
             "wikidata"
           ]
@@ -10318,10 +10340,10 @@
       "birthPlace": "Berlin",
       "birthCountry": "DE",
       "governorate": null,
-      "clubId": "hertha-bsc",
+      "clubId": "hertha-bsc-ii",
       "caps": 12,
       "goals": 1,
-      "capsAsOf": "2026-09-27",
+      "capsAsOf": "2026-10-10",
       "history": [
         {
           "clubId": "hamburger-sv",
@@ -10388,7 +10410,7 @@
         },
         {
           "clubId": "budapest-honved-fc",
-          "clubName": "Budapest Honvéd FC",
+          "clubName": "Kispest-Honvéd FC",
           "from": 2019,
           "to": 2020,
           "apps": 27,
@@ -10436,7 +10458,7 @@
           "clubName": "Hertha BSC",
           "from": 2023,
           "to": null,
-          "apps": 67,
+          "apps": 68,
           "goals": 12,
           "loan": false
         }
@@ -10528,20 +10550,19 @@
           "confidenceNote": "one source, precise (P36)"
         },
         "clubId": {
-          "source": "frwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-27",
-          "ref": "Änis Ben-Hatira",
-          "confidence": "low",
+          "source": "override",
+          "retrievedAt": "2026-10-07",
+          "by": "jalel",
+          "confidence": "high",
           "agreeing": [
-            "frwiki"
+            "override"
           ],
-          "confidenceNote": "enwiki Q920263 (2026-09-23) is within 90 days"
+          "confidenceNote": "decided by Jalel"
         },
         "history": {
           "source": "frwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-27",
+          "retrievedAt": "2026-10-22",
+          "asOf": "2026-10-10",
           "ref": "Änis Ben-Hatira",
           "confidence": "low",
           "agreeing": [
@@ -10551,8 +10572,8 @@
         },
         "caps": {
           "source": "frwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-27",
+          "retrievedAt": "2026-10-22",
+          "asOf": "2026-10-10",
           "ref": "Änis Ben-Hatira",
           "confidence": "high",
           "agreeing": [
@@ -10564,7 +10585,7 @@
         "goals": {
           "source": "frwiki",
           "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-27",
+          "asOf": "2026-10-10",
           "ref": "Änis Ben-Hatira",
           "confidence": "high",
           "agreeing": [
@@ -10611,7 +10632,7 @@
       "clubId": "norwich-city-f-c",
       "caps": 46,
       "goals": 4,
-      "capsAsOf": "2026-09-28",
+      "capsAsOf": "2026-10-14",
       "history": [
         {
           "clubId": "akademisk-boldklub",
@@ -10654,7 +10675,7 @@
           "clubName": "Norwich City F.C.",
           "from": 2025,
           "to": null,
-          "apps": 50,
+          "apps": 52,
           "goals": 8,
           "loan": false
         }
@@ -10748,7 +10769,7 @@
         "clubId": {
           "source": "frwiki",
           "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-28",
+          "asOf": "2026-10-14",
           "ref": "Anis Ben Slimane",
           "confidence": "high",
           "agreeing": [
@@ -10759,8 +10780,8 @@
         },
         "history": {
           "source": "frwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-28",
+          "retrievedAt": "2026-10-22",
+          "asOf": "2026-10-14",
           "ref": "Anis Ben Slimane",
           "confidence": "high",
           "agreeing": [
@@ -10770,8 +10791,8 @@
         },
         "caps": {
           "source": "frwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-28",
+          "retrievedAt": "2026-10-22",
+          "asOf": "2026-10-14",
           "ref": "Anis Ben Slimane",
           "confidence": "high",
           "agreeing": [
@@ -10783,7 +10804,7 @@
         "goals": {
           "source": "frwiki",
           "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-28",
+          "asOf": "2026-10-14",
           "ref": "Anis Ben Slimane",
           "confidence": "high",
           "agreeing": [
@@ -11004,25 +11025,24 @@
           "confidenceNote": "one undated source"
         },
         "caps": {
-          "source": "enwiki",
-          "retrievedAt": "2026-10-04",
+          "source": "frwiki",
+          "retrievedAt": "2026-10-22",
           "ref": "Anis Boussaïdi",
-          "confidence": "high",
+          "confidence": "low",
           "agreeing": [
-            "enwiki",
             "frwiki"
           ],
-          "bandAgreed": true
+          "confidenceNote": "one undated source"
         },
         "goals": {
-          "source": "enwiki",
-          "retrievedAt": "2026-10-04",
+          "source": "frwiki",
+          "retrievedAt": "2026-10-22",
           "ref": "Anis Boussaïdi",
-          "confidence": "high",
+          "confidence": "low",
           "agreeing": [
-            "enwiki",
             "frwiki"
-          ]
+          ],
+          "confidenceNote": "one undated source"
         },
         "photo": {
           "source": "commons",
@@ -12579,7 +12599,7 @@
       "birthPlace": "Paris",
       "birthCountry": "FR",
       "governorate": null,
-      "clubId": "us-creteil-lusitanos",
+      "clubId": null,
       "caps": 2,
       "goals": 0,
       "capsAsOf": "2024-08-31",
@@ -12682,8 +12702,9 @@
         "ar": "أيمن بلعيد"
       },
       "pools": {
-        "active": true,
-        "legend": false
+        "active": false,
+        "legend": false,
+        "graceUntil": "2026-12-06"
       },
       "provenance": {
         "nameLatin": {
@@ -12751,15 +12772,14 @@
           "confidenceNote": "one source, precise (P36)"
         },
         "clubId": {
-          "source": "frwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2024-08-31",
-          "ref": "Aymen Belaïd",
-          "confidence": "low",
+          "source": "override",
+          "retrievedAt": "2026-10-07",
+          "by": "jalel",
+          "confidence": "high",
           "agreeing": [
-            "frwiki"
+            "override"
           ],
-          "confidenceNote": "enwiki none (2025-05-17) is newer"
+          "confidenceNote": "decided by Jalel"
         },
         "history": {
           "source": "enwiki",
@@ -12966,15 +12986,14 @@
           "confidenceNote": "one fresh source; the others are explained by their dates"
         },
         "caps": {
-          "source": "enwiki-national",
-          "retrievedAt": "2026-10-05",
-          "asOf": "2026-09-28",
-          "ref": "Tunisia national football team",
-          "confidence": "medium",
+          "source": "override",
+          "retrievedAt": "2026-10-07",
+          "by": "jalel",
+          "confidence": "high",
           "agreeing": [
-            "enwiki-national"
+            "override"
           ],
-          "confidenceNote": "one fresh source; the others are explained by their dates"
+          "confidenceNote": "decided by Jalel"
         },
         "goals": {
           "source": "enwiki-national",
@@ -13340,7 +13359,7 @@
           "clubName": "Naft Maysan",
           "from": 2026,
           "to": null,
-          "apps": 4,
+          "apps": 6,
           "goals": 0,
           "loan": false
         }
@@ -13419,7 +13438,7 @@
         "clubId": {
           "source": "frwiki",
           "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-09",
+          "asOf": "2026-10-16",
           "ref": "Aymen Mahmoud",
           "confidence": "medium",
           "agreeing": [
@@ -13429,8 +13448,8 @@
         },
         "history": {
           "source": "frwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-09",
+          "retrievedAt": "2026-10-22",
+          "asOf": "2026-10-16",
           "ref": "Aymen Mahmoud",
           "confidence": "medium",
           "agreeing": [
@@ -13706,7 +13725,7 @@
       "birthPlace": null,
       "birthCountry": null,
       "governorate": null,
-      "clubId": "us-ben-guerdane",
+      "clubId": "etoile-sportive-de-metlaoui",
       "caps": 0,
       "goals": 0,
       "capsAsOf": null,
@@ -13818,15 +13837,14 @@
           ]
         },
         "clubId": {
-          "source": "frwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2023-08-08",
-          "ref": "Ayoub Tlili",
-          "confidence": "low",
+          "source": "override",
+          "retrievedAt": "2026-10-07",
+          "by": "jalel",
+          "confidence": "high",
           "agreeing": [
-            "frwiki"
+            "override"
           ],
-          "confidenceNote": "transfermarkt checked on 2026-10-06: differs (P48)"
+          "confidenceNote": "decided by Jalel"
         },
         "history": {
           "source": "frwiki",
@@ -13886,7 +13904,7 @@
       "birthDate": "1998-02-27",
       "birthPlace": null,
       "birthCountry": null,
-      "governorate": null,
+      "governorate": "sfax",
       "clubId": "etoile-sportive-du-sahel",
       "caps": 0,
       "goals": 0,
@@ -13995,6 +14013,16 @@
             "frwiki",
             "wikidata"
           ]
+        },
+        "governorate": {
+          "source": "override",
+          "retrievedAt": "2026-10-07",
+          "by": "jalel",
+          "confidence": "high",
+          "agreeing": [
+            "override"
+          ],
+          "confidenceNote": "decided by Jalel"
         },
         "clubId": {
           "source": "frwiki",
@@ -14300,14 +14328,14 @@
       "clubId": "esperance-sportive-de-tunis",
       "caps": 22,
       "goals": 0,
-      "capsAsOf": "2026-04-26",
+      "capsAsOf": "2026-10-18",
       "history": [
         {
           "clubId": "as-gabes",
           "clubName": "AS Gabès",
           "from": 2014,
           "to": 2018,
-          "apps": 15,
+          "apps": 18,
           "goals": 0,
           "loan": false
         },
@@ -14316,7 +14344,7 @@
           "clubName": "US Monastir",
           "from": 2018,
           "to": 2024,
-          "apps": 119,
+          "apps": 150,
           "goals": 0,
           "loan": false
         },
@@ -14325,7 +14353,7 @@
           "clubName": "Espérance Sportive de Tunis",
           "from": 2024,
           "to": null,
-          "apps": 27,
+          "apps": 52,
           "goals": 0,
           "loan": false
         }
@@ -14427,10 +14455,10 @@
           "confidenceNote": "one source, precise (P36)"
         },
         "clubId": {
-          "source": "enwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-04-26",
-          "ref": "Bechir Ben Saïd",
+          "source": "frwiki",
+          "retrievedAt": "2026-10-22",
+          "asOf": "2026-10-18",
+          "ref": "Béchir Ben Saïd",
           "confidence": "high",
           "agreeing": [
             "enwiki",
@@ -14440,10 +14468,10 @@
           ]
         },
         "history": {
-          "source": "enwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-04-26",
-          "ref": "Bechir Ben Saïd",
+          "source": "frwiki",
+          "retrievedAt": "2026-10-22",
+          "asOf": "2026-10-18",
+          "ref": "Béchir Ben Saïd",
           "confidence": "high",
           "agreeing": [
             "enwiki",
@@ -14452,8 +14480,8 @@
         },
         "caps": {
           "source": "frwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-04-26",
+          "retrievedAt": "2026-10-22",
+          "asOf": "2026-10-18",
           "ref": "Béchir Ben Saïd",
           "confidence": "medium",
           "agreeing": [
@@ -14464,7 +14492,7 @@
         "goals": {
           "source": "frwiki",
           "retrievedAt": "2026-10-04",
-          "asOf": "2026-04-26",
+          "asOf": "2026-10-18",
           "ref": "Béchir Ben Saïd",
           "confidence": "high",
           "agreeing": [
@@ -17494,12 +17522,11 @@
           "retrievedAt": "2026-10-04",
           "asOf": "2012-12-30",
           "ref": "Chokri El Ouaer",
-          "confidence": "low",
+          "confidence": "high",
           "agreeing": [
             "frwiki",
             "wikidata"
           ],
-          "confidenceNote": "enwiki 97 (undated) is higher",
           "bandAgreed": true
         },
         "goals": {
@@ -17509,7 +17536,6 @@
           "ref": "Chokri El Ouaer",
           "confidence": "high",
           "agreeing": [
-            "enwiki",
             "frwiki",
             "wikidata"
           ]
@@ -17758,7 +17784,7 @@
       "birthPlace": null,
       "birthCountry": null,
       "governorate": null,
-      "clubId": "al-mina-a-sc",
+      "clubId": "es-zarzis",
       "caps": 0,
       "goals": 0,
       "capsAsOf": null,
@@ -17871,15 +17897,14 @@
           ]
         },
         "clubId": {
-          "source": "enwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2025-09-14",
-          "ref": "Dhiaeddine Jouini",
-          "confidence": "low",
+          "source": "override",
+          "retrievedAt": "2026-10-07",
+          "by": "jalel",
+          "confidence": "high",
           "agreeing": [
-            "enwiki"
+            "override"
           ],
-          "confidenceNote": "transfermarkt checked on 2026-10-06: differs (P48)"
+          "confidenceNote": "decided by Jalel"
         },
         "history": {
           "source": "enwiki",
@@ -18171,7 +18196,7 @@
       "clubId": "san-diego-fc",
       "caps": 35,
       "goals": 4,
-      "capsAsOf": "2026-09-28",
+      "capsAsOf": "2026-10-17",
       "history": [
         {
           "clubId": "g-d-estoril-praia",
@@ -18214,20 +18239,20 @@
           "clubName": "San Diego FC",
           "from": 2026,
           "to": null,
-          "apps": 8,
+          "apps": 10,
           "goals": 2,
           "loan": false
         }
       ],
       "photo": {
-        "file": "File:Elias Achouri, Vejle Boldklub - FC København, 29. July 2023 - opvarmning FCK's 1. hold (cropped).jpg",
-        "thumbUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/9c/Elias_Achouri%2C_Vejle_Boldklub_-_FC_K%C3%B8benhavn%2C_29._July_2023_-_opvarmning_FCK%27s_1._hold_%28cropped%29.jpg/330px-Elias_Achouri%2C_Vejle_Boldklub_-_FC_K%C3%B8benhavn%2C_29._July_2023_-_opvarmning_FCK%27s_1._hold_%28cropped%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
-        "width": 401,
-        "height": 590,
+        "file": "File:Elias Achouri Red Bulls v San Diego 10 October 2026-008.jpg",
+        "thumbUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f7/Elias_Achouri_Red_Bulls_v_San_Diego_10_October_2026-008.jpg/330px-Elias_Achouri_Red_Bulls_v_San_Diego_10_October_2026-008.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+        "width": 3333,
+        "height": 5000,
         "licence": "CC BY-SA 4.0",
         "licenceUrl": "https://creativecommons.org/licenses/by-sa/4.0",
-        "author": "Thomas Dahlstrøm Nielsen",
-        "sourceUrl": "https://commons.wikimedia.org/wiki/File:Elias_Achouri,_Vejle_Boldklub_-_FC_K%C3%B8benhavn,_29._July_2023_-_opvarmning_FCK%27s_1._hold_(cropped).jpg",
+        "author": "Bryan Berlin",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:Elias_Achouri_Red_Bulls_v_San_Diego_10_October_2026-008.jpg",
         "attributionRequired": true,
         "path": "/photos/elias-achouri.jpg"
       },
@@ -18308,7 +18333,7 @@
         "clubId": {
           "source": "frwiki",
           "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-28",
+          "asOf": "2026-10-17",
           "ref": "Elias Achouri",
           "confidence": "high",
           "agreeing": [
@@ -18319,8 +18344,8 @@
         },
         "history": {
           "source": "frwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-28",
+          "retrievedAt": "2026-10-22",
+          "asOf": "2026-10-17",
           "ref": "Elias Achouri",
           "confidence": "low",
           "agreeing": [
@@ -18330,8 +18355,8 @@
         },
         "caps": {
           "source": "frwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-28",
+          "retrievedAt": "2026-10-22",
+          "asOf": "2026-10-17",
           "ref": "Elias Achouri",
           "confidence": "high",
           "agreeing": [
@@ -18343,7 +18368,7 @@
         "goals": {
           "source": "frwiki",
           "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-28",
+          "asOf": "2026-10-17",
           "ref": "Elias Achouri",
           "confidence": "low",
           "agreeing": [
@@ -18354,8 +18379,8 @@
         },
         "photo": {
           "source": "commons",
-          "retrievedAt": "2026-10-06",
-          "ref": "File:Elias Achouri, Vejle Boldklub - FC København, 29. July 2023 - opvarmning FCK's 1. hold (cropped).jpg",
+          "retrievedAt": "2026-10-22",
+          "ref": "File:Elias Achouri Red Bulls v San Diego 10 October 2026-008.jpg",
           "confidence": "low",
           "agreeing": [
             "commons"
@@ -18391,7 +18416,7 @@
       "clubId": "nashville-sc",
       "caps": 17,
       "goals": 4,
-      "capsAsOf": "2026-09-27",
+      "capsAsOf": "2026-10-17",
       "history": [
         {
           "clubId": "hsv-barmbek-uhlenhorst",
@@ -18443,20 +18468,20 @@
           "clubName": "Nashville SC",
           "from": 2026,
           "to": null,
-          "apps": 13,
-          "goals": 0,
+          "apps": 15,
+          "goals": 1,
           "loan": true
         }
       ],
       "photo": {
-        "file": "File:2025-04-23 - FC St Pauli - Elias Saad.jpg",
-        "thumbUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/df/2025-04-23_-_FC_St_Pauli_-_Elias_Saad.jpg/330px-2025-04-23_-_FC_St_Pauli_-_Elias_Saad.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
-        "width": 1116,
-        "height": 1300,
+        "file": "File:Elias Saad NYCFC v Nashville 4 Sep 2026-052.jpg",
+        "thumbUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/7c/Elias_Saad_NYCFC_v_Nashville_4_Sep_2026-052.jpg/330px-Elias_Saad_NYCFC_v_Nashville_4_Sep_2026-052.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+        "width": 3333,
+        "height": 5000,
         "licence": "CC BY-SA 4.0",
         "licenceUrl": "https://creativecommons.org/licenses/by-sa/4.0",
-        "author": "Lanthan2003",
-        "sourceUrl": "https://commons.wikimedia.org/wiki/File:2025-04-23_-_FC_St_Pauli_-_Elias_Saad.jpg",
+        "author": "Bryan Berlin",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:Elias_Saad_NYCFC_v_Nashville_4_Sep_2026-052.jpg",
         "attributionRequired": true,
         "path": "/photos/elias-saad.jpg"
       },
@@ -18537,7 +18562,7 @@
         "clubId": {
           "source": "frwiki",
           "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-27",
+          "asOf": "2026-10-17",
           "ref": "Elias Saad",
           "confidence": "high",
           "agreeing": [
@@ -18547,8 +18572,8 @@
         },
         "history": {
           "source": "frwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-27",
+          "retrievedAt": "2026-10-22",
+          "asOf": "2026-10-17",
           "ref": "Elias Saad",
           "confidence": "high",
           "agreeing": [
@@ -18558,8 +18583,8 @@
         },
         "caps": {
           "source": "frwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-27",
+          "retrievedAt": "2026-10-22",
+          "asOf": "2026-10-17",
           "ref": "Elias Saad",
           "confidence": "high",
           "agreeing": [
@@ -18572,7 +18597,7 @@
         "goals": {
           "source": "frwiki",
           "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-27",
+          "asOf": "2026-10-17",
           "ref": "Elias Saad",
           "confidence": "high",
           "agreeing": [
@@ -18582,8 +18607,8 @@
         },
         "photo": {
           "source": "commons",
-          "retrievedAt": "2026-10-06",
-          "ref": "File:2025-04-23 - FC St Pauli - Elias Saad.jpg",
+          "retrievedAt": "2026-10-22",
+          "ref": "File:Elias Saad NYCFC v Nashville 4 Sep 2026-052.jpg",
           "confidence": "low",
           "agreeing": [
             "commons"
@@ -18622,7 +18647,7 @@
       "clubId": "1-fc-koln",
       "caps": 86,
       "goals": 4,
-      "capsAsOf": "2026-09-19",
+      "capsAsOf": "2026-10-11",
       "history": [
         {
           "clubId": "montpellier-herault-sport-club",
@@ -18665,7 +18690,7 @@
           "clubName": "1. FC Köln",
           "from": 2026,
           "to": null,
-          "apps": 3,
+          "apps": 4,
           "goals": 0,
           "loan": false
         }
@@ -18759,7 +18784,7 @@
         "clubId": {
           "source": "enwiki",
           "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-19",
+          "asOf": "2026-10-11",
           "ref": "Ellyes Skhiri",
           "confidence": "high",
           "agreeing": [
@@ -18770,8 +18795,8 @@
         },
         "history": {
           "source": "enwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-19",
+          "retrievedAt": "2026-10-22",
+          "asOf": "2026-10-11",
           "ref": "Ellyes Skhiri",
           "confidence": "high",
           "agreeing": [
@@ -18781,8 +18806,8 @@
         },
         "caps": {
           "source": "frwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-19",
+          "retrievedAt": "2026-10-22",
+          "asOf": "2026-10-11",
           "ref": "Ellyes Skhiri",
           "confidence": "high",
           "agreeing": [
@@ -18796,7 +18821,7 @@
         "goals": {
           "source": "frwiki",
           "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-19",
+          "asOf": "2026-10-11",
           "ref": "Ellyes Skhiri",
           "confidence": "high",
           "agreeing": [
@@ -21557,17 +21582,8 @@
       "clubId": null,
       "caps": 27,
       "goals": 1,
-      "capsAsOf": null,
+      "capsAsOf": "2026-08-26",
       "history": [
-        {
-          "clubId": null,
-          "clubName": "Étoile du Sahel",
-          "from": 1990,
-          "to": 1999,
-          "apps": null,
-          "goals": null,
-          "loan": false
-        },
         {
           "clubId": "club-africain",
           "clubName": "Club Africain",
@@ -21578,8 +21594,8 @@
           "loan": false
         },
         {
-          "clubId": null,
-          "clubName": "Al Rayyan SC",
+          "clubId": "al-rayyan",
+          "clubName": "Al-Rayyan",
           "from": 1999,
           "to": 2000,
           "apps": null,
@@ -21596,8 +21612,8 @@
           "loan": false
         },
         {
-          "clubId": null,
-          "clubName": "Al-Qadisiyah FC",
+          "clubId": "al-qadsiah-fc",
+          "clubName": "Al Qadsiah FC",
           "from": 2002,
           "to": 2003,
           "apps": null,
@@ -21644,7 +21660,8 @@
           "confidence": "high",
           "agreeing": [
             "wikidata",
-            "enwiki"
+            "enwiki",
+            "frwiki"
           ]
         },
         "position": {
@@ -21654,6 +21671,7 @@
           "confidence": "high",
           "agreeing": [
             "enwiki",
+            "frwiki",
             "wikidata"
           ]
         },
@@ -21664,6 +21682,7 @@
           "confidence": "high",
           "agreeing": [
             "enwiki",
+            "frwiki",
             "wikidata"
           ]
         },
@@ -21688,33 +21707,38 @@
           "confidenceNote": "one source, precise (P36)"
         },
         "history": {
-          "source": "enwiki",
-          "retrievedAt": "2026-10-04",
+          "source": "frwiki",
+          "retrievedAt": "2026-10-22",
+          "asOf": "2026-08-26",
           "ref": "Ferid Chouchane",
-          "confidence": "low",
+          "confidence": "medium",
           "agreeing": [
-            "enwiki"
+            "frwiki"
           ],
-          "confidenceNote": "one undated source"
+          "confidenceNote": "one fresh source; the others are explained by their dates"
         },
         "caps": {
-          "source": "enwiki",
-          "retrievedAt": "2026-10-04",
+          "source": "frwiki",
+          "retrievedAt": "2026-10-22",
+          "asOf": "2026-08-26",
           "ref": "Ferid Chouchane",
           "confidence": "high",
           "agreeing": [
             "enwiki",
+            "frwiki",
             "wikidata"
           ],
           "bandAgreed": true
         },
         "goals": {
-          "source": "enwiki",
-          "retrievedAt": "2026-10-04",
+          "source": "frwiki",
+          "retrievedAt": "2026-10-22",
+          "asOf": "2026-08-26",
           "ref": "Ferid Chouchane",
           "confidence": "high",
           "agreeing": [
             "enwiki",
+            "frwiki",
             "wikidata"
           ]
         }
@@ -21739,7 +21763,7 @@
       "clubId": "al-gharafa-sc",
       "caps": 104,
       "goals": 9,
-      "capsAsOf": "2026-09-28",
+      "capsAsOf": "2026-10-18",
       "history": [
         {
           "clubId": "cs-sfaxien",
@@ -21800,8 +21824,8 @@
           "clubName": "Al-Gharafa SC",
           "from": 2023,
           "to": null,
-          "apps": 99,
-          "goals": 25,
+          "apps": 102,
+          "goals": 27,
           "loan": false
         }
       ],
@@ -21904,7 +21928,7 @@
         "clubId": {
           "source": "frwiki",
           "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-28",
+          "asOf": "2026-10-18",
           "ref": "Ferjani Sassi",
           "confidence": "high",
           "agreeing": [
@@ -21916,8 +21940,8 @@
         },
         "history": {
           "source": "frwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-28",
+          "retrievedAt": "2026-10-22",
+          "asOf": "2026-10-18",
           "ref": "Ferjani Sassi",
           "confidence": "high",
           "agreeing": [
@@ -21927,11 +21951,12 @@
         },
         "caps": {
           "source": "frwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-28",
+          "retrievedAt": "2026-10-22",
+          "asOf": "2026-10-18",
           "ref": "Ferjani Sassi",
           "confidence": "low",
           "agreeing": [
+            "enwiki",
             "frwiki",
             "enwiki-national"
           ],
@@ -21940,7 +21965,7 @@
         "goals": {
           "source": "frwiki",
           "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-28",
+          "asOf": "2026-10-18",
           "ref": "Ferjani Sassi",
           "confidence": "high",
           "agreeing": [
@@ -22195,9 +22220,9 @@
       "birthCountry": "TN",
       "governorate": "sfax",
       "clubId": "al-ahly-sc-benghazi",
-      "caps": 31,
+      "caps": 33,
       "goals": 6,
-      "capsAsOf": "2026-09-11",
+      "capsAsOf": "2026-06-26",
       "history": [
         {
           "clubId": "cs-sfaxien",
@@ -22349,15 +22374,14 @@
           "confidenceNote": "one source, precise (P36)"
         },
         "clubId": {
-          "source": "frwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-11",
-          "ref": "Firas Chaouat",
-          "confidence": "low",
+          "source": "override",
+          "retrievedAt": "2026-10-07",
+          "by": "jalel",
+          "confidence": "high",
           "agreeing": [
-            "frwiki"
+            "override"
           ],
-          "confidenceNote": "enwiki none (2026-07-29) is within 90 days"
+          "confidenceNote": "decided by Jalel"
         },
         "history": {
           "source": "frwiki",
@@ -22371,16 +22395,14 @@
           "confidenceNote": "one fresh source; the others are explained by their dates"
         },
         "caps": {
-          "source": "frwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-11",
-          "ref": "Firas Chaouat",
-          "confidence": "low",
+          "source": "override",
+          "retrievedAt": "2026-10-07",
+          "by": "jalel",
+          "confidence": "high",
           "agreeing": [
-            "frwiki"
+            "override"
           ],
-          "confidenceNote": "enwiki 33 (2026-06-26) is higher",
-          "bandAgreed": true
+          "confidenceNote": "decided by Jalel"
         },
         "goals": {
           "source": "frwiki",
@@ -22892,11 +22914,11 @@
           "retrievedAt": "2026-10-04",
           "asOf": "2019-11-01",
           "ref": "Francileudo Santos",
-          "confidence": "high",
+          "confidence": "low",
           "agreeing": [
-            "enwiki",
             "frwiki"
           ],
+          "confidenceNote": "one source, as of 2019-11-01",
           "bandAgreed": true
         },
         "goals": {
@@ -22906,7 +22928,6 @@
           "ref": "Francileudo Santos",
           "confidence": "high",
           "agreeing": [
-            "enwiki",
             "frwiki",
             "wikidata"
           ]
@@ -24036,7 +24057,7 @@
       "clubId": "newroz-sc",
       "caps": 1,
       "goals": 0,
-      "capsAsOf": "2026-09-18",
+      "capsAsOf": "2026-10-10",
       "history": [
         {
           "clubId": "cs-sfaxien",
@@ -24088,7 +24109,7 @@
           "clubName": "Newroz SC",
           "from": 2026,
           "to": null,
-          "apps": 6,
+          "apps": 8,
           "goals": 1,
           "loan": false
         }
@@ -24171,18 +24192,18 @@
         "clubId": {
           "source": "frwiki",
           "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-18",
+          "asOf": "2026-10-10",
           "ref": "Habib Oueslati",
-          "confidence": "medium",
+          "confidence": "high",
           "agreeing": [
+            "enwiki",
             "frwiki"
-          ],
-          "confidenceNote": "one fresh source; the others are explained by their dates"
+          ]
         },
         "history": {
           "source": "frwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-18",
+          "retrievedAt": "2026-10-22",
+          "asOf": "2026-10-10",
           "ref": "Habib Oueslati",
           "confidence": "medium",
           "agreeing": [
@@ -24192,8 +24213,8 @@
         },
         "caps": {
           "source": "frwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-18",
+          "retrievedAt": "2026-10-22",
+          "asOf": "2026-10-10",
           "ref": "Habib Oueslati",
           "confidence": "high",
           "agreeing": [
@@ -24205,7 +24226,7 @@
         "goals": {
           "source": "frwiki",
           "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-18",
+          "asOf": "2026-10-10",
           "ref": "Habib Oueslati",
           "confidence": "high",
           "agreeing": [
@@ -25341,7 +25362,8 @@
           "agreeing": [
             "frwiki"
           ],
-          "confidenceNote": "enwiki 20 (undated): his national career ended in 2008; the dates cannot explain it"
+          "confidenceNote": "one source, as of 2019-05-29",
+          "bandAgreed": true
         },
         "goals": {
           "source": "frwiki",
@@ -25350,7 +25372,6 @@
           "ref": "Hamed Namouchi",
           "confidence": "high",
           "agreeing": [
-            "enwiki",
             "frwiki",
             "wikidata"
           ]
@@ -25878,7 +25899,7 @@
           "clubName": "Espérance Sportive de Tunis",
           "from": 2024,
           "to": null,
-          "apps": 49,
+          "apps": 50,
           "goals": 6,
           "loan": false
         }
@@ -25968,7 +25989,7 @@
         "clubId": {
           "source": "enwiki",
           "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-13",
+          "asOf": "2026-10-10",
           "ref": "Hamza Jelassi",
           "confidence": "high",
           "agreeing": [
@@ -25981,8 +26002,8 @@
         },
         "history": {
           "source": "enwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-13",
+          "retrievedAt": "2026-10-22",
+          "asOf": "2026-10-10",
           "ref": "Hamza Jelassi",
           "confidence": "medium",
           "agreeing": [
@@ -26193,7 +26214,7 @@
       "birthPlace": "Sousse",
       "birthCountry": "TN",
       "governorate": "sousse",
-      "clubId": "al-wehdat-sc",
+      "clubId": null,
       "caps": 15,
       "goals": 2,
       "capsAsOf": "2024-08-18",
@@ -26242,8 +26263,9 @@
         "ar": "حمزة لحمر"
       },
       "pools": {
-        "active": true,
-        "legend": false
+        "active": false,
+        "legend": false,
+        "graceUntil": "2026-12-06"
       },
       "provenance": {
         "nameLatin": {
@@ -26321,15 +26343,14 @@
           "confidenceNote": "one source, precise (P36)"
         },
         "clubId": {
-          "source": "enwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2022-02-17",
-          "ref": "Hamza Lahmar",
-          "confidence": "low",
+          "source": "override",
+          "retrievedAt": "2026-10-07",
+          "by": "jalel",
+          "confidence": "high",
           "agreeing": [
-            "enwiki"
+            "override"
           ],
-          "confidenceNote": "frwiki none (2024-08-18) is newer"
+          "confidenceNote": "decided by Jalel"
         },
         "history": {
           "source": "frwiki",
@@ -26622,44 +26643,26 @@
       "capsAsOf": "2026-09-28",
       "history": [
         {
-          "clubId": "olympique-lyonnais-reserves-and-academy",
-          "clubName": "Olympique Lyonnais Reserves and Academy",
-          "from": 2016,
-          "to": 2019,
-          "apps": 26,
-          "goals": 5,
-          "loan": false
-        },
-        {
           "clubId": "juventus-fc",
           "clubName": "Juventus FC",
-          "from": 2019,
+          "from": 2021,
           "to": 2023,
-          "apps": 0,
-          "goals": 0,
-          "loan": false
-        },
-        {
-          "clubId": "juventus-f-c-next-gen",
-          "clubName": "Juventus F.C. Next Gen",
-          "from": 2019,
-          "to": 2023,
-          "apps": 57,
-          "goals": 4,
+          "apps": 1,
+          "goals": 1,
           "loan": false
         },
         {
           "clubId": "standard-liege",
           "clubName": "Standard Liège",
           "from": 2021,
-          "to": 2022,
-          "apps": 9,
+          "to": 2021,
+          "apps": 11,
           "goals": 0,
           "loan": true
         },
         {
-          "clubId": null,
-          "clubName": "U.S. Cremonese",
+          "clubId": "us-cremonese",
+          "clubName": "US Cremonese",
           "from": 2022,
           "to": 2022,
           "apps": 12,
@@ -26671,8 +26674,8 @@
           "clubName": "Delfino Pescara 1936",
           "from": 2023,
           "to": 2023,
-          "apps": 12,
-          "goals": 0,
+          "apps": 18,
+          "goals": 1,
           "loan": false
         },
         {
@@ -26680,7 +26683,7 @@
           "clubName": "US Lecce",
           "from": 2023,
           "to": 2026,
-          "apps": 46,
+          "apps": 49,
           "goals": 1,
           "loan": false
         },
@@ -26689,8 +26692,8 @@
           "clubName": "Espérance Sportive de Tunis",
           "from": 2026,
           "to": null,
-          "apps": 16,
-          "goals": 1,
+          "apps": 25,
+          "goals": 2,
           "loan": false
         }
       ],
@@ -26791,9 +26794,9 @@
           "confidenceNote": "one source, precise (P36)"
         },
         "clubId": {
-          "source": "enwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-13",
+          "source": "frwiki",
+          "retrievedAt": "2026-10-22",
+          "asOf": "2026-10-18",
           "ref": "Hamza Rafia",
           "confidence": "high",
           "agreeing": [
@@ -26806,33 +26809,31 @@
           ]
         },
         "history": {
-          "source": "enwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-13",
+          "source": "frwiki",
+          "retrievedAt": "2026-10-22",
+          "asOf": "2026-10-18",
           "ref": "Hamza Rafia",
           "confidence": "low",
           "agreeing": [
-            "enwiki"
+            "frwiki"
           ],
-          "confidenceNote": "frwiki 6 clubs (2026-09-13) is within 90 days"
+          "confidenceNote": "enwiki 7 clubs (2026-10-10) is within 90 days"
         },
         "caps": {
-          "source": "enwiki-national",
-          "retrievedAt": "2026-10-05",
-          "asOf": "2026-09-28",
-          "ref": "Tunisia national football team",
+          "source": "override",
+          "retrievedAt": "2026-10-07",
+          "by": "jalel",
           "confidence": "high",
           "agreeing": [
-            "enwiki-national",
-            "national-football-teams"
+            "override"
           ],
-          "bandAgreed": true
+          "confidenceNote": "decided by Jalel"
         },
         "goals": {
-          "source": "enwiki-national",
-          "retrievedAt": "2026-10-05",
-          "asOf": "2026-09-28",
-          "ref": "Tunisia national football team",
+          "source": "frwiki",
+          "retrievedAt": "2026-10-22",
+          "asOf": "2026-10-18",
+          "ref": "Hamza Rafia",
           "confidence": "high",
           "agreeing": [
             "enwiki",
@@ -27659,7 +27660,7 @@
       "birthCountry": "TN",
       "governorate": "ariana",
       "clubId": null,
-      "caps": 66,
+      "caps": 61,
       "goals": 1,
       "capsAsOf": null,
       "history": [
@@ -27798,24 +27799,22 @@
           "confidenceNote": "one undated source"
         },
         "caps": {
-          "source": "enwiki",
-          "retrievedAt": "2026-10-04",
+          "source": "frwiki",
+          "retrievedAt": "2026-10-22",
           "ref": "Hatem Trabelsi",
           "confidence": "low",
           "agreeing": [
-            "enwiki",
-            "wikidata"
+            "frwiki"
           ],
-          "confidenceNote": "frwiki 61 (undated) has the same date",
+          "confidenceNote": "wikidata 66 (undated) is higher",
           "bandAgreed": true
         },
         "goals": {
-          "source": "enwiki",
-          "retrievedAt": "2026-10-04",
+          "source": "frwiki",
+          "retrievedAt": "2026-10-22",
           "ref": "Hatem Trabelsi",
           "confidence": "high",
           "agreeing": [
-            "enwiki",
             "frwiki",
             "wikidata"
           ]
@@ -28245,18 +28244,14 @@
           "confidenceNote": "one source, precise (P36)"
         },
         "clubId": {
-          "source": "frwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-08-26",
-          "ref": "Haykeul Chikhaoui",
-          "confidence": "low",
+          "source": "override",
+          "retrievedAt": "2026-10-07",
+          "by": "jalel",
+          "confidence": "high",
           "agreeing": [
-            "frwiki",
-            "enwiki-squad",
-            "frwiki-squad",
-            "transfermarkt"
+            "override"
           ],
-          "confidenceNote": "enwiki none (2026-07-20) is within 90 days"
+          "confidenceNote": "decided by Jalel"
         },
         "history": {
           "source": "frwiki",
@@ -28564,7 +28559,7 @@
       "clubId": "al-quwa-al-jawiya",
       "caps": 15,
       "goals": 2,
-      "capsAsOf": "2025-09-19",
+      "capsAsOf": "2025-10-12",
       "history": [
         {
           "clubId": "esperance-sportive-de-tunis",
@@ -28643,8 +28638,8 @@
           "clubName": "Al-Quwa Al-Jawiya",
           "from": 2025,
           "to": null,
-          "apps": 34,
-          "goals": 6,
+          "apps": 36,
+          "goals": 8,
           "loan": false
         }
       ],
@@ -28747,7 +28742,7 @@
         "clubId": {
           "source": "frwiki",
           "retrievedAt": "2026-10-04",
-          "asOf": "2025-09-19",
+          "asOf": "2025-10-12",
           "ref": "Haythem Jouini",
           "confidence": "high",
           "agreeing": [
@@ -28757,31 +28752,31 @@
         },
         "history": {
           "source": "frwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2025-09-19",
+          "retrievedAt": "2026-10-22",
+          "asOf": "2025-10-12",
           "ref": "Haythem Jouini",
           "confidence": "low",
           "agreeing": [
             "frwiki"
           ],
-          "confidenceNote": "one source, as of 2025-09-19"
+          "confidenceNote": "one source, as of 2025-10-12"
         },
         "caps": {
           "source": "frwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2025-09-19",
+          "retrievedAt": "2026-10-22",
+          "asOf": "2025-10-12",
           "ref": "Haythem Jouini",
           "confidence": "low",
           "agreeing": [
             "frwiki"
           ],
-          "confidenceNote": "one source, as of 2025-09-19",
+          "confidenceNote": "one source, as of 2025-10-12",
           "bandAgreed": true
         },
         "goals": {
           "source": "frwiki",
           "retrievedAt": "2026-10-04",
-          "asOf": "2025-09-19",
+          "asOf": "2025-10-12",
           "ref": "Haythem Jouini",
           "confidence": "high",
           "agreeing": [
@@ -28825,7 +28820,7 @@
       "birthPlace": "Tunisia",
       "birthCountry": "TN",
       "governorate": null,
-      "clubId": "the-white-s-c",
+      "clubId": "cs-hammam-lif",
       "caps": 0,
       "goals": 0,
       "capsAsOf": null,
@@ -28966,14 +28961,14 @@
           "confidenceNote": "born in Tunisia, town unknown"
         },
         "clubId": {
-          "source": "enwiki",
-          "retrievedAt": "2026-10-04",
-          "ref": "Haythem Mhamdi",
-          "confidence": "low",
+          "source": "override",
+          "retrievedAt": "2026-10-07",
+          "by": "jalel",
+          "confidence": "high",
           "agreeing": [
-            "enwiki"
+            "override"
           ],
-          "confidenceNote": "enwiki-squad Q1103140 (2026-09-27) is dated, the chosen value is not"
+          "confidenceNote": "decided by Jalel"
         },
         "history": {
           "source": "enwiki",
@@ -29236,7 +29231,7 @@
       "clubId": "esperance-sportive-de-tunis",
       "caps": 21,
       "goals": 7,
-      "capsAsOf": "2026-09-29",
+      "capsAsOf": "2026-10-18",
       "history": [
         {
           "clubId": null,
@@ -29297,8 +29292,8 @@
           "clubName": "Espérance Sportive de Tunis",
           "from": 2026,
           "to": null,
-          "apps": 3,
-          "goals": 1,
+          "apps": 5,
+          "goals": 4,
           "loan": false
         }
       ],
@@ -29401,7 +29396,7 @@
         "clubId": {
           "source": "frwiki",
           "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-29",
+          "asOf": "2026-10-18",
           "ref": "Hazem Mastouri",
           "confidence": "high",
           "agreeing": [
@@ -29414,19 +29409,19 @@
         },
         "history": {
           "source": "frwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-29",
+          "retrievedAt": "2026-10-22",
+          "asOf": "2026-10-18",
           "ref": "Hazem Mastouri",
           "confidence": "low",
           "agreeing": [
             "frwiki"
           ],
-          "confidenceNote": "enwiki 7 clubs (2026-09-13) is within 90 days"
+          "confidenceNote": "enwiki 7 clubs (2026-10-10) is within 90 days"
         },
         "caps": {
           "source": "frwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-29",
+          "retrievedAt": "2026-10-22",
+          "asOf": "2026-10-18",
           "ref": "Hazem Mastouri",
           "confidence": "high",
           "agreeing": [
@@ -29439,7 +29434,7 @@
         "goals": {
           "source": "frwiki",
           "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-29",
+          "asOf": "2026-10-18",
           "ref": "Hazem Mastouri",
           "confidence": "high",
           "agreeing": [
@@ -31316,15 +31311,15 @@
       "clubId": "cr-belouizdad",
       "caps": 5,
       "goals": 0,
-      "capsAsOf": "2025-12-23",
+      "capsAsOf": "2026-10-10",
       "history": [
         {
           "clubId": "us-monastir",
           "clubName": "US Monastir",
           "from": 2018,
           "to": 2023,
-          "apps": 84,
-          "goals": 3,
+          "apps": 115,
+          "goals": 6,
           "loan": false
         },
         {
@@ -31332,7 +31327,7 @@
           "clubName": "Espérance Sportive de Tunis",
           "from": 2023,
           "to": 2026,
-          "apps": 71,
+          "apps": 120,
           "goals": 4,
           "loan": false
         },
@@ -31341,7 +31336,7 @@
           "clubName": "CR Belouizdad",
           "from": 2026,
           "to": null,
-          "apps": 0,
+          "apps": 4,
           "goals": 0,
           "loan": false
         }
@@ -31349,7 +31344,7 @@
       "photo": null,
       "wiki": {
         "en": "Houssem Tka",
-        "fr": null,
+        "fr": "Houssem Tka",
         "ar": "حسام تقا"
       },
       "pools": {
@@ -31364,7 +31359,8 @@
           "confidence": "high",
           "agreeing": [
             "wikidata",
-            "enwiki"
+            "enwiki",
+            "frwiki"
           ]
         },
         "nameArabic": {
@@ -31384,7 +31380,8 @@
           "confidence": "high",
           "agreeing": [
             "wikidata",
-            "enwiki"
+            "enwiki",
+            "frwiki"
           ]
         },
         "position": {
@@ -31394,6 +31391,7 @@
           "confidence": "high",
           "agreeing": [
             "enwiki",
+            "frwiki",
             "wikidata"
           ]
         },
@@ -31404,6 +31402,7 @@
           "confidence": "high",
           "agreeing": [
             "enwiki",
+            "frwiki",
             "wikidata"
           ]
         },
@@ -31428,48 +31427,49 @@
           "confidenceNote": "one source, precise (P36)"
         },
         "clubId": {
-          "source": "enwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-07-01",
+          "source": "frwiki",
+          "retrievedAt": "2026-10-22",
+          "asOf": "2026-10-10",
           "ref": "Houssem Tka",
-          "confidence": "medium",
+          "confidence": "high",
           "agreeing": [
-            "enwiki"
-          ],
-          "confidenceNote": "one fresh source"
+            "enwiki",
+            "frwiki"
+          ]
         },
         "history": {
-          "source": "enwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-07-01",
+          "source": "frwiki",
+          "retrievedAt": "2026-10-22",
+          "asOf": "2026-10-10",
           "ref": "Houssem Tka",
-          "confidence": "medium",
+          "confidence": "high",
           "agreeing": [
-            "enwiki"
-          ],
-          "confidenceNote": "one fresh source"
+            "enwiki",
+            "frwiki"
+          ]
         },
         "caps": {
-          "source": "enwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2025-12-23",
+          "source": "frwiki",
+          "retrievedAt": "2026-10-22",
+          "asOf": "2026-10-10",
           "ref": "Houssem Tka",
-          "confidence": "medium",
+          "confidence": "high",
           "agreeing": [
-            "enwiki"
+            "enwiki",
+            "frwiki"
           ],
-          "confidenceNote": "one fresh source"
+          "bandAgreed": true
         },
         "goals": {
-          "source": "enwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2025-12-23",
+          "source": "frwiki",
+          "retrievedAt": "2026-10-22",
+          "asOf": "2026-10-10",
           "ref": "Houssem Tka",
-          "confidence": "medium",
+          "confidence": "high",
           "agreeing": [
-            "enwiki"
-          ],
-          "confidenceNote": "one fresh source"
+            "enwiki",
+            "frwiki"
+          ]
         }
       },
       "fame": {
@@ -31477,7 +31477,7 @@
         "tier": "C",
         "views": {
           "en": 8460,
-          "fr": 0,
+          "fr": 9,
           "ar": 1665
         },
         "window": "202510-202609",
@@ -31500,24 +31500,33 @@
       "clubId": "leyton-orient-f-c",
       "caps": 2,
       "goals": 0,
-      "capsAsOf": "2026-10-03",
+      "capsAsOf": "2026-10-10",
       "history": [
         {
           "clubId": "ipswich-town-f-c",
           "clubName": "Ipswich Town F.C.",
           "from": 2019,
           "to": 2024,
-          "apps": 26,
-          "goals": 2,
+          "apps": 12,
+          "goals": 0,
           "loan": false
         },
         {
           "clubId": "cambridge-united-f-c",
           "clubName": "Cambridge United F.C.",
-          "from": 2020,
-          "to": 2021,
-          "apps": 22,
+          "from": 2019,
+          "to": 2020,
+          "apps": 7,
           "goals": 1,
+          "loan": true
+        },
+        {
+          "clubId": "cambridge-united-f-c",
+          "clubName": "Cambridge United F.C.",
+          "from": 2020,
+          "to": 2020,
+          "apps": 11,
+          "goals": 0,
           "loan": true
         },
         {
@@ -31534,8 +31543,8 @@
           "clubName": "Leyton Orient F.C.",
           "from": 2022,
           "to": 2024,
-          "apps": 89,
-          "goals": 5,
+          "apps": 81,
+          "goals": 4,
           "loan": true
         },
         {
@@ -31543,7 +31552,7 @@
           "clubName": "Oxford United F.C.",
           "from": 2024,
           "to": 2025,
-          "apps": 31,
+          "apps": 28,
           "goals": 1,
           "loan": false
         },
@@ -31552,8 +31561,8 @@
           "clubName": "Leyton Orient F.C.",
           "from": 2025,
           "to": null,
-          "apps": 37,
-          "goals": 6,
+          "apps": 33,
+          "goals": 5,
           "loan": false
         }
       ],
@@ -31644,9 +31653,9 @@
           "confidenceNote": "one source, precise (P36)"
         },
         "clubId": {
-          "source": "frwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-10-03",
+          "source": "enwiki",
+          "retrievedAt": "2026-10-22",
+          "asOf": "2026-10-11",
           "ref": "Idris El Mizouni",
           "confidence": "high",
           "agreeing": [
@@ -31655,9 +31664,9 @@
           ]
         },
         "history": {
-          "source": "frwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-10-03",
+          "source": "enwiki",
+          "retrievedAt": "2026-10-22",
+          "asOf": "2026-10-11",
           "ref": "Idris El Mizouni",
           "confidence": "high",
           "agreeing": [
@@ -31667,8 +31676,8 @@
         },
         "caps": {
           "source": "frwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-10-03",
+          "retrievedAt": "2026-10-22",
+          "asOf": "2026-10-10",
           "ref": "Idris El Mizouni",
           "confidence": "high",
           "agreeing": [
@@ -31680,7 +31689,7 @@
         "goals": {
           "source": "frwiki",
           "retrievedAt": "2026-10-04",
-          "asOf": "2026-10-03",
+          "asOf": "2026-10-10",
           "ref": "Idris El Mizouni",
           "confidence": "high",
           "agreeing": [
@@ -32158,7 +32167,7 @@
       "birthPlace": "Sfax",
       "birthCountry": "TN",
       "governorate": "sfax",
-      "clubId": "al-salmiya-sc",
+      "clubId": "newroz-sc",
       "caps": 0,
       "goals": 0,
       "capsAsOf": null,
@@ -32275,8 +32284,17 @@
           "clubId": "al-salmiya-sc",
           "clubName": "Al-Salmiya SC",
           "from": 2024,
+          "to": 2026,
+          "apps": null,
+          "goals": null,
+          "loan": false
+        },
+        {
+          "clubId": "newroz-sc",
+          "clubName": "Newroz SC",
+          "from": 2026,
           "to": null,
-          "apps": 0,
+          "apps": 1,
           "goals": 0,
           "loan": false
         }
@@ -32368,25 +32386,25 @@
         },
         "clubId": {
           "source": "frwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2024-07-07",
+          "retrievedAt": "2026-10-22",
+          "asOf": "2026-10-08",
           "ref": "Imed Louati",
-          "confidence": "low",
+          "confidence": "medium",
           "agreeing": [
             "frwiki"
           ],
-          "confidenceNote": "one source, as of 2024-07-07"
+          "confidenceNote": "one fresh source; the others are explained by their dates"
         },
         "history": {
           "source": "frwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2024-07-07",
+          "retrievedAt": "2026-10-22",
+          "asOf": "2026-10-08",
           "ref": "Imed Louati",
-          "confidence": "low",
+          "confidence": "medium",
           "agreeing": [
             "frwiki"
           ],
-          "confidenceNote": "one source, as of 2024-07-07"
+          "confidenceNote": "one fresh source; the others are explained by their dates"
         },
         "caps": {
           "source": "enwiki",
@@ -32633,7 +32651,7 @@
       "clubId": "cd-leganes",
       "caps": 22,
       "goals": 2,
-      "capsAsOf": "2026-10-03",
+      "capsAsOf": "2026-10-17",
       "history": [
         {
           "clubId": "paris-saint-germain-fc",
@@ -32676,7 +32694,7 @@
           "clubName": "CD Leganés",
           "from": 2026,
           "to": null,
-          "apps": 7,
+          "apps": 9,
           "goals": 2,
           "loan": true
         }
@@ -32770,7 +32788,7 @@
         "clubId": {
           "source": "frwiki",
           "retrievedAt": "2026-10-04",
-          "asOf": "2026-10-03",
+          "asOf": "2026-10-17",
           "ref": "Ismaël Gharbi",
           "confidence": "high",
           "agreeing": [
@@ -32781,8 +32799,8 @@
         },
         "history": {
           "source": "frwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-10-03",
+          "retrievedAt": "2026-10-22",
+          "asOf": "2026-10-17",
           "ref": "Ismaël Gharbi",
           "confidence": "medium",
           "agreeing": [
@@ -32792,8 +32810,8 @@
         },
         "caps": {
           "source": "frwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-10-03",
+          "retrievedAt": "2026-10-22",
+          "asOf": "2026-10-17",
           "ref": "Ismaël Gharbi",
           "confidence": "high",
           "agreeing": [
@@ -32805,7 +32823,7 @@
         "goals": {
           "source": "frwiki",
           "retrievedAt": "2026-10-04",
-          "asOf": "2026-10-03",
+          "asOf": "2026-10-17",
           "ref": "Ismaël Gharbi",
           "confidence": "high",
           "agreeing": [
@@ -32853,7 +32871,7 @@
       "clubId": "angouleme-charente-fc",
       "caps": 1,
       "goals": 0,
-      "capsAsOf": "2026-09-12",
+      "capsAsOf": "2026-10-17",
       "history": [
         {
           "clubId": "us-ivry-football",
@@ -32941,7 +32959,7 @@
           "clubName": "Angoulême Charente FC",
           "from": 2026,
           "to": null,
-          "apps": 4,
+          "apps": 9,
           "goals": 1,
           "loan": false
         }
@@ -33024,7 +33042,7 @@
         "clubId": {
           "source": "frwiki",
           "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-12",
+          "asOf": "2026-10-17",
           "ref": "Issam Ben Khemis",
           "confidence": "medium",
           "agreeing": [
@@ -33034,8 +33052,8 @@
         },
         "history": {
           "source": "frwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-12",
+          "retrievedAt": "2026-10-22",
+          "asOf": "2026-10-17",
           "ref": "Issam Ben Khemis",
           "confidence": "medium",
           "agreeing": [
@@ -33045,8 +33063,8 @@
         },
         "caps": {
           "source": "frwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-12",
+          "retrievedAt": "2026-10-22",
+          "asOf": "2026-10-17",
           "ref": "Issam Ben Khemis",
           "confidence": "high",
           "agreeing": [
@@ -33058,7 +33076,7 @@
         "goals": {
           "source": "frwiki",
           "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-12",
+          "asOf": "2026-10-17",
           "ref": "Issam Ben Khemis",
           "confidence": "high",
           "agreeing": [
@@ -33095,7 +33113,7 @@
       "clubId": "gamba-osaka",
       "caps": 17,
       "goals": 2,
-      "capsAsOf": "2026-10-03",
+      "capsAsOf": "2026-10-13",
       "history": [
         {
           "clubId": "etoile-sportive-du-sahel",
@@ -33165,7 +33183,7 @@
           "clubName": "Gamba Osaka",
           "from": 2022,
           "to": null,
-          "apps": 117,
+          "apps": 119,
           "goals": 24,
           "loan": false
         }
@@ -33258,7 +33276,7 @@
         "clubId": {
           "source": "frwiki",
           "retrievedAt": "2026-10-04",
-          "asOf": "2026-10-03",
+          "asOf": "2026-10-13",
           "ref": "Issam Jebali",
           "confidence": "high",
           "agreeing": [
@@ -33269,8 +33287,8 @@
         },
         "history": {
           "source": "frwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-10-03",
+          "retrievedAt": "2026-10-22",
+          "asOf": "2026-10-13",
           "ref": "Issam Jebali",
           "confidence": "high",
           "agreeing": [
@@ -33280,8 +33298,8 @@
         },
         "caps": {
           "source": "frwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-10-03",
+          "retrievedAt": "2026-10-22",
+          "asOf": "2026-10-13",
           "ref": "Issam Jebali",
           "confidence": "medium",
           "agreeing": [
@@ -33292,7 +33310,7 @@
         "goals": {
           "source": "frwiki",
           "retrievedAt": "2026-10-04",
-          "asOf": "2026-10-03",
+          "asOf": "2026-10-13",
           "ref": "Issam Jebali",
           "confidence": "high",
           "agreeing": [
@@ -33321,10 +33339,10 @@
       "nameArabic": "عصام جمعة",
       "nameFrench": "Issam Jemâa",
       "aliases": [
+        "عصام جمعه",
         "Issam Jemaa",
         "Issam Jomaa",
-        "Issam Jomâa",
-        "عصام جمعه"
+        "Issam Jomâa"
       ],
       "position": "forward",
       "positionDetail": "Forward",
@@ -33760,7 +33778,7 @@
       "clubId": null,
       "caps": 20,
       "goals": 2,
-      "capsAsOf": "2017-10-22",
+      "capsAsOf": "2026-10-13",
       "history": [
         {
           "clubId": "montpellier-herault-sport-club",
@@ -33870,7 +33888,7 @@
         "history": {
           "source": "frwiki",
           "retrievedAt": "2026-10-04",
-          "asOf": "2017-10-22",
+          "asOf": "2026-10-13",
           "ref": "Jamel Saihi",
           "confidence": "high",
           "agreeing": [
@@ -33880,8 +33898,8 @@
         },
         "caps": {
           "source": "frwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2017-10-22",
+          "retrievedAt": "2026-10-22",
+          "asOf": "2026-10-13",
           "ref": "Jamel Saihi",
           "confidence": "low",
           "agreeing": [
@@ -33892,7 +33910,7 @@
         "goals": {
           "source": "frwiki",
           "retrievedAt": "2026-10-04",
-          "asOf": "2017-10-22",
+          "asOf": "2026-10-13",
           "ref": "Jamel Saihi",
           "confidence": "high",
           "agreeing": [
@@ -34558,7 +34576,7 @@
       "birthCountry": "TN",
       "governorate": "monastir",
       "clubId": null,
-      "caps": 44,
+      "caps": 63,
       "goals": 3,
       "capsAsOf": null,
       "history": [
@@ -34707,23 +34725,21 @@
           ]
         },
         "caps": {
-          "source": "enwiki",
-          "retrievedAt": "2026-10-04",
+          "source": "frwiki",
+          "retrievedAt": "2026-10-22",
           "ref": "Jawhar Mnari",
           "confidence": "low",
           "agreeing": [
-            "enwiki",
-            "wikidata"
+            "frwiki"
           ],
-          "confidenceNote": "frwiki 63 (undated) is higher"
+          "confidenceNote": "wikidata 44 (undated) has the same date"
         },
         "goals": {
-          "source": "enwiki",
-          "retrievedAt": "2026-10-04",
+          "source": "frwiki",
+          "retrievedAt": "2026-10-22",
           "ref": "Jawhar Mnari",
           "confidence": "high",
           "agreeing": [
-            "enwiki",
             "frwiki",
             "wikidata"
           ]
@@ -35370,24 +35386,22 @@
           ]
         },
         "caps": {
-          "source": "enwiki",
-          "retrievedAt": "2026-10-04",
+          "source": "frwiki",
+          "retrievedAt": "2026-10-22",
           "ref": "José Clayton",
           "confidence": "high",
           "agreeing": [
-            "enwiki",
             "frwiki",
             "wikidata"
           ],
           "bandAgreed": true
         },
         "goals": {
-          "source": "enwiki",
-          "retrievedAt": "2026-10-04",
+          "source": "frwiki",
+          "retrievedAt": "2026-10-22",
           "ref": "José Clayton",
           "confidence": "high",
           "agreeing": [
-            "enwiki",
             "frwiki",
             "wikidata"
           ]
@@ -35972,23 +35986,22 @@
           "retrievedAt": "2026-10-04",
           "asOf": "2026-06-25",
           "ref": "Karim Haggui",
-          "confidence": "high",
+          "confidence": "medium",
           "agreeing": [
-            "enwiki",
             "frwiki"
           ],
-          "bandAgreed": true
+          "confidenceNote": "one fresh source"
         },
         "goals": {
           "source": "frwiki",
           "retrievedAt": "2026-10-04",
           "asOf": "2026-06-25",
           "ref": "Karim Haggui",
-          "confidence": "high",
+          "confidence": "medium",
           "agreeing": [
-            "enwiki",
             "frwiki"
-          ]
+          ],
+          "confidenceNote": "one fresh source"
         },
         "photo": {
           "source": "commons",
@@ -36019,7 +36032,7 @@
       "clubId": "a-s-d-albalonga",
       "caps": 2,
       "goals": 0,
-      "capsAsOf": "2026-10-05",
+      "capsAsOf": "2026-10-12",
       "history": [
         {
           "clubId": "palermo-f-c",
@@ -36179,7 +36192,7 @@
           "clubName": "A.S.D. Albalonga",
           "from": 2026,
           "to": null,
-          "apps": 7,
+          "apps": 9,
           "goals": 2,
           "loan": false
         }
@@ -36273,7 +36286,7 @@
         "clubId": {
           "source": "frwiki",
           "retrievedAt": "2026-10-04",
-          "asOf": "2026-10-05",
+          "asOf": "2026-10-12",
           "ref": "Karim Laribi",
           "confidence": "medium",
           "agreeing": [
@@ -36283,8 +36296,8 @@
         },
         "history": {
           "source": "frwiki",
-          "retrievedAt": "2026-10-05",
-          "asOf": "2026-10-05",
+          "retrievedAt": "2026-10-22",
+          "asOf": "2026-10-12",
           "ref": "Karim Laribi",
           "confidence": "medium",
           "agreeing": [
@@ -36294,8 +36307,8 @@
         },
         "caps": {
           "source": "frwiki",
-          "retrievedAt": "2026-10-05",
-          "asOf": "2026-10-05",
+          "retrievedAt": "2026-10-22",
+          "asOf": "2026-10-12",
           "ref": "Karim Laribi",
           "confidence": "high",
           "agreeing": [
@@ -36307,7 +36320,7 @@
         "goals": {
           "source": "frwiki",
           "retrievedAt": "2026-10-04",
-          "asOf": "2026-10-05",
+          "asOf": "2026-10-12",
           "ref": "Karim Laribi",
           "confidence": "high",
           "agreeing": [
@@ -36608,8 +36621,8 @@
       "birthCountry": "TN",
       "governorate": "kairouan",
       "clubId": null,
-      "caps": 96,
-      "goals": 10,
+      "caps": 97,
+      "goals": 12,
       "capsAsOf": null,
       "history": [
         {
@@ -36661,9 +36674,9 @@
           "clubId": "esperance-sportive-de-tunis",
           "clubName": "Espérance Sportive de Tunis",
           "from": 2003,
-          "to": 2009,
-          "apps": null,
-          "goals": null,
+          "to": 2006,
+          "apps": 40,
+          "goals": 6,
           "loan": false
         },
         {
@@ -36671,8 +36684,8 @@
           "clubName": "Al-Ahli (Jeddah)",
           "from": 2006,
           "to": 2007,
-          "apps": 40,
-          "goals": 6,
+          "apps": 8,
+          "goals": 0,
           "loan": false
         }
       ],
@@ -36763,7 +36776,7 @@
         },
         "history": {
           "source": "enwiki",
-          "retrievedAt": "2026-10-04",
+          "retrievedAt": "2026-10-22",
           "ref": "Khaled Badra",
           "confidence": "low",
           "agreeing": [
@@ -36772,26 +36785,25 @@
           "confidenceNote": "one undated source"
         },
         "caps": {
-          "source": "enwiki",
-          "retrievedAt": "2026-10-04",
+          "source": "frwiki",
+          "retrievedAt": "2026-10-22",
           "ref": "Khaled Badra",
           "confidence": "low",
           "agreeing": [
-            "enwiki"
+            "frwiki"
           ],
-          "confidenceNote": "frwiki 97 (undated) is higher; wikidata 90 (undated) has the same date",
+          "confidenceNote": "wikidata 90 (undated) has the same date",
           "bandAgreed": true
         },
         "goals": {
-          "source": "enwiki",
-          "retrievedAt": "2026-10-04",
+          "source": "frwiki",
+          "retrievedAt": "2026-10-22",
           "ref": "Khaled Badra",
           "confidence": "low",
           "agreeing": [
-            "enwiki",
-            "wikidata"
+            "frwiki"
           ],
-          "confidenceNote": "frwiki 12 (undated) is higher"
+          "confidenceNote": "wikidata 10 (undated) has the same date"
         }
       },
       "fame": null
@@ -36814,7 +36826,7 @@
       "clubId": null,
       "caps": 77,
       "goals": 4,
-      "capsAsOf": "2026-06-14",
+      "capsAsOf": "2026-10-09",
       "history": [
         {
           "clubId": "esperance-sportive-de-tunis",
@@ -36925,7 +36937,7 @@
         "history": {
           "source": "frwiki",
           "retrievedAt": "2026-10-04",
-          "asOf": "2026-06-14",
+          "asOf": "2026-10-09",
           "ref": "Khaled Ben Yahia (football)",
           "confidence": "high",
           "agreeing": [
@@ -36936,8 +36948,8 @@
         },
         "caps": {
           "source": "frwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-06-14",
+          "retrievedAt": "2026-10-22",
+          "asOf": "2026-10-09",
           "ref": "Khaled Ben Yahia (football)",
           "confidence": "low",
           "agreeing": [
@@ -36949,7 +36961,7 @@
         "goals": {
           "source": "frwiki",
           "retrievedAt": "2026-10-04",
-          "asOf": "2026-06-14",
+          "asOf": "2026-10-09",
           "ref": "Khaled Ben Yahia (football)",
           "confidence": "low",
           "agreeing": [
@@ -37576,7 +37588,7 @@
       "clubId": "usl-dunkerque",
       "caps": 5,
       "goals": 0,
-      "capsAsOf": "2026-09-28",
+      "capsAsOf": "2026-10-09",
       "history": [
         {
           "clubId": "stade-tunisien",
@@ -37610,7 +37622,7 @@
           "clubName": "USL Dunkerque",
           "from": 2026,
           "to": null,
-          "apps": 7,
+          "apps": 8,
           "goals": 1,
           "loan": true
         }
@@ -37703,7 +37715,7 @@
         "clubId": {
           "source": "frwiki",
           "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-24",
+          "asOf": "2026-10-09",
           "ref": "Khalil Ayari",
           "confidence": "high",
           "agreeing": [
@@ -37714,8 +37726,8 @@
         },
         "history": {
           "source": "frwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-24",
+          "retrievedAt": "2026-10-22",
+          "asOf": "2026-10-09",
           "ref": "Khalil Ayari",
           "confidence": "high",
           "agreeing": [
@@ -37725,10 +37737,10 @@
           ]
         },
         "caps": {
-          "source": "enwiki-national",
-          "retrievedAt": "2026-10-05",
-          "asOf": "2026-09-28",
-          "ref": "Tunisia national football team",
+          "source": "frwiki",
+          "retrievedAt": "2026-10-22",
+          "asOf": "2026-10-09",
+          "ref": "Khalil Ayari",
           "confidence": "high",
           "agreeing": [
             "frwiki",
@@ -37738,10 +37750,10 @@
           "bandAgreed": true
         },
         "goals": {
-          "source": "enwiki-national",
-          "retrievedAt": "2026-10-05",
-          "asOf": "2026-09-28",
-          "ref": "Tunisia national football team",
+          "source": "frwiki",
+          "retrievedAt": "2026-10-22",
+          "asOf": "2026-10-09",
+          "ref": "Khalil Ayari",
           "confidence": "high",
           "agreeing": [
             "enwiki",
@@ -37967,7 +37979,7 @@
       "birthDate": "2007-05-21",
       "birthPlace": null,
       "birthCountry": null,
-      "governorate": null,
+      "governorate": "tunis",
       "clubId": "as-marsa",
       "caps": 0,
       "goals": 0,
@@ -38067,6 +38079,16 @@
             "frwiki",
             "wikidata"
           ]
+        },
+        "governorate": {
+          "source": "override",
+          "retrievedAt": "2026-10-07",
+          "by": "jalel",
+          "confidence": "high",
+          "agreeing": [
+            "override"
+          ],
+          "confidenceNote": "decided by Jalel"
         },
         "clubId": {
           "source": "frwiki",
@@ -38569,7 +38591,7 @@
       "clubId": "emirates-club",
       "caps": 10,
       "goals": 0,
-      "capsAsOf": "2026-09-23",
+      "capsAsOf": "2026-10-16",
       "history": [
         {
           "clubId": "olympique-de-marseille",
@@ -38657,8 +38679,8 @@
           "clubName": "Emirates Club",
           "from": 2026,
           "to": null,
-          "apps": 4,
-          "goals": 0,
+          "apps": 6,
+          "goals": 1,
           "loan": false
         }
       ],
@@ -38751,7 +38773,7 @@
         "clubId": {
           "source": "frwiki",
           "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-23",
+          "asOf": "2026-10-16",
           "ref": "Larry Azouni",
           "confidence": "medium",
           "agreeing": [
@@ -38761,8 +38783,8 @@
         },
         "history": {
           "source": "frwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-23",
+          "retrievedAt": "2026-10-22",
+          "asOf": "2026-10-16",
           "ref": "Larry Azouni",
           "confidence": "medium",
           "agreeing": [
@@ -38772,8 +38794,8 @@
         },
         "caps": {
           "source": "frwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-23",
+          "retrievedAt": "2026-10-22",
+          "asOf": "2026-10-16",
           "ref": "Larry Azouni",
           "confidence": "high",
           "agreeing": [
@@ -38785,7 +38807,7 @@
         "goals": {
           "source": "frwiki",
           "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-23",
+          "asOf": "2026-10-16",
           "ref": "Larry Azouni",
           "confidence": "high",
           "agreeing": [
@@ -39257,7 +39279,7 @@
       "birthPlace": "Sousse",
       "birthCountry": "TN",
       "governorate": "sousse",
-      "clubId": "gol-gohar-f-c",
+      "clubId": null,
       "caps": 0,
       "goals": 0,
       "capsAsOf": null,
@@ -39303,7 +39325,7 @@
           "clubName": "Gol Gohar F.C.",
           "from": 2026,
           "to": null,
-          "apps": 2,
+          "apps": 5,
           "goals": 0,
           "loan": false
         }
@@ -39315,8 +39337,9 @@
         "ar": "لؤي بن حسين"
       },
       "pools": {
-        "active": true,
-        "legend": false
+        "active": false,
+        "legend": false,
+        "graceUntil": "2026-12-21"
       },
       "provenance": {
         "nameLatin": {
@@ -39389,27 +39412,15 @@
           ],
           "confidenceNote": "one source, precise (P36)"
         },
-        "clubId": {
-          "source": "enwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-06-05",
-          "ref": "Louay Ben Hassine",
-          "confidence": "medium",
-          "agreeing": [
-            "enwiki"
-          ],
-          "confidenceNote": "one fresh source"
-        },
         "history": {
           "source": "enwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-06-05",
+          "retrievedAt": "2026-10-22",
           "ref": "Louay Ben Hassine",
-          "confidence": "medium",
+          "confidence": "low",
           "agreeing": [
             "enwiki"
           ],
-          "confidenceNote": "one fresh source"
+          "confidenceNote": "one undated source"
         },
         "caps": {
           "source": "enwiki",
@@ -39905,7 +39916,7 @@
           "clubName": "Al Ta'awon",
           "from": 2026,
           "to": null,
-          "apps": 0,
+          "apps": 2,
           "goals": 0,
           "loan": false
         }
@@ -39985,7 +39996,7 @@
         "clubId": {
           "source": "frwiki",
           "retrievedAt": "2026-10-04",
-          "asOf": "2026-08-21",
+          "asOf": "2026-10-20",
           "ref": "Maher Ben Sghaïer",
           "confidence": "medium",
           "agreeing": [
@@ -39995,8 +40006,8 @@
         },
         "history": {
           "source": "frwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-08-21",
+          "retrievedAt": "2026-10-22",
+          "asOf": "2026-10-20",
           "ref": "Maher Ben Sghaïer",
           "confidence": "medium",
           "agreeing": [
@@ -40932,7 +40943,7 @@
       "birthPlace": "Aryanah",
       "birthCountry": "TN",
       "governorate": "ariana",
-      "clubId": "ca-bizertine",
+      "clubId": "us-monastir",
       "caps": 0,
       "goals": 0,
       "capsAsOf": null,
@@ -41047,15 +41058,14 @@
           "confidenceNote": "one source, precise (P36)"
         },
         "clubId": {
-          "source": "enwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2025-10-30",
-          "ref": "Malek Mehri",
-          "confidence": "low",
+          "source": "override",
+          "retrievedAt": "2026-10-07",
+          "by": "jalel",
+          "confidence": "high",
           "agreeing": [
-            "enwiki"
+            "override"
           ],
-          "confidenceNote": "transfermarkt checked on 2026-10-06: differs (P48)"
+          "confidenceNote": "decided by Jalel"
         },
         "history": {
           "source": "enwiki",
@@ -43032,9 +43042,9 @@
           "clubId": "club-africain",
           "clubName": "Club Africain",
           "from": 2016,
-          "to": 2018,
-          "apps": 22,
-          "goals": 5,
+          "to": 2017,
+          "apps": 16,
+          "goals": 3,
           "loan": false
         },
         {
@@ -43042,7 +43052,16 @@
           "clubName": "RC Strasbourg Alsace",
           "from": 2018,
           "to": 2021,
-          "apps": 5,
+          "apps": 23,
+          "goals": 7,
+          "loan": false
+        },
+        {
+          "clubId": "rc-strasbourg-alsace",
+          "clubName": "RC Strasbourg Alsace",
+          "from": 2018,
+          "to": 2021,
+          "apps": 3,
           "goals": 0,
           "loan": false
         },
@@ -43060,16 +43079,25 @@
           "clubName": "US Avranches",
           "from": 2020,
           "to": 2021,
-          "apps": 24,
+          "apps": 23,
           "goals": 2,
           "loan": true
         },
         {
-          "clubId": "chamois-niortais-f-c",
+          "clubId": "us-avranches",
+          "clubName": "US Avranches",
+          "from": 2020,
+          "to": 2020,
+          "apps": 1,
+          "goals": 0,
+          "loan": true
+        },
+        {
+          "clubId": null,
           "clubName": "Chamois Niortais F.C.",
           "from": 2021,
           "to": 2024,
-          "apps": 93,
+          "apps": 88,
           "goals": 9,
           "loan": false
         },
@@ -43078,7 +43106,7 @@
           "clubName": "Club Africain",
           "from": 2024,
           "to": 2026,
-          "apps": 57,
+          "apps": 54,
           "goals": 1,
           "loan": false
         },
@@ -43087,7 +43115,7 @@
           "clubName": "FC CSKA 1948 Sofia",
           "from": 2026,
           "to": null,
-          "apps": 11,
+          "apps": 8,
           "goals": 0,
           "loan": false
         }
@@ -43178,9 +43206,9 @@
           "confidenceNote": "one source, precise (P36)"
         },
         "clubId": {
-          "source": "frwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-18",
+          "source": "enwiki",
+          "retrievedAt": "2026-10-22",
+          "asOf": "2026-10-13",
           "ref": "Moataz Zemzemi",
           "confidence": "high",
           "agreeing": [
@@ -43189,15 +43217,15 @@
           ]
         },
         "history": {
-          "source": "frwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-18",
+          "source": "enwiki",
+          "retrievedAt": "2026-10-22",
+          "asOf": "2026-10-13",
           "ref": "Moataz Zemzemi",
-          "confidence": "medium",
+          "confidence": "low",
           "agreeing": [
-            "frwiki"
+            "enwiki"
           ],
-          "confidenceNote": "one fresh source; the others are explained by their dates"
+          "confidenceNote": "frwiki 5 clubs (2026-09-18) is within 90 days"
         },
         "caps": {
           "source": "frwiki",
@@ -43704,7 +43732,7 @@
       "clubId": "esperance-sportive-de-tunis",
       "caps": 1,
       "goals": 0,
-      "capsAsOf": "2026-09-13",
+      "capsAsOf": "2026-10-18",
       "history": [
         {
           "clubId": "club-africain",
@@ -43747,7 +43775,7 @@
           "clubName": "Espérance Sportive de Tunis",
           "from": 2026,
           "to": null,
-          "apps": 23,
+          "apps": 25,
           "goals": 3,
           "loan": false
         }
@@ -43816,7 +43844,7 @@
         "clubId": {
           "source": "frwiki",
           "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-13",
+          "asOf": "2026-10-18",
           "ref": "Moez Haj Ali",
           "confidence": "high",
           "agreeing": [
@@ -43827,8 +43855,8 @@
         },
         "history": {
           "source": "frwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-13",
+          "retrievedAt": "2026-10-22",
+          "asOf": "2026-10-18",
           "ref": "Moez Haj Ali",
           "confidence": "medium",
           "agreeing": [
@@ -43838,8 +43866,8 @@
         },
         "caps": {
           "source": "frwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-13",
+          "retrievedAt": "2026-10-22",
+          "asOf": "2026-10-18",
           "ref": "Moez Haj Ali",
           "confidence": "medium",
           "agreeing": [
@@ -43850,7 +43878,7 @@
         "goals": {
           "source": "frwiki",
           "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-13",
+          "asOf": "2026-10-18",
           "ref": "Moez Haj Ali",
           "confidence": "medium",
           "agreeing": [
@@ -44302,12 +44330,12 @@
       "capsAsOf": null,
       "history": [
         {
-          "clubId": null,
-          "clubName": "Avenir Sportif de Soliman",
+          "clubId": "as-soliman",
+          "clubName": "AS Soliman",
           "from": 2018,
-          "to": 2020,
-          "apps": 11,
-          "goals": 6,
+          "to": 2019,
+          "apps": 13,
+          "goals": 8,
           "loan": false
         },
         {
@@ -44315,26 +44343,17 @@
           "clubName": "Espérance Sportive de Tunis",
           "from": 2020,
           "to": 2021,
-          "apps": 19,
-          "goals": 2,
+          "apps": 30,
+          "goals": 3,
           "loan": false
         },
         {
-          "clubId": null,
-          "clubName": "Avenir Sportif de Soliman",
-          "from": 2021,
-          "to": 2021,
-          "apps": 12,
-          "goals": 1,
-          "loan": true
-        },
-        {
-          "clubId": null,
-          "clubName": "Avenir Sportif de Soliman",
+          "clubId": "as-soliman",
+          "clubName": "AS Soliman",
           "from": 2021,
           "to": 2022,
-          "apps": 7,
-          "goals": 2,
+          "apps": 22,
+          "goals": 8,
           "loan": false
         },
         {
@@ -44342,8 +44361,8 @@
           "clubName": "Espérance Sportive de Tunis",
           "from": 2022,
           "to": 2022,
-          "apps": 11,
-          "goals": 8,
+          "apps": 15,
+          "goals": 11,
           "loan": true
         },
         {
@@ -44351,8 +44370,8 @@
           "clubName": "Espérance Sportive de Tunis",
           "from": 2022,
           "to": 2024,
-          "apps": 35,
-          "goals": 5,
+          "apps": 65,
+          "goals": 9,
           "loan": false
         },
         {
@@ -44360,7 +44379,7 @@
           "clubName": "Ghazl El Mahalla SC",
           "from": 2024,
           "to": 2025,
-          "apps": 22,
+          "apps": 28,
           "goals": 9,
           "loan": false
         },
@@ -44369,8 +44388,8 @@
           "clubName": "CR Belouizdad",
           "from": 2025,
           "to": null,
-          "apps": 25,
-          "goals": 9,
+          "apps": 44,
+          "goals": 14,
           "loan": false
         }
       ],
@@ -44471,10 +44490,10 @@
           "confidenceNote": "one source, precise (P36)"
         },
         "clubId": {
-          "source": "enwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-06-05",
-          "ref": "Mohamed Ali Ben Hammouda",
+          "source": "frwiki",
+          "retrievedAt": "2026-10-22",
+          "asOf": "2026-10-12",
+          "ref": "Mohamed Ali Ben Hammouda (football, 1998)",
           "confidence": "high",
           "agreeing": [
             "enwiki",
@@ -44482,15 +44501,15 @@
           ]
         },
         "history": {
-          "source": "enwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-06-05",
-          "ref": "Mohamed Ali Ben Hammouda",
-          "confidence": "low",
+          "source": "frwiki",
+          "retrievedAt": "2026-10-22",
+          "asOf": "2026-10-12",
+          "ref": "Mohamed Ali Ben Hammouda (football, 1998)",
+          "confidence": "medium",
           "agreeing": [
-            "enwiki"
+            "frwiki"
           ],
-          "confidenceNote": "frwiki 4 clubs (2026-06-05) is within 90 days"
+          "confidenceNote": "one fresh source; the others are explained by their dates"
         },
         "caps": {
           "source": "enwiki",
@@ -44555,7 +44574,7 @@
       "clubId": "al-shamal-sports-club",
       "caps": 61,
       "goals": 7,
-      "capsAsOf": "2026-09-28",
+      "capsAsOf": "2026-10-17",
       "history": [
         {
           "clubId": "esperance-sportive-de-tunis",
@@ -44589,7 +44608,7 @@
           "clubName": "Al-Shamal Sports Club",
           "from": 2026,
           "to": null,
-          "apps": 5,
+          "apps": 8,
           "goals": 1,
           "loan": false
         }
@@ -44693,7 +44712,7 @@
         "clubId": {
           "source": "frwiki",
           "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-28",
+          "asOf": "2026-10-17",
           "ref": "Mohamed Ali Ben Romdhane",
           "confidence": "high",
           "agreeing": [
@@ -44703,8 +44722,8 @@
         },
         "history": {
           "source": "frwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-28",
+          "retrievedAt": "2026-10-22",
+          "asOf": "2026-10-17",
           "ref": "Mohamed Ali Ben Romdhane",
           "confidence": "medium",
           "agreeing": [
@@ -44714,8 +44733,8 @@
         },
         "caps": {
           "source": "frwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-28",
+          "retrievedAt": "2026-10-22",
+          "asOf": "2026-10-17",
           "ref": "Mohamed Ali Ben Romdhane",
           "confidence": "high",
           "agreeing": [
@@ -44726,7 +44745,7 @@
         "goals": {
           "source": "frwiki",
           "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-28",
+          "asOf": "2026-10-17",
           "ref": "Mohamed Ali Ben Romdhane",
           "confidence": "high",
           "agreeing": [
@@ -45404,7 +45423,7 @@
       "birthPlace": "Sousse",
       "birthCountry": "TN",
       "governorate": "sousse",
-      "clubId": null,
+      "clubId": "jeunesse-sportive-d-el-omrane",
       "caps": 34,
       "goals": 3,
       "capsAsOf": "2026-07-25",
@@ -45444,7 +45463,7 @@
         "ar": "محمد أمين بن عمر"
       },
       "pools": {
-        "active": false,
+        "active": true,
         "legend": true
       },
       "provenance": {
@@ -45522,6 +45541,18 @@
           ],
           "confidenceNote": "one source, precise (P36)"
         },
+        "clubId": {
+          "source": "enwiki",
+          "retrievedAt": "2026-10-22",
+          "asOf": "2019-07-17",
+          "ref": "Mohamed Amine Ben Amor",
+          "confidence": "low",
+          "agreeing": [
+            "enwiki",
+            "enwiki-squad"
+          ],
+          "confidenceNote": "frwiki none (2026-07-25) is newer"
+        },
         "history": {
           "source": "frwiki",
           "retrievedAt": "2026-10-04",
@@ -45556,7 +45587,17 @@
           ]
         }
       },
-      "fame": null
+      "fame": {
+        "score": 3.74,
+        "tier": "C",
+        "views": {
+          "en": 1652,
+          "fr": 370,
+          "ar": 1113
+        },
+        "window": "202510-202609",
+        "localStar": false
+      }
     },
     {
       "id": "mohamed-amine-ben-amor-q123336254",
@@ -45779,7 +45820,7 @@
       "clubId": "al-hazem-sc",
       "caps": 16,
       "goals": 0,
-      "capsAsOf": "2026-09-28",
+      "capsAsOf": "2026-10-19",
       "history": [
         {
           "clubId": "esperance-sportive-de-tunis",
@@ -45813,7 +45854,7 @@
           "clubName": "Al Hazem SC",
           "from": 2026,
           "to": null,
-          "apps": 7,
+          "apps": 10,
           "goals": 0,
           "loan": false
         }
@@ -45917,7 +45958,7 @@
         "clubId": {
           "source": "frwiki",
           "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-08",
+          "asOf": "2026-10-19",
           "ref": "Mohamed Amine Ben Hmida",
           "confidence": "high",
           "agreeing": [
@@ -45928,8 +45969,8 @@
         },
         "history": {
           "source": "frwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-08",
+          "retrievedAt": "2026-10-22",
+          "asOf": "2026-10-19",
           "ref": "Mohamed Amine Ben Hmida",
           "confidence": "high",
           "agreeing": [
@@ -45938,10 +45979,10 @@
           ]
         },
         "caps": {
-          "source": "enwiki-national",
-          "retrievedAt": "2026-10-05",
-          "asOf": "2026-09-28",
-          "ref": "Tunisia national football team",
+          "source": "frwiki",
+          "retrievedAt": "2026-10-22",
+          "asOf": "2026-10-19",
+          "ref": "Mohamed Amine Ben Hmida",
           "confidence": "high",
           "agreeing": [
             "enwiki",
@@ -45951,10 +45992,10 @@
           ]
         },
         "goals": {
-          "source": "enwiki-national",
-          "retrievedAt": "2026-10-05",
-          "asOf": "2026-09-28",
-          "ref": "Tunisia national football team",
+          "source": "frwiki",
+          "retrievedAt": "2026-10-22",
+          "asOf": "2026-10-19",
+          "ref": "Mohamed Amine Ben Hmida",
           "confidence": "high",
           "agreeing": [
             "enwiki",
@@ -46045,7 +46086,7 @@
           "clubName": "Al Watan SC",
           "from": 2025,
           "to": null,
-          "apps": 16,
+          "apps": 17,
           "goals": 0,
           "loan": false
         }
@@ -46159,8 +46200,8 @@
         },
         "history": {
           "source": "frwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-04-13",
+          "retrievedAt": "2026-10-22",
+          "asOf": "2026-10-19",
           "ref": "Mohamed Amine Meskini",
           "confidence": "medium",
           "agreeing": [
@@ -46464,15 +46505,15 @@
       "clubId": "esperance-sportive-de-tunis",
       "caps": 11,
       "goals": 0,
-      "capsAsOf": "2026-09-13",
+      "capsAsOf": "2026-10-18",
       "history": [
         {
           "clubId": "etoile-sportive-du-sahel",
           "clubName": "Étoile Sportive du Sahel",
           "from": 2019,
           "to": 2021,
-          "apps": 35,
-          "goals": 18,
+          "apps": 39,
+          "goals": 2,
           "loan": false
         },
         {
@@ -46480,8 +46521,8 @@
           "clubName": "FC Lugano",
           "from": 2021,
           "to": 2026,
-          "apps": 113,
-          "goals": 14,
+          "apps": 151,
+          "goals": 19,
           "loan": false
         },
         {
@@ -46489,7 +46530,7 @@
           "clubName": "Espérance Sportive de Tunis",
           "from": 2026,
           "to": null,
-          "apps": 4,
+          "apps": 6,
           "goals": 1,
           "loan": false
         }
@@ -46580,10 +46621,10 @@
           "confidenceNote": "one source, precise (P36)"
         },
         "clubId": {
-          "source": "enwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-13",
-          "ref": "Hadj Mahmoud",
+          "source": "frwiki",
+          "retrievedAt": "2026-10-22",
+          "asOf": "2026-10-18",
+          "ref": "Mohamed Belhadj Mahmoud",
           "confidence": "high",
           "agreeing": [
             "enwiki",
@@ -46593,10 +46634,10 @@
           ]
         },
         "history": {
-          "source": "enwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-13",
-          "ref": "Hadj Mahmoud",
+          "source": "frwiki",
+          "retrievedAt": "2026-10-22",
+          "asOf": "2026-10-18",
+          "ref": "Mohamed Belhadj Mahmoud",
           "confidence": "high",
           "agreeing": [
             "enwiki",
@@ -46605,8 +46646,8 @@
         },
         "caps": {
           "source": "frwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-13",
+          "retrievedAt": "2026-10-22",
+          "asOf": "2026-10-18",
           "ref": "Mohamed Belhadj Mahmoud",
           "confidence": "high",
           "agreeing": [
@@ -46619,7 +46660,7 @@
         "goals": {
           "source": "frwiki",
           "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-13",
+          "asOf": "2026-10-18",
           "ref": "Mohamed Belhadj Mahmoud",
           "confidence": "high",
           "agreeing": [
@@ -47849,29 +47890,11 @@
       "clubId": "esperance-sportive-de-tunis",
       "caps": 40,
       "goals": 3,
-      "capsAsOf": "2026-09-13",
+      "capsAsOf": "2026-10-18",
       "history": [
         {
-          "clubId": "sc-freiburg-ii",
-          "clubName": "SC Freiburg II",
-          "from": 2012,
-          "to": 2013,
-          "apps": 26,
-          "goals": 7,
-          "loan": false
-        },
-        {
-          "clubId": "sc-freiburg-ii",
-          "clubName": "SC Freiburg II",
-          "from": 2013,
-          "to": 2015,
-          "apps": 46,
-          "goals": 16,
-          "loan": false
-        },
-        {
-          "clubId": "sc-freiburg-ii",
-          "clubName": "SC Freiburg II",
+          "clubId": "sc-freiburg",
+          "clubName": "SC Freiburg",
           "from": 2015,
           "to": 2018,
           "apps": 68,
@@ -47881,9 +47904,9 @@
         {
           "clubId": "sc-freiburg",
           "clubName": "SC Freiburg",
-          "from": 2017,
+          "from": 2018,
           "to": 2020,
-          "apps": 2,
+          "apps": 3,
           "goals": 0,
           "loan": false
         },
@@ -47892,7 +47915,7 @@
           "clubName": "SC Paderborn 07",
           "from": 2018,
           "to": 2020,
-          "apps": 50,
+          "apps": 54,
           "goals": 1,
           "loan": true
         },
@@ -47901,7 +47924,7 @@
           "clubName": "Olympiacos F.C.",
           "from": 2020,
           "to": 2021,
-          "apps": 8,
+          "apps": 10,
           "goals": 0,
           "loan": false
         },
@@ -47919,8 +47942,8 @@
           "clubName": "FC Luzern",
           "from": 2022,
           "to": 2023,
-          "apps": 50,
-          "goals": 6,
+          "apps": 54,
+          "goals": 7,
           "loan": true
         },
         {
@@ -47928,7 +47951,7 @@
           "clubName": "FC Basel",
           "from": 2023,
           "to": 2025,
-          "apps": 21,
+          "apps": 24,
           "goals": 2,
           "loan": false
         },
@@ -47942,20 +47965,11 @@
           "loan": false
         },
         {
-          "clubId": "eintracht-braunschweig-ii",
-          "clubName": "Eintracht Braunschweig II",
-          "from": 2025,
-          "to": 2025,
-          "apps": 11,
-          "goals": 0,
-          "loan": false
-        },
-        {
           "clubId": "esperance-sportive-de-tunis",
           "clubName": "Espérance Sportive de Tunis",
           "from": 2026,
           "to": null,
-          "apps": 8,
+          "apps": 14,
           "goals": 0,
           "loan": false
         }
@@ -48036,9 +48050,9 @@
           "confidenceNote": "one source, precise (P36)"
         },
         "clubId": {
-          "source": "enwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-13",
+          "source": "frwiki",
+          "retrievedAt": "2026-10-22",
+          "asOf": "2026-10-18",
           "ref": "Mohamed Dräger",
           "confidence": "high",
           "agreeing": [
@@ -48049,20 +48063,20 @@
           ]
         },
         "history": {
-          "source": "enwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-13",
+          "source": "frwiki",
+          "retrievedAt": "2026-10-22",
+          "asOf": "2026-10-18",
           "ref": "Mohamed Dräger",
-          "confidence": "medium",
+          "confidence": "low",
           "agreeing": [
-            "enwiki"
+            "frwiki"
           ],
-          "confidenceNote": "one fresh source; the others are explained by their dates"
+          "confidenceNote": "enwiki 10 clubs (2026-10-10) is within 90 days"
         },
         "caps": {
           "source": "frwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-13",
+          "retrievedAt": "2026-10-22",
+          "asOf": "2026-10-18",
           "ref": "Mohamed Dräger",
           "confidence": "medium",
           "agreeing": [
@@ -48074,7 +48088,7 @@
         "goals": {
           "source": "frwiki",
           "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-13",
+          "asOf": "2026-10-18",
           "ref": "Mohamed Dräger",
           "confidence": "high",
           "agreeing": [
@@ -48111,7 +48125,7 @@
       "clubId": "r-e-virton",
       "caps": 3,
       "goals": 0,
-      "capsAsOf": "2025-05-04",
+      "capsAsOf": "2026-10-10",
       "history": [
         {
           "clubId": "hamburger-sv",
@@ -48181,8 +48195,8 @@
           "clubName": "ESV Südstern Singen",
           "from": 2025,
           "to": null,
-          "apps": null,
-          "goals": null,
+          "apps": 35,
+          "goals": 1,
           "loan": false
         }
       ],
@@ -48295,19 +48309,19 @@
         },
         "history": {
           "source": "frwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2025-05-04",
+          "retrievedAt": "2026-10-22",
+          "asOf": "2026-10-10",
           "ref": "Mohamed Gouaida",
-          "confidence": "low",
+          "confidence": "medium",
           "agreeing": [
             "frwiki"
           ],
-          "confidenceNote": "one source, as of 2025-05-04"
+          "confidenceNote": "one fresh source; the others are explained by their dates"
         },
         "caps": {
           "source": "frwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2025-05-04",
+          "retrievedAt": "2026-10-22",
+          "asOf": "2026-10-10",
           "ref": "Mohamed Gouaida",
           "confidence": "high",
           "agreeing": [
@@ -48319,7 +48333,7 @@
         "goals": {
           "source": "frwiki",
           "retrievedAt": "2026-10-04",
-          "asOf": "2025-05-04",
+          "asOf": "2026-10-10",
           "ref": "Mohamed Gouaida",
           "confidence": "high",
           "agreeing": [
@@ -49084,7 +49098,7 @@
       "birthDate": "2002-08-18",
       "birthPlace": "Tunisia",
       "birthCountry": "TN",
-      "governorate": null,
+      "governorate": "sfax",
       "clubId": "nk-istra-1961",
       "caps": 1,
       "goals": 0,
@@ -49104,7 +49118,7 @@
           "clubName": "NK Istra 1961",
           "from": 2025,
           "to": null,
-          "apps": 19,
+          "apps": 26,
           "goals": 0,
           "loan": false
         }
@@ -49191,10 +49205,20 @@
           ],
           "confidenceNote": "born in Tunisia, town unknown"
         },
+        "governorate": {
+          "source": "override",
+          "retrievedAt": "2026-10-07",
+          "by": "jalel",
+          "confidence": "high",
+          "agreeing": [
+            "override"
+          ],
+          "confidenceNote": "decided by Jalel"
+        },
         "clubId": {
           "source": "enwiki",
           "retrievedAt": "2026-10-04",
-          "asOf": "2026-06-01",
+          "asOf": "2026-10-10",
           "ref": "Mohamed Nasraoui",
           "confidence": "high",
           "agreeing": [
@@ -49204,8 +49228,8 @@
         },
         "history": {
           "source": "enwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-06-01",
+          "retrievedAt": "2026-10-22",
+          "asOf": "2026-10-10",
           "ref": "Mohamed Nasraoui",
           "confidence": "medium",
           "agreeing": [
@@ -49214,26 +49238,25 @@
           "confidenceNote": "one fresh source; the others are explained by their dates"
         },
         "caps": {
-          "source": "enwiki-national",
-          "retrievedAt": "2026-10-05",
-          "asOf": "2026-09-28",
-          "ref": "Tunisia national football team",
-          "confidence": "medium",
+          "source": "override",
+          "retrievedAt": "2026-10-07",
+          "by": "jalel",
+          "confidence": "high",
           "agreeing": [
-            "enwiki-national"
+            "override"
           ],
-          "confidenceNote": "one fresh source"
+          "confidenceNote": "decided by Jalel"
         },
         "goals": {
-          "source": "enwiki-national",
-          "retrievedAt": "2026-10-05",
+          "source": "enwiki",
+          "retrievedAt": "2026-10-22",
           "asOf": "2026-09-28",
-          "ref": "Tunisia national football team",
-          "confidence": "medium",
+          "ref": "Mohamed Nasraoui",
+          "confidence": "high",
           "agreeing": [
+            "enwiki",
             "enwiki-national"
-          ],
-          "confidenceNote": "one fresh source"
+          ]
         },
         "photo": {
           "source": "commons",
@@ -49450,7 +49473,7 @@
       "clubId": "hidd-scc",
       "caps": 0,
       "goals": 0,
-      "capsAsOf": "2026-09-23",
+      "capsAsOf": "2026-10-17",
       "history": [
         {
           "clubId": "as-gabes",
@@ -49475,8 +49498,8 @@
           "clubName": "Hidd SCC",
           "from": 2026,
           "to": null,
-          "apps": null,
-          "goals": null,
+          "apps": 1,
+          "goals": 0,
           "loan": false
         }
       ],
@@ -49568,7 +49591,7 @@
         "clubId": {
           "source": "frwiki",
           "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-23",
+          "asOf": "2026-10-17",
           "ref": "Mohamed Sedki Debchi",
           "confidence": "high",
           "agreeing": [
@@ -49578,8 +49601,8 @@
         },
         "history": {
           "source": "frwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-23",
+          "retrievedAt": "2026-10-22",
+          "asOf": "2026-10-17",
           "ref": "Mohamed Sedki Debchi",
           "confidence": "high",
           "agreeing": [
@@ -49589,8 +49612,8 @@
         },
         "caps": {
           "source": "frwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-23",
+          "retrievedAt": "2026-10-22",
+          "asOf": "2026-10-17",
           "ref": "Mohamed Sedki Debchi",
           "confidence": "medium",
           "agreeing": [
@@ -49601,7 +49624,7 @@
         "goals": {
           "source": "frwiki",
           "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-23",
+          "asOf": "2026-10-17",
           "ref": "Mohamed Sedki Debchi",
           "confidence": "medium",
           "agreeing": [
@@ -51230,7 +51253,7 @@
       "clubId": "f-c-lorient",
       "caps": 69,
       "goals": 4,
-      "capsAsOf": "2026-09-28",
+      "capsAsOf": "2026-10-18",
       "history": [
         {
           "clubId": "esperance-sportive-de-tunis",
@@ -51273,7 +51296,7 @@
           "clubName": "F.C. Lorient",
           "from": 2022,
           "to": null,
-          "apps": 133,
+          "apps": 135,
           "goals": 2,
           "loan": false
         }
@@ -51367,7 +51390,7 @@
         "clubId": {
           "source": "frwiki",
           "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-28",
+          "asOf": "2026-10-18",
           "ref": "Montassar Talbi",
           "confidence": "high",
           "agreeing": [
@@ -51379,8 +51402,8 @@
         },
         "history": {
           "source": "frwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-28",
+          "retrievedAt": "2026-10-22",
+          "asOf": "2026-10-18",
           "ref": "Montassar Talbi",
           "confidence": "high",
           "agreeing": [
@@ -51391,24 +51414,26 @@
         },
         "caps": {
           "source": "frwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-28",
+          "retrievedAt": "2026-10-22",
+          "asOf": "2026-10-18",
           "ref": "Montassar Talbi",
           "confidence": "high",
           "agreeing": [
             "frwiki",
             "enwiki-national"
-          ]
+          ],
+          "bandAgreed": true
         },
         "goals": {
           "source": "frwiki",
           "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-28",
+          "asOf": "2026-10-18",
           "ref": "Montassar Talbi",
           "confidence": "high",
           "agreeing": [
             "enwiki",
             "frwiki",
+            "wikidata",
             "enwiki-national"
           ]
         },
@@ -53466,14 +53491,14 @@
       "clubId": "ifk-norrkoping",
       "caps": 5,
       "goals": 0,
-      "capsAsOf": "2026-09-28",
+      "capsAsOf": "2026-10-13",
       "history": [
         {
           "clubId": "ifk-norrkoping",
           "clubName": "IFK Norrköping",
           "from": 2022,
           "to": null,
-          "apps": 74,
+          "apps": 75,
           "goals": 7,
           "loan": false
         },
@@ -53574,7 +53599,7 @@
         "clubId": {
           "source": "frwiki",
           "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-19",
+          "asOf": "2026-10-13",
           "ref": "Moutaz Neffati",
           "confidence": "high",
           "agreeing": [
@@ -53585,8 +53610,8 @@
         },
         "history": {
           "source": "frwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-19",
+          "retrievedAt": "2026-10-22",
+          "asOf": "2026-10-13",
           "ref": "Moutaz Neffati",
           "confidence": "high",
           "agreeing": [
@@ -53595,10 +53620,10 @@
           ]
         },
         "caps": {
-          "source": "enwiki-national",
-          "retrievedAt": "2026-10-05",
-          "asOf": "2026-09-28",
-          "ref": "Tunisia national football team",
+          "source": "frwiki",
+          "retrievedAt": "2026-10-22",
+          "asOf": "2026-10-13",
+          "ref": "Moutaz Neffati",
           "confidence": "high",
           "agreeing": [
             "enwiki",
@@ -53608,10 +53633,10 @@
           "bandAgreed": true
         },
         "goals": {
-          "source": "enwiki-national",
-          "retrievedAt": "2026-10-05",
-          "asOf": "2026-09-28",
-          "ref": "Tunisia national football team",
+          "source": "frwiki",
+          "retrievedAt": "2026-10-22",
+          "asOf": "2026-10-13",
+          "ref": "Moutaz Neffati",
           "confidence": "high",
           "agreeing": [
             "enwiki",
@@ -54242,7 +54267,7 @@
       "birthCountry": "FR",
       "governorate": null,
       "clubId": "al-swehly-f-c",
-      "caps": 19,
+      "caps": 20,
       "goals": 0,
       "capsAsOf": "2026-09-29",
       "history": [
@@ -54365,7 +54390,7 @@
       },
       "pools": {
         "active": true,
-        "legend": false
+        "legend": true
       },
       "provenance": {
         "nameLatin": {
@@ -54455,15 +54480,14 @@
           "confidenceNote": "frwiki 8 clubs (2026-09-29) is within 90 days"
         },
         "caps": {
-          "source": "enwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-29",
-          "ref": "Nader Ghandri",
-          "confidence": "low",
+          "source": "override",
+          "retrievedAt": "2026-10-07",
+          "by": "jalel",
+          "confidence": "high",
           "agreeing": [
-            "enwiki"
+            "override"
           ],
-          "confidenceNote": "frwiki 20 (2026-09-29) is higher"
+          "confidenceNote": "decided by Jalel"
         },
         "goals": {
           "source": "enwiki",
@@ -54825,7 +54849,7 @@
       "birthPlace": "Marseille",
       "birthCountry": "FR",
       "governorate": null,
-      "clubId": "al-ahli-sc",
+      "clubId": null,
       "caps": 85,
       "goals": 16,
       "capsAsOf": "2026-08-03",
@@ -54939,8 +54963,9 @@
         "ar": "نعيم سليتي"
       },
       "pools": {
-        "active": true,
-        "legend": true
+        "active": false,
+        "legend": true,
+        "graceUntil": "2026-12-06"
       },
       "provenance": {
         "nameLatin": {
@@ -55008,16 +55033,14 @@
           "confidenceNote": "one source, precise (P36)"
         },
         "clubId": {
-          "source": "enwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-04-27",
-          "ref": "Naïm Sliti",
-          "confidence": "low",
+          "source": "override",
+          "retrievedAt": "2026-10-07",
+          "by": "jalel",
+          "confidence": "high",
           "agreeing": [
-            "enwiki",
-            "wikidata"
+            "override"
           ],
-          "confidenceNote": "frwiki none (2026-08-03) is newer"
+          "confidenceNote": "decided by Jalel"
         },
         "history": {
           "source": "frwiki",
@@ -56177,15 +56200,14 @@
           "confidenceNote": "one source, precise (P36)"
         },
         "clubId": {
-          "source": "frwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-06-27",
-          "ref": "Nour Zamen Zammouri",
-          "confidence": "low",
+          "source": "override",
+          "retrievedAt": "2026-10-07",
+          "by": "jalel",
+          "confidence": "high",
           "agreeing": [
-            "frwiki"
+            "override"
           ],
-          "confidenceNote": "transfermarkt checked on 2026-10-06: differs (P48)"
+          "confidenceNote": "decided by Jalel"
         },
         "history": {
           "source": "frwiki",
@@ -56605,7 +56627,7 @@
       "positionDetail": "Centre-back",
       "birthDate": "2001-12-20",
       "birthPlace": "Helmond",
-      "birthCountry": null,
+      "birthCountry": "NL",
       "governorate": null,
       "clubId": "pfc-ludogorets-1945",
       "caps": 8,
@@ -56733,14 +56755,14 @@
           ]
         },
         "birthPlace": {
-          "source": "wikidata",
-          "retrievedAt": "2026-10-04",
-          "ref": "P19 Q96678415",
-          "confidence": "low",
+          "source": "override",
+          "retrievedAt": "2026-10-07",
+          "by": "jalel",
+          "confidence": "high",
           "agreeing": [
-            "wikidata"
+            "override"
           ],
-          "confidenceNote": "no country for this birthplace"
+          "confidenceNote": "decided by Jalel"
         },
         "clubId": {
           "source": "frwiki",
@@ -56822,15 +56844,6 @@
       "capsAsOf": null,
       "history": [
         {
-          "clubId": "en-avant-de-guingamp",
-          "clubName": "En Avant de Guingamp",
-          "from": 2009,
-          "to": 2009,
-          "apps": 3,
-          "goals": 0,
-          "loan": false
-        },
-        {
           "clubId": "esperance-sportive-de-tunis",
           "clubName": "Espérance Sportive de Tunis",
           "from": 2009,
@@ -56885,8 +56898,8 @@
           "loan": false
         },
         {
-          "clubId": null,
-          "clubName": "Riffa SC",
+          "clubId": "riffa-s-c",
+          "clubName": "Riffa S.C.",
           "from": 2017,
           "to": 2019,
           "apps": null,
@@ -56907,8 +56920,8 @@
           "clubName": "Etoile Sportive de Metlaoui",
           "from": 2020,
           "to": 2020,
-          "apps": 12,
-          "goals": 5,
+          "apps": 15,
+          "goals": 6,
           "loan": false
         },
         {
@@ -56930,7 +56943,7 @@
           "loan": false
         },
         {
-          "clubId": null,
+          "clubId": "najran-sc",
           "clubName": "Najran SC",
           "from": 2021,
           "to": 2021,
@@ -56939,7 +56952,7 @@
           "loan": false
         },
         {
-          "clubId": "cs-saint-laurent",
+          "clubId": null,
           "clubName": "CS Saint-Laurent",
           "from": 2023,
           "to": 2023,
@@ -56948,7 +56961,7 @@
           "loan": false
         },
         {
-          "clubId": "mudhar-club",
+          "clubId": null,
           "clubName": "Mudhar Club",
           "from": 2023,
           "to": 2024,
@@ -56957,8 +56970,8 @@
           "loan": false
         },
         {
-          "clubId": "al-entsar-fc",
-          "clubName": "Al Entsar FC",
+          "clubId": null,
+          "clubName": "Al-Entesar Club",
           "from": 2024,
           "to": 2024,
           "apps": null,
@@ -56966,19 +56979,19 @@
           "loan": false
         },
         {
-          "clubId": "cs-saint-laurent",
+          "clubId": null,
           "clubName": "CS Saint-Laurent",
           "from": 2024,
-          "to": 2024,
+          "to": 2025,
           "apps": 8,
           "goals": 0,
           "loan": false
         },
         {
-          "clubId": "lakeshore-sc",
+          "clubId": null,
           "clubName": "Lakeshore SC",
           "from": 2025,
-          "to": 2025,
+          "to": 2026,
           "apps": 9,
           "goals": 1,
           "loan": false
@@ -56987,7 +57000,7 @@
           "clubId": "fc-supra-du-quebec",
           "clubName": "FC Supra du Québec",
           "from": 2026,
-          "to": null,
+          "to": 2026,
           "apps": 9,
           "goals": 1,
           "loan": false
@@ -57079,26 +57092,26 @@
           "confidenceNote": "one source, precise (P36)"
         },
         "clubId": {
-          "source": "enwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-08-11",
-          "ref": "Oussama Boughanmi (footballer)",
-          "confidence": "high",
-          "agreeing": [
-            "enwiki",
-            "frwiki"
-          ]
-        },
-        "history": {
-          "source": "enwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-08-11",
-          "ref": "Oussama Boughanmi (footballer)",
+          "source": "frwiki",
+          "retrievedAt": "2026-10-22",
+          "asOf": "2026-08-21",
+          "ref": "Oussama Boughanmi",
           "confidence": "low",
           "agreeing": [
-            "enwiki"
+            "frwiki"
           ],
-          "confidenceNote": "frwiki 13 clubs (2026-08-09) is within 90 days"
+          "confidenceNote": "enwiki none (2026-08-11) is within 90 days"
+        },
+        "history": {
+          "source": "frwiki",
+          "retrievedAt": "2026-10-22",
+          "asOf": "2026-08-21",
+          "ref": "Oussama Boughanmi",
+          "confidence": "low",
+          "agreeing": [
+            "frwiki"
+          ],
+          "confidenceNote": "enwiki 16 clubs (2026-08-11) is within 90 days"
         },
         "caps": {
           "source": "enwiki",
@@ -57147,7 +57160,7 @@
       "birthDate": "1998-10-17",
       "birthPlace": null,
       "birthCountry": null,
-      "governorate": null,
+      "governorate": "kairouan",
       "clubId": "club-africain",
       "caps": 1,
       "goals": 0,
@@ -57263,6 +57276,16 @@
             "frwiki",
             "wikidata"
           ]
+        },
+        "governorate": {
+          "source": "override",
+          "retrievedAt": "2026-10-07",
+          "by": "jalel",
+          "confidence": "high",
+          "agreeing": [
+            "override"
+          ],
+          "confidenceNote": "decided by Jalel"
         },
         "clubId": {
           "source": "frwiki",
@@ -57602,7 +57625,7 @@
       "clubId": "rs-berkane",
       "caps": 36,
       "goals": 0,
-      "capsAsOf": "2026-06-27",
+      "capsAsOf": "2026-10-13",
       "history": [
         {
           "clubId": "club-africain",
@@ -57672,7 +57695,7 @@
           "clubName": "RS Berkane",
           "from": 2025,
           "to": null,
-          "apps": 30,
+          "apps": 36,
           "goals": 0,
           "loan": false
         }
@@ -57776,7 +57799,7 @@
         "clubId": {
           "source": "frwiki",
           "retrievedAt": "2026-10-04",
-          "asOf": "2026-06-27",
+          "asOf": "2026-10-13",
           "ref": "Oussama Haddadi",
           "confidence": "high",
           "agreeing": [
@@ -57786,8 +57809,8 @@
         },
         "history": {
           "source": "frwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-06-27",
+          "retrievedAt": "2026-10-22",
+          "asOf": "2026-10-13",
           "ref": "Oussama Haddadi",
           "confidence": "medium",
           "agreeing": [
@@ -57797,8 +57820,8 @@
         },
         "caps": {
           "source": "frwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-06-27",
+          "retrievedAt": "2026-10-22",
+          "asOf": "2026-10-13",
           "ref": "Oussama Haddadi",
           "confidence": "medium",
           "agreeing": [
@@ -57809,7 +57832,7 @@
         "goals": {
           "source": "frwiki",
           "retrievedAt": "2026-10-04",
-          "asOf": "2026-06-27",
+          "asOf": "2026-10-13",
           "ref": "Oussama Haddadi",
           "confidence": "high",
           "agreeing": [
@@ -57908,7 +57931,7 @@
           "clubName": "Ghazl El Mahalla SC",
           "from": 2025,
           "to": null,
-          "apps": 48,
+          "apps": 50,
           "goals": 2,
           "loan": false
         }
@@ -58001,7 +58024,7 @@
         "clubId": {
           "source": "frwiki",
           "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-16",
+          "asOf": "2026-10-21",
           "ref": "Rached Arfaoui",
           "confidence": "high",
           "agreeing": [
@@ -58011,8 +58034,8 @@
         },
         "history": {
           "source": "frwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-16",
+          "retrievedAt": "2026-10-22",
+          "asOf": "2026-10-21",
           "ref": "Rached Arfaoui",
           "confidence": "medium",
           "agreeing": [
@@ -58844,7 +58867,7 @@
           "clubName": "Espérance Sportive de Tunis",
           "from": 2026,
           "to": null,
-          "apps": 4,
+          "apps": 6,
           "goals": 0,
           "loan": false
         }
@@ -58935,9 +58958,9 @@
           "confidenceNote": "one source, precise (P36)"
         },
         "clubId": {
-          "source": "enwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-13",
+          "source": "frwiki",
+          "retrievedAt": "2026-10-22",
+          "asOf": "2026-10-18",
           "ref": "Raed Chikhaoui",
           "confidence": "high",
           "agreeing": [
@@ -58948,9 +58971,9 @@
           ]
         },
         "history": {
-          "source": "enwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-13",
+          "source": "frwiki",
+          "retrievedAt": "2026-10-22",
+          "asOf": "2026-10-18",
           "ref": "Raed Chikhaoui",
           "confidence": "high",
           "agreeing": [
@@ -59989,7 +60012,7 @@
       "clubId": "halmstads-bk",
       "caps": 2,
       "goals": 0,
-      "capsAsOf": "2026-09-20",
+      "capsAsOf": "2026-10-12",
       "history": [
         {
           "clubId": "if-elfsborg",
@@ -60041,7 +60064,7 @@
           "clubName": "Halmstads BK",
           "from": 2026,
           "to": null,
-          "apps": 36,
+          "apps": 37,
           "goals": 0,
           "loan": false
         }
@@ -60124,7 +60147,7 @@
         "clubId": {
           "source": "frwiki",
           "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-20",
+          "asOf": "2026-10-12",
           "ref": "Rami Kaib",
           "confidence": "high",
           "agreeing": [
@@ -60134,8 +60157,8 @@
         },
         "history": {
           "source": "frwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-20",
+          "retrievedAt": "2026-10-22",
+          "asOf": "2026-10-12",
           "ref": "Rami Kaib",
           "confidence": "high",
           "agreeing": [
@@ -60145,8 +60168,8 @@
         },
         "caps": {
           "source": "frwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-20",
+          "retrievedAt": "2026-10-22",
+          "asOf": "2026-10-12",
           "ref": "Rami Kaib",
           "confidence": "high",
           "agreeing": [
@@ -60158,7 +60181,7 @@
         "goals": {
           "source": "frwiki",
           "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-20",
+          "asOf": "2026-10-12",
           "ref": "Rami Kaib",
           "confidence": "high",
           "agreeing": [
@@ -60195,7 +60218,7 @@
       "clubId": "1-fc-union-berlin",
       "caps": 6,
       "goals": 0,
-      "capsAsOf": "2026-09-18",
+      "capsAsOf": "2026-10-10",
       "history": [
         {
           "clubId": "vfb-stuttgart-ii",
@@ -60247,7 +60270,7 @@
           "clubName": "1. FC Union Berlin",
           "from": 2021,
           "to": null,
-          "apps": 153,
+          "apps": 155,
           "goals": 8,
           "loan": false
         }
@@ -60341,7 +60364,7 @@
         "clubId": {
           "source": "enwiki",
           "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-18",
+          "asOf": "2026-10-17",
           "ref": "Rani Khedira",
           "confidence": "high",
           "agreeing": [
@@ -60351,8 +60374,8 @@
         },
         "history": {
           "source": "enwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-18",
+          "retrievedAt": "2026-10-22",
+          "asOf": "2026-10-17",
           "ref": "Rani Khedira",
           "confidence": "medium",
           "agreeing": [
@@ -60362,8 +60385,8 @@
         },
         "caps": {
           "source": "frwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-18",
+          "retrievedAt": "2026-10-22",
+          "asOf": "2026-10-10",
           "ref": "Rani Khedira",
           "confidence": "high",
           "agreeing": [
@@ -60376,7 +60399,7 @@
         "goals": {
           "source": "frwiki",
           "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-18",
+          "asOf": "2026-10-10",
           "ref": "Rani Khedira",
           "confidence": "high",
           "agreeing": [
@@ -60610,14 +60633,14 @@
       "clubId": "vancouver-whitecaps-fc",
       "caps": 6,
       "goals": 0,
-      "capsAsOf": "2026-09-28",
+      "capsAsOf": "2026-10-17",
       "history": [
         {
           "clubId": "vancouver-whitecaps-fc",
           "clubName": "Vancouver Whitecaps FC",
           "from": 2025,
           "to": null,
-          "apps": 43,
+          "apps": 45,
           "goals": 5,
           "loan": false
         }
@@ -60711,7 +60734,7 @@
         "clubId": {
           "source": "frwiki",
           "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-28",
+          "asOf": "2026-10-17",
           "ref": "Rayan Elloumi",
           "confidence": "high",
           "agreeing": [
@@ -60722,8 +60745,8 @@
         },
         "history": {
           "source": "frwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-28",
+          "retrievedAt": "2026-10-22",
+          "asOf": "2026-10-17",
           "ref": "Rayan Elloumi",
           "confidence": "medium",
           "agreeing": [
@@ -60733,8 +60756,8 @@
         },
         "caps": {
           "source": "frwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-28",
+          "retrievedAt": "2026-10-22",
+          "asOf": "2026-10-17",
           "ref": "Rayan Elloumi",
           "confidence": "high",
           "agreeing": [
@@ -60747,7 +60770,7 @@
         "goals": {
           "source": "frwiki",
           "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-28",
+          "asOf": "2026-10-17",
           "ref": "Rayan Elloumi",
           "confidence": "high",
           "agreeing": [
@@ -63589,15 +63612,14 @@
           "confidenceNote": "one fresh source"
         },
         "caps": {
-          "source": "enwiki-national",
-          "retrievedAt": "2026-10-05",
-          "asOf": "2026-09-28",
-          "ref": "Tunisia national football team",
-          "confidence": "medium",
+          "source": "override",
+          "retrievedAt": "2026-10-07",
+          "by": "jalel",
+          "confidence": "high",
           "agreeing": [
-            "enwiki-national"
+            "override"
           ],
-          "confidenceNote": "one fresh source"
+          "confidenceNote": "decided by Jalel"
         },
         "goals": {
           "source": "enwiki-national",
@@ -63808,7 +63830,7 @@
       "clubId": "red-star-f-c",
       "caps": 28,
       "goals": 4,
-      "capsAsOf": "2026-09-19",
+      "capsAsOf": "2026-10-10",
       "history": [
         {
           "clubId": "tours-fc",
@@ -63878,7 +63900,7 @@
           "clubName": "Red Star F.C.",
           "from": 2025,
           "to": null,
-          "apps": 38,
+          "apps": 39,
           "goals": 3,
           "loan": false
         }
@@ -63972,7 +63994,7 @@
         "clubId": {
           "source": "frwiki",
           "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-19",
+          "asOf": "2026-10-10",
           "ref": "Saîf-Eddine Khaoui",
           "confidence": "high",
           "agreeing": [
@@ -63982,8 +64004,8 @@
         },
         "history": {
           "source": "frwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-19",
+          "retrievedAt": "2026-10-22",
+          "asOf": "2026-10-10",
           "ref": "Saîf-Eddine Khaoui",
           "confidence": "medium",
           "agreeing": [
@@ -63993,8 +64015,8 @@
         },
         "caps": {
           "source": "frwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-19",
+          "retrievedAt": "2026-10-22",
+          "asOf": "2026-10-10",
           "ref": "Saîf-Eddine Khaoui",
           "confidence": "medium",
           "agreeing": [
@@ -64006,7 +64028,7 @@
         "goals": {
           "source": "frwiki",
           "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-19",
+          "asOf": "2026-10-10",
           "ref": "Saîf-Eddine Khaoui",
           "confidence": "high",
           "agreeing": [
@@ -64052,7 +64074,7 @@
       "birthPlace": "Helsinki",
       "birthCountry": "FI",
       "governorate": null,
-      "clubId": "goztepe-s-k",
+      "clubId": "muglaspor",
       "caps": 0,
       "goals": 0,
       "capsAsOf": null,
@@ -64061,7 +64083,7 @@
           "clubId": "klubi-04",
           "clubName": "Klubi-04",
           "from": 2025,
-          "to": null,
+          "to": 2026,
           "apps": 2,
           "goals": 0,
           "loan": false
@@ -64070,7 +64092,7 @@
           "clubId": null,
           "clubName": "HJK Helsinki",
           "from": 2025,
-          "to": null,
+          "to": 2026,
           "apps": 0,
           "goals": 0,
           "loan": false
@@ -64088,8 +64110,26 @@
           "clubId": "goztepe-s-k",
           "clubName": "Göztepe S.K.",
           "from": 2025,
-          "to": null,
+          "to": 2026,
           "apps": 4,
+          "goals": 0,
+          "loan": true
+        },
+        {
+          "clubId": "goztepe-s-k",
+          "clubName": "Göztepe S.K.",
+          "from": 2026,
+          "to": null,
+          "apps": 0,
+          "goals": 0,
+          "loan": false
+        },
+        {
+          "clubId": "muglaspor",
+          "clubName": "Muğlaspor",
+          "from": 2026,
+          "to": null,
+          "apps": 3,
           "goals": 0,
           "loan": true
         }
@@ -64178,8 +64218,8 @@
         },
         "clubId": {
           "source": "enwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-03-14",
+          "retrievedAt": "2026-10-22",
+          "asOf": "2026-10-15",
           "ref": "Salem Bouajila",
           "confidence": "medium",
           "agreeing": [
@@ -64189,8 +64229,8 @@
         },
         "history": {
           "source": "enwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-03-14",
+          "retrievedAt": "2026-10-22",
+          "asOf": "2026-10-15",
           "ref": "Salem Bouajila",
           "confidence": "medium",
           "agreeing": [
@@ -65898,7 +65938,7 @@
       "clubId": "cracovia",
       "caps": 25,
       "goals": 1,
-      "capsAsOf": "2026-09-28",
+      "capsAsOf": "2026-10-10",
       "history": [
         {
           "clubId": "fc-winterthur",
@@ -65959,7 +65999,7 @@
           "clubName": "Cracovia",
           "from": 2026,
           "to": null,
-          "apps": 6,
+          "apps": 7,
           "goals": 0,
           "loan": false
         }
@@ -66053,7 +66093,7 @@
         "clubId": {
           "source": "frwiki",
           "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-28",
+          "asOf": "2026-10-10",
           "ref": "Sayfallah Ltaief",
           "confidence": "high",
           "agreeing": [
@@ -66064,8 +66104,8 @@
         },
         "history": {
           "source": "frwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-28",
+          "retrievedAt": "2026-10-22",
+          "asOf": "2026-10-10",
           "ref": "Sayfallah Ltaief",
           "confidence": "high",
           "agreeing": [
@@ -66074,9 +66114,9 @@
           ]
         },
         "caps": {
-          "source": "enwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-28",
+          "source": "frwiki",
+          "retrievedAt": "2026-10-22",
+          "asOf": "2026-10-10",
           "ref": "Sayfallah Ltaief",
           "confidence": "high",
           "agreeing": [
@@ -66087,9 +66127,9 @@
           "bandAgreed": true
         },
         "goals": {
-          "source": "enwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-28",
+          "source": "frwiki",
+          "retrievedAt": "2026-10-22",
+          "asOf": "2026-10-10",
           "ref": "Sayfallah Ltaief",
           "confidence": "high",
           "agreeing": [
@@ -66129,7 +66169,7 @@
       "nameFrench": "Sebastian Tounekti",
       "aliases": [],
       "position": "forward",
-      "positionDetail": "Winger",
+      "positionDetail": "Left winger",
       "birthDate": "2002-07-13",
       "birthPlace": "Tromsø Municipality",
       "birthCountry": "NO",
@@ -66137,7 +66177,7 @@
       "clubId": "celtic-f-c",
       "caps": 17,
       "goals": 1,
-      "capsAsOf": "2026-09-28",
+      "capsAsOf": "2026-10-17",
       "history": [
         {
           "clubId": "tromsdalen-uil",
@@ -66198,7 +66238,7 @@
           "clubName": "Celtic F.C.",
           "from": 2025,
           "to": null,
-          "apps": 56,
+          "apps": 58,
           "goals": 6,
           "loan": false
         }
@@ -66259,7 +66299,7 @@
         },
         "positionDetail": {
           "source": "enwiki",
-          "retrievedAt": "2026-10-04",
+          "retrievedAt": "2026-10-22",
           "ref": "Sebastian Tounekti",
           "confidence": "medium",
           "agreeing": [
@@ -66281,7 +66321,7 @@
         "clubId": {
           "source": "frwiki",
           "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-28",
+          "asOf": "2026-10-17",
           "ref": "Sebastian Tounekti",
           "confidence": "high",
           "agreeing": [
@@ -66293,8 +66333,8 @@
         },
         "history": {
           "source": "frwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-28",
+          "retrievedAt": "2026-10-22",
+          "asOf": "2026-10-17",
           "ref": "Sebastian Tounekti",
           "confidence": "high",
           "agreeing": [
@@ -66304,8 +66344,8 @@
         },
         "caps": {
           "source": "frwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-28",
+          "retrievedAt": "2026-10-22",
+          "asOf": "2026-10-17",
           "ref": "Sebastian Tounekti",
           "confidence": "high",
           "agreeing": [
@@ -66316,7 +66356,7 @@
         "goals": {
           "source": "frwiki",
           "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-28",
+          "asOf": "2026-10-17",
           "ref": "Sebastian Tounekti",
           "confidence": "high",
           "agreeing": [
@@ -67047,7 +67087,7 @@
       "birthPlace": null,
       "birthCountry": null,
       "governorate": null,
-      "clubId": "us-ben-guerdane",
+      "clubId": "es-zarzis",
       "caps": 0,
       "goals": 0,
       "capsAsOf": null,
@@ -67151,15 +67191,14 @@
           ]
         },
         "clubId": {
-          "source": "frwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2023-08-19",
-          "ref": "Seifeddine Charfi",
-          "confidence": "low",
+          "source": "override",
+          "retrievedAt": "2026-10-07",
+          "by": "jalel",
+          "confidence": "high",
           "agreeing": [
-            "frwiki"
+            "override"
           ],
-          "confidenceNote": "transfermarkt checked on 2026-10-06: differs (P48)"
+          "confidenceNote": "decided by Jalel"
         },
         "history": {
           "source": "frwiki",
@@ -68066,6 +68105,128 @@
       "fame": null
     },
     {
+      "id": "slim-bouaskar",
+      "wikidataId": "Q141679966",
+      "nameLatin": "Slim Bouaskar",
+      "nameArabic": null,
+      "nameFrench": "Slim Bouaskar",
+      "aliases": [],
+      "position": "goalkeeper",
+      "positionDetail": "Goalkeeper",
+      "birthDate": "2009-06-24",
+      "birthPlace": "Rome",
+      "birthCountry": "IT",
+      "governorate": null,
+      "clubId": "as-roma",
+      "caps": 0,
+      "goals": 0,
+      "capsAsOf": null,
+      "history": [],
+      "photo": null,
+      "wiki": {
+        "en": "Slim Bouaskar",
+        "fr": null,
+        "ar": null
+      },
+      "pools": {
+        "active": true,
+        "legend": false
+      },
+      "provenance": {
+        "nameLatin": {
+          "source": "wikidata",
+          "retrievedAt": "2026-10-22",
+          "ref": "label Q141679966",
+          "confidence": "high",
+          "agreeing": [
+            "wikidata",
+            "enwiki"
+          ]
+        },
+        "birthDate": {
+          "source": "wikidata",
+          "retrievedAt": "2026-10-22",
+          "ref": "P569 Q141679966",
+          "confidence": "high",
+          "agreeing": [
+            "wikidata",
+            "enwiki"
+          ]
+        },
+        "position": {
+          "source": "enwiki",
+          "retrievedAt": "2026-10-22",
+          "ref": "Slim Bouaskar",
+          "confidence": "high",
+          "agreeing": [
+            "enwiki",
+            "wikidata"
+          ]
+        },
+        "positionDetail": {
+          "source": "enwiki",
+          "retrievedAt": "2026-10-22",
+          "ref": "Slim Bouaskar",
+          "confidence": "high",
+          "agreeing": [
+            "enwiki",
+            "wikidata"
+          ]
+        },
+        "birthPlace": {
+          "source": "wikidata",
+          "retrievedAt": "2026-10-22",
+          "ref": "P19 Q141679966",
+          "confidence": "medium",
+          "agreeing": [
+            "wikidata"
+          ],
+          "confidenceNote": "one source, precise (P36)"
+        },
+        "clubId": {
+          "source": "enwiki",
+          "retrievedAt": "2026-10-22",
+          "ref": "Slim Bouaskar",
+          "confidence": "low",
+          "agreeing": [
+            "enwiki"
+          ],
+          "confidenceNote": "one undated source"
+        },
+        "caps": {
+          "source": "enwiki",
+          "retrievedAt": "2026-10-22",
+          "ref": "Slim Bouaskar",
+          "confidence": "low",
+          "agreeing": [
+            "enwiki"
+          ],
+          "confidenceNote": "no senior national row"
+        },
+        "goals": {
+          "source": "enwiki",
+          "retrievedAt": "2026-10-22",
+          "ref": "Slim Bouaskar",
+          "confidence": "low",
+          "agreeing": [
+            "enwiki"
+          ],
+          "confidenceNote": "no senior national row"
+        }
+      },
+      "fame": {
+        "score": 0.3,
+        "tier": "D",
+        "views": {
+          "en": 1,
+          "fr": 0,
+          "ar": 0
+        },
+        "window": "202510-202609",
+        "localStar": false
+      }
+    },
+    {
       "id": "slim-rebai",
       "wikidataId": "Q3486686",
       "nameLatin": "Slim Rebai",
@@ -68899,7 +69060,7 @@
       "clubId": "kuwait-sc",
       "caps": 54,
       "goals": 9,
-      "capsAsOf": "2026-09-16",
+      "capsAsOf": "2026-10-19",
       "history": [
         {
           "clubId": "esperance-sportive-de-tunis",
@@ -68933,8 +69094,8 @@
           "clubName": "Kuwait SC",
           "from": 2022,
           "to": null,
-          "apps": 126,
-          "goals": 89,
+          "apps": 129,
+          "goals": 91,
           "loan": false
         }
       ],
@@ -69037,7 +69198,7 @@
         "clubId": {
           "source": "frwiki",
           "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-16",
+          "asOf": "2026-10-19",
           "ref": "Taha Yassine Khenissi",
           "confidence": "high",
           "agreeing": [
@@ -69047,8 +69208,8 @@
         },
         "history": {
           "source": "frwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-16",
+          "retrievedAt": "2026-10-22",
+          "asOf": "2026-10-19",
           "ref": "Taha Yassine Khenissi",
           "confidence": "medium",
           "agreeing": [
@@ -69058,8 +69219,8 @@
         },
         "caps": {
           "source": "frwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-16",
+          "retrievedAt": "2026-10-22",
+          "asOf": "2026-10-19",
           "ref": "Taha Yassine Khenissi",
           "confidence": "high",
           "agreeing": [
@@ -69071,7 +69232,7 @@
         "goals": {
           "source": "frwiki",
           "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-16",
+          "asOf": "2026-10-19",
           "ref": "Taha Yassine Khenissi",
           "confidence": "high",
           "agreeing": [
@@ -70925,7 +71086,7 @@
       "clubId": "etoile-sportive-du-sahel",
       "caps": 39,
       "goals": 0,
-      "capsAsOf": "2026-09-13",
+      "capsAsOf": "2026-10-18",
       "history": [
         {
           "clubId": "etoile-sportive-du-sahel",
@@ -70968,7 +71129,7 @@
           "clubName": "Étoile Sportive du Sahel",
           "from": 2026,
           "to": null,
-          "apps": 14,
+          "apps": 16,
           "goals": 0,
           "loan": false
         }
@@ -71051,7 +71212,7 @@
         "clubId": {
           "source": "frwiki",
           "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-13",
+          "asOf": "2026-10-18",
           "ref": "Wajdi Kechrida",
           "confidence": "high",
           "agreeing": [
@@ -71064,8 +71225,8 @@
         },
         "history": {
           "source": "frwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-13",
+          "retrievedAt": "2026-10-22",
+          "asOf": "2026-10-18",
           "ref": "Wajdi Kechrida",
           "confidence": "high",
           "agreeing": [
@@ -71076,8 +71237,8 @@
         },
         "caps": {
           "source": "frwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-13",
+          "retrievedAt": "2026-10-22",
+          "asOf": "2026-10-18",
           "ref": "Wajdi Kechrida",
           "confidence": "high",
           "agreeing": [
@@ -71088,7 +71249,7 @@
         "goals": {
           "source": "frwiki",
           "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-13",
+          "asOf": "2026-10-18",
           "ref": "Wajdi Kechrida",
           "confidence": "high",
           "agreeing": [
@@ -71122,7 +71283,7 @@
       "birthDate": "1996-03-25",
       "birthPlace": null,
       "birthCountry": null,
-      "governorate": null,
+      "governorate": "sfax",
       "clubId": "hidd-scc",
       "caps": 1,
       "goals": 0,
@@ -71238,6 +71399,16 @@
             "frwiki",
             "wikidata"
           ]
+        },
+        "governorate": {
+          "source": "override",
+          "retrievedAt": "2026-10-07",
+          "by": "jalel",
+          "confidence": "high",
+          "agreeing": [
+            "override"
+          ],
+          "confidenceNote": "decided by Jalel"
         },
         "clubId": {
           "source": "frwiki",
@@ -71504,14 +71675,14 @@
       "clubId": "sheffield-wednesday-f-c",
       "caps": 26,
       "goals": 0,
-      "capsAsOf": "2026-09-28",
+      "capsAsOf": "2026-10-10",
       "history": [
         {
           "clubId": "southampton-f-c",
           "clubName": "Southampton F.C.",
           "from": 2018,
           "to": 2022,
-          "apps": 53,
+          "apps": 43,
           "goals": 2,
           "loan": false
         },
@@ -71529,7 +71700,7 @@
           "clubName": "Angers SCO",
           "from": 2022,
           "to": 2024,
-          "apps": 68,
+          "apps": 65,
           "goals": 0,
           "loan": false
         },
@@ -71538,7 +71709,7 @@
           "clubName": "Sheffield Wednesday F.C.",
           "from": 2024,
           "to": null,
-          "apps": 70,
+          "apps": 71,
           "goals": 4,
           "loan": false
         },
@@ -71639,9 +71810,9 @@
           "confidenceNote": "one source, precise (P36)"
         },
         "clubId": {
-          "source": "frwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-24",
+          "source": "enwiki",
+          "retrievedAt": "2026-10-22",
+          "asOf": "2026-10-20",
           "ref": "Yan Valery",
           "confidence": "high",
           "agreeing": [
@@ -71651,9 +71822,9 @@
           ]
         },
         "history": {
-          "source": "frwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-09-24",
+          "source": "enwiki",
+          "retrievedAt": "2026-10-22",
+          "asOf": "2026-10-20",
           "ref": "Yan Valery",
           "confidence": "high",
           "agreeing": [
@@ -71662,10 +71833,10 @@
           ]
         },
         "caps": {
-          "source": "enwiki-national",
-          "retrievedAt": "2026-10-05",
-          "asOf": "2026-09-28",
-          "ref": "Tunisia national football team",
+          "source": "frwiki",
+          "retrievedAt": "2026-10-22",
+          "asOf": "2026-10-10",
+          "ref": "Yan Valery",
           "confidence": "high",
           "agreeing": [
             "enwiki",
@@ -71676,10 +71847,10 @@
           "bandAgreed": true
         },
         "goals": {
-          "source": "enwiki-national",
-          "retrievedAt": "2026-10-05",
-          "asOf": "2026-09-28",
-          "ref": "Tunisia national football team",
+          "source": "frwiki",
+          "retrievedAt": "2026-10-22",
+          "asOf": "2026-10-10",
+          "ref": "Yan Valery",
           "confidence": "high",
           "agreeing": [
             "enwiki",
@@ -71733,8 +71904,8 @@
           "clubName": "AIK Fotboll",
           "from": 2020,
           "to": 2023,
-          "apps": 48,
-          "goals": 6,
+          "apps": 37,
+          "goals": 4,
           "loan": false
         },
         {
@@ -71742,8 +71913,8 @@
           "clubName": "Brighton & Hove Albion F.C.",
           "from": 2023,
           "to": null,
-          "apps": 82,
-          "goals": 6,
+          "apps": 72,
+          "goals": 7,
           "loan": false
         },
         {
@@ -71760,7 +71931,7 @@
           "clubName": "Blackburn Rovers F.C.",
           "from": 2024,
           "to": 2024,
-          "apps": 13,
+          "apps": 10,
           "goals": 0,
           "loan": true
         }
@@ -71852,9 +72023,9 @@
           "confidenceNote": "one source, precise (P36)"
         },
         "clubId": {
-          "source": "frwiki",
-          "retrievedAt": "2026-10-07",
-          "asOf": "2026-10-06",
+          "source": "enwiki",
+          "retrievedAt": "2026-10-22",
+          "asOf": "2026-10-19",
           "ref": "Yasin Ayari",
           "confidence": "high",
           "agreeing": [
@@ -71864,9 +72035,9 @@
           ]
         },
         "history": {
-          "source": "frwiki",
-          "retrievedAt": "2026-10-07",
-          "asOf": "2026-10-06",
+          "source": "enwiki",
+          "retrievedAt": "2026-10-22",
+          "asOf": "2026-10-19",
           "ref": "Yasin Ayari",
           "confidence": "high",
           "agreeing": [
@@ -72542,7 +72713,7 @@
       "birthPlace": "Tunisia",
       "birthCountry": "TN",
       "governorate": null,
-      "clubId": "sitra-club",
+      "clubId": "cs-hammam-lif",
       "caps": 1,
       "goals": 0,
       "capsAsOf": "2025-10-15",
@@ -72669,6 +72840,16 @@
           "confidenceNote": "born in Tunisia, town unknown"
         },
         "clubId": {
+          "source": "override",
+          "retrievedAt": "2026-10-07",
+          "by": "jalel",
+          "confidence": "high",
+          "agreeing": [
+            "override"
+          ],
+          "confidenceNote": "decided by Jalel"
+        },
+        "history": {
           "source": "frwiki",
           "retrievedAt": "2026-10-04",
           "asOf": "2025-10-15",
@@ -72677,18 +72858,7 @@
           "agreeing": [
             "frwiki"
           ],
-          "confidenceNote": "transfermarkt checked on 2026-10-06: differs (P48)"
-        },
-        "history": {
-          "source": "frwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2025-10-15",
-          "ref": "Yassine Chamakhi",
-          "confidence": "medium",
-          "agreeing": [
-            "frwiki"
-          ],
-          "confidenceNote": "one fresh source; the others are explained by their dates"
+          "confidenceNote": "one source, as of 2025-10-15"
         },
         "caps": {
           "source": "frwiki",
@@ -72955,7 +73125,7 @@
       "birthPlace": "Tunis",
       "birthCountry": "TN",
       "governorate": "tunis",
-      "clubId": null,
+      "clubId": "club-africain",
       "caps": 93,
       "goals": 5,
       "capsAsOf": "2026-09-27",
@@ -73051,7 +73221,7 @@
         "ar": "ياسين مرياح"
       },
       "pools": {
-        "active": false,
+        "active": true,
         "legend": true
       },
       "provenance": {
@@ -73129,6 +73299,16 @@
           ],
           "confidenceNote": "one source, precise (P36)"
         },
+        "clubId": {
+          "source": "override",
+          "retrievedAt": "2026-10-07",
+          "by": "jalel",
+          "confidence": "high",
+          "agreeing": [
+            "override"
+          ],
+          "confidenceNote": "decided by Jalel"
+        },
         "history": {
           "source": "frwiki",
           "retrievedAt": "2026-10-04",
@@ -73173,7 +73353,17 @@
           "confidenceNote": "one source"
         }
       },
-      "fame": null
+      "fame": {
+        "score": 4.78,
+        "tier": "B",
+        "views": {
+          "en": 14860,
+          "fr": 18330,
+          "ar": 5964
+        },
+        "window": "202510-202609",
+        "localStar": false
+      }
     },
     {
       "id": "youssef-abdelli",
@@ -73841,7 +74031,7 @@
       "birthPlace": null,
       "birthCountry": null,
       "governorate": null,
-      "clubId": "al-shamal-sports-club",
+      "clubId": "es-zarzis",
       "caps": 1,
       "goals": 0,
       "capsAsOf": "2025-10-27",
@@ -73945,15 +74135,14 @@
           ]
         },
         "clubId": {
-          "source": "enwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2026-06-26",
-          "ref": "Youssef Snana",
-          "confidence": "low",
+          "source": "override",
+          "retrievedAt": "2026-10-07",
+          "by": "jalel",
+          "confidence": "high",
           "agreeing": [
-            "enwiki"
+            "override"
           ],
-          "confidenceNote": "enwiki-squad Q1368447 (2026-09-22) is newer"
+          "confidenceNote": "decided by Jalel"
         },
         "history": {
           "source": "enwiki",
@@ -74234,7 +74423,7 @@
       "birthPlace": null,
       "birthCountry": null,
       "governorate": null,
-      "clubId": "as-soliman",
+      "clubId": "stade-tunisien",
       "caps": 0,
       "goals": 0,
       "capsAsOf": null,
@@ -74329,15 +74518,14 @@
           ]
         },
         "clubId": {
-          "source": "enwiki",
-          "retrievedAt": "2026-10-04",
-          "asOf": "2024-12-29",
-          "ref": "Zakaria El Ayeb",
-          "confidence": "low",
+          "source": "override",
+          "retrievedAt": "2026-10-07",
+          "by": "jalel",
+          "confidence": "high",
           "agreeing": [
-            "enwiki"
+            "override"
           ],
-          "confidenceNote": "transfermarkt checked on 2026-10-06: differs (P48)"
+          "confidenceNote": "decided by Jalel"
         },
         "history": {
           "source": "enwiki",
@@ -75247,11 +75435,11 @@
           "retrievedAt": "2026-10-04",
           "asOf": "2026-04-10",
           "ref": "Zied Machmoum",
-          "confidence": "high",
+          "confidence": "medium",
           "agreeing": [
-            "enwiki",
             "frwiki"
-          ]
+          ],
+          "confidenceNote": "one fresh source; the others are explained by their dates"
         },
         "history": {
           "source": "frwiki",
@@ -76705,7 +76893,7 @@
       "id": "al-ahli-fc",
       "wikidataId": "Q44441",
       "nameLatin": "Al Ahli FC",
-      "nameArabic": "النادي الأهلي (السعودية)",
+      "nameArabic": "النادي الأهلي",
       "nameFrench": "Al-Ahli SC",
       "country": "SA",
       "confederation": "AFC",
@@ -77252,6 +77440,17 @@
       "ligue1": false
     },
     {
+      "id": "al-qadsiah-fc",
+      "wikidataId": "Q286191",
+      "nameLatin": "Al Qadsiah FC",
+      "nameArabic": "نادي القادسية (السعودية)",
+      "nameFrench": "Al-Qadsiah Football Club",
+      "country": "SA",
+      "confederation": "AFC",
+      "leagueWikidataId": "Q255633",
+      "ligue1": false
+    },
+    {
       "id": "al-qaws-club",
       "wikidataId": "Q25450553",
       "nameLatin": "Al-Qaws Club",
@@ -77626,17 +77825,6 @@
       "ligue1": false
     },
     {
-      "id": "al-wehdat-sc",
-      "wikidataId": "Q285649",
-      "nameLatin": "Al-Wehdat SC",
-      "nameArabic": "نادي الوحدات",
-      "nameFrench": "Al-Weehdat Club",
-      "country": "JO",
-      "confederation": "AFC",
-      "leagueWikidataId": "Q247767",
-      "ligue1": false
-    },
-    {
       "id": "al-yarmouk-kuwait",
       "wikidataId": "Q2719733",
       "nameLatin": "Al Yarmouk Kuwait",
@@ -77923,6 +78111,17 @@
       "ligue1": false
     },
     {
+      "id": "as-roma",
+      "wikidataId": "Q2739",
+      "nameLatin": "AS Roma",
+      "nameArabic": "نادي روما",
+      "nameFrench": "AS Rome",
+      "country": "IT",
+      "confederation": "UEFA",
+      "leagueWikidataId": "Q15804",
+      "ligue1": false
+    },
+    {
       "id": "as-saint-etienne",
       "wikidataId": "Q19521",
       "nameLatin": "AS Saint-Étienne",
@@ -78074,17 +78273,6 @@
       "country": "LY",
       "confederation": "CAF",
       "leagueWikidataId": "Q938286",
-      "ligue1": false
-    },
-    {
-      "id": "avenir-sportif-d-oued-ellil",
-      "wikidataId": "Q2873455",
-      "nameLatin": "Avenir sportif d'Oued Ellil",
-      "nameArabic": "المستقبل الرياضي بوادي الليل",
-      "nameFrench": "Avenir sportif d'Oued Ellil",
-      "country": "TN",
-      "confederation": "CAF",
-      "leagueWikidataId": null,
       "ligue1": false
     },
     {
@@ -78354,7 +78542,7 @@
     {
       "id": "budapest-honved-fc",
       "wikidataId": "Q275612",
-      "nameLatin": "Budapest Honvéd FC",
+      "nameLatin": "Kispest-Honvéd FC",
       "nameArabic": "نادي بودابست هونفيد",
       "nameFrench": "Budapest Honvéd",
       "country": "HU",
@@ -78770,17 +78958,6 @@
       "ligue1": false
     },
     {
-      "id": "cs-saint-laurent",
-      "wikidataId": "Q108760060",
-      "nameLatin": "CS Saint-Laurent",
-      "nameArabic": null,
-      "nameFrench": null,
-      "country": "CA",
-      "confederation": "CONCACAF",
-      "leagueWikidataId": null,
-      "ligue1": false
-    },
-    {
       "id": "cs-sedan-ardennes",
       "wikidataId": "Q608988",
       "nameLatin": "CS Sedan Ardennes",
@@ -78987,17 +79164,6 @@
       "country": "DE",
       "confederation": "UEFA",
       "leagueWikidataId": "Q152665",
-      "ligue1": false
-    },
-    {
-      "id": "eintracht-braunschweig-ii",
-      "wikidataId": "Q16559523",
-      "nameLatin": "Eintracht Braunschweig II",
-      "nameArabic": null,
-      "nameFrench": "Eintracht Braunschweig II",
-      "country": "DE",
-      "confederation": "UEFA",
-      "leagueWikidataId": "Q539678",
       "ligue1": false
     },
     {
@@ -80717,17 +80883,6 @@
       "ligue1": false
     },
     {
-      "id": "juventus-f-c-next-gen",
-      "wikidataId": "Q56025745",
-      "nameLatin": "Juventus F.C. Next Gen",
-      "nameArabic": "يوفنتوس نيكست جين",
-      "nameFrench": "Juventus F.C. Next Gen",
-      "country": "IT",
-      "confederation": "UEFA",
-      "leagueWikidataId": "Q607965",
-      "ligue1": false
-    },
-    {
       "id": "juventus-fc",
       "wikidataId": "Q1422",
       "nameLatin": "Juventus FC",
@@ -80992,17 +81147,6 @@
       "ligue1": false
     },
     {
-      "id": "lakeshore-sc",
-      "wikidataId": "Q24185247",
-      "nameLatin": "Lakeshore SC",
-      "nameArabic": null,
-      "nameFrench": "Club de soccer du Lakeshore",
-      "country": "CA",
-      "confederation": "CONCACAF",
-      "leagueWikidataId": null,
-      "ligue1": false
-    },
-    {
       "id": "latina-calcio-1932",
       "wikidataId": "Q2118510",
       "nameLatin": "Latina Calcio 1932",
@@ -81242,6 +81386,17 @@
       "country": "SA",
       "confederation": "AFC",
       "leagueWikidataId": null,
+      "ligue1": false
+    },
+    {
+      "id": "muglaspor",
+      "wikidataId": "Q989553",
+      "nameLatin": "Muğlaspor",
+      "nameArabic": null,
+      "nameFrench": "Muğlaspor",
+      "country": "TR",
+      "confederation": "UEFA",
+      "leagueWikidataId": "Q1470401",
       "ligue1": false
     },
     {
@@ -82213,17 +82368,6 @@
       "ligue1": false
     },
     {
-      "id": "sc-freiburg-ii",
-      "wikidataId": "Q20631356",
-      "nameLatin": "SC Freiburg II",
-      "nameArabic": "نادي فرايبورغ II",
-      "nameFrench": "SC Freiburg II",
-      "country": "DE",
-      "confederation": "UEFA",
-      "leagueWikidataId": "Q878642",
-      "ligue1": false
-    },
-    {
       "id": "sc-paderborn-07",
       "wikidataId": "Q160532",
       "nameLatin": "SC Paderborn 07",
@@ -82492,7 +82636,7 @@
       "wikidataId": "Q760736",
       "nameLatin": "Stade Lavallois",
       "nameArabic": "ستاد لافال",
-      "nameFrench": "Stade lavallois",
+      "nameFrench": "Stade Lavallois MFC",
       "country": "FR",
       "confederation": "UEFA",
       "leagueWikidataId": "Q217374",
@@ -82914,6 +83058,17 @@
       "country": "FR",
       "confederation": "UEFA",
       "leagueWikidataId": "Q864298",
+      "ligue1": false
+    },
+    {
+      "id": "us-cremonese",
+      "wikidataId": "Q759482",
+      "nameLatin": "US Cremonese",
+      "nameArabic": "نادي كريمونيزي",
+      "nameFrench": "US Cremonese",
+      "country": "IT",
+      "confederation": "UEFA",
+      "leagueWikidataId": "Q194052",
       "ligue1": false
     },
     {
@@ -84461,11 +84616,6 @@
       "detail": "enwiki 25 (undated): his national career ended in 2014; the dates cannot explain it"
     },
     {
-      "subject": "Q288910",
-      "kind": "caps-closed-career-disagree",
-      "detail": "enwiki 20 (undated): his national career ended in 2008; the dates cannot explain it"
-    },
-    {
       "subject": "Q3064692",
       "kind": "caps-closed-career-disagree",
       "detail": "enwiki 47 (undated): his national career ended in 2021; the dates cannot explain it"
@@ -84491,84 +84641,69 @@
       "detail": "enwiki 26 (undated): his national career ended in 2014; the dates cannot explain it"
     },
     {
-      "subject": "Q954283",
-      "kind": "caps-closed-career-disagree",
-      "detail": "enwiki 26 (2009-11-17): his national career ended in 2006; the dates cannot explain it"
-    },
-    {
-      "subject": "Q104440763",
-      "kind": "caps-maybe-stale",
-      "detail": "frwiki as of 2026-04-26; Tunisia has played 5 matches since"
-    },
-    {
       "subject": "Q117748262",
       "kind": "caps-maybe-stale",
-      "detail": "enwiki as of 2024-10-15; Tunisia has played 27 matches since"
+      "detail": "enwiki as of 2024-10-15; Tunisia has played 29 matches since"
     },
     {
       "subject": "Q11891887",
       "kind": "caps-maybe-stale",
-      "detail": "enwiki as of 2021-04-07; Tunisia has played 81 matches since"
-    },
-    {
-      "subject": "Q121074328",
-      "kind": "caps-maybe-stale",
-      "detail": "enwiki as of 2025-12-23; Tunisia has played 10 matches since"
+      "detail": "enwiki as of 2021-04-07; Tunisia has played 83 matches since"
     },
     {
       "subject": "Q121363590",
       "kind": "caps-maybe-stale",
-      "detail": "enwiki as of 2023-06-17; Tunisia has played 46 matches since"
+      "detail": "enwiki as of 2023-06-17; Tunisia has played 48 matches since"
     },
     {
       "subject": "Q127603168",
       "kind": "caps-maybe-stale",
-      "detail": "frwiki as of 2026-04-02; Tunisia has played 5 matches since"
+      "detail": "frwiki as of 2026-04-02; Tunisia has played 7 matches since"
     },
     {
       "subject": "Q131100765",
       "kind": "caps-maybe-stale",
-      "detail": "enwiki as of 2025-10-27; Tunisia has played 17 matches since"
+      "detail": "enwiki as of 2025-10-27; Tunisia has played 19 matches since"
     },
     {
       "subject": "Q13418128",
       "kind": "caps-maybe-stale",
-      "detail": "frwiki as of 2025-09-19; Tunisia has played 19 matches since"
+      "detail": "frwiki as of 2025-10-12; Tunisia has played 20 matches since"
     },
     {
       "subject": "Q137587594",
       "kind": "caps-maybe-stale",
-      "detail": "enwiki as of 2025-12-21; Tunisia has played 11 matches since"
+      "detail": "enwiki as of 2025-12-21; Tunisia has played 13 matches since"
     },
     {
       "subject": "Q20991569",
       "kind": "caps-maybe-stale",
-      "detail": "frwiki as of 2026-06-06; Tunisia has played 3 matches since"
+      "detail": "frwiki as of 2026-06-06; Tunisia has played 5 matches since"
+    },
+    {
+      "subject": "Q26405549",
+      "kind": "caps-maybe-stale",
+      "detail": "enwiki as of 2026-06-21; Tunisia has played 3 matches since"
     },
     {
       "subject": "Q3318354",
       "kind": "caps-maybe-stale",
-      "detail": "frwiki as of 2025-07-17; Tunisia has played 21 matches since"
+      "detail": "frwiki as of 2025-07-17; Tunisia has played 23 matches since"
     },
     {
       "subject": "Q56877154",
       "kind": "caps-maybe-stale",
-      "detail": "frwiki as of 2026-05-16; Tunisia has played 5 matches since"
+      "detail": "frwiki as of 2026-05-16; Tunisia has played 7 matches since"
     },
     {
       "subject": "Q59589882",
       "kind": "caps-maybe-stale",
-      "detail": "enwiki as of 2025-12-07; Tunisia has played 11 matches since"
+      "detail": "enwiki as of 2025-12-07; Tunisia has played 13 matches since"
     },
     {
       "subject": "Q10513659",
       "kind": "caps-newer-but-lower",
       "detail": "frwiki 2 (2024-08-31) < enwiki 3 (2018-06-10)"
-    },
-    {
-      "subject": "Q1075865",
-      "kind": "caps-newer-but-lower",
-      "detail": "frwiki 93 (2012-12-30) < enwiki 97 (undated)"
     },
     {
       "subject": "Q126231513",
@@ -84638,7 +84773,7 @@
     {
       "subject": "Q3195961",
       "kind": "caps-newer-but-lower",
-      "detail": "frwiki 77 (2026-06-14) < enwiki 95 (undated)"
+      "detail": "frwiki 77 (2026-10-09) < enwiki 95 (undated)"
     },
     {
       "subject": "Q3277692",
@@ -84649,16 +84784,6 @@
       "subject": "Q3277692",
       "kind": "caps-newer-but-lower",
       "detail": "frwiki 28 (2026-09-24) < wikidata 31 (undated)"
-    },
-    {
-      "subject": "Q353717",
-      "kind": "caps-newer-but-lower",
-      "detail": "frwiki 71 (2026-08-01) < enwiki 80 (2007-04-22)"
-    },
-    {
-      "subject": "Q354220",
-      "kind": "caps-newer-but-lower",
-      "detail": "frwiki 42 (2022-03-20) < enwiki 51 (undated)"
     },
     {
       "subject": "Q354220",
@@ -84691,14 +84816,14 @@
       "detail": "frwiki 3 (2026-08-30) < enwiki 4 (2026-01-03)"
     },
     {
+      "subject": "Q64736331",
+      "kind": "caps-newer-but-lower",
+      "detail": "frwiki 37 (2026-10-18) < enwiki-national 38 (2026-09-28)"
+    },
+    {
       "subject": "Q726340",
       "kind": "caps-newer-but-lower",
       "detail": "frwiki 36 (2018-08-04) < enwiki 38 (undated)"
-    },
-    {
-      "subject": "Q726639",
-      "kind": "caps-newer-but-lower",
-      "detail": "frwiki 23 (2020-11-23) < enwiki 25 (undated)"
     },
     {
       "subject": "Q121832277",
@@ -84758,7 +84883,7 @@
     {
       "subject": "Q265654",
       "kind": "caps-sources-disagree",
-      "detail": "enwiki 66 (undated) vs frwiki 61 (undated)"
+      "detail": "frwiki 61 (undated) vs wikidata 66 (undated)"
     },
     {
       "subject": "Q2704705",
@@ -84773,12 +84898,7 @@
     {
       "subject": "Q2733769",
       "kind": "caps-sources-disagree",
-      "detail": "enwiki 96 (undated) vs frwiki 97 (undated)"
-    },
-    {
-      "subject": "Q2733769",
-      "kind": "caps-sources-disagree",
-      "detail": "enwiki 96 (undated) vs wikidata 90 (undated)"
+      "detail": "frwiki 97 (undated) vs wikidata 90 (undated)"
     },
     {
       "subject": "Q2893457",
@@ -84808,7 +84928,7 @@
     {
       "subject": "Q504413",
       "kind": "caps-sources-disagree",
-      "detail": "enwiki 44 (undated) vs frwiki 63 (undated)"
+      "detail": "frwiki 63 (undated) vs wikidata 44 (undated)"
     },
     {
       "subject": "Q510516",
@@ -84896,6 +85016,11 @@
       "detail": "frwiki-squad Espérance sportive de Tunis (football) (2026-07-01) does not list him at Espérance Sportive de Tunis"
     },
     {
+      "subject": "Q104406546",
+      "kind": "club-not-on-squad-list",
+      "detail": "enwiki-squad Étoile Sportive du Sahel (2026-09-15) and frwiki-squad Étoile sportive du Sahel (football) (2026-07-01) does not list him at Étoile Sportive du Sahel"
+    },
+    {
       "subject": "Q104440602",
       "kind": "club-not-on-squad-list",
       "detail": "enwiki-squad US Monastir (football) (2026-09-15) does not list him at US Monastir"
@@ -84936,6 +85061,11 @@
       "detail": "enwiki-squad US Monastir (football) (2026-09-15) does not list him at US Monastir"
     },
     {
+      "subject": "Q115747976",
+      "kind": "club-not-on-squad-list",
+      "detail": "enwiki-squad US Monastir (football) (2026-09-15) does not list him at US Monastir"
+    },
+    {
       "subject": "Q11891887",
       "kind": "club-not-on-squad-list",
       "detail": "enwiki-squad Étoile Sportive du Sahel (2026-09-15) and frwiki-squad Étoile sportive du Sahel (football) (2026-07-01) does not list him at Étoile Sportive du Sahel"
@@ -84956,6 +85086,11 @@
       "detail": "enwiki-squad AS Marsa (2026-09-15) does not list him at AS Marsa"
     },
     {
+      "subject": "Q135526387",
+      "kind": "club-not-on-squad-list",
+      "detail": "enwiki-squad ES Zarzis (2026-09-22) does not list him at ES Zarzis"
+    },
+    {
       "subject": "Q16382870",
       "kind": "club-not-on-squad-list",
       "detail": "enwiki-squad ES Métlaoui (2026-10-02) does not list him at Etoile Sportive de Metlaoui"
@@ -84974,6 +85109,11 @@
       "subject": "Q17350654",
       "kind": "club-not-on-squad-list",
       "detail": "enwiki-squad AS Marsa (2026-09-15) does not list him at AS Marsa"
+    },
+    {
+      "subject": "Q19956607",
+      "kind": "club-not-on-squad-list",
+      "detail": "enwiki-squad Club Africain (2026-09-27) and frwiki-squad Club africain (football) (2026-07-01) does not list him at Club Africain"
     },
     {
       "subject": "Q20127327",
@@ -85021,6 +85161,16 @@
       "detail": "enwiki-squad Club Africain (2026-09-27) and frwiki-squad Club africain (football) (2026-07-01) does not list him at Club Africain"
     },
     {
+      "subject": "Q46019586",
+      "kind": "club-not-on-squad-list",
+      "detail": "enwiki-squad ES Zarzis (2026-09-22) does not list him at ES Zarzis"
+    },
+    {
+      "subject": "Q55806704",
+      "kind": "club-not-on-squad-list",
+      "detail": "enwiki-squad ES Métlaoui (2026-10-02) does not list him at Etoile Sportive de Metlaoui"
+    },
+    {
       "subject": "Q599802",
       "kind": "club-not-on-squad-list",
       "detail": "enwiki-squad Club Africain (2026-09-27) and frwiki-squad Club africain (football) (2026-07-01) does not list him at Club Africain"
@@ -85051,6 +85201,76 @@
       "detail": "enwiki-squad CS Sfaxien (2026-09-15) does not list him at CS Sfaxien"
     },
     {
+      "subject": "Q104184413",
+      "kind": "club-override-disagrees",
+      "detail": "override Q1103140, enwiki Q1423655"
+    },
+    {
+      "subject": "Q104406546",
+      "kind": "club-override-disagrees",
+      "detail": "override Q290540, enwiki Q25450596"
+    },
+    {
+      "subject": "Q10513659",
+      "kind": "club-override-disagrees",
+      "detail": "override none, frwiki Q492159"
+    },
+    {
+      "subject": "Q115747976",
+      "kind": "club-override-disagrees",
+      "detail": "override Q2145744, enwiki Q1102961"
+    },
+    {
+      "subject": "Q121289354",
+      "kind": "club-override-disagrees",
+      "detail": "override Q1851954, enwiki Q56301186"
+    },
+    {
+      "subject": "Q128545284",
+      "kind": "club-override-disagrees",
+      "detail": "override Q290540, enwiki Q3550543"
+    },
+    {
+      "subject": "Q131100765",
+      "kind": "club-override-disagrees",
+      "detail": "override Q1368447, enwiki Q812760"
+    },
+    {
+      "subject": "Q135526387",
+      "kind": "club-override-disagrees",
+      "detail": "override Q1368447, enwiki Q75407"
+    },
+    {
+      "subject": "Q16641223",
+      "kind": "club-override-disagrees",
+      "detail": "override none, enwiki Q285649"
+    },
+    {
+      "subject": "Q20641502",
+      "kind": "club-override-disagrees",
+      "detail": "override none, enwiki Q284452"
+    },
+    {
+      "subject": "Q46019586",
+      "kind": "club-override-disagrees",
+      "detail": "override Q1368447, frwiki Q3550543"
+    },
+    {
+      "subject": "Q53575255",
+      "kind": "club-override-disagrees",
+      "detail": "override Q1103140, frwiki Q3480681"
+    },
+    {
+      "subject": "Q55806704",
+      "kind": "club-override-disagrees",
+      "detail": "override Q3592516, frwiki Q3550543"
+    },
+    {
+      "subject": "Q62082",
+      "kind": "club-override-disagrees",
+      "detail": "override Q920263, frwiki Q102720"
+    },
+    {
       "subject": "Q724024",
       "kind": "club-override-disagrees",
       "detail": "override none, frwiki Q290540"
@@ -85064,6 +85284,11 @@
       "subject": "Q104440603",
       "kind": "club-sources-disagree",
       "detail": "frwiki Al-Hilal SC (2026-09-16) vs enwiki Al-Madina SC (undated)"
+    },
+    {
+      "subject": "Q10558287",
+      "kind": "club-sources-disagree",
+      "detail": "frwiki Emirates Club (2026-10-16) vs enwiki Dibba Al-Hisn Sports Club (2025-03-01)"
     },
     {
       "subject": "Q110989845",
@@ -85083,12 +85308,12 @@
     {
       "subject": "Q121890281",
       "kind": "club-sources-disagree",
-      "detail": "frwiki Zakho S.C. (2026-09-16) vs enwiki FAR Rabat (2025-08-21)"
+      "detail": "frwiki Zakho S.C. (2026-10-08) vs enwiki FAR Rabat (2025-08-21)"
     },
     {
       "subject": "Q16643279",
       "kind": "club-sources-disagree",
-      "detail": "frwiki Al-Salmiya SC (2024-07-07) vs enwiki Dalkurd FF (2023-11-17)"
+      "detail": "frwiki Newroz SC (2026-10-08) vs enwiki Dalkurd FF (2023-11-17)"
     },
     {
       "subject": "Q16675975",
@@ -85099,11 +85324,6 @@
       "subject": "Q20751695",
       "kind": "club-sources-disagree",
       "detail": "frwiki Stade Tunisien (2025-07-01) vs enwiki Al Ahly SC (Benghazi) (undated)"
-    },
-    {
-      "subject": "Q22212165",
-      "kind": "club-sources-disagree",
-      "detail": "frwiki Stade Gabèsien (2026-07-28) vs enwiki Al-Rawdhah Club (2022-08-30)"
     },
     {
       "subject": "Q2366395",
@@ -85118,7 +85338,7 @@
     {
       "subject": "Q26838700",
       "kind": "club-sources-disagree",
-      "detail": "frwiki Angoulême Charente FC (2026-09-12) vs enwiki S.A.S. Épinal (2025-05-17)"
+      "detail": "frwiki Angoulême Charente FC (2026-10-17) vs enwiki S.A.S. Épinal (2025-05-17)"
     },
     {
       "subject": "Q28343688",
@@ -85168,27 +85388,17 @@
     {
       "subject": "Q62082",
       "kind": "club-sources-disagree",
-      "detail": "frwiki Hertha BSC (2026-09-27) vs enwiki Hertha BSC II (2026-09-23)"
+      "detail": "frwiki Hertha BSC (2026-10-10) vs enwiki Hertha BSC II (2026-09-23)"
     },
     {
       "subject": "Q64593906",
       "kind": "club-sources-disagree",
-      "detail": "frwiki Al-Shamal Sports Club (2026-09-28) vs enwiki Al Ahly SC (2026-05-05)"
-    },
-    {
-      "subject": "Q64605664",
-      "kind": "club-sources-disagree",
-      "detail": "frwiki Newroz SC (2026-09-18) vs enwiki Talaba SC (2024-12-23)"
+      "detail": "frwiki Al-Shamal Sports Club (2026-10-17) vs enwiki Al Ahly SC (2026-05-05)"
     },
     {
       "subject": "Q64746846",
       "kind": "club-sources-disagree",
       "detail": "frwiki Olympique Alès (2026-06-21) vs enwiki Stade Tunisien (2022-01-26)"
-    },
-    {
-      "subject": "Q65127449",
-      "kind": "club-sources-disagree",
-      "detail": "frwiki Anwar Al-Abyar (2026-04-24) vs enwiki Al-Mina'a SC (undated)"
     },
     {
       "subject": "Q71806775",
@@ -85198,47 +85408,12 @@
     {
       "subject": "Q723767",
       "kind": "club-sources-disagree",
-      "detail": "frwiki A.S.D. Albalonga (2026-10-05) vs enwiki Anzio (undated)"
+      "detail": "frwiki A.S.D. Albalonga (2026-10-12) vs enwiki Anzio (undated)"
     },
     {
       "subject": "Q90820356",
       "kind": "club-sources-disagree",
       "detail": "frwiki ES Hammam-Sousse (2026-08-30) vs enwiki Étoile Sportive du Sahel (2022-02-27)"
-    },
-    {
-      "subject": "Q104184413",
-      "kind": "club-squad-list-differs",
-      "detail": "enwiki-squad CS Hammam-Lif (2026-09-27) lists him at CS Hammam-Lif; chosen: the White S.C."
-    },
-    {
-      "subject": "Q121289354",
-      "kind": "club-squad-list-differs",
-      "detail": "enwiki-squad Stade Tunisien (2026-09-15) lists him at Stade Tunisien; chosen: AS Soliman"
-    },
-    {
-      "subject": "Q128545284",
-      "kind": "club-squad-list-differs",
-      "detail": "enwiki-squad Étoile Sportive du Sahel (2026-09-15) lists him at Étoile Sportive du Sahel; frwiki-squad Étoile sportive du Sahel (football) (2026-07-01) lists him at Étoile Sportive du Sahel; chosen: US Ben Guerdane"
-    },
-    {
-      "subject": "Q131100765",
-      "kind": "club-squad-list-differs",
-      "detail": "enwiki-squad ES Zarzis (2026-09-22) lists him at ES Zarzis; chosen: Al-Shamal Sports Club"
-    },
-    {
-      "subject": "Q19956607",
-      "kind": "club-squad-list-differs",
-      "detail": "frwiki-squad Club africain (football) (2026-07-01) lists him at Club Africain; chosen: none"
-    },
-    {
-      "subject": "Q53575255",
-      "kind": "club-squad-list-differs",
-      "detail": "enwiki-squad CS Hammam-Lif (2026-09-27) lists him at CS Hammam-Lif; chosen: Sitra Club"
-    },
-    {
-      "subject": "Q221789",
-      "kind": "club-staff-role",
-      "detail": "enwiki: Anis Boussaïdi"
     },
     {
       "subject": "Q2536776",
@@ -85281,11 +85456,6 @@
       "detail": "enwiki: Adel Chedli"
     },
     {
-      "subject": "Q354220",
-      "kind": "club-staff-role",
-      "detail": "enwiki: Ali Boumnijel"
-    },
-    {
       "subject": "Q374250",
       "kind": "club-staff-role",
       "detail": "enwiki: Nabil Maâloul"
@@ -85326,49 +85496,14 @@
       "detail": "frwiki: Al Watan SC"
     },
     {
-      "subject": "Q104406546",
-      "kind": "club-witness-differs",
-      "detail": "transfermarkt checked on 2026-10-06: differs from Mudhar Club"
+      "subject": "Q65127449",
+      "kind": "club-unresolved",
+      "detail": "frwiki: Al-Butnan FC"
     },
     {
       "subject": "Q110989845",
       "kind": "club-witness-differs",
       "detail": "transfermarkt checked on 2026-10-06: differs from Alhiyad Sports Club"
-    },
-    {
-      "subject": "Q115747976",
-      "kind": "club-witness-differs",
-      "detail": "transfermarkt checked on 2026-10-06: differs from CA Bizertine"
-    },
-    {
-      "subject": "Q121289354",
-      "kind": "club-witness-differs",
-      "detail": "transfermarkt checked on 2026-10-06: differs from AS Soliman"
-    },
-    {
-      "subject": "Q128545284",
-      "kind": "club-witness-differs",
-      "detail": "transfermarkt checked on 2026-10-06: differs from US Ben Guerdane"
-    },
-    {
-      "subject": "Q135526387",
-      "kind": "club-witness-differs",
-      "detail": "transfermarkt checked on 2026-10-06: differs from Al-Mina'a SC"
-    },
-    {
-      "subject": "Q46019586",
-      "kind": "club-witness-differs",
-      "detail": "transfermarkt checked on 2026-10-06: differs from US Ben Guerdane"
-    },
-    {
-      "subject": "Q53575255",
-      "kind": "club-witness-differs",
-      "detail": "transfermarkt checked on 2026-10-06: differs from Sitra Club"
-    },
-    {
-      "subject": "Q55806704",
-      "kind": "club-witness-differs",
-      "detail": "transfermarkt checked on 2026-10-06: differs from US Ben Guerdane"
     },
     {
       "subject": "Q1342632",
@@ -85394,6 +85529,11 @@
       "subject": "Q20127327",
       "kind": "fr-undated-spell",
       "detail": "frwiki Chiheb Zoghlami: Club sportif sfaxien (football) (?–2012)"
+    },
+    {
+      "subject": "Q2711426",
+      "kind": "fr-undated-spell",
+      "detail": "frwiki Ferid Chouchane: Étoile sportive du Sahel (football) (?–1998)"
     },
     {
       "subject": "Q6898481",
@@ -85541,22 +85681,12 @@
       "detail": "Tunisia"
     },
     {
-      "subject": "Q111296675",
-      "kind": "governorate-unresolved",
-      "detail": "Tunisia"
-    },
-    {
       "subject": "Q112078374",
       "kind": "governorate-unresolved",
       "detail": "no birthplace"
     },
     {
       "subject": "Q113557114",
-      "kind": "governorate-unresolved",
-      "detail": "no birthplace"
-    },
-    {
-      "subject": "Q116589994",
       "kind": "governorate-unresolved",
       "detail": "no birthplace"
     },
@@ -85571,22 +85701,12 @@
       "detail": "no birthplace"
     },
     {
-      "subject": "Q120993438",
-      "kind": "governorate-unresolved",
-      "detail": "no birthplace"
-    },
-    {
       "subject": "Q121134575",
       "kind": "governorate-unresolved",
       "detail": "no birthplace"
     },
     {
       "subject": "Q121289354",
-      "kind": "governorate-unresolved",
-      "detail": "no birthplace"
-    },
-    {
-      "subject": "Q121890281",
       "kind": "governorate-unresolved",
       "detail": "no birthplace"
     },
@@ -85607,11 +85727,6 @@
     },
     {
       "subject": "Q132198135",
-      "kind": "governorate-unresolved",
-      "detail": "no birthplace"
-    },
-    {
-      "subject": "Q133130622",
       "kind": "governorate-unresolved",
       "detail": "no birthplace"
     },
@@ -85791,11 +85906,6 @@
       "detail": "no birthplace"
     },
     {
-      "subject": "Q58918091",
-      "kind": "governorate-unresolved",
-      "detail": "no birthplace"
-    },
-    {
       "subject": "Q60499799",
       "kind": "governorate-unresolved",
       "detail": "no birthplace"
@@ -85821,19 +85931,9 @@
       "detail": "no birthplace"
     },
     {
-      "subject": "Q90863388",
-      "kind": "governorate-unresolved",
-      "detail": "Tunisia"
-    },
-    {
       "subject": "Q925334",
       "kind": "governorate-unresolved",
       "detail": "no birthplace"
-    },
-    {
-      "subject": "Q96678415",
-      "kind": "governorate-unresolved",
-      "detail": "Helmond"
     },
     {
       "subject": "Q98684788",
@@ -86254,11 +86354,6 @@
       "subject": "Q96337717",
       "kind": "position-disagrees",
       "detail": "wikidata midfielder against enwiki, frwiki forward"
-    },
-    {
-      "subject": "Q22948792",
-      "kind": "squad-namesake",
-      "detail": "enwiki-squad JS El Omrane (2026-09-27) lists him at Jeunesse sportive d'El Omrane, the club of his namesake Q123336254; no vote"
     }
   ],
   "dropped": [
@@ -86626,12 +86721,7 @@
         {
           "subject": "Q779838",
           "kind": "caps-sources-disagree",
-          "detail": "enwiki 8 (undated) vs frwiki 9 (undated)"
-        },
-        {
-          "subject": "Q779838",
-          "kind": "caps-sources-disagree",
-          "detail": "enwiki 8 (undated) vs wikidata 7 (undated)"
+          "detail": "frwiki 9 (undated) vs wikidata 7 (undated)"
         }
       ]
     },
@@ -86674,13 +86764,7 @@
       "wikidataId": "Q953042",
       "name": "Issam Merdassi",
       "reason": "no-pool",
-      "flags": [
-        {
-          "subject": "Q953042",
-          "kind": "club-staff-role",
-          "detail": "enwiki: Issam Merdassi"
-        }
-      ]
+      "flags": []
     },
     {
       "wikidataId": "Q965427",
@@ -86963,7 +87047,7 @@
         {
           "subject": "Q2623413",
           "kind": "caps-newer-but-lower",
-          "detail": "frwiki 18 (2026-07-10) < enwiki 23 (undated)"
+          "detail": "frwiki 18 (2026-10-19) < enwiki 23 (undated)"
         }
       ]
     },
@@ -87017,11 +87101,6 @@
           "subject": "Q2632796",
           "kind": "club-unresolved",
           "detail": "frwiki: Étoile sportive alaouite"
-        },
-        {
-          "subject": "Q2632796",
-          "kind": "club-not-on-squad-list",
-          "detail": "enwiki-squad Club Africain (2026-09-27) and frwiki-squad Club africain (football) (2026-07-01) does not list him at Club Africain"
         },
         {
           "subject": "Q2632796",
@@ -87774,7 +87853,7 @@
         {
           "subject": "Q3064697",
           "kind": "caps-maybe-stale",
-          "detail": "enwiki as of 2006-06-23; Tunisia has played 249 matches since"
+          "detail": "enwiki as of 2006-06-23; Tunisia has played 251 matches since"
         },
         {
           "subject": "Q3064697",
@@ -88031,7 +88110,7 @@
         {
           "subject": "Q3129932",
           "kind": "caps-maybe-stale",
-          "detail": "enwiki as of 2013-02-28; Tunisia has played 167 matches since"
+          "detail": "enwiki as of 2013-02-28; Tunisia has played 169 matches since"
         }
       ]
     },
@@ -88048,7 +88127,7 @@
         {
           "subject": "Q3135203",
           "kind": "caps-maybe-stale",
-          "detail": "enwiki as of 2018-05-30; Tunisia has played 114 matches since"
+          "detail": "enwiki as of 2018-05-30; Tunisia has played 116 matches since"
         }
       ]
     },
@@ -88308,7 +88387,7 @@
         {
           "subject": "Q3216772",
           "kind": "caps-maybe-stale",
-          "detail": "frwiki as of 2019-08-23; Tunisia has played 92 matches since"
+          "detail": "frwiki as of 2019-08-23; Tunisia has played 94 matches since"
         }
       ]
     },
@@ -88702,11 +88781,6 @@
           "subject": "Q3334693",
           "kind": "club-staff-role",
           "detail": "enwiki: Nabil Kouki"
-        },
-        {
-          "subject": "Q3334693",
-          "kind": "club-staff-role",
-          "detail": "frwiki: Club sportif sfaxien (football) is where the other page has him on the staff"
         }
       ]
     },
@@ -90480,7 +90554,7 @@
         {
           "subject": "Q62718848",
           "kind": "caps-maybe-stale",
-          "detail": "enwiki as of 2020-09-14; Tunisia has played 87 matches since"
+          "detail": "enwiki as of 2020-09-14; Tunisia has played 89 matches since"
         }
       ]
     },
@@ -90497,7 +90571,7 @@
         {
           "subject": "Q64589579",
           "kind": "caps-maybe-stale",
-          "detail": "frwiki as of 2022-08-07; Tunisia has played 55 matches since"
+          "detail": "frwiki as of 2022-08-07; Tunisia has played 57 matches since"
         }
       ]
     },

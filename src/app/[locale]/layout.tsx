@@ -18,10 +18,14 @@ import "../globals.css";
 
 const latin = Inter({ subsets: ["latin"], variable: "--font-latin" });
 
-// The Arabic faces are self-hosted (globals.css) so /ar can preload the two
-// it draws first; next/font preloads per declaration, not per locale.
+// The Arabic faces are self-hosted (globals.css) so /ar can preload the three
+// it draws above the fold; next/font preloads per declaration, not per
+// locale. The 600 face (the page header's link and the switcher) joined the
+// list when CI's Linux Chromium measured CLS 0.128 on /ar/sources and
+// /ar/privacy from its late arrival moving <main>.
 const ARABIC_PRELOADS = [
   "/fonts/plex-arabic-400-v1.woff2",
+  "/fonts/plex-arabic-600-v1.woff2",
   "/fonts/plex-arabic-700-v1.woff2",
 ];
 
