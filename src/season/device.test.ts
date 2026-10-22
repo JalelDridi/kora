@@ -99,6 +99,16 @@ describe("the best seasons on the device", () => {
     expect(storage.data.has(BEST_KEY)).toBe(true);
   });
 
+  it("the same squad on the same day is kept once, the first time", () => {
+    saveSeason(season(75));
+    saveSeason({ ...season(75), at: "2026-10-07T11:00:00Z" });
+    saveSeason({ ...season(75), day: "2026-10-08" });
+    expect(bestSeasons().map((s) => [s.day, s.at])).toEqual([
+      ["2026-10-07", "2026-10-07T10:00:00Z"],
+      ["2026-10-08", "2026-10-07T10:00:00Z"],
+    ]);
+  });
+
   it("a corrupt list reads as empty and is replaced on the next save", () => {
     storage.setItem(BEST_KEY, "{not json");
     expect(bestSeasons()).toEqual([]);

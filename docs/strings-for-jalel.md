@@ -253,6 +253,13 @@ Open questions:
 - `season.share.points`: نقطة / no9ta after the number (Arabic takes the singular after 11 and more; with 3 to 10 points it would read نقاط). A season always has 0 to 90 points, so the singular is wrong only for 3 to 10.
 - `season.result.goals`: الأهداف (لها-عليها) / Ahdef (leha-3liha) for "goals for-against"; أهداف keeps the word open in Task 10's `goalsPerCap` question (قوال / goulet).
 - `season.result.win|draw|loss`: ربح / تعادل / خسارة (Rbe7 / T3adel / Khsara): verbs and nouns mixed; spoken alternatives are ربحنا / تعادلنا / خسرنا.
+- Standard Arabic (MSA) words in these drafts, with spoken candidates, so Jalel rules on each once (strings unchanged until then):
+  - `season.result.round`: الجولة / Jawla is MSA; sports talk says الجورني / el journée.
+  - `season.rating`, `season.result.teamRating`, `season.hall.rating`, `season.replay.note`: تقييم / بالتقييمات are MSA nominal forms; spoken نوتة / nota (plural نوتات / notet), already open under Task 10.
+  - `season.hall.record`: النتيجة / El natija is MSA; spoken candidates السكور / es-score, or the bare record with no label.
+  - `season.result.points`, `season.hall.points`: النقاط / No9at is MSA; spoken النقط / en-no9ot.
+  - `season.result.draw`: تعادل / T3adel is MSA (beyond the verb/noun mix above); spoken نول / nul (from French) or ماتش نول.
+  - `season.share.longPress` and `chkoun.share.longPress`: اضغط / Edhghat (copied from Chkoun?, so it predates this task) is MSA; spoken candidate خلّي صبعك على الكتيبة / khalli sob3ek 3al ktiba.
 
 | Key                        | English gloss                                                  | French draft                                          | `ar-TN` as shipped                   | `ar-Latn-TN` as shipped                       | Status |
 | -------------------------- | -------------------------------------------------------------- | ----------------------------------------------------- | ------------------------------------ | --------------------------------------------- | ------ |

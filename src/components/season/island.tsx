@@ -155,7 +155,8 @@ export function SeasonIsland({
   /** Set by a pick or a re-spin: the next place's heading takes focus. */
   const moved = useRef(false);
 
-  const send = useCallback(async (body: Request): Promise<void> => {
+  /** True when the server answered with a draft (the view is shown). */
+  const send = useCallback(async (body: Request): Promise<boolean> => {
     setPending(true);
     setNotice(null);
     try {
@@ -166,12 +167,15 @@ export function SeasonIsland({
         clearDraft();
         answer = await post({ action: "start" });
       }
-      if (answer.kind !== "ok")
-        return setNotice(answer.kind === "notice" ? answer.notice : "network");
+      if (answer.kind !== "ok") {
+        setNotice(answer.kind === "notice" ? answer.notice : "network");
+        return false;
+      }
       saveDraft(answer.view.token, answer.view);
       setView(answer.view);
       setPhase(answer.view.status === "complete" ? "complete" : "drafting");
       if (stale) setNotice("expired");
+      return true;
     } finally {
       setPending(false);
     }
@@ -225,10 +229,16 @@ export function SeasonIsland({
     try {
       const answer = await postPlay(view.token);
       if (answer.kind === "stale") {
+        // Too old, already played or refused: the dead token leaves the
+        // device and the page, and a new draft starts. Its first spin takes
+        // focus; "expired" shows only if it came, else the start's notice.
         clearDraft();
+        setView(null);
+        setPhase("idle");
+        moved.current = true;
         setPending(false);
-        await send({ action: "start" });
-        return setNotice("expired");
+        if (await send({ action: "start" })) setNotice("expired");
+        return;
       }
       if (answer.kind !== "ok") return setNotice(answer.notice);
       const { season } = answer.view;

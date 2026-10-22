@@ -39,6 +39,75 @@ async function playSeason(page: Page, locale: Locale): Promise<Played> {
 
 const record = (page: Page) => page.locator("[data-record]").innerText();
 
+/** Drafts eleven without playing; returns the token kept on the device. */
+async function draftEleven(page: Page, locale: Locale): Promise<string> {
+  const t = messages[locale].season;
+  const pick = page.getByRole("button", { name: new RegExp(escape(t.pick)) });
+  for (let slot = 0; slot < 11; slot++) {
+    await expect(page.getByText(fill(t.slot, { n: slot + 1 }))).toBeVisible();
+    await pick.first().click();
+  }
+  await expect(page.getByRole("button", { name: t.play })).toBeEnabled();
+  return (await keptToken(page))!;
+}
+
+const keptToken = (page: Page) =>
+  page.evaluate(() => {
+    try {
+      const v = JSON.parse(
+        localStorage.getItem("kora.season.v1.draft") ?? "null",
+      );
+      return (v?.token as string | undefined) ?? null;
+    } catch {
+      return null;
+    }
+  });
+
+test("a play refused as already played starts a new draft and says so", async ({
+  page,
+}) => {
+  const t = fr.season;
+  await page.goto("/fr/season");
+  const old = await draftEleven(page, "fr");
+  await page.route("**/api/season/play", (route) =>
+    route.fulfill({ status: 409, json: { error: "already-played" } }),
+  );
+  await page.getByRole("button", { name: t.play }).click();
+  await expect(page.getByText(fill(t.slot, { n: 1 }))).toBeVisible();
+  await expect(
+    page.getByRole("status").filter({ hasText: t.error.expired }),
+  ).toHaveCount(1);
+  await expect(page.getByRole("button", { name: t.play })).toHaveCount(0);
+  const fresh = await keptToken(page);
+  expect(fresh).not.toBeNull();
+  expect(fresh).not.toBe(old);
+  // The new draft's first spin has focus.
+  await expect(page.locator("#season-spin")).toBeFocused();
+});
+
+test("when the new draft cannot start either, the start's notice shows, not expired", async ({
+  page,
+}) => {
+  const t = fr.season;
+  await page.goto("/fr/season");
+  await draftEleven(page, "fr");
+  await page.route("**/api/season/play", (route) =>
+    route.fulfill({ status: 409, json: { error: "already-played" } }),
+  );
+  await page.route("**/api/season/draft", (route) =>
+    route.fulfill({ status: 503, json: { error: "closed" } }),
+  );
+  await page.getByRole("button", { name: t.play }).click();
+  await expect(page.getByText(t.error.closed)).toBeVisible();
+  await expect(page.getByText(t.error.expired)).toHaveCount(0);
+  // The dead token is gone from the device and the page.
+  expect(await keptToken(page)).toBeNull();
+  await expect(page.getByRole("button", { name: t.play })).toHaveCount(0);
+  await expect(
+    page.getByRole("region", { name: t.squad }).locator("[data-picked]"),
+  ).toHaveCount(0);
+});
+
 test("play shows the record, 30 matches and the team rating", async ({
   page,
 }) => {

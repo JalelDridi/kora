@@ -127,8 +127,11 @@ export function bestSeasons(): DeviceSeason[] {
   return Array.isArray(v) ? v.filter(isSeason).slice(0, BEST_KEPT) : [];
 }
 
+/** Kept once per squad and day (a replayed token gives the same season): the first entry stays. */
 export function saveSeason(entry: DeviceSeason): void {
-  const all = [...bestSeasons(), entry].sort(
+  const kept = bestSeasons();
+  if (kept.some((s) => s.day === entry.day && s.xi === entry.xi)) return;
+  const all = [...kept, entry].sort(
     (a, b) => b.points - a.points || a.at.localeCompare(b.at),
   );
   write(BEST_KEY, all.slice(0, BEST_KEPT));

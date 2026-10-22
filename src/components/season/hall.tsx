@@ -39,7 +39,10 @@ export function Hall({ seasons, prefix, strings: t }: Props) {
         <tbody>
           {seasons.map((s) => (
             <tr key={`${s.at}|${s.xi}`} className="bg-pitch-800">
-              <td className="rounded-s-lg px-2 py-2 font-extrabold">
+              <th
+                scope="row"
+                className="rounded-s-lg px-2 py-2 text-start font-extrabold"
+              >
                 <a
                   href={`${prefix}/season/r/${s.day}/${s.xi}`}
                   className="text-mint underline"
@@ -48,7 +51,7 @@ export function Hall({ seasons, prefix, strings: t }: Props) {
                     {format(t.result.record, { w: s.w, d: s.d, l: s.l })}
                   </bdi>
                 </a>
-              </td>
+              </th>
               <td data-hall-points="" className="px-2 py-2">
                 {s.points}
               </td>
