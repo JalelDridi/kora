@@ -23,8 +23,11 @@ import { DRAFT_TTL_MS, draftKeys, readDraft } from "./token.ts";
 // first season of the day is kept and enters the day's board; any Redis
 // failure only keeps the season on the device. Error bodies hold no id.
 
-/** How long a played draft stays marked: as long as its token can live. */
-export const PLAYED_TTL_SECONDS = 86_400;
+/**
+ * How long a played draft stays marked: as long as its token can live, so
+ * it is derived from the token's lifetime (one source of truth).
+ */
+export const PLAYED_TTL_SECONDS = DRAFT_TTL_MS / 1000;
 
 const fail = (
   status: number,
