@@ -1,11 +1,12 @@
 import type { RatingInputs } from "./types.ts";
 
 // D-S3-5: one documented formula (data/README.md, "30–0 ratings"). Each part
-// is scaled to 0..1, weighted by line, then mapped onto 60..99.
+// is scaled to 0..1, weighted by line, then mapped onto 60..95
+// (T-S3-12: median near 70, under 3% at 90 or more).
 export const RATING = {
   floor: 60,
-  span: 39,
-  curve: 0.8,
+  span: 35,
+  curve: 1,
   bandCaps: [0, 5, 20, 45, 75], // D-S3-6
   capsFull: 100,
   appsFull: 200,
