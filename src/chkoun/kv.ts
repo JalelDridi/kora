@@ -43,7 +43,7 @@ export interface Kv {
     keep: number,
     seconds: number,
   ): Promise<number | null>;
-  /** The best `n` members, highest score first. */
+  /** The best `n` members, highest score first; none when `n <= 0`. */
   ztop(key: string, n: number): Promise<{ member: string; score: number }[]>;
   del(key: string): Promise<void>;
 }
@@ -121,6 +121,8 @@ export function upstashKv(redis: Redis): Kv {
       return rank ?? null;
     },
     ztop: async (key, n) => {
+      // ZRANGE 0 -1 would answer the whole set: n <= 0 asks for nothing.
+      if (n <= 0) return [];
       // With withScores, Upstash answers a flat [member, score, …], each
       // parsed as JSON when it can be: members are turned back into text.
       const flat = await redis.zrange<unknown[]>(key, 0, n - 1, {
@@ -317,7 +319,7 @@ export class FakeKv implements Kv {
   ): Promise<{ member: string; score: number }[]> {
     this.run("ztop", key);
     const entry = this.live(key);
-    if (!Array.isArray(entry?.value)) return [];
+    if (n <= 0 || !Array.isArray(entry?.value)) return [];
     return entry.value
       .slice()
       .reverse()

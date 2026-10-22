@@ -102,6 +102,11 @@ describe("the Upstash adapter", () => {
     expect(calls).toEqual([
       ["zrange", "z", 0, 1, { rev: true, withScores: true }],
     ]);
+    calls.length = 0;
+    // n <= 0 asks for nothing (ZRANGE 0 -1 would be the whole set).
+    expect(await kv.ztop("z", 0)).toEqual([]);
+    expect(await kv.ztop("z", -1)).toEqual([]);
+    expect(calls).toEqual([]);
   });
 
   it("keys start with kora:{env}:chkoun:", () => {
@@ -154,6 +159,14 @@ describe("FakeKv", () => {
     expect(await kv.zaddTop("z", "d", 1, 2, 60)).toBeNull();
     expect(await kv.zaddTop("z", "e", 7, 2, 60)).toBe(1);
     expect(await kv.ztop("z", 1)).toEqual([{ member: "b", score: 9 }]);
+  });
+
+  it("ztop with n <= 0 answers no member", async () => {
+    const kv = new FakeKv();
+    await kv.zaddTop("z", "a", 3, 5, 60);
+    await kv.zaddTop("z", "b", 4, 5, 60);
+    expect(await kv.ztop("z", 0)).toEqual([]);
+    expect(await kv.ztop("z", -1)).toEqual([]);
   });
 
   it("zaddTop updates a member's score instead of adding it twice", async () => {
