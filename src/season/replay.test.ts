@@ -52,6 +52,13 @@ describe("GET /api/season/replay", () => {
     expect(decodeXi(data, `${c[0]}.x~${c.slice(1).join("~")}`)).toBeNull();
   });
 
+  it("a code with two codes of one line swapped is refused (400)", () => {
+    const c = CODE.split("~");
+    const swapped = [c[0], c[2], c[1], ...c.slice(3)].join("~");
+    expect(decodeXi(data, swapped)).not.toBeNull();
+    expect(handleReplay(d, { ...q, xi: swapped }).status).toBe(400);
+  });
+
   it("a day not written YYYY-MM-DD is refused (400)", () => {
     for (const bad of [null, "2026-10-7", "20261007", "2026-13-01", "x"])
       expect(handleReplay(d, { ...q, d: bad }).status).toBe(400);

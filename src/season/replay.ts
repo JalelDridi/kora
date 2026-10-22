@@ -95,7 +95,10 @@ export function handleReplay(
   if (d > tunisDay(deps.now))
     return { status: 404, body: { error: "notFound" } };
   const picks = decodeXi(deps.data, xi);
-  if (!picks) return { status: 400, body: { error: "badRequest" } };
+  // One link per squad: only the code play gives (canonicalXi), so no
+  // reordering within a line opens its own public CDN entry.
+  if (!picks || canonicalXi(rateXi(deps.data, picks)) !== xi)
+    return { status: 400, body: { error: "badRequest" } };
   return {
     status: 200,
     body: seasonView(deps.data, d, picks),

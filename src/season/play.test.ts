@@ -2,7 +2,11 @@ import { beforeAll, describe, expect, it } from "vitest";
 import { FakeKv } from "@/chkoun/kv.ts";
 import type { Kv } from "@/chkoun/kv.ts";
 import { drafted } from "@/engine/season/draft.ts";
-import { rateXi, simulateSeason } from "@/engine/season/simulate.ts";
+import {
+  canonicalXi,
+  rateXi,
+  simulateSeason,
+} from "@/engine/season/simulate.ts";
 import type { SeasonDeps } from "./draft.ts";
 import { handlePlay } from "./play.ts";
 import { boardKey, playedKey } from "./store.ts";
@@ -65,6 +69,12 @@ describe("POST /api/season/play", () => {
     const clubs = r.body.clubs as Record<string, { nameLatin: string }>;
     expect(clubs["club-a"].nameLatin).toBe("Club A");
     expect(r.headers?.["Cache-Control"]).toBeUndefined(); // toResponse's private default
+  });
+
+  it("the answer's code is the canonical code of the rated squad", async () => {
+    const r = await play(complete);
+    const state = readDraft(complete, keys.sign)!;
+    expect(r.body.code).toBe(canonicalXi(rateXi(data, drafted(ctx, state)!)));
   });
 
   it("an incomplete draft is refused (422); a forged one (403)", async () => {
