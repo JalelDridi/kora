@@ -8,7 +8,7 @@ import {
 import type { ApiResult, GameDeps, Store } from "./guess.ts";
 import { allowGuess, rateLimitSalt } from "./rate-limit.ts";
 import { readToday } from "./store.ts";
-import { readVisitorId } from "./visitor.ts";
+import { readVisitorId, widenVisitorCookie } from "./visitor.ts";
 
 // GET /api/chkoun/today, without Next: the day's number, when it ends, where
 // results are kept, and, for a visitor who has already finished today's
@@ -17,7 +17,7 @@ import { readVisitorId } from "./visitor.ts";
 
 export type TodayDeps = Pick<
   GameDeps,
-  "now" | "puzzle" | "footballers" | "kv" | "env" | "firstDay"
+  "now" | "puzzle" | "footballers" | "kv" | "env" | "firstDay" | "secureCookie"
 > & {
   /** CHKOUN_SEED, for the rate limit's salt; without it, no limit. */
   seed?: string;
@@ -27,6 +27,23 @@ export async function handleToday(
   deps: TodayDeps,
   cookie: string | null,
   ip: string | null = null,
+): Promise<ApiResult> {
+  // Read before any answer, so every one of them, soon and closed included,
+  // moves a known visitor's id to the path every game shares (T-S3-9).
+  const visitorId = readVisitorId(cookie);
+  const result = await answerToday(deps, visitorId, ip);
+  return deps.kv && visitorId
+    ? {
+        ...result,
+        setCookies: widenVisitorCookie(visitorId, deps.secureCookie),
+      }
+    : result;
+}
+
+async function answerToday(
+  deps: TodayDeps,
+  visitorId: string | null,
+  ip: string | null,
 ): Promise<ApiResult> {
   const first = deps.firstDay ?? FIRST_DAY;
   const day = tunisDay(deps.now);
@@ -65,7 +82,6 @@ export async function handleToday(
       body: { status: "closed", number, day, endsAt, store },
     };
 
-  const visitorId = readVisitorId(cookie);
   if (!deps.kv || !visitorId)
     return {
       status: 200,

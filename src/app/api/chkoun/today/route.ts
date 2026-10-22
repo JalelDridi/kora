@@ -20,6 +20,7 @@ export async function GET(request: Request) {
         kv: getKv(),
         env: kvEnv(),
         seed: process.env.CHKOUN_SEED,
+        secureCookie: process.env.NODE_ENV === "production",
       },
       request.headers.get("cookie"),
       clientIp(request.headers),

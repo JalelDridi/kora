@@ -279,7 +279,7 @@ describe("handleGuess", () => {
       httpOnly: true,
       secure: true,
       sameSite: "lax",
-      path: "/api/chkoun",
+      path: "/api",
     });
     const id = r.setCookie!.value;
     const stored = await kv.hgetall("kora:test:chkoun:r:2026-10-19");

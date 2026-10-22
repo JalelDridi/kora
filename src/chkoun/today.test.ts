@@ -45,6 +45,7 @@ const deps = (over: Partial<TodayDeps> = {}): TodayDeps => ({
   kv: null,
   env: "test",
   firstDay,
+  secureCookie: true,
   ...over,
 });
 
@@ -154,6 +155,40 @@ describe("handleToday", () => {
           )
         ).status,
       ).toBe(200);
+  });
+
+  it("with Redis on, a visitor with an id gets it re-issued under /api", async () => {
+    const r = await handleToday(deps({ kv }), `kora_v=${visitor}`, null);
+    expect(r.setCookies?.map((c) => c.options.path)).toEqual([
+      "/api",
+      "/api/chkoun",
+    ]);
+    expect(r.setCookies?.[0].value).toBe(visitor);
+    expect(r.setCookie).toBeUndefined();
+  });
+
+  it("the id is re-issued whatever the day's state: soon and closed too", async () => {
+    for (const d of [
+      deps({ kv, now: new Date("2026-10-01T09:00:00Z") }),
+      deps({ kv, puzzle: async () => null }),
+    ]) {
+      const r = await handleToday(d, `kora_v=${visitor}`);
+      expect(r.body.status).not.toBe("open");
+      expect(r.setCookies?.map((c) => c.options.path)).toEqual([
+        "/api",
+        "/api/chkoun",
+      ]);
+    }
+  });
+
+  it("no cookie is set without Redis, or without a valid id", async () => {
+    expect(
+      (await handleToday(deps(), `kora_v=${visitor}`)).setCookies,
+    ).toBeUndefined();
+    expect((await handleToday(deps({ kv }), null)).setCookies).toBeUndefined();
+    expect(
+      (await handleToday(deps({ kv }), "kora_v=not-a-uuid")).setCookies,
+    ).toBeUndefined();
   });
 
   it("no puzzle: closed", async () => {

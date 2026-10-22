@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { clientIp, readCapped, serializeCookie, toResponse } from "./http.ts";
-import { newVisitorCookie } from "./visitor.ts";
+import { newVisitorCookie, widenVisitorCookie } from "./visitor.ts";
 
 describe("the game API's responses", () => {
   it("are never cached and carry the status and body", async () => {
@@ -20,9 +20,22 @@ describe("the game API's responses", () => {
     const cookie = newVisitorCookie(true);
     const r = toResponse({ status: 200, body: {}, setCookie: cookie });
     expect(r.headers.get("set-cookie")).toBe(
-      `kora_v=${cookie.value}; Max-Age=34128000; Path=/api/chkoun; HttpOnly; SameSite=Lax; Secure`,
+      `kora_v=${cookie.value}; Max-Age=34128000; Path=/api; HttpOnly; SameSite=Lax; Secure`,
     );
     expect(serializeCookie(newVisitorCookie(false))).not.toContain("Secure");
+  });
+
+  it("every cookie of setCookies becomes its own Set-Cookie header", () => {
+    const id = "4b5c0f3e-2d1a-4c8e-9f7b-1a2b3c4d5e6f";
+    const res = toResponse({
+      status: 200,
+      body: {},
+      setCookies: widenVisitorCookie(id, true),
+    });
+    expect(res.headers.getSetCookie()).toEqual([
+      `kora_v=${id}; Max-Age=34128000; Path=/api; HttpOnly; SameSite=Lax; Secure`,
+      "kora_v=; Max-Age=0; Path=/api/chkoun; HttpOnly; SameSite=Lax; Secure",
+    ]);
   });
 
   it("read the visitor's address from the first forwarded hop", () => {

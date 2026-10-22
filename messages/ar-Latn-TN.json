@@ -177,7 +177,7 @@
     },
     "cookie": {
       "title": "Un seul cookie, strictement nécessaire",
-      "body": "Quand les résultats sont gardés sur le serveur, Kora pose un cookie quand tu finis ta première partie : kora_v, un numéro tiré au hasard, sans aucune donnée sur toi. Il est envoyé seulement au jeu (/api/chkoun), il est illisible par les scripts de la page, et il dure 13 mois. Il sert seulement à relier tes parties pour ta série. Il n'y a aucun autre cookie."
+      "body": "Quand les résultats sont gardés sur le serveur, Kora pose un cookie quand tu finis ta première partie : kora_v, un numéro tiré au hasard, sans aucune donnée sur toi. Il est envoyé seulement aux jeux (/api), il est illisible par les scripts de la page, et il dure 13 mois. Il sert seulement à relier tes parties pour ta série. Il n'y a aucun autre cookie."
     },
     "server": {
       "title": "Sur le serveur",
