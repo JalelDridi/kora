@@ -16,6 +16,20 @@ describe("the game API's responses", () => {
     expect(await r.json()).toEqual({ error: "tooMany", retryAfter: 60 });
   });
 
+  it("keep a public Cache-Control the answer gives instead of the private default", () => {
+    const r = toResponse({
+      status: 200,
+      body: {},
+      headers: {
+        "Cache-Control": "public, s-maxage=30, stale-while-revalidate=30",
+      },
+    });
+    expect(r.headers.get("cache-control")).toBe(
+      "public, s-maxage=30, stale-while-revalidate=30",
+    );
+    expect(r.headers.get("x-robots-tag")).toBe("noindex");
+  });
+
   it("set the visitor cookie HttpOnly, SameSite=Lax, on the API path only", () => {
     const cookie = newVisitorCookie(true);
     const r = toResponse({ status: 200, body: {}, setCookie: cookie });
