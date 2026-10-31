@@ -105,10 +105,11 @@ html {
 }
 
 /* A guessed row's tiles turn over one after another, only for visitors who
-   have not asked for less motion. */
+   have not asked for less motion: 0.3 s each, 60 ms apart (tile-row.tsx),
+   so a whole row lands in 0.6 s (mobile polish §2.12). */
 @media (prefers-reduced-motion: no-preference) {
   .tile-flip {
-    animation: kora-flip 0.45s ease-out both;
+    animation: kora-flip 0.3s ease-out both;
   }
 }
 

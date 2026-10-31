@@ -430,6 +430,62 @@ for (const locale of locales) {
     });
   });
 
+  test(`${url}: the result shows 5 matches, then all 30 behind one button`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 360, height: 800 });
+    await page.goto(url);
+    for (let slot = 0; slot < 11; slot++) {
+      await spinning(page, slot + 1);
+      await pickButtons(page).first().click();
+    }
+    await page.getByRole("button", { name: t.play }).click();
+    await expect(page.locator("#season-result")).toBeVisible();
+    const matches = page
+      .getByRole("list", { name: t.result.matches })
+      .getByRole("listitem");
+    await expect(matches.filter({ visible: true })).toHaveCount(5);
+    await expect(matches.first()).toContainText(fill(t.result.round, { n: 1 }));
+    const more = page.getByText(t.result.allMatches, { exact: true });
+    await expect(more).toBeVisible();
+    expect(await axe(page)).toEqual([]);
+    expect(await noSidewaysScroll(page)).toBe(0);
+    await page.screenshot({
+      path: shot(4, slug, 360, "season-result"),
+      fullPage: true,
+    });
+    await more.click();
+    await expect(matches.filter({ visible: true })).toHaveCount(30);
+    await expect(matches.nth(5)).toContainText(fill(t.result.round, { n: 6 }));
+    expect(await axe(page)).toEqual([]);
+  });
+
+  test(`${url}: the spin area says it is loading until the first spin`, async ({
+    page,
+  }) => {
+    // One column at 360 px: the reserved spin area comes before the pitch.
+    await page.setViewportSize({ width: 360, height: 800 });
+    let release: () => void = () => {};
+    const held = new Promise<void>((resolve) => (release = resolve));
+    await page.route("**/api/season/draft", async (route) => {
+      await held;
+      await route.continue();
+    });
+    await page.goto(url);
+    const loading = page.getByText(t.loading, { exact: true });
+    await expect(loading).toBeVisible();
+    // It sits in the reserved spin area, above the pitch, on the first screen.
+    expect((await loading.boundingBox())!.y).toBeLessThan(800);
+    const pitch = page.getByRole("region", { name: t.squad });
+    await expect(pitch).toBeAttached();
+    expect((await loading.boundingBox())!.y).toBeLessThan(
+      (await pitch.boundingBox())!.y,
+    );
+    release();
+    await spinning(page, 1);
+    await expect(loading).toHaveCount(0);
+  });
+
   for (const width of [1280, 320]) {
     test(`${url} screenshots at ${width} px: idle, spinning, drafted`, async ({
       page,

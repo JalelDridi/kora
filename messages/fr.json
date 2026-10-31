@@ -238,6 +238,7 @@
       "play": "Avec 11 joueurs, joue 30 matchs : 30–0 est le rêve."
     },
     "noscript": "Ce jeu a besoin de JavaScript.",
+    "loading": "Le premier tirage arrive…",
     "lines": {
       "goalkeeper": "Gardien",
       "defender": "Défense",
@@ -279,6 +280,7 @@
       "teamRating": "Note de l'équipe",
       "replaces": "Joue à la place de {club}",
       "matches": "Les 30 matchs",
+      "allMatches": "Voir les 30 matchs",
       "round": "Journée {n}",
       "home": "Domicile",
       "away": "Extérieur",

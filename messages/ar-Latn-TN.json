@@ -238,6 +238,7 @@
       "play": "Ki tkammel 11 la3eb, el3ab 30 match: 30–0 howa el 7elm."
     },
     "noscript": "El le3ba hedhi test7a99 JavaScript.",
+    "loading": "Ed-dawra el oula jeya…",
     "lines": {
       "goalkeeper": "El 7ares",
       "defender": "El difa3",
@@ -279,6 +280,7 @@
       "teamRating": "Ta9yim el far9",
       "replaces": "Tal3ab fi blaset {club}",
       "matches": "El 30 match",
+      "allMatches": "Chouf el 30 match el kol",
       "round": "Jawla {n}",
       "home": "Fi darha",
       "away": "Barra",

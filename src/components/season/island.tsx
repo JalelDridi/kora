@@ -371,6 +371,13 @@ export function SeasonIsland({
               {t.error.retry}
             </button>
           ) : null}
+          {reserve && !spin && !notice ? (
+            // Until the first spin arrives (the server renders this), the
+            // reserved area says something is coming (mobile polish §2.12).
+            <p data-spin-loading="" className="text-lg text-chalk-dim">
+              {t.loading}
+            </p>
+          ) : null}
           {spin ? (
             <SpinPanel
               spin={spin}

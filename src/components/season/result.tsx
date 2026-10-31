@@ -13,9 +13,12 @@ type Props = {
 };
 
 export const RESULT_HEADING = "season-result";
+/** The matches shown before the "all 30" button (mobile polish §2.12). */
+const FIRST = 5;
 
 // A played season (plan Task 11): the record, points, goals, the team
-// rating and the club the squad replaced, then the 30 matches in order.
+// rating and the club the squad replaced, then the 30 matches in order: the
+// first five, the other 25 behind one button.
 // Every outcome is a word, never only a colour. No hooks: the island shows
 // it after a play, and the replay page renders it on the server.
 export function Result({ view, locale, strings: t, children }: Props) {
@@ -26,6 +29,28 @@ export function Result({ view, locale, strings: t, children }: Props) {
   };
   const outcome = (f: number, a: number) =>
     f > a ? t.result.win : f === a ? t.result.draw : t.result.loss;
+  const match = (m: SeasonView["season"]["matches"][number]) => (
+    <li
+      key={m.round}
+      data-outcome={m.for > m.against ? "w" : m.for === m.against ? "d" : "l"}
+      className="grid grid-cols-[auto_1fr_auto] items-center gap-x-3 rounded-lg bg-pitch-800 px-3 py-2 text-base data-[outcome=l]:bg-pitch-900"
+    >
+      <span className="text-sm text-chalk-dim">
+        {format(t.result.round, { n: m.round })}
+        {" · "}
+        {m.home ? t.result.home : t.result.away}
+      </span>
+      <span className="min-w-0 font-semibold break-words">
+        <bdi>{club(m.opponent)}</bdi>
+      </span>
+      <span className="flex items-center gap-2">
+        <bdi dir="ltr" className="font-extrabold">
+          {m.for}-{m.against}
+        </bdi>
+        <span className="text-sm">{outcome(m.for, m.against)}</span>
+      </span>
+    </li>
+  );
   const record = format(t.result.record, {
     w: season.w,
     d: season.d,
@@ -73,31 +98,25 @@ export function Result({ view, locale, strings: t, children }: Props) {
         {t.result.matches}
       </h3>
       <ol aria-labelledby="season-matches" className="flex flex-col gap-1">
-        {season.matches.map((m) => (
-          <li
-            key={m.round}
-            data-outcome={
-              m.for > m.against ? "w" : m.for === m.against ? "d" : "l"
-            }
-            className="grid grid-cols-[auto_1fr_auto] items-center gap-x-3 rounded-lg bg-pitch-800 px-3 py-2 text-base data-[outcome=l]:bg-pitch-900"
-          >
-            <span className="text-sm text-chalk-dim">
-              {format(t.result.round, { n: m.round })}
-              {" · "}
-              {m.home ? t.result.home : t.result.away}
-            </span>
-            <span className="min-w-0 font-semibold break-words">
-              <bdi>{club(m.opponent)}</bdi>
-            </span>
-            <span className="flex items-center gap-2">
-              <bdi dir="ltr" className="font-extrabold">
-                {m.for}-{m.against}
-              </bdi>
-              <span className="text-sm">{outcome(m.for, m.against)}</span>
-            </span>
-          </li>
-        ))}
+        {season.matches.slice(0, FIRST).map(match)}
       </ol>
+      {season.matches.length > FIRST ? (
+        // The rest of the season behind one button, open without script (the
+        // replay page renders on the server). Its list carries the same name,
+        // so a screen reader hears one list of matches in two parts.
+        <details className="group">
+          <summary className="inline-flex min-h-11 cursor-pointer list-none items-center rounded-full border-2 border-pitch-700 px-5 font-semibold group-open:mb-1 [&::-webkit-details-marker]:hidden">
+            {t.result.allMatches}
+          </summary>
+          <ol
+            aria-labelledby="season-matches"
+            start={FIRST + 1}
+            className="flex flex-col gap-1"
+          >
+            {season.matches.slice(FIRST).map(match)}
+          </ol>
+        </details>
+      ) : null}
     </section>
   );
 }

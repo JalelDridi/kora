@@ -110,7 +110,7 @@ function Tiles({
             key={column}
             data-column={column}
             data-colour={tile.colour}
-            style={animate ? { animationDelay: `${i * 120}ms` } : undefined}
+            style={animate ? { animationDelay: `${i * 60}ms` } : undefined}
             className={`relative flex min-h-16 min-w-0 flex-col items-center justify-center rounded-md px-0.5 py-1 text-center text-xs leading-tight ${COLOUR_CLASS[tile.colour]} ${animate ? "tile-flip" : ""}`}
           >
             <span

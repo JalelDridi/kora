@@ -119,6 +119,8 @@ test("play shows the record, 30 matches and the team rating", async ({
   await playSeason(page, "fr");
   const [w, d, l] = (await record(page)).trim().split("-").map(Number);
   expect(w + d + l).toBe(30);
+  // The first five show; the other 25 open behind one button (§2.12).
+  await page.getByText(t.result.allMatches, { exact: true }).click();
   const matches = page.getByRole("list", { name: t.result.matches });
   await expect(matches.getByRole("listitem")).toHaveCount(30);
   // Each match says its round, where it is played and its outcome in words.
@@ -253,6 +255,7 @@ test("the shared link replays the same record", async ({ page, browser }) => {
   expect((await record(visitor)).trim()).toBe(shown);
   await expect(visitor.locator("[data-points]")).toHaveText(points);
   await expect(visitor.locator("[data-team-rating]")).toHaveText(rating);
+  await visitor.getByText(t.result.allMatches, { exact: true }).click();
   await expect(
     visitor.getByRole("list", { name: t.result.matches }).getByRole("listitem"),
   ).toHaveCount(30);
