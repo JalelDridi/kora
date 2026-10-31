@@ -4,6 +4,7 @@ import arLatnTN from "../messages/ar-Latn-TN.json";
 import arTN from "../messages/ar-TN.json";
 import fr from "../messages/fr.json";
 import { puzzleNumber } from "../src/engine/chkoun/day";
+import { nextStats } from "../src/engine/chkoun/stats";
 import { launchGames, liveRoute } from "../src/games";
 import { localeInfo, locales, type Locale } from "../src/i18n/locales";
 import { site } from "../src/site";
@@ -333,7 +334,7 @@ for (const locale of locales) {
     }
   });
 
-  test(`${prefix}: the hub's cards fit the first screen at 360×800`, async ({
+  test(`${prefix}: the second card starts on the first screen at 360×800`, async ({
     page,
   }) => {
     await page.setViewportSize({ width: 360, height: 800 });
@@ -371,39 +372,67 @@ test("a storage that refuses reads as not yet and throws nothing", async ({
   expect(errors).toEqual([]);
 });
 
-test("/ar with a saved game in progress: the line fills its reserved box, CLS ≤ 0.1", async ({
+test("/ar: the two-line state (a win and its streak) fills its reserved box and moves no card", async ({
   page,
+  browser,
 }) => {
   const n = puzzleNumber(fixture.today);
-  await page.addInitScript((n) => {
-    localStorage.setItem(
-      "kora.chkoun.v1.game",
-      JSON.stringify({
-        n,
-        token: "t",
-        rows: [{}, {}],
-        status: "playing",
-        card: null,
-      }),
-    );
-    const w = window as unknown as { cls: number };
-    w.cls = 0;
-    new PerformanceObserver((list) => {
-      for (const e of list.getEntries() as unknown as {
-        value: number;
-        hadRecentInput: boolean;
-      }[])
-        if (!e.hadRecentInput) w.cls += e.value;
-    }).observe({ type: "layout-shift", buffered: true });
-  }, n);
-  await page.setViewportSize({ width: 360, height: 800 });
-  await page.goto("/ar");
-  await expect(card(page, arTN.games.chkoun.name)).toContainText(
-    fill(arTN.hub.state.playing, { n, guesses: 2 }),
+  const stats = nextStats(
+    nextStats(null, { n: n - 1, solved: true, guesses: 4 }),
+    {
+      n,
+      solved: true,
+      guesses: 3,
+    },
   );
+  await page.addInitScript(
+    ({ n, stats }) => {
+      localStorage.setItem(
+        "kora.chkoun.v1.game",
+        JSON.stringify({
+          n,
+          token: "t",
+          rows: [{}, {}, {}],
+          status: "won",
+          card: null,
+        }),
+      );
+      localStorage.setItem("kora.chkoun.v1.stats", JSON.stringify(stats));
+      const w = window as unknown as { cls: number };
+      w.cls = 0;
+      new PerformanceObserver((list) => {
+        for (const e of list.getEntries() as unknown as {
+          value: number;
+          hadRecentInput: boolean;
+        }[])
+          if (!e.hadRecentInput) w.cls += e.value;
+      }).observe({ type: "layout-shift", buffered: true });
+    },
+    { n, stats },
+  );
+  const viewport = { width: 360, height: 800 };
+
+  // Before: the server's HTML alone (no script, so no line in the box).
+  const bare = await browser.newContext({ javaScriptEnabled: false, viewport });
+  const shell = await bare.newPage();
+  await shell.goto("/ar");
+  await expect(shell.locator("[data-hub-state]")).toHaveCount(0);
+  const before = (await shell.getByRole("article").nth(1).boundingBox())!;
+  await bare.close();
+
+  // After: the line and the streak in the Chkoun? card.
+  await page.setViewportSize(viewport);
+  await page.goto("/ar");
+  const chkoun = card(page, arTN.games.chkoun.name);
+  await expect(chkoun).toContainText(
+    fill(arTN.hub.state.won, { n, score: "3/8" }),
+  );
+  await expect(chkoun).toContainText(fill(arTN.hub.state.streak, { n: 2 }));
+  const after = (await page.getByRole("article").nth(1).boundingBox())!;
+  expect(after.y).toBe(before.y);
   await page.waitForTimeout(500);
   const cls = await page.evaluate(
     () => (window as unknown as { cls: number }).cls,
   );
-  expect(cls).toBeLessThanOrEqual(0.1);
+  expect(cls).toBeLessThan(0.001);
 });

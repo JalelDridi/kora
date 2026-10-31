@@ -3,7 +3,6 @@
 import { Fragment, useSyncExternalStore, type ReactNode } from "react";
 import { deviceStorage } from "@/chkoun/device";
 import { chkounState, seasonState } from "@/chkoun/hub-state";
-import { format } from "@/chkoun/labels";
 import type fr from "../../messages/fr.json";
 
 type Strings = (typeof fr)["hub"]["state"];
@@ -37,6 +36,12 @@ function subscribe(changed: () => void) {
     window.removeEventListener("pageshow", changed);
   };
 }
+
+/** "{n}" filled in (the same rule as src/chkoun/labels.ts, without its data imports). */
+const format = (template: string, values: Record<string, string | number>) =>
+  template.replace(/\{(\w+)\}/g, (whole, name: string) =>
+    name in values ? String(values[name]) : whole,
+  );
 
 const TOKEN = /#\{n\}|\{score\}|\{guesses\}\/8|X\/8|\{w\}-\{d\}-\{l\}|\{n\}/g;
 
