@@ -112,6 +112,12 @@ export type Infobox = {
   title: string;
   /** Link target title of the current club; null when none or a staff role. */
   currentClub: string | null;
+  /**
+   * Decision P59: the current-club field is absent or empty. The page gives
+   * no opinion on the club (no vote), unlike an explicit none ("Retired",
+   * "Free agent"); its open career spell may then name the club.
+   */
+  currentClubMissing?: boolean;
   /** French only: the English title of a current club named by {{Lien}}, as for a spell. */
   currentClubForeign?: string;
   currentClubIsStaff: boolean;
@@ -381,6 +387,8 @@ export type FlagKind =
   | "caps-sources-disagree"
   | "caps-maybe-stale"
   | "club-staff-role"
+  /** P59: the club comes from an open career spell alone, no other source agreeing; rated low. */
+  | "club-open-spell-only"
   | "club-unresolved"
   | "club-sources-disagree"
   | "club-override-disagrees"

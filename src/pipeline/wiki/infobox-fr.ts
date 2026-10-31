@@ -292,6 +292,7 @@ export function parseFrInfobox(
     lang: "fr",
     title,
     currentClub: current.title,
+    ...(current.missing ? { currentClubMissing: true } : {}),
     ...(current.foreign === undefined
       ? {}
       : { currentClubForeign: current.foreign }),

@@ -22,6 +22,7 @@ import type {
 } from "./types.ts";
 import { parseEnInfobox } from "./wiki/infobox-en.ts";
 import { parseFrInfobox } from "./wiki/infobox-fr.ts";
+import type { SquadList } from "./wiki/squads.ts";
 
 const today = "2026-10-04";
 const by = { by: "jalel", at: "2026-10-05" };
@@ -1868,6 +1869,48 @@ describe("final wave: staff posts and the current club (A5)", () => {
     });
   });
 
+  // P59 (e): Nafti's page without currentclub, as from 26 October 2026; his
+  // managerial row is open. Hand-made from the A5 case.
+  it("(e) reads the open manager row as the staff post: Mehdi Nafti without currentclub", () => {
+    const page = parseEnInfobox(
+      "X",
+      [
+        "{{Infobox football biography",
+        "| years1 = 1996–2000 | clubs1 = [[Club Africain]]",
+        "| years2 = 2000–2010 | clubs2 = [[SD Ponferradina|Ponferradina]]",
+        "| manageryears1 = 2025– | managerclubs1 = [[SD Ponferradina|Ponferradina]]",
+        "}}",
+      ].join("\n"),
+    )!;
+    const p = pick(
+      page,
+      fr(
+        "{{ESP-d}} [[Sociedad Deportiva Ponferradina|SD Ponferradina]]",
+        "{{date|14|décembre|2025}}",
+      ),
+    );
+    expect(p.club).toBeNull();
+    expect(p.flags.map((f) => f.kind)).toEqual([
+      "club-staff-role",
+      "club-staff-role",
+    ]);
+  });
+
+  it("(e) an open manager row is no playing club, whatever the open playing spell", () => {
+    const page = parseEnInfobox(
+      "X",
+      [
+        "{{Infobox football biography",
+        "| years1 = 2020– | clubs1 = [[Club Africain]]",
+        "| manageryears1 = 2025– | managerclubs1 = [[Club Africain]]",
+        "}}",
+      ].join("\n"),
+    )!;
+    const p = pick(page, null);
+    expect(p.club).toBeNull();
+    expect(p.flags.map((f) => f.kind)).toEqual(["club-staff-role"]);
+  });
+
   it("keeps the other page's club when it is newer than the staff post (hand-made)", () => {
     const p = pick(
       { ...en("[[Club Africain]]"), clubsAsOf: "2020-06-21" },
@@ -1962,5 +2005,260 @@ describe("final wave: a French {{Lien}} club resolved by its English title (A6, 
       today,
     });
     expect(spells[0].club).toBe(hetten);
+  });
+});
+
+// Decision P59: from 26 October 2026 English pages stopped giving their
+// current club. A missing field is no opinion; the French page, the squad
+// lists and the open career spell decide.
+describe("P59: a missing current club casts no vote", () => {
+  const spells = (to: number | null): Infobox["spells"] => [
+    {
+      clubTitle: "Espérance Sportive de Tunis",
+      from: 2018,
+      to: 2023,
+      apps: 50,
+      goals: 1,
+      loan: false,
+    },
+    {
+      clubTitle: "CS Sfaxien",
+      from: 2023,
+      to,
+      apps: 40,
+      goals: 2,
+      loan: false,
+    },
+  ];
+  const missingEn = (fields: Partial<Infobox> = {}) =>
+    box("en", {
+      currentClubMissing: true,
+      spells: spells(null),
+      clubsAsOf: "2026-10-01",
+      ...fields,
+    });
+  const sfaxList: SquadList = {
+    lang: "en",
+    page: "CS Sfaxien",
+    kind: "club",
+    date: "2026-09-14",
+    season: null,
+    status: "current",
+    rows: [],
+  };
+  const context = (
+    en: Infobox,
+    fr: Infobox | null,
+    listed = false,
+  ): MergeContext => ({
+    today,
+    memberships: new Map(),
+    index,
+    infoboxes: {
+      en: new Map([["Yassine Meriah", en]]),
+      fr: new Map(fr ? [["Yassine Meriah (football)", fr]] : []),
+    },
+    photos: new Map(),
+    tunisiaMatches: [],
+    overrides: { players: {}, clubTitles: {} },
+    governorateIds,
+    ...(listed
+      ? {
+          squads: {
+            sightings: new Map([
+              [
+                "Q19956607",
+                [
+                  {
+                    qid: "Q19956607",
+                    list: sfaxList,
+                    part: "squad" as const,
+                    asOf: "2026-09-14",
+                    by: "link" as const,
+                  },
+                ],
+              ],
+            ]),
+            lists: [sfaxList],
+          },
+        }
+      : {}),
+  });
+  const merged = (en: Infobox, fr: Infobox | null, listed = false) =>
+    mergePlayer(wdPlayer(), context(en, fr, listed))!;
+  const kinds = (m: { flags: { kind: string }[] }) =>
+    m.flags.map((f) => f.kind);
+
+  it("(a) takes the French club, the English page casting no vote", () => {
+    const m = merged(
+      // No career on purpose: no open spell, so the English page has no vote at all.
+      missingEn({ spells: [] }),
+      box("fr", {
+        currentClub: "Espérance sportive de Tunis",
+        clubsAsOf: "2026-09-01",
+      }),
+    );
+    expect(m.draft.club).toBe(esperance);
+    expect(m.draft.provenance.clubId).toMatchObject({
+      source: "frwiki",
+      confidence: "medium",
+      agreeing: ["frwiki"],
+    });
+  });
+
+  it("(a') the English open spell agreeing with the French club makes it high", () => {
+    // The index knows CS Sfaxien by its English title only: pin the French one.
+    const pinned = buildClubIndex(
+      [burnley, esperance, sfaxien],
+      { en: new Map(), fr: new Map() },
+      { "fr:Club sportif sfaxien": "Q3" },
+    );
+    const ctx = context(
+      missingEn(),
+      box("fr", {
+        currentClub: "Club sportif sfaxien",
+        clubsAsOf: "2026-09-01",
+      }),
+    );
+    const agreed = mergePlayer(wdPlayer(), { ...ctx, index: pinned })!;
+    expect(agreed.draft.club).toBe(sfaxien);
+    expect(agreed.draft.provenance.clubId).toMatchObject({
+      source: "frwiki",
+      confidence: "high",
+      agreeing: ["enwiki", "frwiki"],
+    });
+    expect(kinds(agreed)).not.toContain("club-sources-disagree");
+    expect(kinds(agreed)).not.toContain("club-open-spell-only");
+  });
+
+  it("(a') the English open spell elsewhere than the French club is flagged", () => {
+    const m = merged(
+      missingEn(),
+      box("fr", {
+        currentClub: "Espérance sportive de Tunis",
+        clubsAsOf: "2026-09-01",
+      }),
+    );
+    expect(m.draft.club).toBe(esperance);
+    expect(m.flags).toContainEqual({
+      kind: "club-sources-disagree",
+      detail:
+        "frwiki Espérance Sportive de Tunis (2026-09-01) vs enwiki open spell CS Sfaxien (2026-10-01)",
+    });
+    expect(m.draft.provenance.clubId).toMatchObject({ confidence: "low" });
+    expect(kinds(m)).not.toContain("club-open-spell-only");
+  });
+
+  it("(b) takes the open spell when a current squad list names him there: high", () => {
+    const m = merged(missingEn(), null, true);
+    expect(m.draft.club).toBe(sfaxien);
+    expect(m.draft.provenance.clubId).toMatchObject({
+      source: "enwiki",
+      asOf: "2026-10-01",
+      ref: "Yassine Meriah",
+      confidence: "high",
+      agreeing: ["enwiki", "enwiki-squad"],
+    });
+    expect(kinds(m)).not.toContain("club-squad-list-differs");
+    expect(kinds(m)).not.toContain("club-open-spell-only");
+  });
+
+  it("(c) takes the open spell alone at low confidence, with a flag", () => {
+    const m = merged(missingEn(), null);
+    expect(m.draft.club).toBe(sfaxien);
+    expect(m.draft.provenance.clubId).toMatchObject({
+      source: "enwiki",
+      confidence: "low",
+      agreeing: ["enwiki"],
+    });
+    expect(m.flags).toContainEqual({
+      kind: "club-open-spell-only",
+      detail:
+        "enwiki Yassine Meriah: CS Sfaxien since 2023, no current club on either page (P59)",
+    });
+  });
+
+  it("(c) the other page's open spell at the same club makes it high", () => {
+    const m = merged(
+      missingEn(),
+      box("fr", {
+        currentClubMissing: true,
+        spells: [
+          {
+            // The index knows CS Sfaxien by its English title only.
+            clubTitle: "Club sportif sfaxien",
+            clubTitleForeign: "CS Sfaxien",
+            from: 2023,
+            to: null,
+            apps: null,
+            goals: null,
+            loan: false,
+          },
+        ],
+        clubsAsOf: "2026-09-01",
+      }),
+    );
+    expect(m.draft.club).toBe(sfaxien);
+    expect(m.draft.provenance.clubId).toMatchObject({
+      confidence: "high",
+      agreeing: ["enwiki", "frwiki"],
+    });
+    expect(kinds(m)).not.toContain("club-open-spell-only");
+  });
+
+  it("(d) keeps none for a closed last spell and no current club anywhere", () => {
+    const pick = pickClub({
+      en: missingEn({ spells: spells(2026) }),
+      fr: box("fr", { currentClubMissing: true }),
+      memberships: [membership("Q3", 2024, null)],
+      index,
+      today,
+    });
+    expect(pick).toEqual({ club: null, provenance: null, flags: [] });
+  });
+
+  it("(d) keeps none when a page says retired or free, whatever the open spell", () => {
+    const pick = pickClub({
+      en: missingEn(),
+      fr: box("fr", { currentClub: null }),
+      memberships: [],
+      index,
+      today,
+    });
+    expect(pick.club).toBeNull();
+    expect(
+      pickClub({
+        en: box("en", { spells: spells(null) }),
+        fr: null,
+        memberships: [],
+        index,
+        today,
+      }).club,
+    ).toBeNull();
+  });
+
+  it("flags two open spells that disagree, and takes the newer page's", () => {
+    const pick = pickClub({
+      en: missingEn(),
+      fr: box("fr", {
+        currentClubMissing: true,
+        spells: [
+          {
+            clubTitle: "Espérance sportive de Tunis",
+            from: 2025,
+            to: null,
+            apps: null,
+            goals: null,
+            loan: false,
+          },
+        ],
+        clubsAsOf: "2026-10-20",
+      }),
+      memberships: [],
+      index,
+      today,
+    });
+    expect(pick.club).toBe(esperance);
+    expect(pick.flags.map((f) => f.kind)).toEqual(["club-sources-disagree"]);
   });
 });

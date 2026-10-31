@@ -113,6 +113,8 @@ export type CurrentClub = {
   foreign?: string;
   /** The club a staff post names, when it names one (not a national team). */
   staffClub?: string;
+  /** P59: the field is absent or empty: no opinion, unlike "Retired". */
+  missing?: true;
 };
 
 /**
@@ -130,6 +132,9 @@ export function readCurrentClub(
 ): CurrentClub {
   const plain = plainText(text);
   const club = read(text);
+  // A {{Lien}} club has no plain text: only both empty mean no field.
+  if (plain.trim() === "" && club.title.trim() === "")
+    return { title: null, staff: false, missing: true };
   if (NO_CLUB.test(plain) && NO_CLUB.test(club.title.trim()))
     return { title: null, staff: false };
   const link = links(text)[0];
@@ -160,6 +165,19 @@ function beyondLimit(
     }
   }
   return first && { field: first.field, raw: first.raw };
+}
+
+/** P59: the club cell of the last managerial row, when that row is open. */
+function openManagerRow(get: (key: string) => string): string | null {
+  let last: string | null = null;
+  let open = false;
+  for (let n = 1; n <= CLUB_ROWS; n++) {
+    const club = get(`managerclubs${n}`);
+    if (stripNoise(club).trim() === "") continue;
+    last = club;
+    open = parseYears(get(`manageryears${n}`)).open;
+  }
+  return open ? last : null;
 }
 
 export function parseEnInfobox(
@@ -245,11 +263,28 @@ export function parseEnInfobox(
     if (beyond) skipped.push({ ...beyond, reason: "limit" });
   }
 
-  const current = readCurrentClub(get("currentclub"), STAFF, NATIONAL_TEAM);
+  // splitParams writes "current_club" as "current club".
+  let current = readCurrentClub(
+    get("currentclub") || get("current club"),
+    STAFF,
+    NATIONAL_TEAM,
+  );
+  // P59: a page that names no playing club but has an open managerial row
+  // (managerclubsN, its years with no end) has him on a staff: that row is
+  // the staff post, as "X (manager)" in currentclub was.
+  const manager = openManagerRow(get);
+  if (manager !== null && current.title === null && !current.staff) {
+    const link = links(manager)[0];
+    current =
+      link === undefined || NATIONAL_TEAM.test(link.title)
+        ? { title: null, staff: true }
+        : { title: null, staff: true, staffClub: link.title };
+  }
   return {
     lang: "en",
     title,
     currentClub: current.title,
+    ...(current.missing ? { currentClubMissing: true } : {}),
     currentClubIsStaff: current.staff,
     ...(current.staffClub === undefined
       ? {}

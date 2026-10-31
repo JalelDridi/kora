@@ -15,7 +15,7 @@ import { GOALSCORERS_URL, goalsFloors, tunisiaScorers } from "./goalscorers.ts";
 import { fameOf } from "./fame.ts";
 import { createPoliteClient } from "./http.ts";
 import type { FetchLike, PoliteClient } from "./http.ts";
-import { buildClubIndex, chosenClubOf } from "./merge.ts";
+import { buildClubIndex, chosenClubOf, openSpellOf } from "./merge.ts";
 import type { MergeContext } from "./merge.ts";
 import { validateOverrides } from "./overrides.ts";
 import {
@@ -31,6 +31,9 @@ import { syncPhotos } from "./photos.ts";
 import { buildPool, emptyRegistry } from "./pool.ts";
 import {
   diffPools,
+  activeCounts,
+  activeRefusal,
+  ALLOW_POOL_DROP,
   guardChange,
   renderReport,
   squadSummary,
@@ -134,6 +137,12 @@ export type RunDeps = {
   photoFetch?: FetchLike;
   /** The wait between two photo downloads (tests make it instant). */
   sleep?: (ms: number) => Promise<void>;
+  /**
+   * P59: KORA_ALLOW_POOL_DROP=1 (read by the CLI) lets a night through that
+   * loses over 5% of the actives or turns over 10 clubs into none; the
+   * report says so. The shrink guard still applies.
+   */
+  allowPoolDrop?: boolean;
 };
 
 export type ClientName = "wdqs" | "wikimedia" | "github";
@@ -766,23 +775,17 @@ async function build(deps: RunDeps): Promise<RunResult> {
   const boxesOf = (m: Map<string, Infobox>) => [...new Set(m.values())];
 
   // Current-club links often go through a redirect; resolve them before
-  // asking Wikidata which club each title is. The exact count is known now:
-  // check the budget again before the first redirect request.
+  // asking Wikidata which club each title is. P59: a page with no current
+  // club field may be given its open spell's club, so that title is
+  // resolved too. The exact count is known now: check the budget again
+  // before the first redirect request.
+  const clubLinks = (b: Infobox) => [
+    b.currentClub,
+    b.currentClubMissing ? openSpellOf(b)?.clubTitle : undefined,
+  ];
   const currentClubs = {
-    en: [
-      ...new Set(
-        boxesOf(en)
-          .map((b) => b.currentClub)
-          .filter(present),
-      ),
-    ],
-    fr: [
-      ...new Set(
-        boxesOf(fr)
-          .map((b) => b.currentClub)
-          .filter(present),
-      ),
-    ],
+    en: [...new Set(boxesOf(en).flatMap(clubLinks).filter(present))],
+    fr: [...new Set(boxesOf(fr).flatMap(clubLinks).filter(present))],
   };
   const exact = planRequests({
     en: titles.en.length,
@@ -1297,8 +1300,12 @@ async function build(deps: RunDeps): Promise<RunResult> {
       `the new pool is invalid (${invalid.length} errors): ${invalid.slice(0, 5).join("; ")}`,
     );
   }
-  const refusal = guardChange(previous, pool);
+  const refusal = guardChange(previous, pool, {
+    allowPoolDrop: deps.allowPoolDrop,
+  });
   if (refusal) throw new Refusal(refusal);
+  const letThrough = deps.allowPoolDrop ? activeRefusal(previous, pool) : null;
+  if (letThrough) deps.log(`${ALLOW_POOL_DROP}=1 lets through: ${letThrough}`);
 
   const diff = diffPools(previous, pool);
   // P30: copies no footballer uses any more stay; deleting is Jalel's call.
@@ -1329,6 +1336,8 @@ async function build(deps: RunDeps): Promise<RunResult> {
         statuses,
         today,
         honoursReading: wikidata.honoursReading,
+        ...(previous ? { active: activeCounts(previous, pool) } : {}),
+        ...(letThrough ? { activeLetThrough: letThrough } : {}),
         overrideWarnings: checked.warnings,
         offline: deps.offline === true,
         witness: witnessSummary(witness, pool, today),

@@ -3,6 +3,8 @@ import {
   computeConfidence,
   computeCoverage,
   diffPools,
+  activeCounts,
+  activeRefusal,
   guardChange,
   lowFields,
   missingSeasons,
@@ -131,13 +133,101 @@ describe("diffPools and guardChange", () => {
     const big = pool(Array.from({ length: 100 }, (_, i) => player(`p${i}`)));
     const small = pool(Array.from({ length: 89 }, (_, i) => player(`p${i}`)));
     expect(guardChange(big, small)).toMatch(/shrink from 100 to 89/);
-    expect(
-      guardChange(
-        big,
-        pool(Array.from({ length: 90 }, (_, i) => player(`p${i}`))),
-      ),
-    ).toBeNull();
+    // 90 passes the shrink guard; its 10% fewer actives trip the P59 guard.
+    const ninety = pool(Array.from({ length: 90 }, (_, i) => player(`p${i}`)));
+    expect(guardChange(big, ninety, { allowPoolDrop: true })).toBeNull();
+    expect(guardChange(big, ninety)).toMatch(/active pool would fall/);
     expect(guardChange(null, small)).toBeNull();
+  });
+});
+
+// P59: 26 to 31 October 2026, 244 active footballers fell to 198 and 46
+// lost their club, under the shrink guard's tenth of the whole pool.
+describe("activeRefusal (P59)", () => {
+  const actives = (n: number, extra: PoolPlayer[] = []) =>
+    pool([
+      ...Array.from({ length: n }, (_, i) => player(`p${i}`, { clubId: "a" })),
+      ...extra,
+    ]);
+  const benched = (from: number, to: number) =>
+    Array.from({ length: to - from }, (_, i) =>
+      player(`p${from + i}`, {
+        clubId: "a",
+        pools: { active: false, legend: false },
+      }),
+    );
+
+  it("refuses a night that loses more than 5% of the active footballers", () => {
+    const refusal = activeRefusal(actives(100), actives(94, benched(94, 100)));
+    expect(refusal).toBe(
+      "the active pool would fall from 100 to 94 footballers (6.0%, over the 5% limit); refusing (a source probably changed). To accept it, rebuild with KORA_ALLOW_POOL_DROP=1",
+    );
+    expect(
+      activeRefusal(actives(100), actives(96, benched(96, 100))),
+    ).toBeNull();
+    expect(
+      activeRefusal(actives(100), actives(95, benched(95, 100))),
+    ).toBeNull();
+  });
+
+  it("refuses more than 10 clubs becoming none", () => {
+    const lose = (n: number) =>
+      pool(
+        Array.from({ length: 300 }, (_, i) =>
+          player(`p${i}`, { clubId: i < n ? null : "a" }),
+        ),
+      );
+    expect(activeRefusal(lose(0), lose(11))).toBe(
+      "11 footballers would lose their club (over the limit of 10); refusing (a source probably changed). To accept it, rebuild with KORA_ALLOW_POOL_DROP=1",
+    );
+    expect(activeRefusal(lose(0), lose(9))).toBeNull();
+    expect(activeRefusal(lose(0), lose(10))).toBeNull();
+  });
+
+  it("names both counts when both trip, and passes without a previous pool", () => {
+    const before = pool(
+      Array.from({ length: 200 }, (_, i) => player(`p${i}`, { clubId: "a" })),
+    );
+    const after = pool(
+      Array.from({ length: 200 }, (_, i) =>
+        i < 12
+          ? player(`p${i}`, { pools: { active: false, legend: false } })
+          : player(`p${i}`, { clubId: "a" }),
+      ),
+    );
+    expect(activeCounts(before, after)).toEqual({
+      before: 200,
+      after: 188,
+      toNone: 12,
+    });
+    expect(activeRefusal(before, after)).toBe(
+      "the active pool would fall from 200 to 188 footballers (6.0%, over the 5% limit) and 12 footballers would lose their club (over the limit of 10); refusing (a source probably changed). To accept it, rebuild with KORA_ALLOW_POOL_DROP=1",
+    );
+    expect(activeRefusal(null, after)).toBeNull();
+  });
+
+  it("lets KORA_ALLOW_POOL_DROP through guardChange, never the shrink guard", () => {
+    const before = actives(100);
+    const after = actives(94, benched(94, 100));
+    expect(guardChange(before, after)).toMatch(/active pool would fall/);
+    expect(guardChange(before, after, { allowPoolDrop: true })).toBeNull();
+    expect(
+      guardChange(before, pool([player("p0")]), { allowPoolDrop: true }),
+    ).toMatch(/shrink from 100 to 1/);
+  });
+
+  it("is quiet on a normal week: a few transfers, a few retirements", () => {
+    const before = pool(
+      Array.from({ length: 244 }, (_, i) => player(`p${i}`, { clubId: "a" })),
+    );
+    const after = pool(
+      Array.from({ length: 244 }, (_, i) =>
+        i < 3
+          ? player(`p${i}`, { pools: { active: false, legend: false } })
+          : player(`p${i}`, { clubId: i < 8 ? "b" : "a" }),
+      ),
+    );
+    expect(activeRefusal(before, after)).toBeNull();
   });
 });
 
