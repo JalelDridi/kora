@@ -1869,6 +1869,48 @@ describe("final wave: staff posts and the current club (A5)", () => {
     });
   });
 
+  // P59 (e): Nafti's page without currentclub, as from 26 October 2026; his
+  // managerial row is open. Hand-made from the A5 case.
+  it("(e) reads the open manager row as the staff post: Mehdi Nafti without currentclub", () => {
+    const page = parseEnInfobox(
+      "X",
+      [
+        "{{Infobox football biography",
+        "| years1 = 1996–2000 | clubs1 = [[Club Africain]]",
+        "| years2 = 2000–2010 | clubs2 = [[SD Ponferradina|Ponferradina]]",
+        "| manageryears1 = 2025– | managerclubs1 = [[SD Ponferradina|Ponferradina]]",
+        "}}",
+      ].join("\n"),
+    )!;
+    const p = pick(
+      page,
+      fr(
+        "{{ESP-d}} [[Sociedad Deportiva Ponferradina|SD Ponferradina]]",
+        "{{date|14|décembre|2025}}",
+      ),
+    );
+    expect(p.club).toBeNull();
+    expect(p.flags.map((f) => f.kind)).toEqual([
+      "club-staff-role",
+      "club-staff-role",
+    ]);
+  });
+
+  it("(e) an open manager row is no playing club, whatever the open playing spell", () => {
+    const page = parseEnInfobox(
+      "X",
+      [
+        "{{Infobox football biography",
+        "| years1 = 2020– | clubs1 = [[Club Africain]]",
+        "| manageryears1 = 2025– | managerclubs1 = [[Club Africain]]",
+        "}}",
+      ].join("\n"),
+    )!;
+    const p = pick(page, null);
+    expect(p.club).toBeNull();
+    expect(p.flags.map((f) => f.kind)).toEqual(["club-staff-role"]);
+  });
+
   it("keeps the other page's club when it is newer than the staff post (hand-made)", () => {
     const p = pick(
       { ...en("[[Club Africain]]"), clubsAsOf: "2020-06-21" },

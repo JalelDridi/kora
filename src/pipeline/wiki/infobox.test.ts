@@ -138,6 +138,68 @@ describe("parseEnInfobox", () => {
     expect(enBox("ali-maaloul")?.currentClubMissing).toBeUndefined();
   });
 
+  // P59: with currentclub gone, a coach's page still says where he works in
+  // its managerial rows (manageryearsN, managerclubsN). Hand-made.
+  it("reads an open manager row as a staff post, naming its club", () => {
+    const box = parseEnInfobox(
+      "X",
+      en(
+        [
+          "| years1 = 2000–2010 | clubs1 = [[Club Africain]]",
+          "| manageryears1 = 2018–2020 | managerclubs1 = [[US Monastir (football)|US Monastir]]",
+          "| manageryears2 = 2025– | managerclubs2 = [[SD Ponferradina|Ponferradina]]",
+        ].join("\n"),
+      ),
+    );
+    expect(box).toMatchObject({
+      currentClub: null,
+      currentClubIsStaff: true,
+      staffClub: "SD Ponferradina",
+    });
+    expect(box?.currentClubMissing).toBeUndefined();
+    // "Retired" and an open manager row: a staff post too.
+    expect(
+      parseEnInfobox(
+        "X",
+        en(
+          "| currentclub = Retired\n| manageryears1 = 2024– | managerclubs1 = [[Club Africain]]",
+        ),
+      ),
+    ).toMatchObject({ currentClubIsStaff: true, staffClub: "Club Africain" });
+  });
+
+  it("reads an open manager row of a national team as a staff post with no club", () => {
+    const box = parseEnInfobox(
+      "X",
+      en(
+        "| manageryears1 = 2024– | managerclubs1 = [[Libya national football team|Libya]]",
+      ),
+    );
+    expect(box).toMatchObject({ currentClub: null, currentClubIsStaff: true });
+    expect(box?.staffClub).toBeUndefined();
+  });
+
+  it("leaves closed manager rows, and a named playing club, alone", () => {
+    const closed = parseEnInfobox(
+      "X",
+      en("| manageryears1 = 2018–2020 | managerclubs1 = [[Club Africain]]"),
+    );
+    expect(closed).toMatchObject({
+      currentClubIsStaff: false,
+      currentClubMissing: true,
+    });
+    const playing = parseEnInfobox(
+      "X",
+      en(
+        "| currentclub = [[CS Sfaxien]]\n| manageryears1 = 2025– | managerclubs1 = [[CS Sfaxien]] (youth)",
+      ),
+    );
+    expect(playing).toMatchObject({
+      currentClub: "CS Sfaxien",
+      currentClubIsStaff: false,
+    });
+  });
+
   // Hand-made: the template's own spelling with an underscore, current_club.
   it("reads current_club like currentclub", () => {
     const box = parseEnInfobox("X", en("| current_club = [[CS Sfaxien]]"));

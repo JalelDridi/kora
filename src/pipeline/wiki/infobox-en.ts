@@ -167,6 +167,19 @@ function beyondLimit(
   return first && { field: first.field, raw: first.raw };
 }
 
+/** P59: the club cell of the last managerial row, when that row is open. */
+function openManagerRow(get: (key: string) => string): string | null {
+  let last: string | null = null;
+  let open = false;
+  for (let n = 1; n <= CLUB_ROWS; n++) {
+    const club = get(`managerclubs${n}`);
+    if (stripNoise(club).trim() === "") continue;
+    last = club;
+    open = parseYears(get(`manageryears${n}`)).open;
+  }
+  return open ? last : null;
+}
+
 export function parseEnInfobox(
   title: string,
   wikitext: string,
@@ -251,11 +264,22 @@ export function parseEnInfobox(
   }
 
   // splitParams writes "current_club" as "current club".
-  const current = readCurrentClub(
+  let current = readCurrentClub(
     get("currentclub") || get("current club"),
     STAFF,
     NATIONAL_TEAM,
   );
+  // P59: a page that names no playing club but has an open managerial row
+  // (managerclubsN, its years with no end) has him on a staff: that row is
+  // the staff post, as "X (manager)" in currentclub was.
+  const manager = openManagerRow(get);
+  if (manager !== null && current.title === null && !current.staff) {
+    const link = links(manager)[0];
+    current =
+      link === undefined || NATIONAL_TEAM.test(link.title)
+        ? { title: null, staff: true }
+        : { title: null, staff: true, staffClub: link.title };
+  }
   return {
     lang: "en",
     title,
