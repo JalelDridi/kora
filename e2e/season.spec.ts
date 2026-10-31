@@ -460,6 +460,77 @@ for (const locale of locales) {
     expect(await axe(page)).toEqual([]);
   });
 
+  test(`${url}: the first five matches break club names between words only, at 320, 360 and 412 px`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 360, height: 800 });
+    await page.goto(url);
+    for (let slot = 0; slot < 11; slot++) {
+      await spinning(page, slot + 1);
+      await pickButtons(page).first().click();
+    }
+    await page.getByRole("button", { name: t.play }).click();
+    await expect(page.locator("#season-result")).toBeVisible();
+    for (const width of [320, 360, 412]) {
+      await page.setViewportSize({ width, height: 800 });
+      // Each word of an opponent's name on one line, nothing overflowing,
+      // and the score never wraps.
+      const bad = await page.evaluate(() => {
+        const out: string[] = [];
+        const cells = [...document.querySelectorAll("[data-opponent]")].filter(
+          (e) => e.checkVisibility(),
+        );
+        if (cells.length !== 5) out.push(`${cells.length} visible matches`);
+        for (const el of cells) {
+          if (el.scrollWidth > el.clientWidth + 1)
+            out.push(`overflow: ${el.textContent}`);
+          const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+          for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+            // Hidden at this width, or the screen-reader copy (1 px wide).
+            const parent = node.parentElement as HTMLElement;
+            if (
+              !parent.checkVisibility() ||
+              parent.getBoundingClientRect().width <= 1
+            )
+              continue;
+            const text = node.textContent ?? "";
+            // A word ends at a space or a hyphen ("Hammam-Sousse").
+            for (const m of text.matchAll(/[^\s-]+/g)) {
+              const range = document.createRange();
+              range.setStart(node, m.index!);
+              range.setEnd(node, m.index! + m[0].length);
+              const lines = new Set(
+                [...range.getClientRects()].map((r) => Math.round(r.top)),
+              );
+              if (lines.size > 1) out.push(m[0]);
+            }
+          }
+        }
+        for (const score of [
+          ...document.querySelectorAll("[data-score]"),
+        ].filter((e) => e.checkVisibility())) {
+          const lines = new Set(
+            [...score.getClientRects()].map((r) => Math.round(r.top)),
+          );
+          if (lines.size > 1) out.push(`score wraps: ${score.textContent}`);
+        }
+        return out;
+      });
+      expect(bad, `${width} px`).toEqual([]);
+      expect(await noSidewaysScroll(page)).toBe(0);
+      await page.evaluate(() =>
+        window.scrollBy(
+          0,
+          document.querySelector("#season-matches")!.getBoundingClientRect()
+            .top - 16,
+        ),
+      );
+      await page.screenshot({
+        path: shot(5, slug, width, "season-matches"),
+      });
+    }
+  });
+
   test(`${url}: the spin area says it is loading until the first spin`, async ({
     page,
   }) => {
