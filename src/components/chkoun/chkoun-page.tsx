@@ -162,6 +162,7 @@ export async function ChkounPageBody({
           hint={t("chkoun.search.hint")}
           placeholder={t("chkoun.search.placeholder")}
           guessCount={t("chkoun.guessCount", { n: 1 })}
+          mode={mode}
         />
         <div className="max-w-2xl">
           <Legend title={t("chkoun.legend.title")} words={legendWords} />

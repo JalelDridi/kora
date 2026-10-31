@@ -36,7 +36,7 @@ import { ShareButton } from "./share-button";
 import { Stats as StatsPanel } from "./stats";
 import { publishStats } from "./stats-dialog";
 import { SearchBox } from "./search-box";
-import { SEARCH_BLOCK } from "./shell";
+import { GAME_TOP, SEARCH_BLOCK } from "./shell";
 import { BOARD_BLEED, TileHeaders, TileRow, type RowStrings } from "./tile-row";
 
 export type GameStrings = {
@@ -493,10 +493,10 @@ export function Game({
         : t.error[notice];
 
   return (
-    <div className="chkoun-live mt-8 max-w-2xl">
+    <div className={`chkoun-live ${GAME_TOP[mode].box} max-w-2xl`}>
       {/* One slot for the day's state, sized for its tallest content, so a
           closed day or a failed request moves nothing below it (CLS). */}
-      <div className="mb-3 min-h-12">
+      <div className={GAME_TOP[mode].slot}>
         {phase.kind === "failed" ? (
           <div role="alert" className="flex flex-wrap items-center gap-3">
             <p className="text-lg">{t.error.network}</p>

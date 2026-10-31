@@ -16,17 +16,34 @@
 export const SEARCH_BLOCK =
   "bg-pitch-950 pt-2 pb-[env(safe-area-inset-bottom)]";
 
+/**
+ * The game's top: its margin and the day's state slot, shared with the
+ * live game. Under yesterday's title block (M7) the page has already put
+ * space above, so the state slot is the only reserve there.
+ */
+export const GAME_TOP = {
+  today: { box: "mt-8", slot: "mb-3 min-h-12" },
+  yesterday: { box: "mt-0", slot: "min-h-12" },
+} as const;
+
 type Props = {
   label: string;
   hint: string;
   placeholder: string;
   guessCount: string;
+  mode?: keyof typeof GAME_TOP;
 };
 
-export function GameShell({ label, hint, placeholder, guessCount }: Props) {
+export function GameShell({
+  label,
+  hint,
+  placeholder,
+  guessCount,
+  mode = "today",
+}: Props) {
   return (
-    <div className="chkoun-shell mt-8 max-w-2xl">
-      <div className="mb-3 min-h-12" />
+    <div className={`chkoun-shell ${GAME_TOP[mode].box} max-w-2xl`}>
+      <div className={GAME_TOP[mode].slot} />
       <div className={SEARCH_BLOCK}>
         <div className="relative">
           <label

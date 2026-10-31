@@ -211,6 +211,43 @@ for (const locale of locales) {
     expect(await axe(page)).toEqual([]);
   });
 
+  test(`${url}: the state is reserved once under the title, the shell and the live game put the search at the same height, nothing shifts`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 360, height: 800 });
+    await page.addInitScript(() => {
+      const w = window as unknown as { cls: number };
+      w.cls = 0;
+      new PerformanceObserver((list) => {
+        for (const e of list.getEntries() as unknown as {
+          value: number;
+          hadRecentInput: boolean;
+        }[])
+          if (!e.hadRecentInput) w.cls += e.value;
+      }).observe({ type: "layout-shift", buffered: true });
+    });
+    await page.route("**/api/chkoun/today", async (r) => {
+      await new Promise((f) => setTimeout(f, 1500));
+      await r.continue();
+    });
+    await page.goto(url);
+    const shell = (await page.locator("#chkoun-shell-search").boundingBox())!;
+    await ready(page);
+    const live = (await page.getByRole("combobox").boundingBox())!;
+    expect(Math.abs(live.y - shell.y)).toBeLessThanOrEqual(1);
+    // Between the back link and the search's label: the state slot (48 px)
+    // and the search block's own top padding only; it was about 104 px.
+    const back = (await page.locator("[data-today-link]").boundingBox())!;
+    const label = (await page
+      .locator(".chkoun-live label")
+      .first()
+      .boundingBox())!;
+    expect(label.y - (back.y + back.height)).toBeLessThanOrEqual(64);
+    expect(
+      await page.evaluate(() => (window as unknown as { cls: number }).cls),
+    ).toBe(0);
+  });
+
   test(`${url}: at 320 px no sideways scroll`, async ({ page }) => {
     await page.setViewportSize({ width: 320, height: 640 });
     await page.goto(url);
