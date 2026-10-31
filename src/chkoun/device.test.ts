@@ -1,8 +1,10 @@
 import { describe, expect, it } from "vitest";
+import { puzzleNumber, tunisDay } from "@/engine/chkoun/day.ts";
 import type { Stats } from "@/engine/chkoun/stats.ts";
 import type { TileRow } from "@/engine/chkoun/types.ts";
 import {
   GAME_KEY,
+  hasGameToday,
   loadGame,
   loadStats,
   recordFinish,
@@ -121,5 +123,29 @@ describe("the device's record", () => {
       recordFinish(storage, { n: 2, solved: true, guesses: 3 }, server),
     ).toEqual(server);
     expect(JSON.parse(storage.getItem(STATS_KEY)!)).toEqual(server);
+  });
+});
+
+describe("a game of today on the device (the help stays shut over it)", () => {
+  // 12:00 in Tunis on 31 October 2026; 23:30 UTC is already 1 November there.
+  const noon = new Date("2026-10-31T11:00:00Z");
+  const today = puzzleNumber(tunisDay(noon));
+
+  it("is there when today's game is saved, playing or finished", () => {
+    const storage = new MemoryStorage();
+    saveGame(storage, game(today));
+    expect(hasGameToday(storage, noon)).toBe(true);
+    saveGame(storage, { ...game(today), status: "won" });
+    expect(hasGameToday(storage, noon)).toBe(true);
+  });
+
+  it("is not there for yesterday's game, after Tunis midnight, or with no storage", () => {
+    const storage = new MemoryStorage();
+    saveGame(storage, game(today - 1));
+    expect(hasGameToday(storage, noon)).toBe(false);
+    saveGame(storage, game(today));
+    expect(hasGameToday(storage, new Date("2026-10-31T23:30:00Z"))).toBe(false);
+    expect(hasGameToday(null, noon)).toBe(false);
+    expect(hasGameToday(throwing, noon)).toBe(false);
   });
 });

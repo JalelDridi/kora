@@ -39,17 +39,23 @@ for (const locale of locales) {
     test(`${url}: the help opens on the first visit only, traps focus, closes on Escape, reopens from ?`, async ({
       page,
     }) => {
+      await page.setViewportSize({ width: 320, height: 800 });
       await page.goto(url);
       const help = page.getByRole("dialog", {
         name: messages[locale].header.help,
       });
       await expect(help).toBeVisible();
+      expect(await noSidewaysScroll(page)).toBe(0);
       for (const line of [t.help.draft, t.help.respin, t.help.play])
         await expect(help.getByText(line)).toBeVisible();
-      for (let i = 0; i < 6; i++) await page.keyboard.press("Tab");
-      expect(
-        await help.evaluate((d) => d.contains(document.activeElement)),
-      ).toBe(true);
+      // Focus never leaves the dialog, Tab after Tab.
+      for (let i = 0; i < 6; i++) {
+        await page.keyboard.press("Tab");
+        expect(
+          await help.evaluate((d) => d.contains(document.activeElement)),
+          `after Tab ${i + 1}`,
+        ).toBe(true);
+      }
       await page.keyboard.press("Escape");
       await expect(help).toBeHidden();
       await page.reload();
@@ -412,6 +418,30 @@ for (const locale of locales) {
     });
   }
 }
+
+test("the help never opens over a draft already under way on the device", async ({
+  page,
+}) => {
+  // skipHelp (beforeEach) lets the first pick through; then the flag is
+  // forgotten, and a fresh page without the init script sees the draft.
+  const t = fr.season;
+  const pick = (p: Page) =>
+    p.getByRole("button", { name: new RegExp(escape(t.pick)) });
+  await page.goto("/fr/season");
+  await expect(page.getByText(fill(t.slot, { n: 1 }))).toBeVisible();
+  await pick(page).first().click();
+  await expect(page.getByText(fill(t.slot, { n: 2 }))).toBeVisible();
+  await page.evaluate(() => localStorage.removeItem("kora.help.v1"));
+  const fresh = await page.context().newPage();
+  await fresh.goto("/fr/season");
+  await expect(fresh.getByText(fill(t.slot, { n: 2 }))).toBeVisible();
+  await expect(
+    fresh.getByRole("dialog", { name: fr.header.help }),
+  ).toBeHidden();
+  expect(await fresh.evaluate(() => localStorage.getItem("kora.help.v1"))).toBe(
+    null,
+  );
+});
 
 // No layout shift while drafting: the spin area keeps at least a screen's
 // height until the 11th pick, so the first spin's arrival moves nothing the

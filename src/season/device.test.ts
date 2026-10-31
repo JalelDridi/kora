@@ -4,6 +4,7 @@ import {
   bestSeasons,
   clearDraft,
   DRAFT_KEY,
+  draftUnderWay,
   loadDraft,
   loadDraftView,
   saveDraft,
@@ -139,5 +140,18 @@ describe("a storage that refuses", () => {
     expect(() => saveDraft("x")).not.toThrow();
     expect(loadDraft()).toBeNull();
     expect(bestSeasons()).toEqual([]);
+  });
+});
+
+describe("a draft under way (the help stays shut over it)", () => {
+  it("is under way once the squad has a pick", () => {
+    expect(draftUnderWay({ token: "t", squad: [{ id: "x" }] })).toBe(true);
+  });
+  it("is not under way when just started, missing or malformed", () => {
+    expect(draftUnderWay({ token: "t", squad: [] })).toBe(false);
+    expect(draftUnderWay(null)).toBe(false);
+    expect(draftUnderWay({ token: "t" })).toBe(false);
+    expect(draftUnderWay({ squad: "x" })).toBe(false);
+    expect(draftUnderWay(loadDraftView())).toBe(false);
   });
 });

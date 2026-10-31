@@ -16,9 +16,9 @@ type Props = {
 };
 
 // A modal dialog (mobile polish T-MP-2): the native <dialog>, opened with
-// showModal(), so the browser makes the rest of the page inert, keeps focus
-// inside, closes it on Escape and gives focus back to the button that opened
-// it. The header's buttons ask for it with a `kora:open` window event
+// showModal(), so the browser makes the rest of the page inert, closes it on
+// Escape and gives focus back to the button that opened it; Tab wraps inside
+// it (trapTab, below). The header's buttons ask for it with a `kora:open` window event
 // (T-MP-3). The close button is its first focusable element and takes focus
 // on opening.
 export function Dialog({ id, name, title, close, children, autoOpen }: Props) {
@@ -42,7 +42,13 @@ export function Dialog({ id, name, title, close, children, autoOpen }: Props) {
 
   const titleId = `${id}-title`;
   return (
-    <dialog ref={ref} id={id} aria-labelledby={titleId} className="kora-dialog">
+    <dialog
+      ref={ref}
+      id={id}
+      aria-labelledby={titleId}
+      className="kora-dialog"
+      onKeyDown={(event) => trapTab(event.currentTarget, event)}
+    >
       <div className="flex items-start gap-2">
         <h2 id={titleId} className="min-w-0 flex-1 pt-2 text-xl font-extrabold">
           {title}
@@ -70,4 +76,32 @@ export function Dialog({ id, name, title, close, children, autoOpen }: Props) {
       <div className="mt-3">{children}</div>
     </dialog>
   );
+}
+
+/**
+ * Tab and Shift+Tab wrap inside the dialog. The page behind is inert, but
+ * the browser lets Tab leave the last control (for its own address bar, or
+ * the document itself): the browser test caught focus outside after one Tab.
+ */
+function trapTab(
+  dialog: HTMLDialogElement,
+  event: { key: string; shiftKey: boolean; preventDefault: () => void },
+) {
+  if (event.key !== "Tab") return;
+  const focusable = [
+    ...dialog.querySelectorAll<HTMLElement>(
+      'a[href], button:not([disabled]), input:not([disabled]), select, textarea, [tabindex]:not([tabindex="-1"])',
+    ),
+  ];
+  if (focusable.length === 0) return;
+  const first = focusable[0];
+  const last = focusable[focusable.length - 1];
+  const active = document.activeElement;
+  if (event.shiftKey && (active === first || !dialog.contains(active))) {
+    event.preventDefault();
+    last.focus();
+  } else if (!event.shiftKey && (active === last || !dialog.contains(active))) {
+    event.preventDefault();
+    first.focus();
+  }
 }

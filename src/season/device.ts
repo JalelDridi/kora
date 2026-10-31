@@ -96,6 +96,16 @@ export function loadDraftView(): unknown {
   return readDraft()?.view ?? null;
 }
 
+/**
+ * Whether a kept draft view has a pick already: the first-visit help stays
+ * shut over it (mobile polish M2). A draft just started has none.
+ */
+export function draftUnderWay(view: unknown): boolean {
+  if (typeof view !== "object" || view === null) return false;
+  const squad = (view as { squad?: unknown }).squad;
+  return Array.isArray(squad) && squad.length > 0;
+}
+
 export function clearDraft(): void {
   try {
     const s = storage();

@@ -86,7 +86,8 @@ function Tiles({
   animate,
   example = false,
 }: {
-  name: string;
+  /** The list's name; none for the example, whose figcaption names it. */
+  name?: string;
   row: Row;
   labels: Labels;
   strings: RowStrings;
@@ -185,7 +186,6 @@ export function ExampleRow({
     <figure className="flex flex-col gap-1">
       <TileHeaders headers={strings.headers} />
       <Tiles
-        name={caption}
         row={EXAMPLE_ROW}
         labels={labels}
         strings={strings}

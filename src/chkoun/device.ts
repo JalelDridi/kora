@@ -1,3 +1,4 @@
+import { puzzleNumber, tunisDay } from "@/engine/chkoun/day.ts";
 import { nextStats, parseStats } from "@/engine/chkoun/stats.ts";
 import type { Finished, Stats } from "@/engine/chkoun/stats.ts";
 import type { TileRow } from "@/engine/chkoun/types.ts";
@@ -77,6 +78,14 @@ export function loadGame(
   const saved = read(storage, GAME_KEY);
   if (!isSavedGame(saved) || saved.n !== n) return null;
   return { ...saved, card: saved.card ?? null };
+}
+
+/**
+ * Whether this device holds a game of today's puzzle, by the browser's
+ * clock: the first-visit help stays shut over it (mobile polish M2).
+ */
+export function hasGameToday(storage: StorageLike | null, now: Date): boolean {
+  return loadGame(storage, puzzleNumber(tunisDay(now))) !== null;
 }
 
 export function saveGame(storage: StorageLike | null, game: SavedGame): void {

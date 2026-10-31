@@ -46,16 +46,22 @@ for (const locale of locales) {
     test(`${url}: the help opens on the first visit only, traps focus, closes on Escape, reopens from ?`, async ({
       page,
     }) => {
+      await page.setViewportSize({ width: 320, height: 800 });
       await page.goto(url);
       const help = page.getByRole("dialog", {
         name: messages[locale].header.help,
       });
       await expect(help).toBeVisible();
+      expect(await noSidewaysScroll(page)).toBe(0);
       await expect(help.locator("[data-example] li")).toHaveCount(6);
-      for (let i = 0; i < 6; i++) await page.keyboard.press("Tab");
-      expect(
-        await help.evaluate((d) => d.contains(document.activeElement)),
-      ).toBe(true);
+      // Focus never leaves the dialog, Tab after Tab.
+      for (let i = 0; i < 6; i++) {
+        await page.keyboard.press("Tab");
+        expect(
+          await help.evaluate((d) => d.contains(document.activeElement)),
+          `after Tab ${i + 1}`,
+        ).toBe(true);
+      }
       await page.keyboard.press("Escape");
       await expect(help).toBeHidden();
       await page.reload();
@@ -350,6 +356,27 @@ test("with reduced motion, tiles do not flip", async ({ browser }) => {
     expect(name).toBe(reducedMotion === "reduce" ? "none" : "kora-flip");
     await context.close();
   }
+});
+
+test("the help never opens over a game of today already on the device", async ({
+  page,
+}) => {
+  // skipHelp (beforeEach) lets the first guess through; then the flag is
+  // forgotten, and a fresh page without the init script sees today's game.
+  await page.goto("/fr/chkoun");
+  await ready(page);
+  await guess(page, fixture.others[0]);
+  await page.evaluate(() => localStorage.removeItem("kora.help.v1"));
+  const fresh = await page.context().newPage();
+  await fresh.goto("/fr/chkoun");
+  await ready(fresh);
+  await expect(fresh.locator("[data-guess]")).toHaveCount(1);
+  await expect(
+    fresh.getByRole("dialog", { name: fr.header.help }),
+  ).toBeHidden();
+  expect(await fresh.evaluate(() => localStorage.getItem("kora.help.v1"))).toBe(
+    null,
+  );
 });
 
 test.describe(FIRST_VISIT, () => {
