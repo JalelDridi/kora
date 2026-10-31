@@ -553,7 +553,18 @@ describe("the 30–0 curated files (Sprint 3)", () => {
     // Every Ligue 1 club has its short forms.
     expect(
       validateClubShort(file({ est }), ["est", "ca"], ["est", "ca"]),
-    ).toContain("club-short.json: no short label for ca");
+    ).toContain(
+      'club-short.json: no short label for ca: add "ca": { "latin": …, "arabic": … } to data/curated/club-short.json (at most two words of at most 8 characters each)',
+    );
+    // Claude's drafts are marked as such.
+    expect(
+      validateClubShort({ ...file({ est }), note: "short labels" }, ["est"]),
+    ).toContain("club-short.json: a file by claude must say DRAFT in its note");
+    expect(
+      validateClubShort({ ...file({ est }), by: "jalel", note: "checked" }, [
+        "est",
+      ]),
+    ).toEqual([]);
     expect(validateClubShort({ clubs: {} }, [])).toContain(
       "club-short.json: by must be a string",
     );

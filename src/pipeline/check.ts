@@ -184,9 +184,19 @@ export function validateClubShort(
   for (const key of ["by", "at", "note"])
     if (typeof json[key] !== "string" || json[key] === "")
       errors.push(`${at}: ${key} must be a string`);
+  // Claude's drafts say so until Jalel takes them over (P51).
+  if (
+    json.by === "claude" &&
+    typeof json.note === "string" &&
+    !json.note.includes("DRAFT")
+  )
+    errors.push(`${at}: a file by claude must say DRAFT in its note`);
   const known = new Set(clubIds);
   for (const id of ligue1ClubIds)
-    if (!(id in json.clubs)) errors.push(`${at}: no short label for ${id}`);
+    if (!(id in json.clubs))
+      errors.push(
+        `${at}: no short label for ${id}: add "${id}": { "latin": …, "arabic": … } to data/curated/club-short.json (at most two words of at most 8 characters each)`,
+      );
   for (const [id, forms] of Object.entries(json.clubs)) {
     if (!known.has(id)) {
       errors.push(`${at}: ${id} is not a club`);
