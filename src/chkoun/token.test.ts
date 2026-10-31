@@ -1,6 +1,12 @@
 import * as crypto from "node:crypto";
 import { describe, expect, it, vi } from "vitest";
-import { MAX_TOKEN_LENGTH, readToken, signToken, tokenKey } from "./token.ts";
+import {
+  MAX_TOKEN_LENGTH,
+  pastTokenKey,
+  readToken,
+  signToken,
+  tokenKey,
+} from "./token.ts";
 import type { GameState } from "./token.ts";
 
 vi.mock("node:crypto", async (original) => {
@@ -98,5 +104,16 @@ describe("the game token", () => {
     expect(
       Object.keys(JSON.parse(Buffer.from(payload, "base64url").toString())),
     ).toEqual(["n", "d", "g"]);
+  });
+
+  it("the past key (yesterday's game) and today's key never read each other's tokens (T-MP-5)", () => {
+    const seed = "test-seed-not-the-real-one";
+    const past = pastTokenKey(seed);
+    expect(past.equals(key)).toBe(false);
+    expect(pastTokenKey(seed).equals(past)).toBe(true);
+    expect(pastTokenKey("another-test-seed").equals(past)).toBe(false);
+    expect(readToken(signToken(state, past), past)).toEqual(state);
+    expect(readToken(signToken(state, key), past)).toBeNull();
+    expect(readToken(signToken(state, past), key)).toBeNull();
   });
 });

@@ -6,7 +6,12 @@ import {
   resetDatabase,
   TEST_DATABASE_URL,
 } from "@/db/testing";
-import { FIRST_DAY, puzzleNumber, tunisDay } from "@/engine/chkoun/day.ts";
+import {
+  addDays,
+  FIRST_DAY,
+  puzzleNumber,
+  tunisDay,
+} from "@/engine/chkoun/day.ts";
 import {
   footballer,
   syncFootballers,
@@ -111,6 +116,33 @@ describe("POST /api/chkoun/guess and GET /api/chkoun/today", () => {
       }),
     );
     expect(r.status).toBe(400);
+  });
+
+  it("yesterday's number: closed while the day has no row (no reserve written), then played from its row, past and kept on the device", async () => {
+    const count = async () =>
+      (await client.query("SELECT day FROM puzzles WHERE game = 'chkoun'"))
+        .rowCount;
+    const before = await count();
+    const none = await guess({ n: n - 1, token: null, guess: wrong[0] });
+    expect(none.status).toBe(503);
+    expect(await count()).toBe(before);
+    await client.query(
+      "INSERT INTO puzzles (id, game, day, player_id, source) VALUES (gen_random_uuid(), 'chkoun', $1::date, $2, 'generator')",
+      [addDays(today, -1), answer.id],
+    );
+    const r = await guess({ n: n - 1, token: null, guess: wrong[0] });
+    expect(r.status).toBe(200);
+    expect(r.headers.get("set-cookie")).toBeNull();
+    const text = await r.text();
+    expect(JSON.parse(text)).toMatchObject({
+      status: "playing",
+      store: "device",
+      past: true,
+    });
+    expect(text).not.toContain(answer.id);
+    expect(
+      (await guess({ n: n - 2, token: null, guess: wrong[0] })).status,
+    ).toBe(409);
   });
 
   it("without CHKOUN_SEED the game is closed", async () => {

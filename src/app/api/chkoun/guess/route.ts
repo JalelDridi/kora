@@ -2,9 +2,10 @@ import { getFootballers } from "@/chkoun/attributes.server";
 import { handleGuess, MAX_BODY_BYTES } from "@/chkoun/guess";
 import { clientIp, readCapped, toResponse } from "@/chkoun/http";
 import { getKv, kvEnv } from "@/chkoun/kv";
-import { todayPuzzle } from "@/chkoun/puzzle.server";
+import { puzzleOn, todayPuzzle } from "@/chkoun/puzzle.server";
 
-// POST /api/chkoun/guess (plan Task 9): one guess against today's footballer.
+// POST /api/chkoun/guess (plan Task 9): one guess against today's footballer,
+// or yesterday's (mobile polish M7: read, never drawn).
 // The work is in src/chkoun/guess.ts; this file only connects it to the
 // request. Never cached. Errors are logged without a footballer or the seed.
 
@@ -23,6 +24,7 @@ export async function POST(request: Request) {
       {
         now: new Date(),
         puzzle: todayPuzzle,
+        pastPuzzle: puzzleOn,
         footballers: await getFootballers(),
         kv: getKv(),
         seed,

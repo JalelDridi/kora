@@ -1,4 +1,9 @@
-import { FIRST_DAY, puzzleNumber, tunisDay } from "@/engine/chkoun/day.ts";
+import {
+  addDays,
+  FIRST_DAY,
+  puzzleNumber,
+  tunisDay,
+} from "@/engine/chkoun/day.ts";
 import type { Stats } from "@/engine/chkoun/stats.ts";
 import { colourKey, compare } from "@/engine/chkoun/tiles.ts";
 import type { Day, TileRow } from "@/engine/chkoun/types.ts";
@@ -6,7 +11,13 @@ import type { Card, Footballers } from "./attributes.ts";
 import type { Kv } from "./kv.ts";
 import { allowGuess, rateLimitSalt } from "./rate-limit.ts";
 import { recordFinish } from "./store.ts";
-import { MAX_GUESSES, readToken, signToken, tokenKey } from "./token.ts";
+import {
+  MAX_GUESSES,
+  pastTokenKey,
+  readToken,
+  signToken,
+  tokenKey,
+} from "./token.ts";
 import type { GameState } from "./token.ts";
 import { newVisitorCookie, readVisitorId } from "./visitor.ts";
 import type { VisitorCookie } from "./visitor.ts";
@@ -15,6 +26,8 @@ import type { VisitorCookie } from "./visitor.ts";
 // the request in and the answer out. The server keeps no game: the signed
 // token carries the guesses so far. Before a game ends, no response holds
 // the answer's id, name, photo or card; error bodies hold no id at all.
+// Yesterday's number plays yesterday's footballer (mobile polish M7): its
+// token is signed with the past key, and it records nothing, anywhere.
 
 export const MAX_BODY_BYTES = 2048;
 
@@ -23,6 +36,8 @@ export type Puzzle = { day: Day; number: number; playerId: string };
 export type GameDeps = {
   now: Date;
   puzzle: (now: Date) => Promise<Puzzle | null>;
+  /** A past day's puzzle, read and never drawn (M7); none: no past game. */
+  pastPuzzle?: (day: Day) => Promise<Puzzle | null>;
   footballers: Footballers;
   /** Null when Redis is off: the game is kept on the device only. */
   kv: Kv | null;
@@ -82,13 +97,18 @@ export async function handleGuess(
   const today = tunisDay(deps.now);
   const number = puzzleNumber(today, deps.firstDay ?? FIRST_DAY);
   if (number < 1) return fail(409, { error: "soon" });
-  if (body.n !== number) return fail(409, { error: "newDay", number });
+  // Yesterday's number, from puzzle 2 on, plays yesterday's footballer.
+  const past =
+    deps.pastPuzzle !== undefined && body.n === number - 1 && body.n >= 1;
+  if (body.n !== number && !past) return fail(409, { error: "newDay", number });
+  const day = past ? addDays(today, -1) : today;
+  const key = past ? pastTokenKey(deps.seed) : tokenKey(deps.seed);
 
-  let state: GameState = { n: number, d: today, g: [] };
+  let state: GameState = { n: body.n, d: day, g: [] };
   if (body.token !== null) {
-    const read = readToken(body.token, tokenKey(deps.seed));
+    const read = readToken(body.token, key);
     if (!read) return fail(403, { error: "forbidden" });
-    if (read.d !== today || read.n !== number)
+    if (read.d !== day || read.n !== body.n)
       return fail(409, { error: "newDay", number });
     state = read;
   }
@@ -106,9 +126,11 @@ export async function handleGuess(
       { "Retry-After": String(limit.retryAfter) },
     );
 
-  const puzzle = await deps.puzzle(deps.now);
+  const puzzle = past
+    ? await deps.pastPuzzle!(day)
+    : await deps.puzzle(deps.now);
   const answer = puzzle ? deps.footballers.facts.get(puzzle.playerId) : null;
-  if (!puzzle || !answer || puzzle.day !== today)
+  if (!puzzle || !answer || puzzle.day !== day)
     return fail(503, { error: "closed" });
 
   if (state.g.includes(answer.id) || state.g.length >= MAX_GUESSES)
@@ -119,13 +141,10 @@ export async function handleGuess(
 
   const guesses = [...state.g, body.guess];
   const facts = (id: string) => deps.footballers.facts.get(id)!;
-  const row: TileRow = compare(facts(body.guess), answer, today);
+  const row: TileRow = compare(facts(body.guess), answer, day);
   const won = body.guess === answer.id;
   const done = won || guesses.length === MAX_GUESSES;
-  const token = signToken(
-    { n: number, d: today, g: guesses },
-    tokenKey(deps.seed),
-  );
+  const token = signToken({ n: body.n, d: day, g: guesses }, key);
   const status = won ? "won" : done ? "lost" : "playing";
 
   if (!done)
@@ -136,11 +155,27 @@ export async function handleGuess(
         row,
         guesses: guesses.length,
         status,
-        store: deps.kv ? "server" : "device",
+        store: past || !deps.kv ? "device" : "server",
+        ...(past ? { past: true } : {}),
       },
     };
 
   const card: Card | null = deps.footballers.card(answer.id);
+  // Yesterday's game ends here: the card, and nothing kept on the server,
+  // no record, no streak, no cookie (M7).
+  if (past)
+    return {
+      status: 200,
+      body: {
+        token,
+        row,
+        guesses: guesses.length,
+        status,
+        card,
+        store: "device",
+        past: true,
+      },
+    };
   let store: Store = "device";
   let stats: Stats | undefined;
   let setCookie: VisitorCookie | undefined;

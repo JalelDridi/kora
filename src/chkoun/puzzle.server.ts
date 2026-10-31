@@ -223,7 +223,65 @@ export function createPuzzleReader(
   };
 }
 
+/**
+ * A reader of past days' puzzles (mobile polish M7): Redis, where today's
+ * reader left the key (kept three days), then the day's row. It never draws
+ * or writes a reserve and never writes Redis: a past day without a row
+ * stays without one. A day found is kept in this instance's memory (only
+ * the last few days); a miss or a failure is not, so the next call tries
+ * again. Null when the day has no puzzle or nothing answers.
+ */
+export function createPastReader(
+  deps: Pick<PuzzleDeps, "sql" | "kv" | "env" | "log" | "firstDay">,
+): (day: Day) => Promise<Puzzle | null> {
+  const memory = new Map<Day, Puzzle>();
+  const first = deps.firstDay ?? FIRST_DAY;
+  const found = (day: Day, playerId: string): Puzzle => {
+    const puzzle = { day, number: puzzleNumber(day, first), playerId };
+    memory.set(day, puzzle);
+    for (const old of memory.keys())
+      if (Math.abs(dayDiff(old, day)) > 2) memory.delete(old);
+    return puzzle;
+  };
+  return async (day) => {
+    const known = memory.get(day);
+    if (known) return known;
+    if (deps.kv) {
+      try {
+        const cached = await deps.kv.get(puzzleKey(deps.env, day));
+        if (cached === EMPTY) return null;
+        if (typeof cached === "string" && cached !== "")
+          return found(day, cached);
+      } catch {
+        deps.log("chkoun: Redis did not answer; reading the database");
+      }
+    }
+    try {
+      const rows = await deps.sql(PUZZLE_SQL, [day]);
+      return rows.length > 0 ? found(day, String(rows[0].player_id)) : null;
+    } catch {
+      deps.log("chkoun: the database did not answer and nothing is cached");
+      return null;
+    }
+  };
+}
+
 let reader: ((now?: Date) => Promise<Puzzle | null>) | null = null;
+let pastReader: ((day: Day) => Promise<Puzzle | null>) | null = null;
+
+/** A past day's puzzle for this server instance; never a reserve (M7). */
+export function puzzleOn(day: Day): Promise<Puzzle | null> {
+  if (!pastReader) {
+    pastReader = createPastReader({
+      sql: async (text, values = []) =>
+        getDb().$queryRawUnsafe<Record<string, unknown>[]>(text, ...values),
+      kv: getKv(),
+      env: kvEnv(),
+      log: (line) => console.warn(line),
+    });
+  }
+  return pastReader(day);
+}
 
 /** Today's puzzle for this server instance (Postgres, Redis when on). */
 export function todayPuzzle(now: Date = new Date()): Promise<Puzzle | null> {

@@ -77,6 +77,7 @@ describe("handleToday", () => {
       day: "2026-10-19",
       endsAt: "2026-10-19T23:00:00.000Z",
       store: "device",
+      yesterday: { number: 14, day: "2026-10-18" },
     });
     expect((await handleToday(deps({ kv }), null)).body).toMatchObject({
       store: "server",
@@ -195,5 +196,34 @@ describe("handleToday", () => {
     expect(
       (await handleToday(deps({ puzzle: async () => null }), null)).body,
     ).toMatchObject({ status: "closed", number: 15 });
+  });
+
+  it("an open day names yesterday's number and day; puzzle 1 names none", async () => {
+    let reads = 0;
+    const counting = async (now: Date) => {
+      reads++;
+      return puzzle(now);
+    };
+    expect(
+      (await handleToday(deps({ puzzle: counting }), null)).body.yesterday,
+    ).toEqual({ number: 14, day: "2026-10-18" });
+    expect(reads).toBe(1);
+    const first = await handleToday(
+      deps({ now: new Date("2026-10-05T11:00:00Z") }),
+      null,
+    );
+    expect(first.body).toMatchObject({ status: "open", number: 1 });
+    expect(first.body.yesterday).toBeUndefined();
+    await recordFinish(kv, "test", {
+      day: "2026-10-19",
+      n: 15,
+      visitorId: visitor,
+      solved: true,
+      guesses: 1,
+      grid: ["gggggg"],
+    });
+    expect(
+      (await handleToday(deps({ kv }), `kora_v=${visitor}`)).body.yesterday,
+    ).toEqual({ number: 14, day: "2026-10-18" });
   });
 });

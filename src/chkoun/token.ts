@@ -25,6 +25,17 @@ export function tokenKey(seed: string): Buffer {
   return createHmac("sha256", seed).update("kora/chkoun/token/v1").digest();
 }
 
+/**
+ * The key for yesterday's game (mobile polish M7, T-MP-5): a separate key
+ * from the same seed, so a token of today's game can never continue a past
+ * game, nor the other way round, even when the numbers and days line up.
+ */
+export function pastTokenKey(seed: string): Buffer {
+  return createHmac("sha256", seed)
+    .update("kora/chkoun/token/v1/past")
+    .digest();
+}
+
 function mac(key: Buffer, signed: string): Buffer {
   return createHmac("sha256", key).update(signed).digest();
 }
