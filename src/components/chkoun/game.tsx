@@ -273,15 +273,20 @@ export function Game({
     const frame = requestAnimationFrame(() => {
       const newest = rowList.current?.lastElementChild;
       if (!(newest instanceof HTMLElement)) return;
-      const below = searchBlock.current?.offsetHeight ?? 0;
-      newest.style.scrollMarginBlockEnd = `${below + 8}px`;
+      // Measured against the search as drawn, not with scrollIntoView
+      // "nearest": a row of six (one line of tiles, D-MP-1) fits on screen
+      // behind the pinned search, and "nearest" then does not move.
+      const row = newest.getBoundingClientRect();
+      const limit =
+        (searchBlock.current?.getBoundingClientRect().top ??
+          window.innerHeight) - 8;
+      const by =
+        row.bottom > limit ? row.bottom - limit : row.top < 0 ? row.top : 0;
+      if (by === 0) return;
       const reduced = window.matchMedia(
         "(prefers-reduced-motion: reduce)",
       ).matches;
-      newest.scrollIntoView({
-        block: "nearest",
-        behavior: reduced ? "auto" : "smooth",
-      });
+      window.scrollBy({ top: by, behavior: reduced ? "auto" : "smooth" });
     });
     return () => cancelAnimationFrame(frame);
   }, [rowCount]);
