@@ -369,6 +369,18 @@ The record dialog (M3): the header's stats button opens it before, during and af
 | `chkoun.stats.empty`        | No game yet on this device                                                                          | Pas encore de partie sur cet appareil.       | مازلت ما لعبت حتى لعبة في التليفون هذا. | Mazelt ma l3abt 7atta le3ba fel telifoun hedha.  | DRAFT  |
 | `season.hall.empty`         | No season yet on this device                                                                        | Pas encore de saison jouée sur cet appareil. | مازلت ما لعبت حتى موسم في التليفون هذا. | Mazelt ma l3abt 7atta mousem fel telifoun hedha. | DRAFT  |
 
+### Task 4: guesses towards the thumb, and the minors
+
+Two lines for 30–0 (§2.12): the button under the first five matches of a played season, and the line in the spin area until the first spin arrives. ‎الدورة / `ed-dawra` is the spin, as in `season.help.respin`. Points to look at:
+
+- `season.loading`: الأولى / `el oula` leans towards Modern Standard Arabic; the spoken form may be اللولة / `el loula`.
+- `season.result.allMatches`: the button stays visible once open, so it still says "see all 30" while all 30 show.
+
+| Key                        | English gloss                                        | French draft              | `ar-TN` as shipped  | `ar-Latn-TN` as shipped  | Status |
+| -------------------------- | ---------------------------------------------------- | ------------------------- | ------------------- | ------------------------ | ------ |
+| `season.result.allMatches` | See all 30 matches (the button under the first five) | Voir les 30 matchs        | شوف الـ30 ماتش الكل | Chouf el 30 match el kol | DRAFT  |
+| `season.loading`           | The first spin is on its way (before the first spin) | Le premier tirage arrive… | الدورة الأولى جاية… | Ed-dawra el oula jeya…   | DRAFT  |
+
 ## Go-live checklist (Chkoun?)
 
 The game page is reachable by its URL but hidden until all of these are done, in this order:
