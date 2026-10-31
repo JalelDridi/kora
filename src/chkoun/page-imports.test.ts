@@ -69,6 +69,16 @@ describe("the game page", () => {
     expect(bad).toEqual([]);
   });
 
+  it("yesterday's page (M7) imports no database or puzzle module either", () => {
+    const { files, bad } = walk(
+      path.join(src, "app", "[locale]", "chkoun", "yesterday", "page.tsx"),
+    );
+    expect(
+      [...files].some((f) => f.endsWith(path.join("chkoun", "game.tsx"))),
+    ).toBe(true);
+    expect(bad).toEqual([]);
+  });
+
   it("the walker does catch a forbidden import", () => {
     const { bad } = walk(
       path.join(src, "app", "api", "chkoun", "today", "route.ts"),

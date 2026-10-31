@@ -16,12 +16,16 @@ type Props = {
   sourcesHref: string;
   endsAt: string;
   onNextDay: () => void;
+  /** The time to the next footballer; off for yesterday's game. */
+  countdown?: boolean;
+  /** A link under the record: yesterday's footballer, from today's result. */
+  link?: { href: string; text: string } | null;
   /** The share button and the record, under the card. */
   children?: ReactNode;
 };
 
 // The end of today's game: the result line, the footballer's card, then
-// sharing, the record and the time to the next footballer.
+// sharing, the record, yesterday's footballer and the time to the next one.
 export function Result({
   solved,
   guesses,
@@ -32,6 +36,8 @@ export function Result({
   sourcesHref,
   endsAt,
   onNextDay,
+  countdown = true,
+  link = null,
   children,
 }: Props) {
   const t = strings.chkoun;
@@ -60,12 +66,25 @@ export function Result({
         />
       ) : null}
       {children}
-      <Countdown
-        endsAt={endsAt}
-        template={t.next}
-        onZero={onNextDay}
-        className="mt-6 text-lg"
-      />
+      {link ? (
+        <p className="mt-6">
+          <a
+            href={link.href}
+            data-yesterday-link=""
+            className="inline-flex min-h-11 items-center rounded-full border-2 border-mint px-5 text-base font-semibold text-mint hover:bg-pitch-800"
+          >
+            {link.text}
+          </a>
+        </p>
+      ) : null}
+      {countdown ? (
+        <Countdown
+          endsAt={endsAt}
+          template={t.next}
+          onZero={onNextDay}
+          className="mt-6 text-lg"
+        />
+      ) : null}
     </section>
   );
 }

@@ -442,6 +442,24 @@ The line under each live hub card (M6), read from the visitor's device: today's 
 | `hub.state.seasonNotYet` | No season played today (30–0 card)                   | Pas encore de saison aujourd'hui | مازلت ما لعبت حتى موسم اليوم   | Mazelt ma l3abt 7atta mousem el youm | DRAFT  |
 | `hub.state.seasonPlayed` | Today: 21-5-4 (the last season played today)         | Aujourd'hui : {w}-{d}-{l}        | اليوم: {w}-{d}-{l}             | El youm: {w}-{d}-{l}                 | DRAFT  |
 
+### Task 7: yesterday's footballer
+
+A visitor who has finished today's Chkoun? can play yesterday's footballer from a link on the result (M7); the game does not count in the record, and the share text marks the score line with the word for "yesterday". البارح / lbare7 is the Tunisian "yesterday" (not the Modern Standard الأمس). Reused, not duplicated: the header's back link, `hub.language` and the language names; the meta description is `chkoun.meta.description`. Points to check:
+
+- French says « footballeur » here, as the plan drafted it, while the game's other French strings say « joueur » (`chkoun.next`, `chkoun.search.label`); « Le joueur d'hier » would match them.
+- `chkoun.yesterday.note` in `ar-Latn-TN` keeps the French « série », as `chkoun.stats.streak` does there.
+- `chkoun.yesterday.back`: ارجع للاعب اليوم against a shorter لاعب اليوم.
+
+| Key                           | English gloss                                                        | French draft                                      | `ar-TN` as shipped                | `ar-Latn-TN` as shipped                 | Status |
+| ----------------------------- | -------------------------------------------------------------------- | ------------------------------------------------- | --------------------------------- | --------------------------------------- | ------ |
+| `chkoun.yesterday.link`       | Play yesterday's footballer (a link on today's result)               | Jouer le footballeur d'hier                       | العب لاعب البارح                  | El3ab la3eb lbare7                      | DRAFT  |
+| `chkoun.yesterday.title`      | Yesterday's footballer (the page's title line)                       | Le footballeur d'hier                             | لاعب البارح                       | La3eb lbare7                            | DRAFT  |
+| `chkoun.yesterday.note`       | Just for fun: it does not count in your streak.                      | Pour le plaisir : ça ne compte pas dans ta série. | للمتعة برك: ما يتحسبش في السلسلة. | Lel mot3a bark: ma yet7sebch fel série. | DRAFT  |
+| `chkoun.yesterday.back`       | Back to today's footballer                                           | Retour au footballeur du jour                     | ارجع للاعب اليوم                  | Arja3 l la3eb el youm                   | DRAFT  |
+| `chkoun.yesterday.closed`     | Yesterday's footballer is no longer available.                       | Le footballeur d'hier n'est plus disponible.      | لاعب البارح موش موجود توّا.       | La3eb lbare7 mouch mawjoud tawa.        | DRAFT  |
+| `chkoun.yesterday.meta.title` | The page's title in the browser tab                                  | Le footballeur d'hier · C'est qui ? · Kora        | لاعب البارح · شكون؟ · Kora        | La3eb lbare7 · Chkoun? · Kora           | DRAFT  |
+| `chkoun.share.yesterday`      | yesterday (after the score in the share text: #26 · 4/8 · yesterday) | hier                                              | البارح                            | lbare7                                  | DRAFT  |
+
 ## Go-live checklist (Chkoun?)
 
 The game page is reachable by its URL but hidden until all of these are done, in this order:

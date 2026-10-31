@@ -129,7 +129,8 @@
       "copied": "Copié !",
       "whatsapp": "Envoyer sur WhatsApp",
       "longPress": "Appuie longuement sur le texte pour le copier",
-      "header": "Kora · C'est qui ?"
+      "header": "Kora · C'est qui ?",
+      "yesterday": "hier"
     },
     "stats": {
       "title": "Tes stats",
@@ -143,7 +144,17 @@
       "bar": "Essais : {n}, victoires : {count}",
       "empty": "Pas encore de partie sur cet appareil."
     },
-    "next": "Prochain joueur dans {time}"
+    "next": "Prochain joueur dans {time}",
+    "yesterday": {
+      "link": "Jouer le footballeur d'hier",
+      "title": "Le footballeur d'hier",
+      "note": "Pour le plaisir : ça ne compte pas dans ta série.",
+      "back": "Retour au footballeur du jour",
+      "closed": "Le footballeur d'hier n'est plus disponible.",
+      "meta": {
+        "title": "Le footballeur d'hier · C'est qui ? · Kora"
+      }
+    }
   },
   "positions": {
     "goalkeeper": "Gardien",

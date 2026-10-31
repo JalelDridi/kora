@@ -129,7 +129,8 @@
       "copied": "Tcopa!",
       "whatsapp": "Eb3ath 3la WhatsApp",
       "longPress": "Edhghat mtawwel 3al ktiba bech tcopiha",
-      "header": "Kora · Chkoun?"
+      "header": "Kora · Chkoun?",
+      "yesterday": "lbare7"
     },
     "stats": {
       "title": "El ar9am mte3ek",
@@ -143,7 +144,17 @@
       "bar": "Mou7awlet: {n}, rba7at: {count}",
       "empty": "Mazelt ma l3abt 7atta le3ba fel telifoun hedha."
     },
-    "next": "El la3eb ejjey ba3d {time}"
+    "next": "El la3eb ejjey ba3d {time}",
+    "yesterday": {
+      "link": "El3ab la3eb lbare7",
+      "title": "La3eb lbare7",
+      "note": "Lel mot3a bark: ma yet7sebch fel série.",
+      "back": "Arja3 l la3eb el youm",
+      "closed": "La3eb lbare7 mouch mawjoud tawa.",
+      "meta": {
+        "title": "La3eb lbare7 · Chkoun? · Kora"
+      }
+    }
   },
   "positions": {
     "goalkeeper": "7ares",

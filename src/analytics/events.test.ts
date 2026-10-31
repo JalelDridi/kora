@@ -110,3 +110,12 @@ describe("30–0 events (D-S3-13: no names, ids, codes or squads)", () => {
     expect(cleanProps({ rating: 89.5 })).toEqual({ rating: 90 });
   });
 });
+
+describe("yesterday's game (M7)", () => {
+  it("past is kept only as a boolean", () => {
+    expect(cleanProps({ n: 14, past: true })).toEqual({ n: 14, past: true });
+    expect(cleanProps({ past: false })).toEqual({ past: false });
+    expect(cleanProps({ past: "true" })).toEqual({});
+    expect(cleanProps({ past: 1 })).toEqual({});
+  });
+});

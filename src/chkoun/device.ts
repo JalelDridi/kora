@@ -12,6 +12,8 @@ import type { Card } from "./attributes.ts";
 
 export const GAME_KEY = "kora.chkoun.v1.game";
 export const STATS_KEY = "kora.chkoun.v1.stats";
+/** Yesterday's game (mobile polish M7), apart from today's: never counted. */
+export const PAST_KEY = "kora.chkoun.v1.past";
 
 export type StorageLike = Pick<Storage, "getItem" | "setItem">;
 
@@ -90,6 +92,20 @@ export function hasGameToday(storage: StorageLike | null, now: Date): boolean {
 
 export function saveGame(storage: StorageLike | null, game: SavedGame): void {
   write(storage, GAME_KEY, game);
+}
+
+/** Yesterday's saved game, by its puzzle number; null otherwise. */
+export function loadPast(
+  storage: StorageLike | null,
+  n: number,
+): SavedGame | null {
+  const saved = read(storage, PAST_KEY);
+  if (!isSavedGame(saved) || saved.n !== n) return null;
+  return { ...saved, card: saved.card ?? null };
+}
+
+export function savePast(storage: StorageLike | null, game: SavedGame): void {
+  write(storage, PAST_KEY, game);
 }
 
 export function loadStats(storage: StorageLike | null): Stats | null {

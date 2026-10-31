@@ -36,11 +36,20 @@ export type ShareInput = {
   streakLabel: string;
   /** The game in the sharer's language, absolute (Q4.1). */
   url: string;
+  /**
+   * Words after the score on its line, each after " · " (mobile polish M7:
+   * yesterday's game says so). Inside the marks in Arabic script.
+   */
+  marks?: string[];
 };
 
 export function shareText(input: ShareInput): string {
   const rtl = input.locale === "ar-TN";
-  const score = `#${input.number} · ${input.solved ? input.guesses : "X"}/${MAX_GUESSES}`;
+  const score = [
+    `#${input.number}`,
+    `${input.solved ? input.guesses : "X"}/${MAX_GUESSES}`,
+    ...(input.marks ?? []),
+  ].join(" · ");
   const rows = input.grid.map(
     (key) =>
       LRM +

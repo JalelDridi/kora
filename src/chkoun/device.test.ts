@@ -6,9 +6,12 @@ import {
   GAME_KEY,
   hasGameToday,
   loadGame,
+  loadPast,
+  PAST_KEY,
   loadStats,
   recordFinish,
   saveGame,
+  savePast,
   STATS_KEY,
   type SavedGame,
   type StorageLike,
@@ -147,5 +150,28 @@ describe("a game of today on the device (the help stays shut over it)", () => {
     expect(hasGameToday(storage, new Date("2026-10-31T23:30:00Z"))).toBe(false);
     expect(hasGameToday(null, noon)).toBe(false);
     expect(hasGameToday(throwing, noon)).toBe(false);
+  });
+});
+
+describe("yesterday's game on the device (M7)", () => {
+  it("yesterday's game is kept apart from today's", () => {
+    const storage = new MemoryStorage();
+    saveGame(storage, game(12));
+    savePast(storage, { ...game(11), status: "won" });
+    expect(storage.data.has(PAST_KEY)).toBe(true);
+    expect(PAST_KEY).not.toBe(GAME_KEY);
+    expect(loadGame(storage, 12)).toEqual(game(12));
+    expect(loadGame(storage, 11)).toBeNull();
+    expect(loadPast(storage, 11)).toEqual({ ...game(11), status: "won" });
+    expect(loadPast(storage, 12)).toBeNull();
+    expect(loadPast(storage, 10)).toBeNull();
+    expect(storage.data.has(STATS_KEY)).toBe(false);
+  });
+
+  it("survives a storage that throws, or none", () => {
+    savePast(throwing, game(11));
+    expect(loadPast(throwing, 11)).toBeNull();
+    savePast(null, game(11));
+    expect(loadPast(null, 11)).toBeNull();
   });
 });

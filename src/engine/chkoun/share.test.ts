@@ -116,4 +116,14 @@ describe("shareText", () => {
       expect(text).toContain(`${M}🟩🟨⬛⬜⬛⬛`);
     }
   });
+
+  it("marks follow the score on its line, inside the marks in Arabic script", () => {
+    expect(shareText({ ...base, marks: ["البارح"] }).split("\n")[1]).toBe(
+      `${M}#12 · 4/8 · البارح${M}`,
+    );
+    expect(
+      shareText({ ...base, locale: "fr", marks: ["hier"] }).split("\n")[1],
+    ).toBe("#12 · 4/8 · hier");
+    expect(shareText({ ...base, marks: [] })).toBe(shareText(base));
+  });
 });

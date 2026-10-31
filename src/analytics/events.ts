@@ -6,7 +6,7 @@ import type { Line } from "@/engine/chkoun/types";
 // loads, and until then (or forever, without a key) track() does nothing.
 // An event carries only the day's number, the number of guesses, solved or
 // not, the share channel and the locale: never a visitor id, a footballer
-// or a typed query.
+// or a typed query. A game of yesterday's footballer adds past: true.
 // A 30–0 event adds only a slot's line, its rating band, the season's W-D-L
 // and its rounded rating (D-S3-13): never a name, an id, a code or a squad.
 
@@ -39,6 +39,8 @@ export type EventProps = {
   l?: number;
   /** Rounded to an integer, 60 to 99. */
   rating?: number;
+  /** A game of yesterday's Chkoun? (mobile polish M7). */
+  past?: boolean;
 };
 
 type Capturer = {
@@ -67,6 +69,7 @@ export function cleanProps(props: Record<string, unknown>): EventProps {
   if (Number.isInteger(props.n)) out.n = props.n as number;
   if (Number.isInteger(props.guesses)) out.guesses = props.guesses as number;
   if (typeof props.solved === "boolean") out.solved = props.solved;
+  if (typeof props.past === "boolean") out.past = props.past;
   if (typeof props.channel === "string" && CHANNELS.has(props.channel))
     out.channel = props.channel as EventProps["channel"];
   if (typeof props.locale === "string" && LOCALES.has(props.locale))

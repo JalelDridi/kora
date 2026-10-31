@@ -25,6 +25,7 @@ for (const path of [
   "/fr",
   "/ar/nope",
   "/ar/chkoun",
+  "/ar/chkoun/yesterday",
   "/fr/sources",
   "/tn/privacy",
   "/og/chkoun-ar-v1.png",
@@ -50,6 +51,7 @@ for (const path of [
   "/fr",
   "/ar/nope",
   "/ar/chkoun",
+  "/ar/chkoun/yesterday",
   "/fr/sources",
   "/tn/privacy",
 ]) {
