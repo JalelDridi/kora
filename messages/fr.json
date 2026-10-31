@@ -145,6 +145,9 @@
       "empty": "Pas encore de partie sur cet appareil."
     },
     "next": "Prochain joueur dans {time}",
+    "hint": {
+      "label": "Un coup de pouce : son nom commence par {letter}"
+    },
     "yesterday": {
       "link": "Jouer le footballeur d'hier",
       "title": "Le footballeur d'hier",

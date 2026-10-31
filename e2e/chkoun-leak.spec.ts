@@ -148,6 +148,25 @@ test("no JS chunk contains the answer's id or a control footballer's id", async 
   }
 });
 
+/**
+ * The first-letter hint (mobile polish M8): none before the 5th guess, then
+ * one letter per name form and never more of a name.
+ */
+function oneLetterHint(
+  body: { hint?: Record<string, unknown> },
+  guesses: number,
+) {
+  if (guesses < 5) return expect(body.hint).toBeUndefined();
+  expect(Object.keys(body.hint ?? {}).sort()).toEqual([
+    "arabic",
+    "french",
+    "latin",
+  ]);
+  for (const letter of Object.values(body.hint!))
+    expect(letter === null || [...(letter as string)].length === 1).toBe(true);
+  expect(typeof body.hint!.latin).toBe("string");
+}
+
 test("today's endpoint and seven wrong guesses never contain today's, tomorrow's or yesterday's answer's id, names or photo path", async ({
   request,
 }) => {
@@ -159,6 +178,7 @@ test("today's endpoint and seven wrong guesses never contain today's, tomorrow's
   for (const s of secrets) expect(todayText).not.toContain(s);
   const { number } = JSON.parse(todayText);
   let token: string | null = null;
+  let played = 0;
   for (const guess of fixture.others.slice(0, 7)) {
     const response: APIResponse = await request.post("/api/chkoun/guess", {
       data: { n: number, token, guess },
@@ -166,6 +186,7 @@ test("today's endpoint and seven wrong guesses never contain today's, tomorrow's
     const text: string = await response.text();
     token = JSON.parse(text).token;
     expect(decodedToken(token)).toContain(guess);
+    oneLetterHint(JSON.parse(text), ++played);
     for (const s of secrets) {
       expect(text).not.toContain(s);
       expect(decodedToken(token)).not.toContain(s);
@@ -192,6 +213,7 @@ test("seven wrong guesses on yesterday's number never contain yesterday's answer
   expect(today.yesterday).toMatchObject({ number: today.number - 1 });
   const n = today.yesterday.number;
   let token: string | null = null;
+  let played = 0;
   for (const guess of fixture.others.slice(0, 7)) {
     const response: APIResponse = await request.post("/api/chkoun/guess", {
       data: { n, token, guess },
@@ -201,6 +223,7 @@ test("seven wrong guesses on yesterday's number never contain yesterday's answer
     const body = JSON.parse(text);
     expect(body).toMatchObject({ status: "playing", past: true });
     token = body.token;
+    oneLetterHint(body, ++played);
     expect(decodedToken(token)).toContain(guess);
     for (const s of secrets) {
       expect(text).not.toContain(s);

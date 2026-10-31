@@ -22,7 +22,8 @@ import {
   type Labels,
 } from "@/chkoun/labels";
 import { unpackNames, type PackedName } from "@/chkoun/search-index";
-import { shareText } from "@/engine/chkoun/share";
+import { hinted, letterFor, type Hint } from "@/engine/chkoun/hint";
+import { scoreMarks, shareText } from "@/engine/chkoun/share";
 import type { Stats } from "@/engine/chkoun/stats";
 import { colourKey } from "@/engine/chkoun/tiles";
 import type { TileRow as Row } from "@/engine/chkoun/types";
@@ -364,6 +365,7 @@ export function Game({
         card?: Card | null;
         stats?: Stats;
         store?: Store;
+        hint?: Hint;
         error?: string;
       };
       if (response.status === 409) {
@@ -383,6 +385,12 @@ export function Game({
         rows,
         status: body.status,
         card: body.status === "playing" ? null : (body.card ?? null),
+        // The first letters, from the 5th guess on (M8); the end keeps them.
+        ...(body.hint
+          ? { hint: body.hint }
+          : game.hint
+            ? { hint: game.hint }
+            : {}),
       };
       // The guess that ends the game focuses the result instead.
       guessedNow.current = body.status === "playing";
@@ -402,6 +410,7 @@ export function Game({
           solved: body.status === "won",
           locale,
           past: past || undefined,
+          hinted: hinted(body.status === "won", rows.length),
         });
       }
       // Yesterday's game never counts: the record stays as it was (M7).
@@ -485,6 +494,11 @@ export function Game({
   const playing = phase.kind === "open" && game?.status === "playing";
   /** The search sits under rows: its suggestions open upward. */
   const pinned = playing && rowCount > 0;
+  /** The first letter in this page's name form, once the server gave it. */
+  const hintText =
+    playing && game?.hint
+      ? format(t.hint.label, { letter: letterFor(game.hint, locale) })
+      : null;
   const noticeText =
     notice === null
       ? null
@@ -595,6 +609,19 @@ export function Game({
               n: Math.min((game?.rows.length ?? 0) + 1, MAX_GUESSES),
             })}
           </p>
+          {/* The first letter (M8): a live region always there, so it is
+              announced once when the 5th guess brings it; a line tall only
+              from then on. */}
+          <p
+            role="status"
+            aria-live="polite"
+            data-testid="chkoun-hint"
+            className={
+              hintText ? "min-h-6 text-base font-semibold text-mint" : ""
+            }
+          >
+            {hintText}
+          </p>
           <p
             role="status"
             aria-live="polite"
@@ -646,7 +673,13 @@ export function Game({
                 !past && stats && stats.last === game.n ? stats.streak : null,
               streakLabel: t.stats.streak,
               url: shareUrl,
-              marks: past ? [t.share.yesterday] : undefined,
+              marks: scoreMarks(
+                past ? t.share.yesterday : null,
+                hinted(
+                  game.status === "won",
+                  game.rows.length || (game.grid?.length ?? 0),
+                ),
+              ),
             })}
             strings={t.share}
             onShared={(channel) =>

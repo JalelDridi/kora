@@ -186,6 +186,40 @@ describe("handleGuess", () => {
     );
   });
 
+  it("the hint comes with the 5th guess and after, never before, never at the end", async () => {
+    const out = await play(deps(), [...wrong.slice(0, 6), answer.id]);
+    expect(out.slice(0, 4).every((r) => r.body.hint === undefined)).toBe(true);
+    expect(out[4].body.hint).toEqual({ latin: "E", arabic: "إ", french: "E" });
+    expect(out[5].body.hint).toEqual(out[4].body.hint);
+    expect(out[6].body).toMatchObject({ status: "won" });
+    expect(out[6].body.hint).toBeUndefined();
+    expect(out.slice(0, 6).flatMap((r) => leaks(r.body))).toEqual([]);
+  });
+
+  it("the hint is one letter per name form, never more of the name", async () => {
+    const out = await play(deps({ kv }), wrong.slice(0, 8));
+    for (const r of out.slice(4, 7)) {
+      const hint = r.body.hint as Record<string, string | null>;
+      expect(Object.keys(hint).sort()).toEqual(["arabic", "french", "latin"]);
+      for (const letter of Object.values(hint))
+        expect(letter === null || [...letter].length === 1).toBe(true);
+    }
+    // The 8th wrong guess ends the game: the card, no hint.
+    expect(out[7].body).toMatchObject({ status: "lost" });
+    expect(out[7].body.hint).toBeUndefined();
+  });
+
+  it("a finished game gets no hint, only the refusal", async () => {
+    const key = tokenKey(seed);
+    const done = signToken(
+      { n, d: "2026-10-19", g: [...wrong.slice(0, 5), answer.id] },
+      key,
+    );
+    const r = await post(deps(), { token: done, guess: wrong[6] });
+    expect(r.status).toBe(422);
+    expect(r.body.hint).toBeUndefined();
+  });
+
   it("the 8th wrong guess returns status lost and the card", async () => {
     const responses = await play(deps(), wrong.slice(0, 8));
     expect(responses[7].body).toMatchObject({
@@ -547,6 +581,22 @@ describe("yesterday's footballer (M7)", () => {
         )
       ).status,
     ).toBe(409);
+  });
+
+  it("a past game gets the same hint after its 5th guess", async () => {
+    const d = deps({
+      pastPuzzle: async (day) => ({ day, number: n - 1, playerId: answer.id }),
+    });
+    let token: string | null = null;
+    let last: Awaited<ReturnType<typeof handleGuess>> | undefined;
+    for (const guess of wrong.slice(0, 5)) {
+      last = await handleGuess(d, JSON.stringify({ n: n - 1, token, guess }), {
+        cookie: null,
+        ip,
+      });
+      token = last.body.token as string;
+    }
+    expect(last!.body).toMatchObject({ past: true, hint: { latin: "E" } });
   });
 
   it("no row for yesterday is closed (503), never a reserve", async () =>

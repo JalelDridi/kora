@@ -4,6 +4,8 @@ import {
   puzzleNumber,
   tunisDay,
 } from "@/engine/chkoun/day.ts";
+import { firstLetter, HINT_AFTER } from "@/engine/chkoun/hint.ts";
+import type { Hint } from "@/engine/chkoun/hint.ts";
 import type { Stats } from "@/engine/chkoun/stats.ts";
 import { colourKey, compare } from "@/engine/chkoun/tiles.ts";
 import type { Day, TileRow } from "@/engine/chkoun/types.ts";
@@ -28,6 +30,9 @@ import type { VisitorCookie } from "./visitor.ts";
 // the answer's id, name, photo or card; error bodies hold no id at all.
 // Yesterday's number plays yesterday's footballer (mobile polish M7): its
 // token is signed with the past key, and it records nothing, anywhere.
+// From the 5th guess on, a game still under way gets the first letter of
+// each of the answer's name forms (M8), one letter and never more; the
+// final answer carries the card instead.
 
 export const MAX_BODY_BYTES = 2048;
 
@@ -60,6 +65,18 @@ export type ApiResult = {
 };
 
 export type Store = "server" | "device";
+
+/** The first letter of each name form, or null without a card. */
+function hintFor(footballers: Footballers, id: string): Hint | null {
+  const card = footballers.card(id);
+  const latin = card ? firstLetter(card.nameLatin) : null;
+  if (!card || latin === null) return null;
+  return {
+    latin,
+    arabic: firstLetter(card.nameArabic),
+    french: firstLetter(card.nameFrench),
+  };
+}
 
 type GuessBody = { n: number; token: string | null; guess: string };
 
@@ -156,7 +173,11 @@ export async function handleGuess(
   const token = signToken({ n: body.n, d: day, g: guesses }, key);
   const status = won ? "won" : done ? "lost" : "playing";
 
-  if (!done)
+  if (!done) {
+    const hint =
+      guesses.length >= HINT_AFTER
+        ? hintFor(deps.footballers, answer.id)
+        : null;
     return {
       status: 200,
       body: {
@@ -166,8 +187,10 @@ export async function handleGuess(
         status,
         store: past || !deps.kv ? "device" : "server",
         ...(past ? { past: true } : {}),
+        ...(hint ? { hint } : {}),
       },
     };
+  }
 
   const card: Card | null = deps.footballers.card(answer.id);
   // Yesterday's game ends here: the card, and nothing kept on the server,

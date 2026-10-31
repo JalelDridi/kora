@@ -460,6 +460,17 @@ A visitor who has finished today's Chkoun? can play yesterday's footballer from 
 | `chkoun.yesterday.meta.title` | The page's title in the browser tab                                  | Le footballeur d'hier · C'est qui ? · Kora        | لاعب البارح · شكون؟ · Kora        | La3eb lbare7 · Chkoun? · Kora           | DRAFT  |
 | `chkoun.share.yesterday`      | yesterday (after the score in the share text: #26 · 4/8 · yesterday) | hier                                              | البارح                            | lbare7                                  | DRAFT  |
 
+### Task 8: the first letter after the 5th guess
+
+From the 5th guess on, a line under the guess counter gives the first letter of the footballer's name in the page's name form (M8): Arabic on /ar, French on /fr, Latin on /tn, the Latin one where a form is missing; the share text then marks a win after the 5th guess with 💡 on the score line (no word, so no string). عاونة / `3awna` is the Tunisian "a bit of help". Points to check:
+
+- `ar-TN`: the plan drafted اسمو يبدا بـ{letter}; it shipped as اسمو يبدا بحرف {letter} because بـ joins a letter such as أ into one word on screen (بأ), and the letter must stand alone.
+- French: « son nom » is the full name as the search lists it (the given name first, so « Ellyes Skhiri » gives E); « son prénom » would say it more exactly but is wrong for a footballer known by one name.
+
+| Key                 | English gloss                                     | French draft                                     | `ar-TN` as shipped             | `ar-Latn-TN` as shipped       | Status |
+| ------------------- | ------------------------------------------------- | ------------------------------------------------ | ------------------------------ | ----------------------------- | ------ |
+| `chkoun.hint.label` | A bit of help: his name starts with {letter} (M8) | Un coup de pouce : son nom commence par {letter} | عاونة: اسمو يبدا بحرف {letter} | 3awna: esmou yebda b {letter} | DRAFT  |
+
 ## Go-live checklist (Chkoun?)
 
 The game page is reachable by its URL but hidden until all of these are done, in this order:

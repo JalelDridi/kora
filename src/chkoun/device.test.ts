@@ -175,3 +175,29 @@ describe("yesterday's game on the device (M7)", () => {
     expect(loadPast(null, 11)).toBeNull();
   });
 });
+
+describe("the hint on the device (M8)", () => {
+  const hint = { latin: "E", arabic: "إ", french: "E" };
+  it("a reload keeps the hint, today's and yesterday's", () => {
+    const storage = new MemoryStorage();
+    saveGame(storage, { ...game(12), hint });
+    savePast(storage, { ...game(11), hint });
+    expect(loadGame(storage, 12)?.hint).toEqual(hint);
+    expect(loadPast(storage, 11)?.hint).toEqual(hint);
+  });
+
+  it("a game with no hint has none; a hint that is not one letter per form is dropped", () => {
+    const storage = new MemoryStorage();
+    saveGame(storage, game(12));
+    expect(loadGame(storage, 12)?.hint).toBeUndefined();
+    for (const bad of [
+      { latin: "El", arabic: null, french: null },
+      { latin: "E", arabic: "إل", french: null },
+      { latin: null, arabic: "إ", french: "E" },
+      "E",
+    ]) {
+      storage.setItem(GAME_KEY, JSON.stringify({ ...game(12), hint: bad }));
+      expect(loadGame(storage, 12)).toEqual(game(12));
+    }
+  });
+});

@@ -145,6 +145,9 @@
       "empty": "Mazelt ma l3abt 7atta le3ba fel telifoun hedha."
     },
     "next": "El la3eb ejjey ba3d {time}",
+    "hint": {
+      "label": "3awna: esmou yebda b {letter}"
+    },
     "yesterday": {
       "link": "El3ab la3eb lbare7",
       "title": "La3eb lbare7",

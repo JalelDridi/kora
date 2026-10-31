@@ -12,6 +12,9 @@ export const LRM = "‎";
 
 export const MAX_GUESSES = 8;
 
+/** A win after the first-letter hint (mobile polish M8). */
+export const HINT_MARK = "💡";
+
 /** g green, a amber, x grey, u unknown ("?"), per N6. */
 export const SHARE_EMOJI: Record<string, string> = {
   g: "🟩",
@@ -66,4 +69,15 @@ export function shareText(input: ShareInput): string {
     lines.push(`${input.streakLabel}: ${input.streak}`);
   lines.push(rtl ? `${LRM}${input.url}` : input.url);
   return lines.join("\n");
+}
+
+/**
+ * The marks after the score: yesterday's word (M7), then 💡 for a hinted
+ * win (M8). The grid rows never change.
+ */
+export function scoreMarks(
+  yesterday: string | null,
+  hinted: boolean,
+): string[] {
+  return [...(yesterday ? [yesterday] : []), ...(hinted ? [HINT_MARK] : [])];
 }

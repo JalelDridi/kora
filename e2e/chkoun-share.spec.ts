@@ -4,6 +4,7 @@ import arLatnTN from "../messages/ar-Latn-TN.json";
 import arTN from "../messages/ar-TN.json";
 import fr from "../messages/fr.json";
 import { localName } from "../src/chkoun/labels";
+import { firstLetter, letterFor } from "../src/engine/chkoun/hint";
 import { localeInfo, locales } from "../src/i18n/locales";
 import {
   footballer,
@@ -369,3 +370,94 @@ for (const locale of locales) {
     ).toHaveAttribute("data-bar", "2");
   });
 }
+
+// The first letter after the 5th guess (mobile polish M8): the line under
+// the guess counter, in the page's name form, and 💡 on a hinted win.
+for (const locale of locales) {
+  const m = messages[locale];
+  const { prefix } = localeInfo[locale];
+  const slug = prefix.slice(1);
+
+  test(`${prefix}/chkoun after five wrong guesses the first letter shows; a win then marks the share with 💡`, async ({
+    page,
+  }) => {
+    await stub(page, false, true);
+    await page.setViewportSize({ width: 360, height: 800 });
+    await page.goto(`${prefix}/chkoun`);
+    await ready(page);
+    const answer = footballer(fixture.answers[0]);
+    const letter = letterFor(
+      {
+        latin: firstLetter(answer.nameLatin)!,
+        arabic: firstLetter(answer.nameArabic),
+        french: firstLetter(answer.nameFrench),
+      },
+      locale,
+    );
+    const text = fill(m.chkoun.hint.label, { letter });
+    const line = page.getByTestId("chkoun-hint");
+    await expect(line).toHaveAttribute("role", "status");
+
+    for (const id of fixture.others.slice(0, 4)) await guess(page, id);
+    await expect(line).toHaveText("");
+    await expect(page.getByText(text)).toHaveCount(0);
+    await guess(page, fixture.others[4]);
+    await expect(line).toHaveText(text);
+    // One letter: never more of the name.
+    expect([...letter]).toHaveLength(1);
+    expect(await page.locator("body").innerText()).not.toContain(
+      localName(answer, locale),
+    );
+    expect(await noSidewaysScroll(page)).toBe(0);
+    expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+    for (const width of [320, 360, 412]) {
+      await page.setViewportSize({ width, height: 800 });
+      expect(await noSidewaysScroll(page)).toBe(0);
+      await expect(line).toBeInViewport();
+      await page.screenshot({ path: shot(8, slug, width, "hint") });
+    }
+    await page.setViewportSize({ width: 360, height: 800 });
+
+    // A reload keeps the line.
+    await page.reload();
+    await ready(page);
+    await expect(line).toHaveText(text);
+
+    // A win on guess 6 is a hinted win: 💡 ends the score line.
+    await guess(page, fixture.answers[0]);
+    await expect(page.locator("#chkoun-result")).toBeVisible();
+    await expect(page.getByText(text)).toHaveCount(0);
+    await page.getByRole("button", { name: m.chkoun.share.button }).click();
+    await expect(page.getByText(m.chkoun.share.copied)).toBeVisible();
+    const { copied } = await probe(page);
+    const lines = copied!.split("\n");
+    expect(lines[1]).toMatch(/^‎?#\d+ · 6\/8 · 💡‎?$/u);
+    expect(lines.filter((l) => /^‎[🟩🟨⬛⬜]{6}$/u.test(l))).toHaveLength(6);
+    for (const width of [320, 360, 412]) {
+      await page.setViewportSize({ width, height: 800 });
+      expect(await noSidewaysScroll(page)).toBe(0);
+      await page.screenshot({ path: shot(8, slug, width, "hinted-win") });
+    }
+  });
+}
+
+test("a win before the hint has no 💡, and the hint never shows in the first four guesses", async ({
+  page,
+}) => {
+  await stub(page, false, true);
+  const bodies: Record<string, unknown>[] = [];
+  page.on("response", async (r) => {
+    if (r.url().endsWith("/api/chkoun/guess"))
+      bodies.push((await r.json()) as Record<string, unknown>);
+  });
+  await page.goto("/fr/chkoun");
+  await ready(page);
+  await win(page, 4);
+  await expect(page.locator("#chkoun-result")).toBeVisible();
+  await expect.poll(() => bodies.length).toBe(5);
+  expect(bodies.every((b) => b.hint === undefined)).toBe(true);
+  await page.getByRole("button", { name: fr.chkoun.share.button }).click();
+  await expect(page.getByText(fr.chkoun.share.copied)).toBeVisible();
+  const { copied } = await probe(page);
+  expect(copied!.split("\n")[1]).toMatch(/^#\d+ · 5\/8$/);
+});
