@@ -2091,6 +2091,7 @@ describe("P59: a missing current club casts no vote", () => {
 
   it("(a) takes the French club, the English page casting no vote", () => {
     const m = merged(
+      // No career on purpose: no open spell, so the English page has no vote at all.
       missingEn({ spells: [] }),
       box("fr", {
         currentClub: "Espérance sportive de Tunis",
@@ -2103,6 +2104,49 @@ describe("P59: a missing current club casts no vote", () => {
       confidence: "medium",
       agreeing: ["frwiki"],
     });
+  });
+
+  it("(a') the English open spell agreeing with the French club makes it high", () => {
+    // The index knows CS Sfaxien by its English title only: pin the French one.
+    const pinned = buildClubIndex(
+      [burnley, esperance, sfaxien],
+      { en: new Map(), fr: new Map() },
+      { "fr:Club sportif sfaxien": "Q3" },
+    );
+    const ctx = context(
+      missingEn(),
+      box("fr", {
+        currentClub: "Club sportif sfaxien",
+        clubsAsOf: "2026-09-01",
+      }),
+    );
+    const agreed = mergePlayer(wdPlayer(), { ...ctx, index: pinned })!;
+    expect(agreed.draft.club).toBe(sfaxien);
+    expect(agreed.draft.provenance.clubId).toMatchObject({
+      source: "frwiki",
+      confidence: "high",
+      agreeing: ["enwiki", "frwiki"],
+    });
+    expect(kinds(agreed)).not.toContain("club-sources-disagree");
+    expect(kinds(agreed)).not.toContain("club-open-spell-only");
+  });
+
+  it("(a') the English open spell elsewhere than the French club is flagged", () => {
+    const m = merged(
+      missingEn(),
+      box("fr", {
+        currentClub: "Espérance sportive de Tunis",
+        clubsAsOf: "2026-09-01",
+      }),
+    );
+    expect(m.draft.club).toBe(esperance);
+    expect(m.flags).toContainEqual({
+      kind: "club-sources-disagree",
+      detail:
+        "frwiki Espérance Sportive de Tunis (2026-09-01) vs enwiki open spell CS Sfaxien (2026-10-01)",
+    });
+    expect(m.draft.provenance.clubId).toMatchObject({ confidence: "low" });
+    expect(kinds(m)).not.toContain("club-open-spell-only");
   });
 
   it("(b) takes the open spell when a current squad list names him there: high", () => {

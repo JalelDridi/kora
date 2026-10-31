@@ -175,10 +175,12 @@ export type ClubPick = {
   provenance: Provenance | null;
   flags: Found[];
   /**
-   * P59: the open career spells read because no page names a current club,
-   * one per page, each a vote on the club; set only when one was chosen.
+   * P59: the open career spells of the pages missing their current club,
+   * newest first, each a vote of its page on the club.
    */
   openSpells?: OpenSpell[];
+  /** P59: the club was chosen from an open spell, no page naming one. */
+  fromOpenSpell?: true;
 };
 
 /** P59: a page's last career spell with no end year, as a club proposal. */
@@ -259,6 +261,38 @@ export function pickClub(input: {
     proposals.push({ source, asOf: box.clubsAsOf, club, ref: box.title });
   }
   proposals.sort(newestFirst);
+  // P59: a page missing its current club votes through its open spell, in
+  // the same voting as the named clubs; a club it coaches is no vote.
+  const openSpells: OpenSpell[] = [];
+  for (const box of boxes) {
+    if (!box.currentClubMissing || box.currentClubIsStaff) continue;
+    const spell = openSpellOf(box);
+    if (!spell) continue;
+    const club = resolveClub(
+      input.index,
+      box.lang,
+      spell.clubTitle,
+      spell.clubTitleForeign,
+    );
+    if (!club) {
+      flags.push({
+        kind: "club-unresolved",
+        detail: `${sourceOf(box)} open spell: ${spell.clubTitle}`,
+      });
+      continue;
+    }
+    if (staffClubs.has(club.qid)) continue;
+    openSpells.push({
+      source: sourceOf(box),
+      asOf: box.clubsAsOf,
+      club,
+      ref: box.title,
+      clubTitle: club.nameEn ?? spell.clubTitle,
+      from: spell.from,
+    });
+  }
+  openSpells.sort(newestFirst);
+  const spells = openSpells.length > 0 ? { openSpells } : {};
   // Mohamed Ben Othman: a staff post dated after the other page's club.
   const newerStaff = staffPosts
     .filter((b) => b.clubsAsOf !== null)
@@ -307,53 +341,41 @@ export function pickClub(input: {
     return { club, provenance: fromOverride(input.override), flags };
   }
 
-  if (best)
+  if (best) {
+    // P59: an open spell elsewhere than the named club is a disagreement.
+    const other = openSpells.filter((o) => o.club.qid !== best.club.qid);
+    if (other.length > 0)
+      flags.push({
+        kind: "club-sources-disagree",
+        detail: [
+          `${best.source} ${best.club.nameEn ?? best.club.qid} (${best.asOf ?? "undated"})`,
+          ...other.map(
+            (o) =>
+              `${o.source} open spell ${o.clubTitle} (${o.asOf ?? "undated"})`,
+          ),
+        ].join(" vs "),
+      });
     return {
       club: best.club,
       provenance: provenance(best.source, input.today, best.asOf, best.ref),
       flags,
+      ...spells,
     };
+  }
   // P59: no page names a club. A staff post, or a page that says retired or
   // free (an explicit none), keeps him at none; a missing field is no
   // opinion, so the pages' open career spells decide. No open spell (the
   // last one closed) also means none. No Wikidata fallback beside a page.
   if (input.en || input.fr) {
-    const none = { club: null, provenance: null, flags };
+    const none = { club: null, provenance: null, flags, ...spells };
     if (boxes.some((b) => b.currentClubIsStaff || !b.currentClubMissing))
       return none;
-    const open: OpenSpell[] = [];
-    for (const box of boxes) {
-      const spell = openSpellOf(box);
-      if (!spell) continue;
-      const club = resolveClub(
-        input.index,
-        box.lang,
-        spell.clubTitle,
-        spell.clubTitleForeign,
-      );
-      if (!club) {
-        flags.push({
-          kind: "club-unresolved",
-          detail: `${sourceOf(box)} open spell: ${spell.clubTitle}`,
-        });
-        continue;
-      }
-      open.push({
-        source: sourceOf(box),
-        asOf: box.clubsAsOf,
-        club,
-        ref: box.title,
-        clubTitle: club.nameEn ?? spell.clubTitle,
-        from: spell.from,
-      });
-    }
-    open.sort(newestFirst);
-    const [first, second] = open;
+    const [first, second] = openSpells;
     if (!first) return none;
     if (second && second.club.qid !== first.club.qid)
       flags.push({
         kind: "club-sources-disagree",
-        detail: open
+        detail: openSpells
           .map(
             (p) =>
               `${p.source} open spell ${p.clubTitle} (${p.asOf ?? "undated"})`,
@@ -364,7 +386,8 @@ export function pickClub(input: {
       club: first.club,
       provenance: provenance(first.source, input.today, first.asOf, first.ref),
       flags,
-      openSpells: open,
+      openSpells,
+      fromOpenSpell: true,
     };
   }
 
@@ -1159,8 +1182,8 @@ export function mergePlayer(
         : null;
     })(),
     // An infobox naming no club votes "none"; a club title that does not
-    // resolve is no vote; a missing field is no vote (P59), but the open
-    // spell it was read for is, when it chose the club.
+    // resolve is no vote; a missing field is no vote (P59), but the page's
+    // open spell is, whatever the other page names.
     clubId: [
       ...boxes.flatMap((b): Vote<string | null>[] =>
         b.currentClubMissing && !b.currentClubIsStaff
@@ -1277,7 +1300,7 @@ export function mergePlayer(
   }
 
   // P59: an open career spell that nothing else confirms is low, flagged.
-  const fromSpell = club.openSpells?.[0];
+  const fromSpell = club.fromOpenSpell ? club.openSpells?.[0] : undefined;
   const clubRating = rated.provenance.clubId;
   if (fromSpell && clubRating && (clubRating.agreeing?.length ?? 0) < 2) {
     clubRating.confidence = "low";
