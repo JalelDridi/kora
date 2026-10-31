@@ -35,7 +35,7 @@ import { Stats as StatsPanel } from "./stats";
 import { publishStats } from "./stats-dialog";
 import { SearchBox } from "./search-box";
 import { SEARCH_BLOCK } from "./shell";
-import { TileHeaders, TileRow, type RowStrings } from "./tile-row";
+import { BOARD_BLEED, TileHeaders, TileRow, type RowStrings } from "./tile-row";
 
 export type GameStrings = {
   chkoun: (typeof fr)["chkoun"];
@@ -381,10 +381,10 @@ export function Game({
       governorate: t.tiles.governorate,
     },
     heads: {
-      club: t.tiles.club,
+      club: t.tiles.clubShort,
       country: t.tiles.countryShort,
-      position: t.tiles.position,
-      age: t.tiles.age,
+      position: t.tiles.positionShort,
+      age: t.tiles.ageShort,
       caps: t.tiles.capsShort,
       governorate: t.tiles.governorateShort,
     },
@@ -470,7 +470,10 @@ export function Game({
       </div>
 
       {data && game && game.rows.length > 0 ? (
-        <section aria-label={t.guesses} className="mb-4 flex flex-col gap-3">
+        <section
+          aria-label={t.guesses}
+          className={`mb-4 flex flex-col gap-3 ${BOARD_BLEED}`}
+        >
           <TileHeaders heads={rowStrings.heads} />
           <ol ref={rowList} className="flex flex-col gap-4">
             {game.rows.map((r, i) => {

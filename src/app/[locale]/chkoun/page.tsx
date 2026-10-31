@@ -116,10 +116,10 @@ export default async function ChkounPage({
                 governorate: c.tiles.governorate,
               },
               heads: {
-                club: c.tiles.club,
+                club: c.tiles.clubShort,
                 country: c.tiles.countryShort,
-                position: c.tiles.position,
-                age: c.tiles.age,
+                position: c.tiles.positionShort,
+                age: c.tiles.ageShort,
                 caps: c.tiles.capsShort,
                 governorate: c.tiles.governorateShort,
               },

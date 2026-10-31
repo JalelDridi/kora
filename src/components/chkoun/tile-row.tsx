@@ -58,7 +58,9 @@ export function TileRow({
 }: Props) {
   return (
     <li data-guess={id} className="flex flex-col gap-1.5">
-      <p className="flex flex-wrap items-baseline gap-x-2 text-base font-semibold">
+      <p
+        className={`flex flex-wrap items-baseline gap-x-2 text-base font-semibold ${NAME_INSET}`}
+      >
         <bdi>{name}</bdi>
         {latin ? (
           <span dir="ltr" className="text-sm font-normal text-chalk-dim">
@@ -79,18 +81,41 @@ export function TileRow({
 
 /**
  * The grid of the header row and of every guess (D-MP-1, Jalel's approved
- * mock): from 340 px, six narrow columns in one row, sized to what each
- * holds; under 340 px, 3 by 2. Header and rows share the tracks, so the
- * columns line up.
+ * mock): from 360 px, six narrow columns in one row; under 360 px, 3 by 2,
+ * with the column's icon in each tile. Header and rows share the tracks, so
+ * the columns line up. Each track is as wide as the widest word its column
+ * can show at 14 px (fix round 1, measured on the pool of 31 October 2026:
+ * a club's short label up to "Beauvais", "Danemark", "Mhajem", the header
+ * "3omr", "30-59", "Zaghouan"); between 360 and 400 px the board takes 10 px
+ * of each side gutter so the six fit. The browser tests measure every value
+ * the pool can show against these tracks. The help's example stays 3 by 2.
  */
-const GRID =
-  "grid grid-cols-3 gap-[3px] min-[340px]:grid-cols-[minmax(0,59fr)_minmax(0,62fr)_minmax(0,56fr)_minmax(0,34fr)_minmax(0,48fr)_minmax(0,60fr)]";
+const LAYOUT = {
+  game: {
+    grid: "grid grid-cols-3 gap-[2px] min-[360px]:grid-cols-[minmax(0,63fr)_minmax(0,70fr)_minmax(0,55fr)_minmax(0,35fr)_minmax(0,43fr)_minmax(0,70fr)]",
+    tile: "min-h-11 max-[360px]:min-h-14",
+    icon: "hidden max-[360px]:block",
+    headers: "max-[360px]:gap-y-1.5",
+    head: "flex-col gap-0.5 max-[360px]:flex-row max-[360px]:justify-center max-[360px]:gap-1",
+  },
+  example: {
+    grid: "grid grid-cols-3 gap-[2px]",
+    tile: "min-h-14",
+    icon: "block",
+    headers: "gap-y-1.5",
+    head: "flex-row justify-center gap-1",
+  },
+} as const;
+
+/** Between 360 and 400 px the board takes 10 px of each side gutter (see LAYOUT). */
+export const BOARD_BLEED = "min-[360px]:max-[400px]:-mx-[10px]";
+const NAME_INSET = "min-[360px]:max-[400px]:px-[10px]";
 
 /**
  * The six tiles of a row, in the page's direction. Each shows its short
- * value at 14 px or more; the whole value is in its title and its
- * screen-reader text, with the column's name. Under 340 px each tile also
- * shows its column's icon.
+ * value at 14 px, never cut; the whole value is in its title and its
+ * screen-reader text, with the column's name. In 3 by 2 each tile also shows
+ * its column's icon.
  */
 function Tiles({
   name,
@@ -108,11 +133,12 @@ function Tiles({
   animate: boolean;
   example?: boolean;
 }) {
+  const layout = LAYOUT[example ? "example" : "game"];
   return (
     <ul
       data-example={example ? "" : undefined}
       aria-label={name}
-      className={GRID}
+      className={layout.grid}
     >
       {COLUMNS.map((column, i) => {
         const tile = row[column];
@@ -126,11 +152,11 @@ function Tiles({
             data-colour={tile.colour}
             title={text}
             style={animate ? { animationDelay: `${i * 60}ms` } : undefined}
-            className={`relative flex min-h-11 min-w-0 flex-col items-center justify-center gap-px rounded-md px-px py-1 text-center leading-tight max-[340px]:min-h-14 ${COLOUR_CLASS[tile.colour]} ${animate ? "tile-flip" : ""}`}
+            className={`relative flex min-w-0 flex-col items-center justify-center gap-px rounded-md py-1 text-center leading-tight ${layout.tile} ${COLOUR_CLASS[tile.colour]} ${animate ? "tile-flip" : ""}`}
           >
             <ColumnIcon
               column={column}
-              className="hidden opacity-85 max-[340px]:block"
+              className={`opacity-85 ${layout.icon}`}
             />
             <span data-header className="sr-only">
               {strings.headers[column]}:{" "}
@@ -139,7 +165,7 @@ function Tiles({
               data-value
               aria-hidden="true"
               dir={numeric ? "ltr" : "auto"}
-              className="max-w-full text-sm font-semibold"
+              className="max-w-full text-[14px] font-semibold"
             >
               <Words text={short} />
             </span>
@@ -215,10 +241,10 @@ export function ExampleRow({
 }
 
 /**
- * Text that wraps only between words. Each word is its own box: a word wider
- * than the tile (a long club name) is cut with an ellipsis instead of being
- * broken across lines; the tile's title and its screen-reader text keep the
- * whole value. No automatic hyphenation either.
+ * Text that wraps only between words. Each word is its own box, never broken
+ * and never cut: the columns are sized so every word the pool can show fits
+ * (LAYOUT), and a word that did not would overflow its box, where the
+ * browser tests see it. No automatic hyphenation either.
  */
 function Words({ text }: { text: string }) {
   return text.split(/(\s+)/).map((part, i) =>
@@ -227,7 +253,8 @@ function Words({ text }: { text: string }) {
     ) : (
       <span
         key={i}
-        className="inline-block max-w-full overflow-hidden align-bottom text-ellipsis whitespace-nowrap"
+        data-word=""
+        className="inline-block max-w-full align-bottom whitespace-nowrap"
       >
         {part}
       </span>
@@ -296,7 +323,7 @@ function ColumnIcon({
 
 /**
  * The header row, once above the rows (D-MP-1): each column's icon and short
- * name at 14 px, on the same tracks as the tiles; 3 by 2 under 340 px.
+ * name at 14 px, on the same tracks as the tiles; 3 by 2 under 360 px.
  * Hidden from screen readers, which hear the column's full name with every
  * tile.
  */
@@ -308,17 +335,18 @@ export function TileHeaders({
   /** The help's example: not the game's header row. */
   example?: boolean;
 }) {
+  const layout = LAYOUT[example ? "example" : "game"];
   return (
     <div
       data-tile-headers={example ? undefined : ""}
       aria-hidden="true"
-      className={`${GRID} max-[340px]:gap-y-1.5`}
+      className={`${layout.grid} ${layout.headers}`}
     >
       {COLUMNS.map((column) => (
         <span
           key={column}
           data-head
-          className="flex min-w-0 flex-col items-center gap-0.5 text-center text-sm leading-tight text-chalk-dim max-[340px]:flex-row max-[340px]:justify-center max-[340px]:gap-1"
+          className={`flex min-w-0 items-center text-center text-[14px] leading-tight text-chalk-dim ${layout.head}`}
         >
           <ColumnIcon column={column} />
           <span className="max-w-full">

@@ -240,7 +240,7 @@
       "arabic": "سسكا 1948"
     },
     "fc-girondins-de-bordeaux": {
-      "latin": "Bordeaux",
+      "latin": "FCGB",
       "arabic": "بوردو"
     },
     "fc-nantes": {
@@ -268,7 +268,7 @@
       "arabic": "غزل المحلة"
     },
     "halmstads-bk": {
-      "latin": "Halmstad",
+      "latin": "HBK",
       "arabic": "هالمستاد"
     },
     "hassania-agadir": {
@@ -366,6 +366,114 @@
     "zakho-s-c": {
       "latin": "Zakho",
       "arabic": "زاخو"
+    },
+    "ifk-haninge-brandbergen": {
+      "latin": "Haninge",
+      "arabic": "هانينغه"
+    },
+    "sv-wacker-burghausen": {
+      "latin": "Wacker",
+      "arabic": "فاكر"
+    },
+    "muglaspor": {
+      "latin": "Muğla",
+      "arabic": "موغلا"
+    },
+    "a-s-d-albalonga": {
+      "latin": "ASD",
+      "arabic": "ألبا"
+    },
+    "if-brommapojkarna": {
+      "latin": "BP",
+      "arabic": "برومّا"
+    },
+    "pfc-ludogorets-1945": {
+      "latin": "Razgrad",
+      "arabic": "رازغراد"
+    },
+    "fc-vihren-sandanski": {
+      "latin": "Vihren",
+      "arabic": "فيهرين"
+    },
+    "tremblay-en-france": {
+      "latin": "TFC",
+      "arabic": "تريمبلي"
+    },
+    "sheffield-wednesday-f-c": {
+      "latin": "SWFC",
+      "arabic": "شيفيلد"
+    },
+    "angouleme-charente-fc": {
+      "latin": "ACFC",
+      "arabic": "أنغوليم"
+    },
+    "ifk-norrkoping": {
+      "latin": "IFK",
+      "arabic": "نورشوبنغ"
+    },
+    "kas-mpasa-s-k": {
+      "latin": "KSK",
+      "arabic": "قاسم باشا"
+    },
+    "usl-dunkerque": {
+      "latin": "USLD",
+      "arabic": "دونكيرك"
+    },
+    "olympique-ales": {
+      "latin": "Alès",
+      "arabic": "أليس"
+    },
+    "as-valence": {
+      "latin": "Valence",
+      "arabic": "فالنس"
+    },
+    "al-nairyah-club": {
+      "latin": "Nairyah",
+      "arabic": "النعيرية"
+    },
+    "vancouver-whitecaps-fc": {
+      "latin": "VWFC",
+      "arabic": "فانكوفر"
+    },
+    "karlsruher-sc": {
+      "latin": "KSC",
+      "arabic": "كارلسروه"
+    },
+    "olympic-azzaweya-s-c": {
+      "latin": "Zawiya",
+      "arabic": "الزاوية"
+    },
+    "es-cannet-rocheville": {
+      "latin": "ESCR",
+      "arabic": "كاني"
+    },
+    "k-beerschot-va": {
+      "latin": "KBVA",
+      "arabic": "بيرشوت"
+    },
+    "al-quwa-al-jawiya": {
+      "latin": "Al-Quwa",
+      "arabic": "القوة الجوية"
+    },
+    "al-mina-a-sc": {
+      "latin": "Mina'a",
+      "arabic": "الميناء"
+    },
+    "nashville-sc": {
+      "latin": "NSC",
+      "arabic": "ناشفيل"
+    },
+    "hertha-bsc-ii": {
+      "latin": "Hertha II",
+      "arabic": "هيرتا"
+    },
+    "r-e-virton": {
+      "latin": "Virton",
+      "arabic": "فيرتون"
+    },
+    "al-ramtha-sc": {
+      "latin": "Ramtha",
+      "arabic": "الرمثا"
     }
   }
 }

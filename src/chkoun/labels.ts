@@ -134,7 +134,7 @@ export type TileStrings = {
  * The text of a tile: `text`, the whole value (the tile's title, the screen
  * reader and the card); `short`, what the tile shows (D-MP-1: a club's short
  * label, a country of more than 8 characters as its ISO code, a birthplace
- * abroad as its country only); and for an unknown club the words a screen
+ * abroad as its country only, by the same rule); and for an unknown club the words a screen
  * reader says instead of "?". A value missing from the tables falls back to
  * its code, never to nothing.
  */
@@ -184,7 +184,7 @@ export function tileText(
       return {
         text,
         short: value.startsWith("abroad:")
-          ? (labels.countries[value.slice(7)] ?? value.slice(7))
+          ? shortCountry(value.slice(7), labels)
           : text,
         label: null,
       };

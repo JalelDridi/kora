@@ -199,6 +199,11 @@ describe("labels", () => {
       short: "France",
       label: null,
     });
+    expect(t("governorate", "abroad:SA")).toEqual({
+      text: "Abroad: Arabie saoudite",
+      short: "SA",
+      label: null,
+    });
     expect(t("governorate", "gov:tunis").short).toBe("Tunis");
     expect(t("club", null)).toEqual({
       text: "?",
