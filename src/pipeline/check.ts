@@ -151,6 +151,70 @@ export function validateAfcon(json: unknown): string[] {
   return errors;
 }
 
+/**
+ * data/curated/club-short.json: what a Chkoun? tile and a 30–0 match row
+ * print for a club whose full name does not fit (mobile polish M5, D-MP-1):
+ * the Derja nickname on /ar, the acronym fans write on /tn and /fr.
+ */
+export type ClubShortFile = {
+  by: string;
+  at: string;
+  note: string;
+  clubs: Record<string, { latin: string; arabic: string }>;
+};
+
+/** The longest word a six-column tile holds at 14 px. */
+const SHORT_WORD = 8;
+const NON_WESTERN_DIGIT = /[\u0660-\u0669\u06F0-\u06F9]/;
+
+/**
+ * Every id a club of the pool, every Ligue 1 club given (`ligue1ClubIds`),
+ * both forms present: at most two words (a tile wraps between them), each at
+ * most 8 characters, Western digits only.
+ */
+export function validateClubShort(
+  json: unknown,
+  clubIds: string[],
+  ligue1ClubIds: string[] = [],
+): string[] {
+  const at = "club-short.json";
+  if (!isRecord(json) || !isRecord(json.clubs))
+    return [`${at}: must be { by, at, note, clubs }`];
+  const errors: string[] = [];
+  for (const key of ["by", "at", "note"])
+    if (typeof json[key] !== "string" || json[key] === "")
+      errors.push(`${at}: ${key} must be a string`);
+  const known = new Set(clubIds);
+  for (const id of ligue1ClubIds)
+    if (!(id in json.clubs)) errors.push(`${at}: no short label for ${id}`);
+  for (const [id, forms] of Object.entries(json.clubs)) {
+    if (!known.has(id)) {
+      errors.push(`${at}: ${id} is not a club`);
+      continue;
+    }
+    if (
+      !isRecord(forms) ||
+      typeof forms.latin !== "string" ||
+      typeof forms.arabic !== "string"
+    ) {
+      errors.push(`${at}: ${id} must be { latin, arabic }`);
+      continue;
+    }
+    for (const script of ["latin", "arabic"] as const) {
+      const value = forms[script] as string;
+      const words = value.split(/\s+/).filter(Boolean);
+      if (words.length === 0) errors.push(`${at}: ${id} ${script} is empty`);
+      else if (words.length > 2)
+        errors.push(`${at}: ${id} ${script} has more than two words`);
+      else if (words.some((w) => [...w].length > SHORT_WORD))
+        errors.push(`${at}: ${id} ${script} is longer than ${SHORT_WORD}`);
+      if (NON_WESTERN_DIGIT.test(value))
+        errors.push(`${at}: ${id} ${script} has a non-Western digit`);
+    }
+  }
+  return errors;
+}
+
 /** The errors of checkData. */
 export async function checkData(root: string): Promise<string[]> {
   return (await inspectData(root)).errors;
@@ -277,6 +341,21 @@ export async function inspectData(
       errors.push(
         ...validateStrength(
           strength,
+          pool.clubs.filter((c) => isRecord(c) && c.ligue1).map((c) => c.id),
+        ).map((e) => `data/curated/${e}`),
+      );
+  }
+  // The short club labels (mobile polish M5): required once there is a pool.
+  const clubShort = await read("curated/club-short.json");
+  if (usablePool(pool)) {
+    if (clubShort === undefined) {
+      if (!errors.some((e) => e.startsWith("data/curated/club-short")))
+        errors.push("data/curated/club-short.json: missing");
+    } else
+      errors.push(
+        ...validateClubShort(
+          clubShort,
+          pool.clubs.filter(isRecord).map((c) => String(c.id)),
           pool.clubs.filter((c) => isRecord(c) && c.ligue1).map((c) => c.id),
         ).map((e) => `data/curated/${e}`),
       );

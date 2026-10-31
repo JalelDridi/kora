@@ -18,6 +18,7 @@ import {
   checkData,
   inspectData,
   validateAfcon,
+  validateClubShort,
   validateStrength,
 } from "./check.ts";
 import type { Pool } from "./types.ts";
@@ -71,6 +72,17 @@ async function copyOfData(): Promise<{
           note: "fixture",
           clubs: Object.fromEntries(
             clubs.filter((c) => c.ligue1).map((c) => [c.id, 70]),
+          ),
+        });
+      // And a short label each, for the same reason.
+      if (name === "pool.json" && Array.isArray(clubs))
+        await write("curated/club-short.json", {
+          ...by,
+          note: "fixture",
+          clubs: Object.fromEntries(
+            clubs
+              .filter((c) => c.ligue1)
+              .map((c) => [c.id, { latin: "X", arabic: "س" }]),
           ),
         });
     },
@@ -493,6 +505,68 @@ describe("the 30–0 curated files (Sprint 3)", () => {
         ids,
       ),
     ).toHaveLength(2);
+  });
+
+  it("a club-short file names known clubs, 1 to 8 characters, both scripts", () => {
+    const file = (clubs: Record<string, unknown>) => ({
+      by: "claude",
+      at: "2026-10-31",
+      note: "DRAFT",
+      clubs,
+    });
+    const est = { latin: "EST", arabic: "الترجي" };
+    expect(validateClubShort(file({ est }), ["est", "ca"])).toEqual([]);
+    expect(validateClubShort(file({ est, x: est }), ["est"])).toContain(
+      "club-short.json: x is not a club",
+    );
+    expect(
+      validateClubShort(
+        file({ est: { latin: "Espérance", arabic: "الترجي" } }),
+        ["est"],
+      ),
+    ).toContain("club-short.json: est latin is longer than 8");
+    // Two words wrap in a tile: each word counts, at most two.
+    expect(
+      validateClubShort(file({ est: { latin: "EST", arabic: "حمام سوسة" } }), [
+        "est",
+      ]),
+    ).toEqual([]);
+    expect(
+      validateClubShort(
+        file({ est: { latin: "EST", arabic: "ساقية الدائر الكبرى" } }),
+        ["est"],
+      ),
+    ).toContain("club-short.json: est arabic has more than two words");
+    expect(
+      validateClubShort(file({ est: { latin: "", arabic: "الترجي" } }), [
+        "est",
+      ]),
+    ).toContain("club-short.json: est latin is empty");
+    expect(
+      validateClubShort(file({ est: { latin: "EST", arabic: "نادي ٢" } }), [
+        "est",
+      ]),
+    ).toContain("club-short.json: est arabic has a non-Western digit");
+    expect(
+      validateClubShort(file({ est: { latin: "EST" } }), ["est"]),
+    ).toContain("club-short.json: est must be { latin, arabic }");
+    // Every Ligue 1 club has its short forms.
+    expect(
+      validateClubShort(file({ est }), ["est", "ca"], ["est", "ca"]),
+    ).toContain("club-short.json: no short label for ca");
+    expect(validateClubShort({ clubs: {} }, [])).toContain(
+      "club-short.json: by must be a string",
+    );
+  });
+
+  it("checkData reports a missing club-short.json once there is a pool", async () => {
+    const { root } = await copyOfData();
+    await rm(path.join(root, "data", "curated", "club-short.json"), {
+      force: true,
+    });
+    expect(await checkData(root)).toContain(
+      "data/curated/club-short.json: missing",
+    );
   });
 
   it("an AFCON 2004 file lists Wikidata ids, at most 23, no repeats", () => {
