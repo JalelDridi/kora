@@ -4,8 +4,11 @@ import arLatnTN from "../messages/ar-Latn-TN.json";
 import arTN from "../messages/ar-TN.json";
 import fr from "../messages/fr.json";
 import { localName } from "../src/chkoun/labels";
-import { footballer, guess, ready } from "./chkoun-helpers";
+import { footballer, guess, ready, skipHelp } from "./chkoun-helpers";
 import { type ChkounFixture, seedChkoun } from "./fixtures/chkoun";
+
+// The game pages open with the help already seen (src/chkoun/help-seen.ts).
+test.beforeEach(async ({ page }) => skipHelp(page));
 
 // The end of a game (plan Task 13): the footballer's card with its photo
 // credit or a silhouette, the share fallbacks, and the record.

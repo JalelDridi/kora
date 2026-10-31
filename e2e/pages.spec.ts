@@ -5,8 +5,11 @@ import arTN from "../messages/ar-TN.json";
 import fr from "../messages/fr.json";
 import { localeInfo, locales } from "../src/i18n/locales";
 import { photoCredits } from "../src/sources";
-import { footballer, pool } from "./chkoun-helpers";
+import { footballer, pool, skipHelp } from "./chkoun-helpers";
 import { type ChkounFixture, seedChkoun } from "./fixtures/chkoun";
+
+// The game pages open with the help already seen (src/chkoun/help-seen.ts).
+test.beforeEach(async ({ page }) => skipHelp(page));
 
 // The Sources page and the privacy draft (plan Task 14), and the footer that
 // links to them from every page.

@@ -4,7 +4,10 @@ import arLatnTN from "../messages/ar-Latn-TN.json";
 import arTN from "../messages/ar-TN.json";
 import fr from "../messages/fr.json";
 import { localeInfo, locales, type Locale } from "../src/i18n/locales";
-import { noSidewaysScroll, shot } from "./chkoun-helpers";
+import { noSidewaysScroll, shot, skipHelp } from "./chkoun-helpers";
+
+// The game pages open with the help already seen (src/chkoun/help-seen.ts).
+test.beforeEach(async ({ page }) => skipHelp(page));
 
 // The end of a 30–0 draft (plan Task 11) on the built server, Redis off:
 // play gives the season and "saved on this device", the share text carries

@@ -6,9 +6,12 @@ import {
 } from "@playwright/test";
 import { packNames } from "../src/chkoun/search-index";
 import type { PoolPlayer } from "../src/pipeline/types";
-import { footballer, pool } from "./chkoun-helpers";
+import { footballer, pool, skipHelp } from "./chkoun-helpers";
 import { type ChkounFixture, seedChkoun } from "./fixtures/chkoun";
 import { isGuessable } from "../src/pipeline/grace";
+
+// The game pages open with the help already seen (src/chkoun/help-seen.ts).
+test.beforeEach(async ({ page }) => skipHelp(page));
 
 // The day's answer never reaches the visitor before his game ends (plan
 // Task 12, "Readings" 1). Every active footballer is guessable, so his name

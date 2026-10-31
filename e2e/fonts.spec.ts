@@ -1,6 +1,10 @@
 import { expect, test, type Page } from "@playwright/test";
 import { localeInfo, locales } from "../src/i18n/locales";
 import { seedChkoun } from "./fixtures/chkoun";
+import { skipHelp } from "./chkoun-helpers";
+
+// The game pages open with the help already seen (src/chkoun/help-seen.ts).
+test.beforeEach(async ({ page }) => skipHelp(page));
 
 // Some tests open the game page, which asks the server for today's puzzle
 // and has it remember the answer: seed first, like the other specs.
