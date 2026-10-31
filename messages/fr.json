@@ -45,6 +45,12 @@
       "description": "Trouve le joueur tunisien du jour en 8 essais. Un nouveau joueur chaque jour."
     },
     "rules": "Trouve le joueur du jour en 8 essais. Seulement des joueurs en activité.",
+    "help": {
+      "goal": "Trouve le footballeur du jour en 8 essais. Seulement des joueurs en activité.",
+      "tiles": "Chaque essai montre six cases : club, pays du club, poste, âge, sélections, lieu de naissance.",
+      "example": "Exemple : même pays de club et même poste ; la flèche dit que le joueur du jour est plus âgé.",
+      "daily": "Un nouveau footballeur chaque jour à minuit, heure de Tunis."
+    },
     "legend": {
       "title": "Les couleurs",
       "same": "Pareil",
@@ -223,6 +229,11 @@
       "description": "Monte ton équipe de joueurs tunisiens, place par place, puis joue une saison de 30 matchs."
     },
     "rules": "Pour chaque place, un club et une décennie sont tirés : choisis un joueur parmi cinq au plus, puis joue 30 matchs.",
+    "help": {
+      "draft": "Pour chaque place, un club et une décennie sont tirés : choisis un joueur parmi cinq au plus.",
+      "respin": "Tu peux relancer une seule fois.",
+      "play": "Avec 11 joueurs, joue 30 matchs : 30–0 est le rêve."
+    },
     "noscript": "Ce jeu a besoin de JavaScript.",
     "lines": {
       "goalkeeper": "Gardien",

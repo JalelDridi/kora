@@ -6,12 +6,15 @@ import {
 } from "next-intl/server";
 import type { GameStrings } from "@/components/chkoun/game";
 import { GameIsland } from "@/components/chkoun/game-island";
+import { ChkounHelp } from "@/components/chkoun/help";
+import { ChkounHelpDialog } from "@/components/chkoun/help-dialog";
 import { Legend } from "@/components/chkoun/legend";
 import { GameShell } from "@/components/chkoun/shell";
 import { GameHeader } from "@/components/game-header";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import { getGame } from "@/games";
-import { isLocale, localeInfo } from "@/i18n/locales";
+import { frenchCountryName } from "@/chkoun/labels";
+import { isLocale, localeInfo, type Locale } from "@/i18n/locales";
 import { pageMetadata } from "@/i18n/page-metadata";
 import { gameShareImagePath } from "@/share";
 import { site } from "@/site";
@@ -22,6 +25,13 @@ import { site } from "@/site";
 // after the first paint; the game asks /api/chkoun/today once it runs.
 
 const ROUTE = "/chkoun";
+
+/** The help's example club (data/pool.json's names) and its country, per locale. */
+const EXAMPLE: Record<Locale, { club: string; country: string }> = {
+  "ar-TN": { club: "الترجي الرياضي التونسي", country: "تونس" },
+  "ar-Latn-TN": { club: "Espérance Sportive de Tunis", country: "Tounes" },
+  fr: { club: "Espérance sportive de Tunis", country: frenchCountryName("TN") },
+};
 
 export async function generateMetadata({
   params,
@@ -56,6 +66,13 @@ export default async function ChkounPage({
     credit: messages.credit,
   };
   const { prefix } = localeInfo[locale];
+  const c = messages.chkoun;
+  const legendWords = {
+    same: t("chkoun.legend.same"),
+    close: t("chkoun.legend.close"),
+    different: t("chkoun.legend.different"),
+    unknown: t("chkoun.legend.unknown"),
+  };
 
   return (
     <div className="mx-auto flex max-w-5xl flex-col px-4 py-5 sm:px-8">
@@ -72,9 +89,48 @@ export default async function ChkounPage({
         actions
       />
 
+      <ChkounHelpDialog title={t("header.help")} close={t("header.close")}>
+        <ChkounHelp
+          strings={{
+            goal: t("chkoun.help.goal"),
+            tiles: t("chkoun.help.tiles"),
+            example: t("chkoun.help.example"),
+            daily: t("chkoun.help.daily"),
+            legend: { title: t("chkoun.legend.title"), words: legendWords },
+          }}
+          example={{
+            ...EXAMPLE[locale],
+            strings: {
+              positions: messages.positions,
+              caps: c.caps,
+              abroad: c.tiles.abroad,
+              noClub: c.tiles.noClub,
+              headers: {
+                club: c.tiles.club,
+                country: c.tiles.country,
+                position: c.tiles.position,
+                age: c.tiles.age,
+                caps: c.tiles.caps,
+                governorate: c.tiles.governorate,
+              },
+              words: legendWords,
+              arrows: {
+                older: c.tiles.older,
+                younger: c.tiles.younger,
+                moreCaps: c.tiles.moreCaps,
+                fewerCaps: c.tiles.fewerCaps,
+              },
+            },
+          }}
+        />
+      </ChkounHelpDialog>
+
       <main className="pt-2 pb-8 sm:pb-12">
-        <p className="max-w-2xl text-xl text-chalk-dim">{t("chkoun.rules")}</p>
+        {/* Without JavaScript there is no help dialog: the rules stay here. */}
         <noscript>
+          <p className="max-w-2xl text-xl text-chalk-dim">
+            {t("chkoun.rules")}
+          </p>
           <p className="mt-6 text-xl font-semibold">{t("chkoun.noscript")}</p>
         </noscript>
         {/* The live game renders first and hides the shell after it. */}
@@ -92,15 +148,7 @@ export default async function ChkounPage({
           guessCount={t("chkoun.guessCount", { n: 1 })}
         />
         <div className="max-w-2xl">
-          <Legend
-            title={t("chkoun.legend.title")}
-            words={{
-              same: t("chkoun.legend.same"),
-              close: t("chkoun.legend.close"),
-              different: t("chkoun.legend.different"),
-              unknown: t("chkoun.legend.unknown"),
-            }}
-          />
+          <Legend title={t("chkoun.legend.title")} words={legendWords} />
         </div>
       </main>
 

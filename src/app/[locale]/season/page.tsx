@@ -5,6 +5,8 @@ import {
   setRequestLocale,
 } from "next-intl/server";
 import { GameHeader } from "@/components/game-header";
+import { SeasonHelp } from "@/components/season/help";
+import { SeasonHelpDialog } from "@/components/season/help-dialog";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import { SeasonIsland, type SeasonStrings } from "@/components/season/island";
 import { getGame } from "@/games";
@@ -64,9 +66,22 @@ export default async function SeasonPage({
         actions
       />
 
+      <SeasonHelpDialog title={t("header.help")} close={t("header.close")}>
+        <SeasonHelp
+          strings={{
+            draft: t("season.help.draft"),
+            respin: t("season.help.respin"),
+            play: t("season.help.play"),
+          }}
+        />
+      </SeasonHelpDialog>
+
       <main className="pt-2 pb-8 sm:pb-12">
-        <p className="max-w-2xl text-xl text-chalk-dim">{t("season.rules")}</p>
+        {/* Without JavaScript there is no help dialog: the rules stay here. */}
         <noscript>
+          <p className="max-w-2xl text-xl text-chalk-dim">
+            {t("season.rules")}
+          </p>
           <p className="mt-6 text-xl font-semibold">{t("season.noscript")}</p>
         </noscript>
         <SeasonIsland

@@ -44,10 +44,18 @@ export async function noSidewaysScroll(page: Page) {
 export const ROUND = "2026-10-31-mobile-polish";
 
 /**
- * Marks the help as already seen, so a test starts on the game. A no-op
- * until the help modal exists (mobile polish Task 2 fills it in).
+ * Marks the help as already seen on this page's device, before any page
+ * loads, so a test starts on the game and not behind the first-visit help
+ * (src/chkoun/help-seen.ts).
  */
-export async function skipHelp(_page: Page) {}
+export async function skipHelp(page: Page) {
+  await page.addInitScript(() =>
+    localStorage.setItem(
+      "kora.help.v1",
+      JSON.stringify({ chkoun: 1, season: 1 }),
+    ),
+  );
+}
 
 /** Where a task's screenshots go: `screens/task-N/<locale>-<width>-<state>.png`. */
 export function shot(

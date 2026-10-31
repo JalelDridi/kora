@@ -6,7 +6,13 @@ import fr from "../messages/fr.json";
 import { localName } from "../src/chkoun/labels";
 import { nextMidnight } from "../src/engine/chkoun/day";
 import { localeInfo, locales } from "../src/i18n/locales";
-import { footballer, guess, noSidewaysScroll, ready } from "./chkoun-helpers";
+import {
+  footballer,
+  guess,
+  noSidewaysScroll,
+  ready,
+  skipHelp,
+} from "./chkoun-helpers";
 import { type ChkounFixture, seedChkoun } from "./fixtures/chkoun";
 
 // The Chkoun? page on the built server against the seeded calendar (Redis
@@ -22,6 +28,12 @@ test.beforeAll(async () => {
   fixture = await seedChkoun();
 });
 
+// Every test starts with the help already seen, but the first-visit ones.
+const FIRST_VISIT = "on a first visit";
+test.beforeEach(async ({ page }, info) => {
+  if (!info.titlePath.includes(FIRST_VISIT)) await skipHelp(page);
+});
+
 const axe = async (page: Page) =>
   (await new AxeBuilder({ page }).analyze()).violations;
 
@@ -29,6 +41,44 @@ for (const locale of locales) {
   const { prefix } = localeInfo[locale];
   const t = messages[locale].chkoun;
   const url = `${prefix}/chkoun`;
+
+  test.describe(FIRST_VISIT, () => {
+    test(`${url}: the help opens on the first visit only, traps focus, closes on Escape, reopens from ?`, async ({
+      page,
+    }) => {
+      await page.goto(url);
+      const help = page.getByRole("dialog", {
+        name: messages[locale].header.help,
+      });
+      await expect(help).toBeVisible();
+      await expect(help.locator("[data-example] li")).toHaveCount(6);
+      for (let i = 0; i < 6; i++) await page.keyboard.press("Tab");
+      expect(
+        await help.evaluate((d) => d.contains(document.activeElement)),
+      ).toBe(true);
+      await page.keyboard.press("Escape");
+      await expect(help).toBeHidden();
+      await page.reload();
+      await ready(page);
+      await expect(help).toBeHidden();
+      const button = page.getByRole("button", {
+        name: messages[locale].header.help,
+      });
+      await button.click();
+      await expect(help).toBeVisible();
+      expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+      await help
+        .getByRole("button", { name: messages[locale].header.close })
+        .click();
+      await expect(button).toBeFocused();
+    });
+  });
+
+  test(`${url}: the rules prose is no longer on the page`, async ({ page }) => {
+    await page.goto(url);
+    await ready(page);
+    await expect(page.locator("main").getByText(t.rules)).toBeHidden();
+  });
 
   test(`${url} plays to a win in three guesses`, async ({ page }) => {
     await page.goto(url);
@@ -289,6 +339,7 @@ test("with reduced motion, tiles do not flip", async ({ browser }) => {
   for (const reducedMotion of ["reduce", "no-preference"] as const) {
     const context = await browser.newContext({ reducedMotion });
     const page = await context.newPage();
+    await skipHelp(page);
     await page.goto("/fr/chkoun");
     await ready(page);
     await guess(page, fixture.others[0]);
@@ -301,6 +352,25 @@ test("with reduced motion, tiles do not flip", async ({ browser }) => {
   }
 });
 
+test.describe(FIRST_VISIT, () => {
+  test("with reduced motion, the help appears without animation", async ({
+    browser,
+  }) => {
+    for (const reducedMotion of ["reduce", "no-preference"] as const) {
+      const context = await browser.newContext({ reducedMotion });
+      const page = await context.newPage();
+      await page.goto("/fr/chkoun");
+      const help = page.getByRole("dialog", { name: fr.header.help });
+      await expect(help).toBeVisible();
+      const name = await help.evaluate(
+        (d) => getComputedStyle(d).animationName,
+      );
+      expect(name).toBe(reducedMotion === "reduce" ? "none" : "kora-rise");
+      await context.close();
+    }
+  });
+});
+
 test("with JavaScript off, the rules and the noscript message show", async ({
   browser,
   request,
@@ -310,10 +380,12 @@ test("with JavaScript off, the rules and the noscript message show", async ({
   const html = await (await request.get("/ar/chkoun")).text();
   const noscript = /<noscript>([\s\S]*?)<\/noscript>/.exec(html)?.[1];
   expect(noscript).toContain(arTN.chkoun.noscript);
+  // The rules prose lives only there now: the help dialog explains the game.
+  expect(noscript).toContain(arTN.chkoun.rules);
   const context = await browser.newContext({ javaScriptEnabled: false });
   const page = await context.newPage();
   await page.goto("/ar/chkoun");
-  await expect(page.getByText(arTN.chkoun.rules)).toBeVisible();
+  await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
   await context.close();
 });
 

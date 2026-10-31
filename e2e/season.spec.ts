@@ -4,7 +4,7 @@ import arLatnTN from "../messages/ar-Latn-TN.json";
 import arTN from "../messages/ar-TN.json";
 import fr from "../messages/fr.json";
 import { localeInfo, locales } from "../src/i18n/locales";
-import { noSidewaysScroll, shot } from "./chkoun-helpers";
+import { noSidewaysScroll, shot, skipHelp } from "./chkoun-helpers";
 
 // The 30–0 draft page on the built server (Redis off: no rate limit, the
 // draft lives in its signed token). Each test has its own browser context,
@@ -18,6 +18,12 @@ const escape = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 const axe = async (page: Page) =>
   (await new AxeBuilder({ page }).analyze()).violations;
 
+// Every test starts with the help already seen, but the first-visit ones.
+const FIRST_VISIT = "on a first visit";
+test.beforeEach(async ({ page }, info) => {
+  if (!info.titlePath.includes(FIRST_VISIT)) await skipHelp(page);
+});
+
 for (const locale of locales) {
   const { prefix } = localeInfo[locale];
   const t = messages[locale].season;
@@ -28,6 +34,45 @@ for (const locale of locales) {
     page.getByRole("button", { name: new RegExp(escape(t.pick)) });
   const spinning = async (page: Page, n: number) =>
     expect(page.getByText(fill(t.slot, { n }))).toBeVisible();
+
+  test.describe(FIRST_VISIT, () => {
+    test(`${url}: the help opens on the first visit only, traps focus, closes on Escape, reopens from ?`, async ({
+      page,
+    }) => {
+      await page.goto(url);
+      const help = page.getByRole("dialog", {
+        name: messages[locale].header.help,
+      });
+      await expect(help).toBeVisible();
+      for (const line of [t.help.draft, t.help.respin, t.help.play])
+        await expect(help.getByText(line)).toBeVisible();
+      for (let i = 0; i < 6; i++) await page.keyboard.press("Tab");
+      expect(
+        await help.evaluate((d) => d.contains(document.activeElement)),
+      ).toBe(true);
+      await page.keyboard.press("Escape");
+      await expect(help).toBeHidden();
+      await page.reload();
+      await spinning(page, 1);
+      await expect(help).toBeHidden();
+      const button = page.getByRole("button", {
+        name: messages[locale].header.help,
+      });
+      await button.click();
+      await expect(help).toBeVisible();
+      expect(await axe(page)).toEqual([]);
+      await help
+        .getByRole("button", { name: messages[locale].header.close })
+        .click();
+      await expect(button).toBeFocused();
+    });
+  });
+
+  test(`${url}: the rules prose is no longer on the page`, async ({ page }) => {
+    await page.goto(url);
+    await spinning(page, 1);
+    await expect(page.locator("main").getByText(t.rules)).toBeHidden();
+  });
 
   test(`${url} drafts eleven at 320 px`, async ({ page }) => {
     await page.setViewportSize({ width: 320, height: 640 });
@@ -148,10 +193,12 @@ for (const locale of locales) {
     const html = await (await request.get(url)).text();
     const noscript = /<noscript>([\s\S]*?)<\/noscript>/.exec(html)?.[1];
     expect(noscript).toContain(t.noscript);
+    // The rules prose lives only there now: the help dialog explains the game.
+    expect(noscript).toContain(t.rules);
     const context = await browser.newContext({ javaScriptEnabled: false });
     const page = await context.newPage();
     await page.goto(url);
-    await expect(page.getByText(t.rules)).toBeVisible();
+    await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
     await context.close();
   });
 

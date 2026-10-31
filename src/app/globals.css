@@ -112,6 +112,44 @@ html {
   }
 }
 
+/* The modal dialogs (src/components/dialog.tsx): the native <dialog> in the
+   top layer, scrolling inside, never wider than the screen. */
+.kora-dialog {
+  inline-size: 100%;
+  max-inline-size: min(32rem, 100% - 2rem);
+  max-block-size: 85dvh;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  margin: auto;
+  padding: 1.25rem;
+  border: 2px solid var(--color-pitch-700);
+  border-radius: 1rem;
+  background: var(--color-pitch-900);
+  color: var(--color-chalk);
+}
+
+.kora-dialog::backdrop {
+  background: rgb(0 0 0 / 0.7);
+}
+
+/* It rises in, only for visitors who have not asked for less motion. */
+@media (prefers-reduced-motion: no-preference) {
+  .kora-dialog[open] {
+    animation: kora-rise 0.2s ease-out;
+  }
+}
+
+@keyframes kora-rise {
+  from {
+    opacity: 0;
+    transform: translateY(1rem);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
 @keyframes kora-flip {
   from {
     transform: rotateX(90deg);

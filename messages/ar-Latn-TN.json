@@ -45,6 +45,12 @@
       "description": "A3ref la3eb el youm fi 8 mou7awlet. Kol youm la3eb jdid."
     },
     "rules": "A3ref la3eb el youm fi 8 mou7awlet. Ken el la3ba elli mazelou yel3bou.",
+    "help": {
+      "goal": "A3ref la3eb el youm fi 8 mou7awlet. Ken el la3ba elli mazelou yel3bou.",
+      "tiles": "Kol mou7awla twarrik 6 khanet: el far9, blad el far9, el blasa, el 3omr, matchet el mountakhab, win tweled.",
+      "example": "Mithel: nafs blad el far9 w nafs el blasa; el ashem y9ollek elli la3eb el youm akber.",
+      "daily": "Kol nhar la3eb jdid m3a nos ellil mta3 Tounes."
+    },
     "legend": {
       "title": "El alwen",
       "same": "Kif kif",
@@ -223,6 +229,11 @@
       "description": "Kawwen far9tek men la3ba tounsiyin, blasa blasa, w ba3d el3ab mawsem kemel: 30 match."
     },
     "rules": "Fi kol blasa yetla3lek far9 w 3achriya: ekhtar la3eb men khamsa wala a9al, w ba3d el3ab 30 match.",
+    "help": {
+      "draft": "L kol blasa yetla3lek far9 w 3ochriya: ekhtar la3eb mel khamsa 3al akther.",
+      "respin": "Tnajjem t3awed ed-dawra marra bark.",
+      "play": "Ki tkammel 11 la3eb, el3ab 30 match: 30–0 howa el 7elm."
+    },
     "noscript": "El le3ba hedhi test7a99 JavaScript.",
     "lines": {
       "goalkeeper": "El 7ares",

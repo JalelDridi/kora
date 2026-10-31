@@ -9,6 +9,12 @@ export type OpenDetail = "help" | "stats";
 export type OpenEvent = CustomEvent<OpenDetail>;
 export const OPEN_EVENT = "kora:open";
 
+declare global {
+  interface WindowEventMap {
+    "kora:open": OpenEvent;
+  }
+}
+
 type Props = { help: string; stats: string };
 
 const button =

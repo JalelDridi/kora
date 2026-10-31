@@ -62,64 +62,140 @@ export function TileRow({
           </span>
         ) : null}
       </p>
-      {/* Six columns from 400 px; below, 3 by 2 so every word fits (about
-          90 px a tile), each tile showing its own column name. */}
-      <ul
-        aria-label={name}
-        className="grid grid-cols-3 gap-1 min-[400px]:grid-cols-6"
-      >
-        {COLUMNS.map((column, i) => {
-          const tile = row[column];
-          const { text, label } = tileText(column, tile, labels, strings);
-          const arrow = arrowLabel(column, tile.arrow, strings.arrows);
-          const numeric = column === "age" || column === "caps";
-          return (
-            <li
-              key={column}
-              data-column={column}
-              data-colour={tile.colour}
-              style={animate ? { animationDelay: `${i * 120}ms` } : undefined}
-              className={`relative flex min-h-16 min-w-0 flex-col items-center justify-center rounded-md px-0.5 py-1 text-center text-xs leading-tight ${COLOUR_CLASS[tile.colour]} ${animate ? "tile-flip" : ""}`}
-            >
-              <span
-                data-header
-                dir="auto"
-                className="max-w-full text-[0.7rem] leading-tight [overflow-wrap:break-word] min-[400px]:sr-only"
-              >
-                <Words text={strings.headers[column]} />
-                <span className="sr-only">: </span>
-              </span>
-              <span
-                data-value
-                dir={numeric ? "ltr" : "auto"}
-                title={text}
-                className="max-w-full font-semibold [overflow-wrap:break-word]"
-              >
-                <Words text={text} />
-              </span>
-              {arrow ? (
-                <span
-                  role="img"
-                  aria-label={arrow}
-                  className="text-sm font-bold"
-                >
-                  {tile.arrow === "up" ? "↑" : "↓"}
-                </span>
-              ) : null}
-              {tile.colour !== "unknown" ? (
-                <span aria-hidden="true" className="text-[0.7rem] font-bold">
-                  {COLOUR_MARK[tile.colour]}
-                </span>
-              ) : null}
-              <span className="sr-only">
-                {label ? `, ${label}` : ""},{" "}
-                {strings.words[LEGEND_KEY[tile.colour]]}
-              </span>
-            </li>
-          );
-        })}
-      </ul>
+      <Tiles
+        name={name}
+        row={row}
+        labels={labels}
+        strings={strings}
+        animate={animate}
+      />
     </li>
+  );
+}
+
+/**
+ * The six tiles of a row, in the page's direction. Six columns from 400 px;
+ * below, 3 by 2 so every word fits (about 90 px a tile), each tile showing
+ * its own column name.
+ */
+function Tiles({
+  name,
+  row,
+  labels,
+  strings,
+  animate,
+  example = false,
+}: {
+  name: string;
+  row: Row;
+  labels: Labels;
+  strings: RowStrings;
+  animate: boolean;
+  example?: boolean;
+}) {
+  return (
+    <ul
+      data-example={example ? "" : undefined}
+      aria-label={name}
+      className="grid grid-cols-3 gap-1 min-[400px]:grid-cols-6"
+    >
+      {COLUMNS.map((column, i) => {
+        const tile = row[column];
+        const { text, label } = tileText(column, tile, labels, strings);
+        const arrow = arrowLabel(column, tile.arrow, strings.arrows);
+        const numeric = column === "age" || column === "caps";
+        return (
+          <li
+            key={column}
+            data-column={column}
+            data-colour={tile.colour}
+            style={animate ? { animationDelay: `${i * 120}ms` } : undefined}
+            className={`relative flex min-h-16 min-w-0 flex-col items-center justify-center rounded-md px-0.5 py-1 text-center text-xs leading-tight ${COLOUR_CLASS[tile.colour]} ${animate ? "tile-flip" : ""}`}
+          >
+            <span
+              data-header
+              dir="auto"
+              className="max-w-full text-[0.7rem] leading-tight [overflow-wrap:break-word] min-[400px]:sr-only"
+            >
+              <Words text={strings.headers[column]} />
+              <span className="sr-only">: </span>
+            </span>
+            <span
+              data-value
+              dir={numeric ? "ltr" : "auto"}
+              title={text}
+              className="max-w-full font-semibold [overflow-wrap:break-word]"
+            >
+              <Words text={text} />
+            </span>
+            {arrow ? (
+              <span role="img" aria-label={arrow} className="text-sm font-bold">
+                {tile.arrow === "up" ? "↑" : "↓"}
+              </span>
+            ) : null}
+            {tile.colour !== "unknown" ? (
+              <span aria-hidden="true" className="text-[0.7rem] font-bold">
+                {COLOUR_MARK[tile.colour]}
+              </span>
+            ) : null}
+            <span className="sr-only">
+              {label ? `, ${label}` : ""},{" "}
+              {strings.words[LEGEND_KEY[tile.colour]]}
+            </span>
+          </li>
+        );
+      })}
+    </ul>
+  );
+}
+
+/** The help's example: a guess beside an answer of the same club country and line, older. */
+const EXAMPLE_ROW: Row = {
+  club: { colour: "grey", arrow: null, value: "example-club" },
+  country: { colour: "green", arrow: null, value: "TN" },
+  position: { colour: "green", arrow: null, value: "midfielder" },
+  age: { colour: "amber", arrow: "up", value: 24 },
+  caps: { colour: "grey", arrow: "down", value: 2 },
+  governorate: { colour: "unknown", arrow: null, value: null },
+};
+
+/**
+ * One fixed row for the "how to play" dialog (mobile polish M2), read as an
+ * example: the club grey, its country and the line green, the age amber with
+ * the answer older, the caps grey with fewer, the birthplace unknown.
+ */
+export function ExampleRow({
+  club,
+  country,
+  caption,
+  strings,
+}: {
+  /** The example club's and the club country's names in the page's locale. */
+  club: string;
+  country: string;
+  caption: string;
+  strings: RowStrings;
+}) {
+  const labels: Labels = {
+    clubs: { "example-club": club },
+    countries: { TN: country },
+    governorates: {},
+  };
+  return (
+    <figure className="flex flex-col gap-1">
+      <TileHeaders headers={strings.headers} />
+      <Tiles
+        name={caption}
+        row={EXAMPLE_ROW}
+        labels={labels}
+        strings={strings}
+        animate={false}
+        example
+      />
+      <figcaption className="mt-1 text-base text-chalk-dim">
+        {caption}
+      </figcaption>
+    </figure>
   );
 }
 
