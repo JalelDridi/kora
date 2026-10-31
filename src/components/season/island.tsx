@@ -6,6 +6,7 @@ import {
   clearDraft,
   loadDraftView,
   saveDraft,
+  saveLast,
   saveSeason,
 } from "@/season/device";
 import type { DeviceSeason, DraftView } from "@/season/device";
@@ -288,7 +289,7 @@ export function SeasonIsland({
         rating: season.rating,
         locale,
       });
-      saveSeason({
+      const entry: DeviceSeason = {
         day: answer.view.day,
         xi: answer.view.code,
         w: season.w,
@@ -298,7 +299,10 @@ export function SeasonIsland({
         rating: season.rating,
         replaces: season.replaces,
         at: new Date().toISOString(),
-      });
+      };
+      saveSeason(entry);
+      // The hub's 30–0 card says what was played today (M6).
+      saveLast(entry);
       setHall(bestSeasons());
       setPlayed(answer.view);
       setLastCode(answer.view.code);
