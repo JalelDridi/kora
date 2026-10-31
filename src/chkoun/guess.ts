@@ -107,7 +107,16 @@ export async function handleGuess(
   let state: GameState = { n: body.n, d: day, g: [] };
   if (body.token !== null) {
     const read = readToken(body.token, key);
-    if (!read) return fail(403, { error: "forbidden" });
+    if (!read) {
+      // A today game that crosses midnight posts its number, now
+      // yesterday's, with a today-key token of that day: the day has
+      // turned, so the page reloads it (409), as before M7. Anything else
+      // that the past key does not read stays refused (T-MP-5).
+      const turned = past ? readToken(body.token, tokenKey(deps.seed)) : null;
+      if (turned && turned.d === day && turned.n === body.n)
+        return fail(409, { error: "newDay", number });
+      return fail(403, { error: "forbidden" });
+    }
     if (read.d !== day || read.n !== body.n)
       return fail(409, { error: "newDay", number });
     state = read;

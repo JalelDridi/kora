@@ -90,6 +90,17 @@ const deps = (over: Partial<GameDeps> = {}): GameDeps => ({
   ...over,
 });
 
+/** As in production: yesterday's number is played (mobile polish M7). */
+const wired = (over: Partial<GameDeps> = {}): GameDeps =>
+  deps({
+    pastPuzzle: async (day) => ({
+      day,
+      number: puzzleNumber(day, firstDay),
+      playerId: answer.id,
+    }),
+    ...over,
+  });
+
 const n = puzzleNumber("2026-10-19", firstDay);
 const post = (
   d: GameDeps,
@@ -227,14 +238,15 @@ describe("handleGuess", () => {
       { n: n - 1, d: "2026-10-18", g: [wrong[0]] },
       tokenKey(seed),
     );
-    for (const body of [
-      { n: n - 1, token: yesterday, guess: wrong[1] },
-      { n, token: yesterday, guess: wrong[1] },
-    ])
-      expect(await post(deps(), body)).toEqual({
-        status: 409,
-        body: { error: "newDay", number: n },
-      });
+    for (const d of [deps(), wired()])
+      for (const body of [
+        { n: n - 1, token: yesterday, guess: wrong[1] },
+        { n, token: yesterday, guess: wrong[1] },
+      ])
+        expect(await post(d, body)).toEqual({
+          status: 409,
+          body: { error: "newDay", number: n },
+        });
   });
 
   it("day boundary: a token for 19 Oct posted at 22:59:59 UTC is accepted; at 23:00:00 UTC it gets 409", async () => {
@@ -242,19 +254,23 @@ describe("handleGuess", () => {
       { n, d: "2026-10-19", g: [wrong[0]] },
       tokenKey(seed),
     );
-    const late = await post(
-      deps({ now: new Date("2026-10-19T22:59:59.999Z") }),
-      { token, guess: wrong[1] },
-    );
-    expect(late.status).toBe(200);
-    const midnight = await post(
-      deps({ now: new Date("2026-10-19T23:00:00.000Z") }),
-      { token, guess: wrong[1] },
-    );
-    expect(midnight).toEqual({
-      status: 409,
-      body: { error: "newDay", number: n + 1 },
-    });
+    // Also with yesterday's game wired, as in production: at midnight the
+    // game's number is yesterday's, and its token still gets newDay.
+    for (const make of [deps, wired]) {
+      const late = await post(
+        make({ now: new Date("2026-10-19T22:59:59.999Z") }),
+        { token, guess: wrong[1] },
+      );
+      expect(late.status).toBe(200);
+      const midnight = await post(
+        make({ now: new Date("2026-10-19T23:00:00.000Z") }),
+        { token, guess: wrong[1] },
+      );
+      expect(midnight).toEqual({
+        status: 409,
+        body: { error: "newDay", number: n + 1 },
+      });
+    }
   });
 
   it('with Redis off: the game is playable, the response says store "device", no cookie is set, no rate limit', async () => {
@@ -433,6 +449,38 @@ describe("yesterday's footballer (M7)", () => {
     expect((await post(past(), { token: old, guess: wrong[1] })).status).toBe(
       403,
     );
+  });
+
+  it("a today token on yesterday's number is 409 only when it is that day's own game; tampered or forged, 403", async () => {
+    // Yesterday's own game under today's key: the day turned mid-game.
+    const crossed = signToken(
+      { n: n - 1, d: yesterday, g: [wrong[0]] },
+      tokenKey(seed),
+    );
+    expect(await postPast(past(), { token: crossed, guess: wrong[1] })).toEqual(
+      { status: 409, body: { error: "newDay", number: n } },
+    );
+    // Another number or day inside a today-key token: refused.
+    for (const state of [
+      { n, d: yesterday, g: [wrong[0]] },
+      { n: n - 1, d: "2026-10-19", g: [wrong[0]] },
+    ])
+      expect(
+        (
+          await postPast(past(), {
+            token: signToken(state, tokenKey(seed)),
+            guess: wrong[1],
+          })
+        ).status,
+      ).toBe(403);
+    // Signed by neither key: refused.
+    const forged = signToken(
+      { n: n - 1, d: yesterday, g: [wrong[0]] },
+      tokenKey("another-test-seed"),
+    );
+    expect(
+      (await postPast(past(), { token: forged, guess: wrong[1] })).status,
+    ).toBe(403);
   });
 
   it("a past token from the day before yesterday is refused as a new day", async () => {
