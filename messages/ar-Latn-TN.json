@@ -83,6 +83,9 @@
       "age": "El 3omr",
       "caps": "Matchet el mountakhab",
       "governorate": "Mawloud fi",
+      "countryShort": "Blad",
+      "capsShort": "Dawli",
+      "governorateShort": "Mnin",
       "older": "Howa akbar",
       "younger": "Howa asghar",
       "moreCaps": "3andou matchet akther m3a el mountakhab",
@@ -134,7 +137,13 @@
     "goalkeeper": "7ares",
     "defender": "Mdafe3",
     "midfielder": "Wost midan",
-    "forward": "Mhajem"
+    "forward": "Mhajem",
+    "short": {
+      "goalkeeper": "7ares",
+      "defender": "Mdafe3",
+      "midfielder": "Wost",
+      "forward": "Mhajem"
+    }
   },
   "credit": {
     "photo": "Tsawira: {author}, {licence}",

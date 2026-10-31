@@ -381,6 +381,46 @@ Two lines for 30–0 (§2.12): the button under the first five matches of a play
 | `season.result.allMatches` | See all 30 matches (the button under the first five) | Voir les 30 matchs        | شوف الـ30 ماتش الكل | Chouf el 30 match el kol | DRAFT  |
 | `season.loading`           | The first spin is on its way (before the first spin) | Le premier tirage arrive… | الدورة الأولى جاية… | Ed-dawra el oula jeya…   | DRAFT  |
 
+### Task 5: the six-column tile row
+
+The tile row of Jalel's approved mock (D-MP-1): six narrow columns from 340 px, a header row once with each column's icon and short name, each tile its short value. Reused, not duplicated: `chkoun.tiles.club`, `chkoun.tiles.position` and `chkoun.tiles.age` head their columns as they are; the full names `chkoun.tiles.*` stay what a screen reader hears with every tile. Research: منين (from where) is the spoken Tunisian question for a birthplace, دولي (international) is how fans call a capped footballer; البلاد keeps the word of `chkoun.tiles.country`. The short lines follow the mock where it shows them (مدافع / `Mdafe3`, مهاجم / `Mhajem`, the full words, which fit); وسط / `Wost` shortens وسط ميدان / `Wost midan`. Points to check:
+
+- `chkoun.tiles.capsShort` « Sél. » in French: an abbreviation with a dot; « Sélec. » is the other usual one.
+- `positions.short.defender` and `positions.short.forward` in French (« Déf. », « Att. »): the full words do not fit a six-column tile at 360 px.
+
+| Key                             | English gloss                            | French draft | `ar-TN` as shipped | `ar-Latn-TN` as shipped | Status |
+| ------------------------------- | ---------------------------------------- | ------------ | ------------------ | ----------------------- | ------ |
+| `chkoun.tiles.countryShort`     | Country (the club's country, header row) | Pays         | البلاد             | Blad                    | DRAFT  |
+| `chkoun.tiles.capsShort`        | Caps (header row)                        | Sél.         | دولي               | Dawli                   | DRAFT  |
+| `chkoun.tiles.governorateShort` | Born in (header row)                     | Né à         | منين               | Mnin                    | DRAFT  |
+| `positions.short.goalkeeper`    | Goalkeeper, in a tile                    | Gardien      | حارس               | 7ares                   | DRAFT  |
+| `positions.short.defender`      | Defender, in a tile                      | Déf.         | مدافع              | Mdafe3                  | DRAFT  |
+| `positions.short.midfielder`    | Midfielder, in a tile                    | Milieu       | وسط                | Wost                    | DRAFT  |
+| `positions.short.forward`       | Forward, in a tile                       | Att.         | مهاجم              | Mhajem                  | DRAFT  |
+
+The short club labels live in `data/curated/club-short.json` (`by: claude`, DRAFT), checked by `pnpm data:check` (every Ligue 1 club listed; at most two words of at most 8 characters; Western digits). `latin` shows on `/tn` and `/fr` (the acronym fans write), `arabic` on `/ar` (the Derja nickname); a Chkoun? tile and, under 400 px, a 30–0 match row print it, and the full name stays in the tile's title and screen-reader text. The 16 Ligue 1 clubs:
+
+| Club id                         | Full name (Latin)             | `latin` | `arabic`     | Status |
+| ------------------------------- | ----------------------------- | ------- | ------------ | ------ |
+| `esperance-sportive-de-tunis`   | Espérance Sportive de Tunis   | EST     | الترجي       | DRAFT  |
+| `etoile-sportive-du-sahel`      | Étoile Sportive du Sahel      | ESS     | النجم        | DRAFT  |
+| `club-africain`                 | Club Africain                 | CA      | الإفريقي     | DRAFT  |
+| `cs-sfaxien`                    | CS Sfaxien                    | CSS     | الصفاقسي     | DRAFT  |
+| `us-monastir`                   | US Monastir                   | USM     | المنستير     | DRAFT  |
+| `stade-tunisien`                | Stade Tunisien                | ST      | الملعب       | DRAFT  |
+| `ca-bizertine`                  | CA Bizertine                  | CAB     | البنزرتي     | DRAFT  |
+| `us-ben-guerdane`               | US Ben Guerdane               | USBG    | بن ڤردان     | DRAFT  |
+| `olympique-beja`                | Olympique Béja                | OB      | الباجي       | DRAFT  |
+| `es-zarzis`                     | ES Zarzis                     | ESZ     | جرجيس        | DRAFT  |
+| `etoile-sportive-de-metlaoui`   | Etoile Sportive de Metlaoui   | ESM     | المتلوي      | DRAFT  |
+| `as-marsa`                      | AS Marsa                      | ASM     | المرسى       | DRAFT  |
+| `es-hammam-sousse`              | ES Hammam-Sousse              | ESHS    | حمام سوسة    | DRAFT  |
+| `cs-hammam-lif`                 | CS Hammam-Lif                 | CSHL    | حمام الأنف   | DRAFT  |
+| `jeunesse-sportive-d-el-omrane` | Jeunesse sportive d'El Omrane | JSO     | العمران      | DRAFT  |
+| `ps-sakiet-eddaier`             | PS Sakiet Eddaïer             | PSS     | ساقية الدائر | DRAFT  |
+
+Points to check: بن ڤردان with the Tunisian ڤ (against بنقردان of the club's Arabic name); حمام سوسة and حمام الأنف (the town, two words) against a nickname; العمران and ساقية الدائر (the district) for JS El Omrane and PS Sakiet Eddaïer. The file also gives 75 clubs abroad or in the lower Tunisian divisions a short form (their usual short name, ASG and SG for the two Gabès clubs, JSK, UST, EGSG, SAMB); a club not listed shows its full name.
+
 ## Go-live checklist (Chkoun?)
 
 The game page is reachable by its URL but hidden until all of these are done, in this order:

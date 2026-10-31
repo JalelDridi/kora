@@ -36,6 +36,38 @@ test.beforeEach(async ({ page }, info) => {
   if (!info.titlePath.includes(FIRST_VISIT)) await skipHelp(page);
 });
 
+/**
+ * Every word of every tile and header that sits on more than one line: a
+ * break inside a word, or automatic hyphenation (Chromium on Linux has
+ * dictionaries). A word too wide for its tile is cut with an ellipsis, never
+ * broken.
+ */
+async function splitWords(page: Page): Promise<string[]> {
+  return page.evaluate(() => {
+    const bad: string[] = [];
+    for (const el of document.querySelectorAll(
+      "[data-guess] [data-value], [data-tile-headers] [data-head]",
+    )) {
+      if (getComputedStyle(el).hyphens === "auto")
+        bad.push(`hyphens:auto on ${el.textContent}`);
+      const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+      for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+        const text = node.textContent ?? "";
+        for (const m of text.matchAll(/\S+/g)) {
+          const range = document.createRange();
+          range.setStart(node, m.index!);
+          range.setEnd(node, m.index! + m[0].length);
+          const lines = new Set(
+            [...range.getClientRects()].map((r) => Math.round(r.top)),
+          );
+          if (lines.size > 1) bad.push(m[0]);
+        }
+      }
+    }
+    return bad;
+  });
+}
+
 const axe = async (page: Page) =>
   (await new AxeBuilder({ page }).analyze()).violations;
 
@@ -122,7 +154,7 @@ for (const locale of locales) {
     await expect(page.locator("#chkoun-result")).toBeFocused();
   });
 
-  test(`${url}: at 320 px the tiles sit 3 by 2, name their column, and break no word`, async ({
+  test(`${url}: at 320 px the tiles sit 3 by 2, show their column's icon, and break no word`, async ({
     page,
   }) => {
     await page.setViewportSize({ width: 320, height: 740 });
@@ -134,36 +166,76 @@ for (const locale of locales) {
       (await row.locator(`[data-column="${c}"]`).boundingBox())!;
     expect((await box("club")).y).toBeCloseTo((await box("position")).y, 0);
     expect((await box("age")).y).toBeGreaterThan((await box("club")).y);
-    await expect(
-      row.locator('[data-column="caps"] [data-header]'),
-    ).toBeVisible();
-    // Every word of every tile stays on one line: no break inside a word,
-    // and no automatic hyphenation (Chromium on Linux has dictionaries).
-    const split = await page.evaluate(() => {
-      const bad: string[] = [];
-      for (const el of document.querySelectorAll(
-        "[data-guess] [data-value], [data-guess] [data-header]",
-      )) {
-        if (getComputedStyle(el).hyphens === "auto")
-          bad.push(`hyphens:auto on ${el.textContent}`);
-        const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
-        for (let node = walker.nextNode(); node; node = walker.nextNode()) {
-          const text = node.textContent ?? "";
-          for (const m of text.matchAll(/\S+/g)) {
-            const range = document.createRange();
-            range.setStart(node, m.index!);
-            range.setEnd(node, m.index! + m[0].length);
-            const lines = new Set(
-              [...range.getClientRects()].map((r) => Math.round(r.top)),
-            );
-            if (lines.size > 1) bad.push(m[0]);
-          }
-        }
-      }
-      return bad;
-    });
-    expect(split).toEqual([]);
+    // Under 340 px each tile shows its column's icon (D-MP-1); the header
+    // row is there once, 3 by 2 as well.
+    await expect(row.locator('[data-column="caps"] [data-icon]')).toBeVisible();
+    await expect(page.locator("[data-tile-headers]")).toHaveCount(1);
+    await expect(page.locator("[data-tile-headers]")).toBeVisible();
+    expect(await splitWords(page)).toEqual([]);
+    expect(await noSidewaysScroll(page)).toBe(0);
   });
+
+  for (const width of [360, 375, 412]) {
+    test(`${url}: at ${width} px each guess is one row of six, values at 14 px or more`, async ({
+      page,
+    }) => {
+      await page.setViewportSize({ width, height: 800 });
+      await page.goto(url);
+      await ready(page);
+      for (const id of fixture.others.slice(0, 3)) await guess(page, id);
+      // The tiles flip in: measure them once still.
+      await page.waitForFunction(() =>
+        document.getAnimations().every((a) => a.playState !== "running"),
+      );
+      for (const row of await page.locator("[data-guess]").all()) {
+        const ys = await row
+          .locator("[data-column]")
+          .evaluateAll((els) =>
+            els.map((e) => Math.round(e.getBoundingClientRect().top)),
+          );
+        expect(ys).toHaveLength(6);
+        expect(new Set(ys).size).toBe(1);
+        // Every tile at least 44 px high; no icon inside the tiles here.
+        const heights = await row
+          .locator("[data-column]")
+          .evaluateAll((els) =>
+            els.map((e) => e.getBoundingClientRect().height),
+          );
+        expect(Math.min(...heights)).toBeGreaterThanOrEqual(44);
+        await expect(row.locator("[data-icon]:visible")).toHaveCount(0);
+      }
+      const sizes = await page
+        .locator("[data-guess] [data-value], [data-tile-headers] [data-head]")
+        .evaluateAll((els) =>
+          els.map((e) => parseFloat(getComputedStyle(e).fontSize)),
+        );
+      expect(sizes.length).toBeGreaterThanOrEqual(3 * 6 + 6);
+      expect(Math.min(...sizes)).toBeGreaterThanOrEqual(14);
+      // The header row once, its columns over the tiles' columns.
+      const headers = page.locator("[data-tile-headers]");
+      await expect(headers).toHaveCount(1);
+      await expect(headers).toBeVisible();
+      await expect(headers).toHaveAttribute("aria-hidden", "true");
+      const heads = await headers
+        .locator("[data-head]")
+        .evaluateAll((els) =>
+          els.map((e) => Math.round(e.getBoundingClientRect().left)),
+        );
+      const tiles = await page
+        .locator("[data-guess]")
+        .first()
+        .locator("[data-column]")
+        .evaluateAll((els) =>
+          els.map((e) => Math.round(e.getBoundingClientRect().left)),
+        );
+      expect(heads).toEqual(tiles);
+      // The tile's title keeps the whole value.
+      const club = page.locator('[data-guess] [data-column="club"]');
+      expect(await club.first().getAttribute("title")).toBeTruthy();
+      expect(await splitWords(page)).toEqual([]);
+      expect(await noSidewaysScroll(page)).toBe(0);
+    });
+  }
 
   test(`${url}: every tile has a text label and a screen-reader word, not only a colour`, async ({
     page,
@@ -423,6 +495,32 @@ for (const locale of locales) {
     await page.setViewportSize({ width: 320, height: 740 });
     await scrolled(page);
     await page.screenshot({ path: shot(4, slug, 320, "five-rows") });
+  });
+
+  test(`${url}: screenshots of a won game's rows at 320, 360, 375 and 412 px (task 5)`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 360, height: 800 });
+    await page.goto(url);
+    await ready(page);
+    for (const id of fixture.others.slice(0, 2)) await guess(page, id);
+    await guess(page, fixture.answers[0]);
+    await expect(page.locator("#chkoun-result")).toBeFocused();
+    await page.waitForFunction(() =>
+      document.getAnimations().every((a) => a.playState !== "running"),
+    );
+    for (const width of [320, 360, 375, 412]) {
+      await page.setViewportSize({ width, height: 800 });
+      await page.locator("[data-tile-headers]").scrollIntoViewIfNeeded();
+      await page.evaluate(() => {
+        const top = document
+          .querySelector("[data-tile-headers]")!
+          .getBoundingClientRect().top;
+        window.scrollBy(0, top - 72);
+      });
+      await scrolled(page);
+      await page.screenshot({ path: shot(5, slug, width, "rows") });
+    }
   });
 }
 

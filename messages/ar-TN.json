@@ -83,6 +83,9 @@
       "age": "العمر",
       "caps": "ماتشات المنتخب",
       "governorate": "مولود في",
+      "countryShort": "البلاد",
+      "capsShort": "دولي",
+      "governorateShort": "منين",
       "older": "هو أكبر",
       "younger": "هو أصغر",
       "moreCaps": "عندو ماتشات أكثر مع المنتخب",
@@ -134,7 +137,13 @@
     "goalkeeper": "حارس",
     "defender": "مدافع",
     "midfielder": "وسط ميدان",
-    "forward": "مهاجم"
+    "forward": "مهاجم",
+    "short": {
+      "goalkeeper": "حارس",
+      "defender": "مدافع",
+      "midfielder": "وسط",
+      "forward": "مهاجم"
+    }
   },
   "credit": {
     "photo": "التصويرة: {author}، {licence}",

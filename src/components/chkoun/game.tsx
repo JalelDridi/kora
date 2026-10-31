@@ -55,7 +55,12 @@ type Props = {
 
 type Store = "server" | "device";
 type GameData = { names: PackedName[]; labels: Labels };
-const NO_LABELS: Labels = { clubs: {}, governorates: {}, countries: {} };
+const NO_LABELS: Labels = {
+  clubs: {},
+  short: {},
+  governorates: {},
+  countries: {},
+};
 type Today = { number: number; day: string; endsAt: string; store: Store };
 type Phase =
   | { kind: "loading" }
@@ -363,6 +368,7 @@ export function Game({
 
   const rowStrings: RowStrings = {
     positions: strings.positions,
+    positionsShort: strings.positions.short,
     caps: t.caps,
     abroad: t.tiles.abroad,
     noClub: t.tiles.noClub,
@@ -373,6 +379,14 @@ export function Game({
       age: t.tiles.age,
       caps: t.tiles.caps,
       governorate: t.tiles.governorate,
+    },
+    heads: {
+      club: t.tiles.club,
+      country: t.tiles.countryShort,
+      position: t.tiles.position,
+      age: t.tiles.age,
+      caps: t.tiles.capsShort,
+      governorate: t.tiles.governorateShort,
     },
     words: t.legend,
     arrows: {
@@ -457,7 +471,7 @@ export function Game({
 
       {data && game && game.rows.length > 0 ? (
         <section aria-label={t.guesses} className="mb-4 flex flex-col gap-3">
-          <TileHeaders headers={rowStrings.headers} />
+          <TileHeaders heads={rowStrings.heads} />
           <ol ref={rowList} className="flex flex-col gap-4">
             {game.rows.map((r, i) => {
               const n = byId.get(r.guess);

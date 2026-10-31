@@ -83,6 +83,9 @@
       "age": "Âge",
       "caps": "Sélections",
       "governorate": "Né à",
+      "countryShort": "Pays",
+      "capsShort": "Sél.",
+      "governorateShort": "Né à",
       "older": "Il est plus âgé",
       "younger": "Il est plus jeune",
       "moreCaps": "Il a plus de sélections",
@@ -134,7 +137,13 @@
     "goalkeeper": "Gardien",
     "defender": "Défenseur",
     "midfielder": "Milieu",
-    "forward": "Attaquant"
+    "forward": "Attaquant",
+    "short": {
+      "goalkeeper": "Gardien",
+      "defender": "Déf.",
+      "midfielder": "Milieu",
+      "forward": "Att."
+    }
   },
   "credit": {
     "photo": "Photo : {author}, {licence}",

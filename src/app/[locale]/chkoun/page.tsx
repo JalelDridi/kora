@@ -103,6 +103,7 @@ export default async function ChkounPage({
             ...EXAMPLE[locale],
             strings: {
               positions: messages.positions,
+              positionsShort: messages.positions.short,
               caps: c.caps,
               abroad: c.tiles.abroad,
               noClub: c.tiles.noClub,
@@ -113,6 +114,14 @@ export default async function ChkounPage({
                 age: c.tiles.age,
                 caps: c.tiles.caps,
                 governorate: c.tiles.governorate,
+              },
+              heads: {
+                club: c.tiles.club,
+                country: c.tiles.countryShort,
+                position: c.tiles.position,
+                age: c.tiles.age,
+                caps: c.tiles.capsShort,
+                governorate: c.tiles.governorateShort,
               },
               words: legendWords,
               arrows: {

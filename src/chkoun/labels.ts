@@ -1,6 +1,7 @@
 import type { Line, Tile, TileRow } from "@/engine/chkoun/types.ts";
 import type { Locale } from "@/i18n/locales";
 import { isGuessable } from "@/pipeline/grace.ts";
+import type { ClubShortFile } from "@/pipeline/check.ts";
 import type { GovernorateRow, Pool } from "@/pipeline/types.ts";
 
 // What the tiles and the card print, per locale (plan Task 12). The page
@@ -12,6 +13,8 @@ import type { GovernorateRow, Pool } from "@/pipeline/types.ts";
 
 export type Labels = {
   clubs: Record<string, string>;
+  /** A club's short label for a tile (club-short.json, D-MP-1), when it has one. */
+  short: Record<string, string>;
   governorates: Record<string, string>;
   countries: Record<string, string>;
 };
@@ -56,18 +59,44 @@ export function buildLabels(
   locale: Locale,
   /** Jalel's country names for a Derja locale; null for French. */
   derjaCountries: Record<string, string> | null,
+  /** data/curated/club-short.json's clubs. */
+  clubShort: ClubShortFile["clubs"] = {},
 ): Labels {
   const guessable = pool.players.filter((p) => isGuessable(p.pools));
   const clubIds = new Set(guessable.map((p) => p.clubId));
   const clubs: Record<string, string> = {};
-  for (const c of pool.clubs)
-    if (clubIds.has(c.id)) clubs[c.id] = localName(c, locale);
+  const short: Record<string, string> = {};
+  for (const c of pool.clubs) {
+    if (!clubIds.has(c.id)) continue;
+    clubs[c.id] = localName(c, locale);
+    const s = shortName(clubShort, c.id, locale);
+    if (s !== null) short[c.id] = s;
+  }
   const govs: Record<string, string> = {};
   for (const g of governorates) govs[g.id] = localName(g, locale);
   const countries: Record<string, string> = {};
   for (const code of shownCountryCodes(pool))
     countries[code] = derjaCountries?.[code] ?? frenchCountryName(code);
-  return { clubs, governorates: govs, countries };
+  return { clubs, short, governorates: govs, countries };
+}
+
+/** A club's short label in the locale's script: the Derja nickname on /ar, else the Latin one. */
+export function shortName(
+  clubShort: ClubShortFile["clubs"],
+  id: string,
+  locale: Locale,
+): string | null {
+  const forms = clubShort[id];
+  if (!forms) return null;
+  return locale === "ar-TN" ? forms.arabic : forms.latin;
+}
+
+/** The longest country name a tile prints before falling back to its ISO code. */
+const SHORT_COUNTRY = 8;
+
+function shortCountry(code: string, labels: Labels): string {
+  const name = labels.countries[code] ?? code;
+  return [...name].length <= SHORT_COUNTRY ? name : code;
 }
 
 /** "{n} of 8" with its values: the only templating the game needs. */
@@ -94,43 +123,72 @@ export const COLUMNS: readonly TileColumn[] = [
 
 export type TileStrings = {
   positions: Record<Line, string>;
+  /** The line as a six-column tile prints it (messages positions.short). */
+  positionsShort: Record<Line, string>;
   caps: Record<"band0" | "band1" | "band2" | "band3" | "band4", string>;
   abroad: string;
   noClub: string;
 };
 
 /**
- * The text a tile shows, and for an unknown club the words a screen reader
- * says instead of "?". A value missing from the tables falls back to its
- * code, never to nothing.
+ * The text of a tile: `text`, the whole value (the tile's title, the screen
+ * reader and the card); `short`, what the tile shows (D-MP-1: a club's short
+ * label, a country of more than 8 characters as its ISO code, a birthplace
+ * abroad as its country only); and for an unknown club the words a screen
+ * reader says instead of "?". A value missing from the tables falls back to
+ * its code, never to nothing.
  */
 export function tileText(
   column: TileColumn,
   tile: Tile,
   labels: Labels,
   strings: TileStrings,
-): { text: string; label: string | null } {
+): { text: string; short: string; label: string | null } {
   const v = tile.value;
   if (v === null)
-    return { text: "?", label: column === "club" ? strings.noClub : null };
+    return {
+      text: "?",
+      short: "?",
+      label: column === "club" ? strings.noClub : null,
+    };
+  const same = (text: string) => ({ text, short: text, label: null });
   switch (column) {
-    case "club":
-      return { text: labels.clubs[String(v)] ?? String(v), label: null };
+    case "club": {
+      const text = labels.clubs[String(v)] ?? String(v);
+      return { text, short: labels.short?.[String(v)] ?? text, label: null };
+    }
     case "country":
-      return { text: labels.countries[String(v)] ?? String(v), label: null };
+      return {
+        text: labels.countries[String(v)] ?? String(v),
+        short: shortCountry(String(v), labels),
+        label: null,
+      };
     case "position":
       return {
         text: strings.positions[v as Line] ?? String(v),
+        short:
+          strings.positionsShort?.[v as Line] ??
+          strings.positions[v as Line] ??
+          String(v),
         label: null,
       };
     case "age":
-      return { text: String(v), label: null };
+      return same(String(v));
     case "caps": {
       const band = `band${v}` as keyof TileStrings["caps"];
-      return { text: strings.caps[band] ?? String(v), label: null };
+      return same(strings.caps[band] ?? String(v));
     }
-    case "governorate":
-      return { text: birthText(String(v), labels, strings), label: null };
+    case "governorate": {
+      const value = String(v);
+      const text = birthText(value, labels, strings);
+      return {
+        text,
+        short: value.startsWith("abroad:")
+          ? (labels.countries[value.slice(7)] ?? value.slice(7))
+          : text,
+        label: null,
+      };
+    }
   }
 }
 
