@@ -11,6 +11,8 @@ import {
   guess,
   noSidewaysScroll,
   ready,
+  scrolled,
+  shot,
   skipHelp,
 } from "./chkoun-helpers";
 import { type ChkounFixture, seedChkoun } from "./fixtures/chkoun";
@@ -247,6 +249,78 @@ for (const locale of locales) {
     expect(await axe(page)).toEqual([]);
   });
 
+  // Mobile polish M4 (T-MP-4): the guesses grow towards the thumb. Rows sit
+  // above the search; while playing, the search block is pinned to the
+  // bottom of the screen and its suggestions open upward.
+  for (const width of [320, 360]) {
+    test(`${url}: at ${width} px rows sit above the search, the search stays on screen, the newest row is in view`, async ({
+      page,
+    }) => {
+      await page.setViewportSize({ width, height: 740 });
+      await page.goto(url);
+      await ready(page);
+      for (const id of fixture.others.slice(0, 5)) await guess(page, id);
+      await scrolled(page);
+      const search = (await page.getByRole("combobox").boundingBox())!;
+      const rows = page.locator("[data-guess]");
+      const last = (await rows.last().boundingBox())!;
+      expect(last.y + last.height).toBeLessThanOrEqual(search.y);
+      expect(search.y + search.height).toBeLessThanOrEqual(740);
+      expect(last.y).toBeGreaterThanOrEqual(0);
+      await page.getByRole("combobox").fill("ben");
+      await expect(page.getByRole("listbox")).toBeVisible();
+      const list = (await page.getByRole("listbox").boundingBox())!;
+      expect(list.y + list.height).toBeLessThanOrEqual(search.y + 1);
+      expect(list.y).toBeGreaterThanOrEqual(0);
+      expect(await noSidewaysScroll(page)).toBe(0);
+      expect(await axe(page)).toEqual([]);
+    });
+  }
+
+  test(`${url}: the shell and the live game put the search at the same height`, async ({
+    page,
+  }) => {
+    await page.route("**/api/chkoun/today", async (r) => {
+      await new Promise((f) => setTimeout(f, 1500));
+      await r.continue();
+    });
+    await page.goto(url);
+    const shell = (await page.locator("#chkoun-shell-search").boundingBox())!;
+    await ready(page);
+    const live = (await page.getByRole("combobox").boundingBox())!;
+    expect(Math.abs(live.y - shell.y)).toBeLessThanOrEqual(1);
+  });
+
+  test(`${url}: with no row yet, the suggestions open below the search`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 360, height: 800 });
+    await page.goto(url);
+    await ready(page);
+    const search = (await page.getByRole("combobox").boundingBox())!;
+    await page.getByRole("combobox").fill("ben");
+    await expect(page.getByRole("listbox")).toBeVisible();
+    const list = (await page.getByRole("listbox").boundingBox())!;
+    expect(list.y).toBeGreaterThanOrEqual(search.y + search.height - 1);
+  });
+
+  test(`${url}: once finished, the result takes the pinned search's place`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 360, height: 740 });
+    await page.goto(url);
+    await ready(page);
+    for (const id of fixture.others.slice(0, 3)) await guess(page, id);
+    await guess(page, fixture.answers[0]);
+    await expect(page.getByRole("combobox")).toHaveCount(0);
+    const rows = page.locator("[data-guess]");
+    const result = page.locator("#chkoun-result");
+    expect((await rows.last().boundingBox())!.y).toBeLessThan(
+      (await result.boundingBox())!.y,
+    );
+    expect(await noSidewaysScroll(page)).toBe(0);
+  });
+
   for (const width of [320, 360]) {
     test(`${url}: no sideways scrolling at ${width} px`, async ({ page }) => {
       await page.setViewportSize({ width, height: 740 });
@@ -259,6 +333,54 @@ for (const locale of locales) {
       expect(await noSidewaysScroll(page)).toBe(0);
     });
   }
+
+  /** Screenshot names use the URL's locale: ar, tn, fr. */
+  const slug = prefix.slice(1);
+  test(`${url}: screenshots of the play layout at 320, 360, 375 and 412 px (task 4)`, async ({
+    page,
+  }) => {
+    for (const width of [320, 360, 375, 412]) {
+      await page.setViewportSize({ width, height: 800 });
+      await page.goto(url);
+      await ready(page);
+      await page.screenshot({ path: shot(4, slug, width, "first-screen") });
+    }
+    await page.setViewportSize({ width: 360, height: 800 });
+    for (const id of fixture.others.slice(0, 2)) await guess(page, id);
+    await scrolled(page);
+    await page.screenshot({ path: shot(4, slug, 360, "two-rows") });
+    await guess(page, fixture.others[2]);
+    for (const width of [320, 360, 375, 412]) {
+      await page.setViewportSize({ width, height: 800 });
+      await page.reload();
+      await ready(page);
+      // As after a guess: the newest row just above the pinned search.
+      await page.evaluate(() => {
+        const rows = document.querySelectorAll("[data-guess]");
+        const newest = rows[rows.length - 1].getBoundingClientRect();
+        const search = document.querySelector("[data-pinned]")!;
+        window.scrollBy(
+          0,
+          newest.bottom - search.getBoundingClientRect().top + 8,
+        );
+      });
+      await scrolled(page);
+      await page.screenshot({ path: shot(4, slug, width, "three-rows") });
+    }
+    for (const id of fixture.others.slice(3, 5)) await guess(page, id);
+    await page.setViewportSize({ width: 360, height: 800 });
+    await scrolled(page);
+    await page
+      .getByRole("combobox")
+      .fill(footballer(fixture.others[5]).nameLatin.slice(0, 3));
+    await expect(page.getByRole("listbox")).toBeVisible();
+    await page.screenshot({ path: shot(4, slug, 360, "five-rows-typing") });
+    await page.getByRole("combobox").fill("");
+    await page.getByRole("combobox").blur();
+    await page.setViewportSize({ width: 320, height: 740 });
+    await scrolled(page);
+    await page.screenshot({ path: shot(4, slug, 320, "five-rows") });
+  });
 }
 
 test("suggestions accept Arabic, Arabizi and French spellings", async ({

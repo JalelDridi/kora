@@ -34,6 +34,7 @@ import { ShareButton } from "./share-button";
 import { Stats as StatsPanel } from "./stats";
 import { publishStats } from "./stats-dialog";
 import { SearchBox } from "./search-box";
+import { SEARCH_BLOCK } from "./shell";
 import { TileHeaders, TileRow, type RowStrings } from "./tile-row";
 
 export type GameStrings = {
@@ -137,6 +138,10 @@ export function Game({
   const current = useRef<number | null>(null);
   /** Set by the guess that ends the game: the result heading takes focus. */
   const finishedNow = useRef(false);
+  /** Set by a guess in this page view: its row scrolls into view. */
+  const guessedNow = useRef(false);
+  const rowList = useRef<HTMLOListElement>(null);
+  const searchBlock = useRef<HTMLDivElement>(null);
   /** What a screen reader hears after each guess: the row's words. */
   const [announcement, setAnnouncement] = useState("");
   const retry = useRef<number | undefined>(undefined);
@@ -258,6 +263,29 @@ export function Game({
     document.getElementById("chkoun-result")?.focus();
   }, [game?.status]);
 
+  const rowCount = game?.rows.length ?? 0;
+  useEffect(() => {
+    // The newest row comes into view above the pinned search (M4), so the
+    // visitor sees his guess's tiles without scrolling. Smooth unless the
+    // visitor asked for less motion.
+    if (!guessedNow.current || rowCount === 0) return;
+    guessedNow.current = false;
+    const frame = requestAnimationFrame(() => {
+      const newest = rowList.current?.lastElementChild;
+      if (!(newest instanceof HTMLElement)) return;
+      const below = searchBlock.current?.offsetHeight ?? 0;
+      newest.style.scrollMarginBlockEnd = `${below + 8}px`;
+      const reduced = window.matchMedia(
+        "(prefers-reduced-motion: reduce)",
+      ).matches;
+      newest.scrollIntoView({
+        block: "nearest",
+        behavior: reduced ? "auto" : "smooth",
+      });
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [rowCount]);
+
   async function guess(id: string) {
     if (phase.kind !== "open" || !game || game.status !== "playing") return;
     if (pending) return;
@@ -297,6 +325,8 @@ export function Game({
         status: body.status,
         card: body.status === "playing" ? null : (body.card ?? null),
       };
+      // The guess that ends the game focuses the result instead.
+      guessedNow.current = body.status === "playing";
       update(next);
       setAnnouncement(describeRow(id, body.row));
       if (body.status !== "playing") finishedNow.current = true;
@@ -376,6 +406,8 @@ export function Game({
     [game],
   );
   const playing = phase.kind === "open" && game?.status === "playing";
+  /** The search sits under rows: its suggestions open upward. */
+  const pinned = playing && rowCount > 0;
   const noticeText =
     notice === null
       ? null
@@ -418,53 +450,10 @@ export function Game({
         ) : null}
       </div>
 
-      {/* The search stays in place, disabled, while the day loads, is closed
-          or failed, so nothing below it jumps. */}
-      {phase.kind === "loading" ||
-      phase.kind === "closed" ||
-      phase.kind === "failed" ||
-      playing ? (
-        <div>
-          <SearchBox
-            locale={locale}
-            entries={entries}
-            names={byId}
-            ready={entries.length > 0}
-            onWant={() => {
-              loadData();
-              setWanted(true);
-            }}
-            guessed={guessed}
-            disabled={!playing}
-            onGuess={(id) => void guess(id)}
-            onNoMatch={() =>
-              track("chkoun_no_match", {
-                n: phase.kind === "open" ? phase.today.number : undefined,
-                locale,
-              })
-            }
-            strings={t.search}
-          />
-          <p className="text-base text-chalk-dim">
-            {format(t.guessCount, {
-              n: Math.min((game?.rows.length ?? 0) + 1, MAX_GUESSES),
-            })}
-          </p>
-        </div>
-      ) : null}
-
-      <p
-        role="status"
-        aria-live="polite"
-        className="mt-2 min-h-6 text-base font-semibold"
-      >
-        {noticeText}
-      </p>
-
       {data && game && game.rows.length > 0 ? (
-        <section aria-label={t.guesses} className="mt-4 flex flex-col gap-3">
+        <section aria-label={t.guesses} className="mb-4 flex flex-col gap-3">
           <TileHeaders headers={rowStrings.headers} />
-          <ol className="flex flex-col gap-4">
+          <ol ref={rowList} className="flex flex-col gap-4">
             {game.rows.map((r, i) => {
               const n = byId.get(r.guess);
               const shown = n ? localName(n, locale) : r.guess;
@@ -484,6 +473,64 @@ export function Game({
           </ol>
         </section>
       ) : null}
+
+      {/* The search stays in place, disabled, while the day loads, is closed
+          or failed, so nothing below it jumps. It comes after the guesses
+          and, while playing, is pinned to the bottom of the screen with its
+          suggestions opening upward (mobile polish M4, T-MP-4); the result
+          takes its place at the end. */}
+      {phase.kind === "loading" ||
+      phase.kind === "closed" ||
+      phase.kind === "failed" ||
+      playing ? (
+        <div
+          ref={searchBlock}
+          data-pinned={pinned || undefined}
+          className={`${SEARCH_BLOCK} ${playing ? "sticky inset-be-0 z-10" : ""}`}
+        >
+          <SearchBox
+            locale={locale}
+            entries={entries}
+            names={byId}
+            ready={entries.length > 0}
+            onWant={() => {
+              loadData();
+              setWanted(true);
+            }}
+            guessed={guessed}
+            disabled={!playing}
+            onGuess={(id) => void guess(id)}
+            onNoMatch={() =>
+              track("chkoun_no_match", {
+                n: phase.kind === "open" ? phase.today.number : undefined,
+                locale,
+              })
+            }
+            placement={pinned ? "above" : "below"}
+            strings={t.search}
+          />
+          <p className="text-base text-chalk-dim">
+            {format(t.guessCount, {
+              n: Math.min((game?.rows.length ?? 0) + 1, MAX_GUESSES),
+            })}
+          </p>
+          <p
+            role="status"
+            aria-live="polite"
+            className="mt-2 min-h-6 text-base font-semibold"
+          >
+            {noticeText}
+          </p>
+        </div>
+      ) : (
+        <p
+          role="status"
+          aria-live="polite"
+          className="mt-2 min-h-6 text-base font-semibold"
+        >
+          {noticeText}
+        </p>
+      )}
 
       {phase.kind === "open" && data && game && game.status !== "playing" ? (
         <Result

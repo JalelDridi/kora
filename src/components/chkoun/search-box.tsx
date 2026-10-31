@@ -18,6 +18,13 @@ type Props = {
   onGuess: (id: string) => void;
   /** Called when a query of two letters or more finds nobody. */
   onNoMatch?: () => void;
+  /**
+   * Where the suggestions open: "above" when the search is pinned to the
+   * bottom of the screen under the guesses (mobile polish M4), "below"
+   * otherwise. Above, the list runs bottom to top, so the first suggestion
+   * sits next to the field and Down still moves to the next one.
+   */
+  placement?: "above" | "below";
   strings: {
     label: string;
     placeholder: string;
@@ -41,6 +48,7 @@ export function SearchBox({
   onWant,
   onGuess,
   onNoMatch,
+  placement = "below",
   strings,
 }: Props) {
   const id = useId();
@@ -111,74 +119,81 @@ export function SearchBox({
       <p id={hintId} className="text-sm text-chalk-dim">
         {strings.hint}
       </p>
-      <input
-        ref={input}
-        id={id}
-        type="text"
-        role="combobox"
-        aria-expanded={expanded}
-        aria-controls={listId}
-        aria-autocomplete="list"
-        aria-activedescendant={expanded ? `${listId}-${active}` : undefined}
-        aria-describedby={hintId}
-        autoComplete="off"
-        autoCorrect="off"
-        autoCapitalize="none"
-        spellCheck={false}
-        enterKeyHint="go"
-        dir="auto"
-        disabled={disabled}
-        placeholder={strings.placeholder}
-        value={query}
-        onChange={(e) => onChange(e.target.value)}
-        onKeyDown={onKeyDown}
-        onFocus={() => {
-          onWant();
-          setOpen(true);
-        }}
-        onPointerDown={onWant}
-        onBlur={() => setOpen(false)}
-        className="mt-2 block min-h-12 w-full rounded-xl border-2 border-pitch-700 bg-pitch-900 px-4 text-lg text-chalk placeholder:text-chalk-dim focus:border-mint disabled:opacity-60"
-      />
-      <ul
-        id={listId}
-        role="listbox"
-        aria-label={strings.label}
-        hidden={!expanded}
-        className="absolute inset-x-0 z-10 mt-1 overflow-hidden rounded-xl border-2 border-pitch-700 bg-pitch-900"
-      >
-        {results.map((footballer, i) => {
-          const n = names.get(footballer)!;
-          const shown = localName(n, locale);
-          const already = guessed.has(footballer);
-          return (
-            <li
-              key={footballer}
-              id={`${listId}-${i}`}
-              role="option"
-              aria-selected={i === active}
-              aria-disabled={already || undefined}
-              onMouseDown={(e) => e.preventDefault()}
-              onClick={() => choose(footballer)}
-              className="flex min-h-12 cursor-pointer flex-col justify-center px-4 py-1.5 aria-selected:bg-pitch-700 aria-disabled:cursor-default aria-disabled:opacity-70"
-            >
-              <span className="flex flex-wrap items-baseline gap-x-2 text-base font-semibold">
-                <bdi>{shown}</bdi>
-                {already ? (
-                  <span className="text-sm font-normal text-chalk-dim">
-                    {strings.already}
+      <div className="relative mt-2">
+        <input
+          ref={input}
+          id={id}
+          type="text"
+          role="combobox"
+          aria-expanded={expanded}
+          aria-controls={listId}
+          aria-autocomplete="list"
+          aria-activedescendant={expanded ? `${listId}-${active}` : undefined}
+          aria-describedby={hintId}
+          autoComplete="off"
+          autoCorrect="off"
+          autoCapitalize="none"
+          spellCheck={false}
+          enterKeyHint="go"
+          dir="auto"
+          disabled={disabled}
+          placeholder={strings.placeholder}
+          value={query}
+          onChange={(e) => onChange(e.target.value)}
+          onKeyDown={onKeyDown}
+          onFocus={() => {
+            onWant();
+            setOpen(true);
+          }}
+          onPointerDown={onWant}
+          onBlur={() => setOpen(false)}
+          className="block min-h-12 w-full rounded-xl border-2 border-pitch-700 bg-pitch-900 px-4 text-lg text-chalk placeholder:text-chalk-dim focus:border-mint disabled:opacity-60"
+        />
+        <ul
+          id={listId}
+          role="listbox"
+          aria-label={strings.label}
+          hidden={!expanded}
+          data-placement={placement}
+          className={`absolute inset-x-0 z-10 flex overflow-hidden rounded-xl border-2 border-pitch-700 bg-pitch-900 ${
+            placement === "above"
+              ? "inset-be-full mb-1 flex-col-reverse"
+              : "inset-bs-full mt-1 flex-col"
+          }`}
+        >
+          {results.map((footballer, i) => {
+            const n = names.get(footballer)!;
+            const shown = localName(n, locale);
+            const already = guessed.has(footballer);
+            return (
+              <li
+                key={footballer}
+                id={`${listId}-${i}`}
+                role="option"
+                aria-selected={i === active}
+                aria-disabled={already || undefined}
+                onMouseDown={(e) => e.preventDefault()}
+                onClick={() => choose(footballer)}
+                className="flex min-h-12 cursor-pointer flex-col justify-center px-4 py-1.5 aria-selected:bg-pitch-700 aria-disabled:cursor-default aria-disabled:opacity-70"
+              >
+                <span className="flex flex-wrap items-baseline gap-x-2 text-base font-semibold">
+                  <bdi>{shown}</bdi>
+                  {already ? (
+                    <span className="text-sm font-normal text-chalk-dim">
+                      {strings.already}
+                    </span>
+                  ) : null}
+                </span>
+                {shown !== n.nameLatin ? (
+                  <span dir="ltr" className="text-sm text-chalk-dim">
+                    {n.nameLatin}
                   </span>
                 ) : null}
-              </span>
-              {shown !== n.nameLatin ? (
-                <span dir="ltr" className="text-sm text-chalk-dim">
-                  {n.nameLatin}
-                </span>
-              ) : null}
-            </li>
-          );
-        })}
-      </ul>
+              </li>
+            );
+          })}
+        </ul>
+      </div>
       <p role="status" className="mt-2 min-h-6 text-base text-chalk-dim">
         {repeated ? strings.already : none ? strings.none : ""}
       </p>

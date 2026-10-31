@@ -32,6 +32,27 @@ export async function guess(page: Page, id: string) {
   await expect(page.locator(`[data-guess="${id}"]`)).toHaveCount(1);
 }
 
+/** Resolves once the page has not scrolled for ten frames (a smooth scroll ended). */
+export async function scrolled(page: Page) {
+  await page.evaluate(
+    () =>
+      new Promise<void>((done) => {
+        let last = window.scrollY;
+        let still = 0;
+        const tick = () => {
+          if (window.scrollY === last) still++;
+          else {
+            still = 0;
+            last = window.scrollY;
+          }
+          if (still >= 10) done();
+          else requestAnimationFrame(tick);
+        };
+        requestAnimationFrame(tick);
+      }),
+  );
+}
+
 export async function noSidewaysScroll(page: Page) {
   return page.evaluate(
     () =>
