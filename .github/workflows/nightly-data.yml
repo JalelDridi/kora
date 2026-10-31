@@ -8,6 +8,11 @@ on:
     # 01:17 UTC, 02:17 in Tunis: off the hour, when Wikimedia is quiet.
     - cron: "17 1 * * *"
   workflow_dispatch:
+    inputs:
+      allow_pool_drop:
+        description: "Let through a night that loses over 5% of the actives or over 10 clubs (P59)"
+        type: boolean
+        default: false
 
 concurrency:
   group: nightly-data
@@ -42,17 +47,24 @@ jobs:
           # No entry has this key: restore-keys picks the newest "data-cache-".
           key: data-cache-${{ github.run_id }}-${{ github.run_attempt }}
           restore-keys: data-cache-
+      - name: Keep main's pool to compare with
+        run: cp data/pool.json "$RUNNER_TEMP/previous-pool.json"
       - name: Build the pool
-        # Exits non-zero when it refuses (invalid pool, shrink guard, a source
-        # without a usable copy): the job fails and no pull request is opened.
+        # Exits non-zero when it refuses (invalid pool, shrink guard, the
+        # active guard of P59, a source without a usable copy): the job fails
+        # and no pull request is opened.
+        env:
+          KORA_ALLOW_POOL_DROP: ${{ inputs.allow_pool_drop && '1' || '' }}
         run: pnpm data:build
       - name: Keep tonight's answers as the last good ones
         uses: actions/cache/save@v4
         with:
           path: data/cache
           key: data-cache-${{ github.run_id }}-${{ github.run_attempt }}
-      - name: Check the data as CI will
-        run: pnpm data:check
+      - name: Check the data as CI will, and against main's pool (P59)
+        env:
+          KORA_ALLOW_POOL_DROP: ${{ inputs.allow_pool_drop && '1' || '' }}
+        run: pnpm data:check --against "$RUNNER_TEMP/previous-pool.json"
       # The artifact's root is the paths' common folder, the repository root
       # since the photos (P30) travel too: the propose job downloads it there.
       - uses: actions/upload-artifact@v4

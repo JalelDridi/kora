@@ -1987,9 +1987,37 @@ describe("fame from page views in the run (D-S2-4)", () => {
         clubTitles: {},
       }),
     );
+    // The fixture's only active footballer leaves: 100% of the actives,
+    // which the P59 guard refuses unless let through.
+    const lines: string[] = [];
     expect(
-      await run(deps(root, { today: "2026-10-05", pageviews: withViews() })),
+      await run(
+        deps(root, {
+          today: "2026-10-05",
+          pageviews: withViews(),
+          log: (line) => lines.push(line),
+        }),
+      ),
+    ).toMatchObject({ ok: false });
+    expect(lines.at(-1)).toMatch(
+      /^refused: the active pool would fall from 1 to 0 footballers/,
+    );
+    expect(
+      await run(
+        deps(root, {
+          today: "2026-10-05",
+          pageviews: withViews(),
+          allowPoolDrop: true,
+          log: (line) => lines.push(line),
+        }),
+      ),
     ).toMatchObject({ ok: true });
+    expect(lines).toContain(
+      "KORA_ALLOW_POOL_DROP=1 lets through: the active pool would fall from 1 to 0 footballers (100.0%, over the 5% limit); refusing (a source probably changed). To accept it, rebuild with KORA_ALLOW_POOL_DROP=1",
+    );
+    expect(await readFile(file(root, "report.md"), "utf8")).toContain(
+      "1 active footballers before, 0 now; 0 lost their club. **Let through by KORA_ALLOW_POOL_DROP=1:**",
+    );
     const after = (await readPool(root)).players[0];
     expect(after.pools).toEqual({
       active: false,

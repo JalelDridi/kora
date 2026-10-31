@@ -110,12 +110,101 @@ describe("parseEnInfobox", () => {
   });
 
   // Hand-made: the recorded eight only have a blank current club (en/firas-chaouat line 7).
-  it("treats a blank, retired or free-agent current club as none", () => {
-    for (const value of ["", "Retired", "Free agent"]) {
+  it("treats a retired or free-agent current club as an explicit none", () => {
+    for (const value of ["Retired", "Free agent", "-"]) {
       const box = parseEnInfobox("X", en(`| currentclub = ${value}`));
       expect(box?.currentClub).toBeNull();
       expect(box?.currentClubIsStaff).toBe(false);
+      expect(box?.currentClubMissing).toBeUndefined();
     }
+  });
+
+  // P59: from 26 October 2026 English pages stopped giving currentclub. A
+  // blank or absent field is no opinion, not "free agent".
+  it("reads a blank or absent current club as missing: no opinion (P59)", () => {
+    for (const text of [
+      en("| currentclub = "),
+      en("| currentclub = <!-- -->"),
+      en("| name = X"),
+    ]) {
+      const box = parseEnInfobox("X", text);
+      expect(box).toMatchObject({
+        currentClub: null,
+        currentClubIsStaff: false,
+        currentClubMissing: true,
+      });
+    }
+    expect(enBox("firas-chaouat")?.currentClubMissing).toBe(true);
+    expect(enBox("ali-maaloul")?.currentClubMissing).toBeUndefined();
+  });
+
+  // P59: with currentclub gone, a coach's page still says where he works in
+  // its managerial rows (manageryearsN, managerclubsN). Hand-made.
+  it("reads an open manager row as a staff post, naming its club", () => {
+    const box = parseEnInfobox(
+      "X",
+      en(
+        [
+          "| years1 = 2000–2010 | clubs1 = [[Club Africain]]",
+          "| manageryears1 = 2018–2020 | managerclubs1 = [[US Monastir (football)|US Monastir]]",
+          "| manageryears2 = 2025– | managerclubs2 = [[SD Ponferradina|Ponferradina]]",
+        ].join("\n"),
+      ),
+    );
+    expect(box).toMatchObject({
+      currentClub: null,
+      currentClubIsStaff: true,
+      staffClub: "SD Ponferradina",
+    });
+    expect(box?.currentClubMissing).toBeUndefined();
+    // "Retired" and an open manager row: a staff post too.
+    expect(
+      parseEnInfobox(
+        "X",
+        en(
+          "| currentclub = Retired\n| manageryears1 = 2024– | managerclubs1 = [[Club Africain]]",
+        ),
+      ),
+    ).toMatchObject({ currentClubIsStaff: true, staffClub: "Club Africain" });
+  });
+
+  it("reads an open manager row of a national team as a staff post with no club", () => {
+    const box = parseEnInfobox(
+      "X",
+      en(
+        "| manageryears1 = 2024– | managerclubs1 = [[Libya national football team|Libya]]",
+      ),
+    );
+    expect(box).toMatchObject({ currentClub: null, currentClubIsStaff: true });
+    expect(box?.staffClub).toBeUndefined();
+  });
+
+  it("leaves closed manager rows, and a named playing club, alone", () => {
+    const closed = parseEnInfobox(
+      "X",
+      en("| manageryears1 = 2018–2020 | managerclubs1 = [[Club Africain]]"),
+    );
+    expect(closed).toMatchObject({
+      currentClubIsStaff: false,
+      currentClubMissing: true,
+    });
+    const playing = parseEnInfobox(
+      "X",
+      en(
+        "| currentclub = [[CS Sfaxien]]\n| manageryears1 = 2025– | managerclubs1 = [[CS Sfaxien]] (youth)",
+      ),
+    );
+    expect(playing).toMatchObject({
+      currentClub: "CS Sfaxien",
+      currentClubIsStaff: false,
+    });
+  });
+
+  // Hand-made: the template's own spelling with an underscore, current_club.
+  it("reads current_club like currentclub", () => {
+    const box = parseEnInfobox("X", en("| current_club = [[CS Sfaxien]]"));
+    expect(box?.currentClub).toBe("CS Sfaxien");
+    expect(box?.currentClubMissing).toBeUndefined();
   });
 
   // Hand-made.
@@ -132,6 +221,7 @@ describe("parseFrInfobox", () => {
       title: "Yassine Meriah",
       currentClub: null,
       currentClubIsStaff: false,
+      currentClubMissing: true,
       positionText: "Défenseur central",
       spells: [
         {
@@ -380,15 +470,21 @@ describe("parseFrInfobox", () => {
   });
 
   // Trap: no club actuel field at all (fr/youssef-msakni), or an empty one (fr/wahbi-khazri line 6).
-  it("reads a missing or empty club actuel as no club", () => {
+  // P59: missing, as in English: no opinion on the club.
+  it("reads a missing or empty club actuel as no club, and as missing", () => {
     expect(frBox("youssef-msakni")).toMatchObject({
       currentClub: null,
       currentClubIsStaff: false,
+      currentClubMissing: true,
     });
     expect(frBox("wahbi-khazri")).toMatchObject({
       currentClub: null,
       currentClubIsStaff: false,
+      currentClubMissing: true,
     });
+    expect(
+      parseFrInfobox("X", fr("| club actuel = Libre"))?.currentClubMissing,
+    ).toBeUndefined();
   });
 
   // Hand-made: no recorded French article names a staff role.

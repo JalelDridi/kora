@@ -200,9 +200,67 @@ export function shrinkRefusal(before: number, after: number): string | null {
     : null;
 }
 
-export function guardChange(previous: Pool | null, next: Pool): string | null {
+/** P59: more than this share of the active footballers lost in one night. */
+export const ACTIVE_DROP_LIMIT = 0.05;
+/** P59: more footballers than this whose club becomes none in one night. */
+export const CLUBS_TO_NONE_LIMIT = 10;
+/** P59: the environment flag that lets a refused night through (the CLI reads it). */
+export const ALLOW_POOL_DROP = "KORA_ALLOW_POOL_DROP";
+
+export type ActiveCounts = { before: number; after: number; toNone: number };
+
+/** Active footballers before and after, and those in both whose club became none. */
+export function activeCounts(previous: Pool, next: Pool): ActiveCounts {
+  const after = new Map(next.players.map((p) => [p.id, p]));
+  return {
+    before: previous.players.filter((p) => p.pools.active).length,
+    after: next.players.filter((p) => p.pools.active).length,
+    toNone: previous.players.filter(
+      (p) => p.clubId !== null && after.get(p.id)?.clubId === null,
+    ).length,
+  };
+}
+
+/**
+ * Decision P59: a night that loses more than 5% of the active footballers,
+ * or turns more than 10 clubs into none, means a source changed (the English
+ * infobox lost its current club from 26 October 2026: 244 actives fell to
+ * 198 under the shrink guard). A few transfers a week stay well under both.
+ */
+export function activeRefusal(
+  previous: Pool | null,
+  next: Pool,
+): string | null {
   if (!previous) return null;
-  return shrinkRefusal(previous.players.length, next.players.length);
+  const { before, after, toNone } = activeCounts(previous, next);
+  const reasons: string[] = [];
+  if (after < before * (1 - ACTIVE_DROP_LIMIT))
+    reasons.push(
+      `the active pool would fall from ${before} to ${after} footballers (${(((before - after) / before) * 100).toFixed(1)}%, over the ${ACTIVE_DROP_LIMIT * 100}% limit)`,
+    );
+  if (toNone > CLUBS_TO_NONE_LIMIT)
+    reasons.push(
+      `${toNone} footballers would lose their club (over the limit of ${CLUBS_TO_NONE_LIMIT})`,
+    );
+  return reasons.length === 0
+    ? null
+    : `${reasons.join(" and ")}; refusing (a source probably changed). To accept it, rebuild with ${ALLOW_POOL_DROP}=1`;
+}
+
+/**
+ * The night's guards: the shrink guard always; the active guard (P59)
+ * unless Jalel lets the night through with KORA_ALLOW_POOL_DROP=1.
+ */
+export function guardChange(
+  previous: Pool | null,
+  next: Pool,
+  options: { allowPoolDrop?: boolean } = {},
+): string | null {
+  if (!previous) return null;
+  return (
+    shrinkRefusal(previous.players.length, next.players.length) ??
+    (options.allowPoolDrop ? null : activeRefusal(previous, next))
+  );
 }
 
 export function missingSeasons(
@@ -453,6 +511,10 @@ export function renderReport(input: {
   photos?: PhotoSummary;
   /** 30–0: spinSummary of the season data; absent: no section. */
   seasonSpins?: string[];
+  /** P59: the active guard's counts; absent without a previous pool. */
+  active?: ActiveCounts;
+  /** P59: the active guard's refusal, let through by KORA_ALLOW_POOL_DROP=1. */
+  activeLetThrough?: string;
 }): string {
   const { pool, diff, statuses, today } = input;
   const clubName = new Map(pool.clubs.map((c) => [c.id, c.nameLatin]));
@@ -710,6 +772,12 @@ export function renderReport(input: {
     before === 0
       ? "No previous pool to compare with, so the shrink guard does not apply."
       : `${before} footballers before, ${pool.players.length} now. ${refusal ? `**Refused:** ${refusal}.` : "Shrink guard passed (it refuses a loss of more than a tenth)."}`,
+    ...(input.active
+      ? [
+          "",
+          `${input.active.before} active footballers before, ${input.active.after} now; ${input.active.toNone} lost their club. ${input.activeLetThrough ? `**Let through by ${ALLOW_POOL_DROP}=1:** ${input.activeLetThrough}.` : `Active guard passed (it refuses a loss of more than ${ACTIVE_DROP_LIMIT * 100}% of the actives, or more than ${CLUBS_TO_NONE_LIMIT} clubs becoming none; P59).`}`,
+        ]
+      : []),
     "",
     `## Club changes, review each (${diff.clubChanges.length})`,
     "",

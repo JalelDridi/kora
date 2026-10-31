@@ -582,3 +582,66 @@ describe("data/witness.json (P48, B6)", () => {
     ]);
   });
 });
+
+// P59: data:check compares tonight's pool with the previous one when the
+// nightly job hands it over (--against), like the build's guard.
+describe("data:check --against the previous pool (P59)", () => {
+  async function withPrevious() {
+    const { root } = await copyOfData();
+    const pool = JSON.parse(
+      await readFile(path.join(root, "data", "pool.json"), "utf8"),
+    ) as Pool;
+    // The previous night gave a club to 11 footballers who have none now.
+    const someClub = pool.clubs[0].id;
+    let given = 0;
+    const previous: Pool = {
+      ...pool,
+      players: pool.players.map((p) =>
+        p.clubId === null && given++ < 11 ? { ...p, clubId: someClub } : p,
+      ),
+    };
+    const against = path.join(root, "previous-pool.json");
+    await writeFile(against, JSON.stringify(previous));
+    return { root, against, pool };
+  }
+
+  it("fails when 11 footballers lost their club, naming the counts", async () => {
+    const { root, against } = await withPrevious();
+    const { errors } = await inspectData(root, { against });
+    expect(errors).toEqual([
+      "data/pool.json: 11 footballers would lose their club (over the limit of 10); refusing (a source probably changed). To accept it, rebuild with KORA_ALLOW_POOL_DROP=1",
+    ]);
+    const failed = await run(
+      process.execPath,
+      [...NO_NETWORK_ARGS, CLI, "check", "--against", against],
+      { cwd: root },
+    ).then(
+      () => null,
+      (error: { code: number; stderr: string }) => error,
+    );
+    expect(failed?.code).toBe(1);
+    expect(failed?.stderr).toContain("11 footballers would lose their club");
+  });
+
+  it("passes against itself, and with KORA_ALLOW_POOL_DROP=1 with a warning", async () => {
+    const { root, against } = await withPrevious();
+    expect(
+      (
+        await inspectData(root, {
+          against: path.join(root, "data", "pool.json"),
+        })
+      ).errors,
+    ).toEqual([]);
+    const allowed = await inspectData(root, { against, allowPoolDrop: true });
+    expect(allowed.errors).toEqual([]);
+    expect(allowed.warnings).toContain(
+      "data/pool.json: KORA_ALLOW_POOL_DROP=1: 11 footballers would lose their club (over the limit of 10); refusing (a source probably changed). To accept it, rebuild with KORA_ALLOW_POOL_DROP=1",
+    );
+    const { stdout } = await run(
+      process.execPath,
+      [...NO_NETWORK_ARGS, CLI, "check", "--against", against],
+      { cwd: root, env: { ...process.env, KORA_ALLOW_POOL_DROP: "1" } },
+    );
+    expect(stdout).toContain("data:check: ok");
+  });
+});
