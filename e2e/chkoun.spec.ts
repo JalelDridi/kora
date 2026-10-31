@@ -3,7 +3,14 @@ import { expect, test, type Page } from "@playwright/test";
 import arLatnTN from "../messages/ar-Latn-TN.json";
 import arTN from "../messages/ar-TN.json";
 import fr from "../messages/fr.json";
-import { localName } from "../src/chkoun/labels";
+import {
+  COLUMNS,
+  localName,
+  tileText,
+  type Labels,
+  type TileColumn,
+  type TileStrings,
+} from "../src/chkoun/labels";
 import { nextMidnight } from "../src/engine/chkoun/day";
 import { localeInfo, locales } from "../src/i18n/locales";
 import {
@@ -66,6 +73,33 @@ async function splitWords(page: Page): Promise<string[]> {
     }
     return bad;
   });
+}
+
+/**
+ * Every word of a tile value or a header word that does not fit its box: it
+ * overflows (the words are never cut, fix round 1) or something still cuts
+ * it with an ellipsis.
+ */
+async function cutWords(page: Page): Promise<string[]> {
+  return page.evaluate(() => {
+    const bad: string[] = [];
+    for (const el of document.querySelectorAll<HTMLElement>(
+      "[data-guess] [data-value], [data-guess] [data-value] [data-word], [data-tile-headers] [data-head] [data-word]",
+    )) {
+      const style = getComputedStyle(el);
+      if (style.textOverflow === "ellipsis")
+        bad.push(`ellipsis on ${el.textContent}`);
+      if (el.scrollWidth > el.clientWidth + 1)
+        bad.push(`${el.textContent} (${el.scrollWidth} > ${el.clientWidth})`);
+    }
+    return bad;
+  });
+}
+
+/** The day's label tables, as the game page loads them. */
+async function gameLabels(page: Page, locale: string): Promise<Labels> {
+  const response = await page.request.get(`/chkoun-data/${locale}.json`);
+  return ((await response.json()) as { labels: Labels }).labels;
 }
 
 const axe = async (page: Page) =>
@@ -229,11 +263,117 @@ for (const locale of locales) {
           els.map((e) => Math.round(e.getBoundingClientRect().left)),
         );
       expect(heads).toEqual(tiles);
-      // The tile's title keeps the whole value.
-      const club = page.locator('[data-guess] [data-column="club"]');
-      expect(await club.first().getAttribute("title")).toBeTruthy();
+      // The tile's title keeps the whole club name, the tile its short label.
+      const labels = await gameLabels(page, locale);
+      for (const id of fixture.others.slice(0, 3)) {
+        const clubId = footballer(id).clubId;
+        if (!clubId) continue;
+        const tile = page.locator(`[data-guess="${id}"] [data-column="club"]`);
+        await expect(tile).toHaveAttribute("title", labels.clubs[clubId]);
+        await expect(tile.locator("[data-value]")).toHaveText(
+          labels.short[clubId] ?? labels.clubs[clubId],
+        );
+      }
       expect(await splitWords(page)).toEqual([]);
       expect(await noSidewaysScroll(page)).toBe(0);
+    });
+  }
+
+  for (const width of [340, 360, 375, 412]) {
+    test(`${url}: at ${width} px no tile value or header word is cut or overflows`, async ({
+      page,
+    }) => {
+      await page.setViewportSize({ width, height: 800 });
+      await page.goto(url);
+      await ready(page);
+      for (const id of fixture.others.slice(0, 8)) await guess(page, id);
+      await page.waitForFunction(() =>
+        document.getAnimations().every((a) => a.playState !== "running"),
+      );
+      expect(await cutWords(page)).toEqual([]);
+      expect(await splitWords(page)).toEqual([]);
+      expect(await noSidewaysScroll(page)).toBe(0);
+    });
+  }
+
+  // Every value the pool can show (the day's label tables, every country,
+  // governorate, line, caps band and age), measured in the real tiles: the
+  // columns are sized from the pool's words (fix round 1).
+  for (const width of [340, 360]) {
+    test(`${url}: at ${width} px every value the pool can show fits its column`, async ({
+      page,
+    }) => {
+      await page.setViewportSize({ width, height: 800 });
+      await page.goto(url);
+      await ready(page);
+      await guess(page, fixture.others[0]);
+      const labels = await gameLabels(page, locale);
+      const strings: TileStrings = {
+        positions: messages[locale].positions,
+        positionsShort: messages[locale].positions.short,
+        caps: t.caps,
+        abroad: t.tiles.abroad,
+        noClub: t.tiles.noClub,
+      };
+      const values: Record<TileColumn, (string | number)[]> = {
+        club: Object.keys(labels.clubs),
+        country: Object.keys(labels.countries),
+        position: ["goalkeeper", "defender", "midfielder", "forward"],
+        age: Array.from({ length: 31 }, (_, i) => 15 + i),
+        caps: [0, 1, 2, 3, 4],
+        governorate: [
+          ...Object.keys(labels.governorates).map((g) => `gov:${g}`),
+          ...Object.keys(labels.countries).map((c) => `abroad:${c}`),
+        ],
+      };
+      const words = Object.fromEntries(
+        COLUMNS.map((column) => [
+          column,
+          [
+            ...new Set(
+              values[column].flatMap((value) =>
+                tileText(
+                  column,
+                  { colour: "grey", arrow: null, value },
+                  labels,
+                  strings,
+                ).short.split(/\s+/),
+              ),
+            ),
+          ],
+        ]),
+      );
+      const tooWide = await page.evaluate((words) => {
+        const bad: string[] = [];
+        const row = document.querySelector("[data-guess]")!;
+        for (const [column, list] of Object.entries(words)) {
+          const tile = row.querySelector<HTMLElement>(
+            `[data-column="${column}"]`,
+          )!;
+          const style = getComputedStyle(tile);
+          const room =
+            tile.getBoundingClientRect().width -
+            parseFloat(style.paddingInlineStart) -
+            parseFloat(style.paddingInlineEnd);
+          const probe = tile
+            .querySelector("[data-value]")!
+            .cloneNode(false) as HTMLElement;
+          probe.style.cssText =
+            "position:absolute;visibility:hidden;max-inline-size:none;white-space:nowrap";
+          tile.append(probe);
+          for (const word of list) {
+            probe.textContent = word;
+            const w = probe.getBoundingClientRect().width;
+            if (w > room)
+              bad.push(
+                `${column}: ${word} ${w.toFixed(1)} > ${room.toFixed(1)}`,
+              );
+          }
+          probe.remove();
+        }
+        return bad;
+      }, words);
+      expect(tooWide).toEqual([]);
     });
   }
 
