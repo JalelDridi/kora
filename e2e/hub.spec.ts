@@ -147,32 +147,42 @@ for (const locale of locales) {
   });
 }
 
-test("the language switcher changes language and direction", async ({
-  page,
-}) => {
-  await page.goto("/ar");
-  const switcher = page.getByRole("navigation", {
-    name: arTN.hub.language,
+// The full switcher: at the top of the hub, at the foot of a game page.
+for (const path of ["", "/chkoun"]) {
+  test(`the language switcher on /ar${path} changes language and direction`, async ({
+    page,
+  }) => {
+    await page.goto(`/ar${path}`);
+    // Its name follows the page's language; the links stay the same.
+    const switcher = () =>
+      page.getByRole("navigation").filter({
+        has: page.getByRole("link", { name: localeInfo.fr.label }),
+      });
+    await expect(
+      switcher().getByRole("link", { name: localeInfo["ar-TN"].label }),
+    ).toHaveAttribute("aria-current", "page");
+    await expect(
+      page.getByRole("navigation", { name: arTN.hub.language }),
+    ).toHaveCount(1);
+
+    await switcher().getByRole("link", { name: localeInfo.fr.label }).click();
+    await expect(page).toHaveURL(new RegExp(`/fr${path}$`));
+    await expect(page.locator("html")).toHaveAttribute("lang", "fr");
+    await expect(page.locator("html")).toHaveAttribute("dir", "ltr");
+
+    await switcher()
+      .getByRole("link", { name: localeInfo["ar-Latn-TN"].label })
+      .click();
+    await expect(page).toHaveURL(new RegExp(`/tn${path}$`));
+    await expect(page.locator("html")).toHaveAttribute("lang", "ar-Latn-TN");
+
+    await switcher()
+      .getByRole("link", { name: localeInfo["ar-TN"].label })
+      .click();
+    await expect(page).toHaveURL(new RegExp(`/ar${path}$`));
+    await expect(page.locator("html")).toHaveAttribute("dir", "rtl");
   });
-  await expect(
-    switcher.getByRole("link", { name: localeInfo["ar-TN"].label }),
-  ).toHaveAttribute("aria-current", "page");
-
-  await switcher.getByRole("link", { name: localeInfo.fr.label }).click();
-  await expect(page).toHaveURL(/\/fr$/);
-  await expect(page.locator("html")).toHaveAttribute("lang", "fr");
-  await expect(page.locator("html")).toHaveAttribute("dir", "ltr");
-
-  await page
-    .getByRole("link", { name: localeInfo["ar-Latn-TN"].label })
-    .click();
-  await expect(page).toHaveURL(/\/tn$/);
-  await expect(page.locator("html")).toHaveAttribute("lang", "ar-Latn-TN");
-
-  await page.getByRole("link", { name: localeInfo["ar-TN"].label }).click();
-  await expect(page).toHaveURL(/\/ar$/);
-  await expect(page.locator("html")).toHaveAttribute("dir", "rtl");
-});
+}
 
 test("outside Vercel the page asks for no analytics script", async ({
   page,

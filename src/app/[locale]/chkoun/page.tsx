@@ -8,7 +8,8 @@ import type { GameStrings } from "@/components/chkoun/game";
 import { GameIsland } from "@/components/chkoun/game-island";
 import { Legend } from "@/components/chkoun/legend";
 import { GameShell } from "@/components/chkoun/shell";
-import { PageHeader } from "@/components/page-header";
+import { GameHeader } from "@/components/game-header";
+import { LanguageSwitcher } from "@/components/language-switcher";
 import { getGame } from "@/games";
 import { isLocale, localeInfo } from "@/i18n/locales";
 import { pageMetadata } from "@/i18n/page-metadata";
@@ -58,20 +59,21 @@ export default async function ChkounPage({
 
   return (
     <div className="mx-auto flex max-w-5xl flex-col px-4 py-5 sm:px-8">
-      <PageHeader
+      <GameHeader
         locale={locale}
         path={ROUTE}
-        home={t("notFound.home")}
-        language={t("hub.language")}
+        name={t("games.chkoun.name")}
+        strings={{
+          home: t("notFound.home"),
+          language: t("hub.language"),
+          help: t("header.help"),
+          stats: t("header.stats"),
+        }}
+        actions
       />
 
-      <main className="py-8 sm:py-12">
-        <h1 className="text-5xl font-extrabold sm:text-7xl">
-          <bdi>{t("games.chkoun.name")}</bdi>
-        </h1>
-        <p className="mt-4 max-w-2xl text-xl text-chalk-dim">
-          {t("chkoun.rules")}
-        </p>
+      <main className="pt-2 pb-8 sm:pb-12">
+        <p className="max-w-2xl text-xl text-chalk-dim">{t("chkoun.rules")}</p>
         <noscript>
           <p className="mt-6 text-xl font-semibold">{t("chkoun.noscript")}</p>
         </noscript>
@@ -101,6 +103,13 @@ export default async function ChkounPage({
           />
         </div>
       </main>
+
+      <LanguageSwitcher
+        current={locale}
+        label={t("hub.language")}
+        path={ROUTE}
+        className="self-center"
+      />
     </div>
   );
 }

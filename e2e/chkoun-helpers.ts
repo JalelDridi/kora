@@ -40,6 +40,15 @@ export async function noSidewaysScroll(page: Page) {
   );
 }
 
+/** The round whose folder holds the screenshots. */
+export const ROUND = "2026-10-31-mobile-polish";
+
+/**
+ * Marks the help as already seen, so a test starts on the game. A no-op
+ * until the help modal exists (mobile polish Task 2 fills it in).
+ */
+export async function skipHelp(_page: Page) {}
+
 /** Where a task's screenshots go: `screens/task-N/<locale>-<width>-<state>.png`. */
 export function shot(
   task: number,
@@ -47,5 +56,5 @@ export function shot(
   width: number,
   state: string,
 ): string {
-  return `.superpowers/sdd/2026-10-07-sprint-3/screens/task-${task}/${locale}-${width}-${state}.png`;
+  return `.superpowers/sdd/${ROUND}/screens/task-${task}/${locale}-${width}-${state}.png`;
 }

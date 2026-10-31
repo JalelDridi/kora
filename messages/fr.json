@@ -34,6 +34,11 @@
     "body": "Le lien est peut-être faux, ou la page a été retirée.",
     "home": "Retour aux jeux"
   },
+  "header": {
+    "help": "Comment jouer",
+    "stats": "Tes stats",
+    "close": "Fermer"
+  },
   "chkoun": {
     "meta": {
       "title": "C'est qui ? · Kora",
