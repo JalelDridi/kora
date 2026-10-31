@@ -383,14 +383,17 @@ Two lines for 30–0 (§2.12): the button under the first five matches of a play
 
 ### Task 5: the six-column tile row
 
-The tile row of Jalel's approved mock (D-MP-1): six narrow columns from 340 px, a header row once with each column's icon and short name, each tile its short value. Reused, not duplicated: `chkoun.tiles.club`, `chkoun.tiles.position` and `chkoun.tiles.age` head their columns as they are; the full names `chkoun.tiles.*` stay what a screen reader hears with every tile. Research: منين (from where) is the spoken Tunisian question for a birthplace, دولي (international) is how fans call a capped footballer; البلاد keeps the word of `chkoun.tiles.country`. The short lines follow the mock where it shows them (مدافع / `Mdafe3`, مهاجم / `Mhajem`, the full words, which fit); وسط / `Wost` shortens وسط ميدان / `Wost midan`. Points to check:
+The tile row of Jalel's approved mock (D-MP-1): six narrow columns from 360 px (3 by 2 below), a header row once with each column's icon and short name, each tile its short value. Each column has a short header key (fix round 1: the mock's words, so `Far9`, `Blasa` and `3omr` on /tn rather than the full `El far9`, `El blasa`, `El 3omr`, which did not fit); the full names `chkoun.tiles.*` stay what a screen reader hears with every tile. Research: منين (from where) is the spoken Tunisian question for a birthplace, دولي (international) is how fans call a capped footballer; البلاد keeps the word of `chkoun.tiles.country`. The short lines follow the mock where it shows them (مدافع / `Mdafe3`, مهاجم / `Mhajem`, the full words, which fit); وسط / `Wost` shortens وسط ميدان / `Wost midan`. Points to check:
 
 - `chkoun.tiles.capsShort` « Sél. » in French: an abbreviation with a dot; « Sélec. » is the other usual one.
 - `positions.short.defender` and `positions.short.forward` in French (« Déf. », « Att. »): the full words do not fit a six-column tile at 360 px.
 
 | Key                             | English gloss                            | French draft | `ar-TN` as shipped | `ar-Latn-TN` as shipped | Status |
 | ------------------------------- | ---------------------------------------- | ------------ | ------------------ | ----------------------- | ------ |
+| `chkoun.tiles.clubShort`        | Club (header row)                        | Club         | الفريق             | Far9                    | DRAFT  |
 | `chkoun.tiles.countryShort`     | Country (the club's country, header row) | Pays         | البلاد             | Blad                    | DRAFT  |
+| `chkoun.tiles.positionShort`    | Line (header row)                        | Poste        | البلاصة            | Blasa                   | DRAFT  |
+| `chkoun.tiles.ageShort`         | Age (header row)                         | Âge          | العمر              | 3omr                    | DRAFT  |
 | `chkoun.tiles.capsShort`        | Caps (header row)                        | Sél.         | دولي               | Dawli                   | DRAFT  |
 | `chkoun.tiles.governorateShort` | Born in (header row)                     | Né à         | منين               | Mnin                    | DRAFT  |
 | `positions.short.goalkeeper`    | Goalkeeper, in a tile                    | Gardien      | حارس               | 7ares                   | DRAFT  |
@@ -419,7 +422,7 @@ The short club labels live in `data/curated/club-short.json` (`by: claude`, DRAF
 | `jeunesse-sportive-d-el-omrane` | Jeunesse sportive d'El Omrane | JSO     | العمران      | DRAFT  |
 | `ps-sakiet-eddaier`             | PS Sakiet Eddaïer             | PSS     | ساقية الدائر | DRAFT  |
 
-Points to check: بن ڤردان with the Tunisian ڤ (against بنقردان of the club's Arabic name); حمام سوسة and حمام الأنف (the town, two words) against a nickname; العمران and ساقية الدائر (the district) for JS El Omrane and PS Sakiet Eddaïer. The file also gives 75 clubs abroad or in the lower Tunisian divisions a short form (their usual short name, ASG and SG for the two Gabès clubs, JSK, UST, EGSG, SAMB); a club not listed shows its full name.
+Points to check: بن ڤردان with the Tunisian ڤ (against بنقردان of the club's Arabic name); حمام سوسة and حمام الأنف (the town, two words) against a nickname; العمران and ساقية الدائر (the district) for JS El Omrane and PS Sakiet Eddaïer. The file also gives 102 clubs abroad or in the lower Tunisian divisions a short form (their usual short name or acronym: ASG and SG for the two Gabès clubs, JSK, UST, EGSG, SAMB; since fix round 1, every guessable club whose name has a word too wide for a 360 px tile, such as BP for IF Brommapojkarna, Razgrad for Ludogorets, KSK for Kasımpaşa, FCGB for Bordeaux, ألبا for Albalonga and نورشوبنغ for Norrköping); a club not listed shows its full name, and the browser tests fail if one of its words does not fit.
 
 ## Go-live checklist (Chkoun?)
 
