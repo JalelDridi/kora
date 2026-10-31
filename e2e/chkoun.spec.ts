@@ -260,6 +260,8 @@ for (const locale of locales) {
       await page.goto(url);
       await ready(page);
       for (const id of fixture.others.slice(0, 5)) await guess(page, id);
+      // The search keeps focus after a guess, rows and all.
+      await expect(page.getByRole("combobox")).toBeFocused();
       await scrolled(page);
       const search = (await page.getByRole("combobox").boundingBox())!;
       const rows = page.locator("[data-guess]");
@@ -277,18 +279,59 @@ for (const locale of locales) {
     });
   }
 
-  test(`${url}: the shell and the live game put the search at the same height`, async ({
+  for (const width of [1280, 360]) {
+    test(`${url}: the shell and the live game put the search at the same height at ${width} px`, async ({
+      page,
+    }) => {
+      await page.setViewportSize({ width, height: 800 });
+      await page.route("**/api/chkoun/today", async (r) => {
+        await new Promise((f) => setTimeout(f, 1500));
+        await r.continue();
+      });
+      await page.goto(url);
+      const shell = (await page.locator("#chkoun-shell-search").boundingBox())!;
+      await ready(page);
+      const live = (await page.getByRole("combobox").boundingBox())!;
+      expect(Math.abs(live.y - shell.y)).toBeLessThanOrEqual(1);
+    });
+  }
+
+  test(`${url}: with the keyboard open (360×420), the upward suggestions stay on screen and scroll`, async ({
     page,
   }) => {
-    await page.route("**/api/chkoun/today", async (r) => {
-      await new Promise((f) => setTimeout(f, 1500));
-      await r.continue();
-    });
+    // About what Android leaves of the screen with the keyboard open
+    // (interactive-widget=resizes-content).
+    await page.setViewportSize({ width: 360, height: 420 });
     await page.goto(url);
-    const shell = (await page.locator("#chkoun-shell-search").boundingBox())!;
     await ready(page);
-    const live = (await page.getByRole("combobox").boundingBox())!;
-    expect(Math.abs(live.y - shell.y)).toBeLessThanOrEqual(1);
+    for (const id of fixture.others.slice(0, 5)) await guess(page, id);
+    await scrolled(page);
+    const box = page.getByRole("combobox");
+    await box.fill("ben");
+    const list = page.getByRole("listbox");
+    await expect(list).toBeVisible();
+    const options = list.getByRole("option");
+    expect(await options.count()).toBeGreaterThan(1);
+    const top = (await list.boundingBox())!;
+    const search = (await box.boundingBox())!;
+    expect(top.y).toBeGreaterThanOrEqual(0);
+    expect(top.y + top.height).toBeLessThanOrEqual(search.y + 1);
+    // The farthest suggestion is reached by scrolling the list itself.
+    const lastOption = options.last();
+    await lastOption.scrollIntoViewIfNeeded();
+    const far = (await lastOption.boundingBox())!;
+    const shown = (await list.boundingBox())!;
+    expect(far.y).toBeGreaterThanOrEqual(shown.y - 1);
+    expect(far.y + far.height).toBeLessThanOrEqual(shown.y + shown.height + 1);
+    // The arrow keys reach it too, and the search stays on screen.
+    const count = await options.count();
+    for (let i = 1; i < count; i++) await box.press("ArrowDown");
+    await expect(lastOption).toHaveAttribute("aria-selected", "true");
+    await expect(lastOption).toBeInViewport();
+    expect((await box.boundingBox())!.y + search.height).toBeLessThanOrEqual(
+      420,
+    );
+    expect(await noSidewaysScroll(page)).toBe(0);
   });
 
   test(`${url}: with no row yet, the suggestions open below the search`, async ({

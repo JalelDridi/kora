@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useMemo, useRef, useState } from "react";
+import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { match, type NameSource, type SearchEntry } from "@/engine/names";
 import { localName } from "@/chkoun/labels";
 import type { Locale } from "@/i18n/locales";
@@ -66,6 +66,36 @@ export function SearchBox({
   const searched = [...query.trim()].length >= 2;
   const none = ready && searched && results.length === 0;
   const expanded = open && results.length > 0;
+  const above = placement === "above";
+  /** Above the field: the room between the top of the screen and the field. */
+  const [room, setRoom] = useState<number | null>(null);
+
+  useEffect(() => {
+    // The list opening upward never runs above the screen, even with the
+    // keyboard open (resizes-content leaves about 400 px): it is capped to
+    // the room above the field and scrolls inside. Measured again when the
+    // screen changes size (the keyboard) or the page scrolls.
+    if (!expanded || !above) return;
+    const measure = () => {
+      const top = input.current?.getBoundingClientRect().top;
+      if (top !== undefined) setRoom(Math.max(96, Math.floor(top) - 12));
+    };
+    measure();
+    window.addEventListener("resize", measure);
+    window.addEventListener("scroll", measure, { passive: true });
+    return () => {
+      window.removeEventListener("resize", measure);
+      window.removeEventListener("scroll", measure);
+    };
+  }, [expanded, above]);
+
+  useEffect(() => {
+    // Arrow keys keep the active suggestion in sight when the list scrolls.
+    if (!expanded) return;
+    document
+      .getElementById(`${listId}-${active}`)
+      ?.scrollIntoView({ block: "nearest" });
+  }, [expanded, active, listId]);
 
   function choose(footballer: string) {
     if (guessed.has(footballer)) {
@@ -116,7 +146,9 @@ export function SearchBox({
       <label htmlFor={id} className="block text-base font-semibold">
         {strings.label}
       </label>
-      <p id={hintId} className="text-sm text-chalk-dim">
+      {/* Pinned under the guesses, the hint is kept for screen readers only,
+          to give the rows more room. */}
+      <p id={hintId} className={above ? "sr-only" : "text-sm text-chalk-dim"}>
         {strings.hint}
       </p>
       <div className="relative mt-2">
@@ -155,10 +187,11 @@ export function SearchBox({
           aria-label={strings.label}
           hidden={!expanded}
           data-placement={placement}
-          className={`absolute inset-x-0 z-10 flex overflow-hidden rounded-xl border-2 border-pitch-700 bg-pitch-900 ${
-            placement === "above"
-              ? "inset-be-full mb-1 flex-col-reverse"
-              : "inset-bs-full mt-1 flex-col"
+          style={above && room !== null ? { maxBlockSize: room } : undefined}
+          className={`absolute inset-x-0 z-10 flex rounded-xl border-2 border-pitch-700 bg-pitch-900 ${
+            above
+              ? "inset-be-full mb-1 [max-block-size:calc(100dvh-14rem)] flex-col-reverse overflow-y-auto overscroll-contain"
+              : "inset-bs-full mt-1 flex-col overflow-hidden"
           }`}
         >
           {results.map((footballer, i) => {
