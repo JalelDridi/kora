@@ -123,7 +123,10 @@
       "played": "Parties",
       "winRate": "Gagnées",
       "onDevice": "Enregistré sur cet appareil",
-      "onServer": "Enregistré sur Kora"
+      "onServer": "Enregistré sur Kora",
+      "distribution": "Victoires par nombre d'essais",
+      "bar": "En {n} essais : {count}",
+      "empty": "Pas encore de partie sur cet appareil."
     },
     "next": "Prochain joueur dans {time}"
   },
@@ -300,7 +303,8 @@
       "day": "Jour",
       "record": "Bilan",
       "points": "Points",
-      "rating": "Note"
+      "rating": "Note",
+      "empty": "Pas encore de saison jouée sur cet appareil."
     },
     "board": {
       "title": "Les meilleures équipes du jour",

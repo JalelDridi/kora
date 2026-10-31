@@ -10,6 +10,7 @@ import { ChkounHelp } from "@/components/chkoun/help";
 import { ChkounHelpDialog } from "@/components/chkoun/help-dialog";
 import { Legend } from "@/components/chkoun/legend";
 import { GameShell } from "@/components/chkoun/shell";
+import { StatsDialog } from "@/components/chkoun/stats-dialog";
 import { GameHeader } from "@/components/game-header";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import { getGame } from "@/games";
@@ -124,6 +125,14 @@ export default async function ChkounPage({
           }}
         />
       </ChkounHelpDialog>
+
+      <StatsDialog
+        strings={{
+          ...c.stats,
+          dialog: t("header.stats"),
+          close: t("header.close"),
+        }}
+      />
 
       <main className="pt-2 pb-8 sm:pb-12">
         {/* Without JavaScript there is no help dialog: the rules stay here. */}

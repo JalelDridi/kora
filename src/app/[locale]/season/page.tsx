@@ -89,6 +89,7 @@ export default async function SeasonPage({
           strings={messages.season}
           prefix={localeInfo[locale].prefix}
           shareOrigin={site.url}
+          dialog={{ title: t("header.stats"), close: t("header.close") }}
         />
       </main>
 

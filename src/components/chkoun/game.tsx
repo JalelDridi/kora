@@ -32,6 +32,7 @@ import { LEGEND_KEY } from "./legend";
 import { Result } from "./result";
 import { ShareButton } from "./share-button";
 import { Stats as StatsPanel } from "./stats";
+import { publishStats } from "./stats-dialog";
 import { SearchBox } from "./search-box";
 import { TileHeaders, TileRow, type RowStrings } from "./tile-row";
 
@@ -244,6 +245,12 @@ export function Game({
     const id = window.setTimeout(loadData, 2000);
     return () => window.clearTimeout(id);
   }, [loadData]);
+
+  const todayNumber = phase.kind === "open" ? phase.today.number : null;
+  useEffect(() => {
+    // The header's record dialog shows what the game shows (mobile polish M3).
+    if (stats) publishStats({ stats, store: statsStore, n: todayNumber });
+  }, [stats, statsStore, todayNumber]);
 
   useEffect(() => {
     if (game?.status === "playing" || !finishedNow.current) return;
@@ -511,7 +518,12 @@ export function Game({
             }
           />
           {stats ? (
-            <StatsPanel stats={stats} store={statsStore} strings={t.stats} />
+            <StatsPanel
+              stats={stats}
+              store={statsStore}
+              today={game.n}
+              strings={t.stats}
+            />
           ) : null}
         </Result>
       ) : null}

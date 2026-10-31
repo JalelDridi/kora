@@ -123,7 +123,10 @@
       "played": "El le3bet",
       "winRate": "Rba7t",
       "onDevice": "Ma7fouth fel telifoun hedha",
-      "onServer": "Ma7fouth fi Kora"
+      "onServer": "Ma7fouth fi Kora",
+      "distribution": "Er-rab7at 7asb 3add el mou7awlet",
+      "bar": "Fi {n} mou7awlet: {count}",
+      "empty": "Mazelt ma l3abt 7atta le3ba fel telifoun hedha."
     },
     "next": "El la3eb ejjey ba3d {time}"
   },
@@ -300,7 +303,8 @@
       "day": "En nhar",
       "record": "El natija",
       "points": "No9at",
-      "rating": "Ta9yim"
+      "rating": "Ta9yim",
+      "empty": "Mazelt ma l3abt 7atta mousem fel telifoun hedha."
     },
     "board": {
       "title": "A7sen el fra9 el youm",

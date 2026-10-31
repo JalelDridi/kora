@@ -1,5 +1,5 @@
 import AxeBuilder from "@axe-core/playwright";
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test, type Locator, type Page } from "@playwright/test";
 import arLatnTN from "../messages/ar-Latn-TN.json";
 import arTN from "../messages/ar-TN.json";
 import fr from "../messages/fr.json";
@@ -15,6 +15,9 @@ const fill = (s: string, values: Record<string, string | number>) =>
   s.replace(/\{(\w+)\}/g, (_, k: string) => String(values[k]));
 const escape = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
+/** The dialog has finished rising in, so axe reads its final colours. */
+const settled = (dialog: Locator) =>
+  dialog.evaluate((d) => Promise.all(d.getAnimations().map((a) => a.finished)));
 const axe = async (page: Page) =>
   (await new AxeBuilder({ page }).analyze()).violations;
 
@@ -317,6 +320,53 @@ for (const locale of locales) {
     await board(page).screenshot({
       path: shot(12, slug, 1280, "board-on"),
     });
+  });
+
+  test(`${url} the stats button opens the hall of best seasons`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 360, height: 800 });
+    await page.goto(url);
+    await spinning(page, 1);
+    const button = page
+      .locator("body > div header")
+      .first()
+      .getByRole("button", { name: messages[locale].header.stats });
+    const dialog = page.getByRole("dialog", {
+      name: messages[locale].header.stats,
+    });
+    // Before any season: nothing kept on this device yet.
+    await button.click();
+    await expect(dialog).toBeVisible();
+    await expect(dialog.getByText(t.hall.empty)).toBeVisible();
+    await settled(dialog);
+    expect(await axe(page)).toEqual([]);
+    await page.screenshot({ path: shot(3, slug, 360, "hall-empty") });
+    await page.keyboard.press("Escape");
+    await expect(dialog).toBeHidden();
+    // After a season: the hall, one row, its replay link.
+    await playSeason(page);
+    await button.click();
+    const hall = dialog.getByRole("table", { name: t.hall.title });
+    await expect(hall.locator("tbody tr")).toHaveCount(1);
+    await expect(
+      hall.locator("tbody tr").first().getByRole("link"),
+    ).toHaveAttribute("href", new RegExp(`^${prefix}/season/r/`));
+    await settled(dialog);
+    expect(await axe(page)).toEqual([]);
+    for (const width of [320, 360, 412]) {
+      await page.setViewportSize({ width, height: 800 });
+      expect(await noSidewaysScroll(page)).toBe(0);
+      // The table fits the dialog: nothing cut off at its end.
+      expect(
+        await hall.evaluate(
+          (table) => table.scrollWidth - table.parentElement!.clientWidth,
+        ),
+      ).toBeLessThanOrEqual(0);
+      await page.screenshot({ path: shot(3, slug, width, "hall") });
+    }
+    await page.keyboard.press("Escape");
+    await expect(dialog).toBeHidden();
   });
 
   test(`${url} draft, re-spin, play, share, at 320 px in three locales, axe clean at each state`, async ({

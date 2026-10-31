@@ -1,10 +1,18 @@
 import AxeBuilder from "@axe-core/playwright";
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test, type Locator, type Page } from "@playwright/test";
 import arLatnTN from "../messages/ar-Latn-TN.json";
 import arTN from "../messages/ar-TN.json";
 import fr from "../messages/fr.json";
 import { localName } from "../src/chkoun/labels";
-import { footballer, guess, ready, skipHelp } from "./chkoun-helpers";
+import { localeInfo, locales } from "../src/i18n/locales";
+import {
+  footballer,
+  guess,
+  noSidewaysScroll,
+  ready,
+  shot,
+  skipHelp,
+} from "./chkoun-helpers";
 import { type ChkounFixture, seedChkoun } from "./fixtures/chkoun";
 
 // The game pages open with the help already seen (src/chkoun/help-seen.ts).
@@ -230,7 +238,9 @@ test("the streak is kept on the device, by puzzle number, and survives a reload"
   await expect(record(page, fr.chkoun.stats.best)).toHaveText("5");
   await expect(record(page, fr.chkoun.stats.played)).toHaveText("7");
   await expect(record(page, fr.chkoun.stats.winRate)).toHaveText("86%");
-  await expect(page.getByText(fr.chkoun.stats.onDevice)).toBeVisible();
+  await expect(page.locator("#chkoun-stats ~ [data-store]")).toHaveText(
+    fr.chkoun.stats.onDevice,
+  );
   await page.reload();
   await expect(record(page, fr.chkoun.stats.streak)).toHaveText("5");
   await expect(record(page, fr.chkoun.stats.played)).toHaveText("7");
@@ -269,5 +279,93 @@ test("the server's record replaces the device's when the server kept the game", 
   await win(page);
   await expect(record(page, fr.chkoun.stats.streak)).toHaveText("9");
   await expect(record(page, fr.chkoun.stats.best)).toHaveText("12");
-  await expect(page.getByText(fr.chkoun.stats.onServer)).toBeVisible();
+  await expect(page.locator("#chkoun-stats ~ [data-store]")).toHaveText(
+    fr.chkoun.stats.onServer,
+  );
 });
+
+const messages = { "ar-TN": arTN, "ar-Latn-TN": arLatnTN, fr };
+/** The dialog has finished rising in, so axe reads its final colours. */
+const settled = (dialog: Locator) =>
+  dialog.evaluate((d) => Promise.all(d.getAnimations().map((a) => a.finished)));
+const fill = (s: string, values: Record<string, string | number>) =>
+  s.replace(/\{(\w+)\}/g, (_, k: string) => String(values[k]));
+
+// The record at any time (mobile polish M3): the header's stats button.
+for (const locale of locales) {
+  const m = messages[locale];
+  const { prefix } = localeInfo[locale];
+  const slug = prefix.slice(1);
+
+  test(`${prefix}/chkoun the stats button opens the record before, during and after a game, with today's bar marked`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 360, height: 800 });
+    await page.goto(`${prefix}/chkoun`);
+    await ready(page);
+    const button = page
+      .locator("body > div header")
+      .first()
+      .getByRole("button", { name: m.header.stats });
+    const dialog = page.getByRole("dialog", { name: m.header.stats });
+    const shots = async (state: string) => {
+      for (const width of [320, 360, 412]) {
+        await page.setViewportSize({ width, height: 800 });
+        expect(await noSidewaysScroll(page)).toBe(0);
+        await page.screenshot({ path: shot(3, slug, width, state) });
+      }
+      await page.setViewportSize({ width: 360, height: 800 });
+    };
+
+    // Before any guess: no game yet on this device.
+    await button.click();
+    await expect(dialog).toBeVisible();
+    await expect(dialog.getByText(m.chkoun.stats.empty)).toBeVisible();
+    await settled(dialog);
+    expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+    await shots("stats-empty");
+    await page.keyboard.press("Escape");
+    await expect(dialog).toBeHidden();
+
+    // During: one wrong guess, still nothing counted.
+    await guess(page, fixture.others[0]);
+    await button.click();
+    await expect(dialog.getByText(m.chkoun.stats.empty)).toBeVisible();
+    await page.keyboard.press("Escape");
+    await expect(dialog).toBeHidden();
+
+    // After a win in 2: the record, and the bar of 2 marked as today's.
+    await guess(page, fixture.answers[0]);
+    await expect(page.locator("#chkoun-result")).toBeVisible();
+    await button.click();
+    await expect(dialog).toBeVisible();
+    await expect(dialog.getByText(m.chkoun.stats.empty)).toHaveCount(0);
+    await expect(
+      dialog.getByRole("heading", { name: m.chkoun.stats.distribution }),
+    ).toBeVisible();
+    await expect(dialog.locator("[data-bar]")).toHaveCount(8);
+    const today = dialog.locator('[data-bar="2"][data-today]');
+    await expect(today).toBeVisible();
+    await expect(today).toHaveAttribute("aria-current", "true");
+    await expect(today).toContainText(
+      fill(m.chkoun.stats.bar, { n: 2, count: 1 }),
+    );
+    await expect(dialog.locator("[data-today]")).toHaveCount(1);
+    await expect(dialog.locator('[data-bar="5"]')).toContainText(
+      fill(m.chkoun.stats.bar, { n: 5, count: 0 }),
+    );
+    // Western digits only, in every locale.
+    expect(await dialog.innerText()).not.toMatch(
+      /[\u0660-\u0669\u06f0-\u06f9]/,
+    );
+    await settled(dialog);
+    expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+    await shots("stats-won");
+    await page.keyboard.press("Escape");
+    await expect(dialog).toBeHidden();
+    // The record under the result shows the same chart.
+    await expect(
+      page.locator("#chkoun-stats-distribution ~ ol [data-today]"),
+    ).toHaveAttribute("data-bar", "2");
+  });
+}

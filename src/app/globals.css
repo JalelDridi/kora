@@ -128,6 +128,15 @@ html {
   color: var(--color-chalk);
 }
 
+/* Under 360 px (a 320 px phone) every pixel counts: the 30–0 record's
+   four columns fit only with a narrower frame. */
+@media (width < 360px) {
+  .kora-dialog {
+    max-inline-size: calc(100% - 1rem);
+    padding: 1rem;
+  }
+}
+
 .kora-dialog::backdrop {
   background: rgb(0 0 0 / 0.7);
 }
