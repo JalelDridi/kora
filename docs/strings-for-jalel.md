@@ -354,6 +354,21 @@ The "how to play" dialog of each game (M2): it opens by itself on a game's first
 | `season.help.respin`  | You may spin again once                               | Tu peux relancer une seule fois.                                                               | تنجم تعاود الدورة مرة برك.                                                               | Tnajjem t3awed ed-dawra marra bark.                                                                         | DRAFT  |
 | `season.help.play`    | With 11, play 30 matches; 30–0 is the dream           | Avec 11 joueurs, joue 30 matchs : 30–0 est le rêve.                                            | كي تكمّل 11 لاعب، العب 30 ماتش: 30–0 هو الحلم.                                           | Ki tkammel 11 la3eb, el3ab 30 match: 30–0 howa el 7elm.                                                     | DRAFT  |
 
+### Task 3: the record at any time
+
+The record dialog (M3): the header's stats button opens it before, during and after a game. Chkoun? shows the four numbers and, under them, the wins by number of guesses; 30–0 shows the best seasons on this device. Reused, not duplicated: `header.stats` (the dialog's title), `header.close`, the `chkoun.stats.*` numbers and the `season.hall.*` table. Points to look at:
+
+- `chkoun.stats.bar` is read by screen readers only, once per bar from 1 to 8: « En 1 essais », في 1 محاولات and `Fi 1 mou7awlet` are wrong in the singular (and في 2 محاولات in the dual: محاولتين). A form without the plural after the number avoids it, for example « Essais : {n}, victoires : {count} » / محاولات: {n}، ربحات: {count}.
+- `chkoun.stats.distribution`: حسب and عدد lean towards Modern Standard Arabic; a Derja form may exist.
+- `season.hall.empty` was not in the plan: the 30–0 dialog needed a line before any season.
+
+| Key                         | English gloss                                        | French draft                                 | `ar-TN` as shipped                      | `ar-Latn-TN` as shipped                          | Status |
+| --------------------------- | ---------------------------------------------------- | -------------------------------------------- | --------------------------------------- | ------------------------------------------------ | ------ |
+| `chkoun.stats.distribution` | Wins by number of guesses (the chart's heading)      | Victoires par nombre d'essais                | الربحات حسب عدد المحاولات               | Er-rab7at 7asb 3add el mou7awlet                 | DRAFT  |
+| `chkoun.stats.bar`          | One bar, for screen readers: in {n} guesses: {count} | En {n} essais : {count}                      | في {n} محاولات: {count}                 | Fi {n} mou7awlet: {count}                        | DRAFT  |
+| `chkoun.stats.empty`        | No game yet on this device                           | Pas encore de partie sur cet appareil.       | مازلت ما لعبت حتى لعبة في التليفون هذا. | Mazelt ma l3abt 7atta le3ba fel telifoun hedha.  | DRAFT  |
+| `season.hall.empty`         | No season yet on this device                         | Pas encore de saison jouée sur cet appareil. | مازلت ما لعبت حتى موسم في التليفون هذا. | Mazelt ma l3abt 7atta mousem fel telifoun hedha. | DRAFT  |
+
 ## Go-live checklist (Chkoun?)
 
 The game page is reachable by its URL but hidden until all of these are done, in this order:
