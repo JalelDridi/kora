@@ -1,12 +1,26 @@
 import Link from "next/link";
+import type { ReactNode } from "react";
 
 type Props = Record<"name" | "pitch" | "badge" | "soon", string> & {
   /** The game's page once it is live; the card then opens it. */
   href?: string | null;
   play?: string;
+  /**
+   * Today's line on this device (mobile polish M6): its box is reserved in
+   * the server HTML, so the line filled in after load moves nothing.
+   */
+  state?: ReactNode;
 };
 
-export function GameCard({ name, pitch, badge, soon, href, play }: Props) {
+export function GameCard({
+  name,
+  pitch,
+  badge,
+  soon,
+  href,
+  play,
+  state,
+}: Props) {
   return (
     <article
       className={`relative flex h-full flex-col gap-3 rounded-2xl border bg-pitch-900 p-6 ${href ? "border-mint" : "border-pitch-700"}`}
@@ -32,6 +46,7 @@ export function GameCard({ name, pitch, badge, soon, href, play }: Props) {
         )}
       </h3>
       <p className="text-lg text-chalk-dim">{pitch}</p>
+      {state !== undefined ? <div className="min-h-12">{state}</div> : null}
       {href ? (
         <p
           aria-hidden="true"

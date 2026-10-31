@@ -8,7 +8,16 @@
     "games": "El al3ab",
     "soon": "9rib",
     "language": "Logha",
-    "play": "El3ab"
+    "play": "El3ab",
+    "state": {
+      "notYet": "#{n} · mazelt ma l3abtech",
+      "playing": "#{n} · mazelt tel3eb, {guesses}/8",
+      "won": "#{n} · l9itou fi {score}",
+      "lost": "#{n} · ma l9itouch, X/8",
+      "streak": "Série: {n}",
+      "seasonNotYet": "Mazelt ma l3abt 7atta mousem el youm",
+      "seasonPlayed": "El youm: {w}-{d}-{l}"
+    }
   },
   "badges": {
     "daily": "Kol youm",

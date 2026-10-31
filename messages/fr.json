@@ -8,7 +8,16 @@
     "games": "Les jeux",
     "soon": "Bientôt",
     "language": "Langue",
-    "play": "Jouer"
+    "play": "Jouer",
+    "state": {
+      "notYet": "#{n} · pas encore joué",
+      "playing": "#{n} · en cours, {guesses}/8",
+      "won": "#{n} · trouvé en {score}",
+      "lost": "#{n} · raté, X/8",
+      "streak": "Série : {n}",
+      "seasonNotYet": "Pas encore de saison aujourd'hui",
+      "seasonPlayed": "Aujourd'hui : {w}-{d}-{l}"
+    }
   },
   "badges": {
     "daily": "Quotidien",

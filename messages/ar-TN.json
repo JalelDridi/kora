@@ -8,7 +8,16 @@
     "games": "الألعاب",
     "soon": "قريب",
     "language": "اللغة",
-    "play": "العب"
+    "play": "العب",
+    "state": {
+      "notYet": "#{n} · مازلت ما لعبتش",
+      "playing": "#{n} · مازلت تلعب، {guesses}/8",
+      "won": "#{n} · لقيتو في {score}",
+      "lost": "#{n} · ما لقيتوش، X/8",
+      "streak": "السلسلة: {n}",
+      "seasonNotYet": "مازلت ما لعبت حتى موسم اليوم",
+      "seasonPlayed": "اليوم: {w}-{d}-{l}"
+    }
   },
   "badges": {
     "daily": "كل يوم",

@@ -424,6 +424,24 @@ The short club labels live in `data/curated/club-short.json` (`by: claude`, DRAF
 
 Points to check: بن ڤردان with the Tunisian ڤ (against بنقردان of the club's Arabic name); حمام سوسة and حمام الأنف (the town, two words) against a nickname; العمران and ساقية الدائر (the district) for JS El Omrane and PS Sakiet Eddaïer. The file also gives 102 clubs abroad or in the lower Tunisian divisions a short form (their usual short name or acronym: ASG and SG for the two Gabès clubs, JSK, UST, EGSG, SAMB; since fix round 1, every guessable club whose name has a word too wide for a 360 px tile, such as BP for IF Brommapojkarna, Razgrad for Ludogorets, KSK for Kasımpaşa, FCGB for Bordeaux, ألبا for Albalonga and نورشوبنغ for Norrköping); a club not listed shows its full name, and the browser tests fail if one of its words does not fit.
 
+### Task 6: the hub says what is left today
+
+The line under each live hub card (M6), read from the visitor's device: today's Chkoun? (not yet, in progress, found or missed, with the puzzle number and the streak) and today's 30–0 record. Reused, not duplicated: `hub.language` (the hub's new language menu) and the language names of the switcher. The number `#27`, the score `3/8` and the record `21-5-4` read left to right inside an Arabic line, in Western digits. Points to check:
+
+- `hub.state.seasonNotYet` in `ar-Latn-TN`: `mousem` as in `season.hall.empty`, against the plan's `mawsem`.
+- `hub.state.streak` in `ar-Latn-TN` keeps the French « Série », as `chkoun.stats.streak` does there; a Derja word (`Silsla`) may read better.
+- `hub.state.notYet` and `hub.state.seasonNotYet`: مازلت ما لعبتش (you have not played yet) against a shorter ما لعبتش.
+
+| Key                      | English gloss                                        | French draft                     | `ar-TN` as shipped             | `ar-Latn-TN` as shipped              | Status |
+| ------------------------ | ---------------------------------------------------- | -------------------------------- | ------------------------------ | ------------------------------------ | ------ |
+| `hub.state.notYet`       | #27 · not played yet (Chkoun? card)                  | #{n} · pas encore joué           | #{n} · مازلت ما لعبتش          | #{n} · mazelt ma l3abtech            | DRAFT  |
+| `hub.state.playing`      | #27 · in progress, 2/8                               | #{n} · en cours, {guesses}/8     | #{n} · مازلت تلعب، {guesses}/8 | #{n} · mazelt tel3eb, {guesses}/8    | DRAFT  |
+| `hub.state.won`          | #27 · found in 3/8                                   | #{n} · trouvé en {score}         | #{n} · لقيتو في {score}        | #{n} · l9itou fi {score}             | DRAFT  |
+| `hub.state.lost`         | #27 · missed, X/8                                    | #{n} · raté, X/8                 | #{n} · ما لقيتوش، X/8          | #{n} · ma l9itouch, X/8              | DRAFT  |
+| `hub.state.streak`       | Streak: 2 (under the Chkoun? line while it is alive) | Série : {n}                      | السلسلة: {n}                   | Série: {n}                           | DRAFT  |
+| `hub.state.seasonNotYet` | No season played today (30–0 card)                   | Pas encore de saison aujourd'hui | مازلت ما لعبت حتى موسم اليوم   | Mazelt ma l3abt 7atta mousem el youm | DRAFT  |
+| `hub.state.seasonPlayed` | Today: 21-5-4 (the last season played today)         | Aujourd'hui : {w}-{d}-{l}        | اليوم: {w}-{d}-{l}             | El youm: {w}-{d}-{l}                 | DRAFT  |
+
 ## Go-live checklist (Chkoun?)
 
 The game page is reachable by its URL but hidden until all of these are done, in this order:
