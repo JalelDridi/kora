@@ -322,6 +322,18 @@ The visitor cookie now serves every game's API (`/api`), not only Chkoun?'s, so 
 - `season.board.you`: هذا إنت / Hedha enti ("that's you"); إنتي is the spoken spelling some prefer in Arabic script.
 - `season.board.off` and `season.board.notCounted`: الترتيب / el tartib; spoken alternative الكلاسمون / el classement.
 
+## Mobile polish (31 October 2026)
+
+### Task 1: the game header
+
+The one-line header of Chkoun? and 30–0 (M1). Reused, not duplicated: `notFound.home` (the back arrow's name for screen readers) and `hub.language` (the language menu's name, "Langue: Français"); the menu shows the language names of the switcher. `header.close` is for the dialogs of Tasks 2 and 3 and is not on screen yet. Research: كيفاش (how) and سكّر (close, shut) are the spoken Tunisian forms; الأرقام متاعك keeps متاع for "your", as the other strings do.
+
+| Key            | English gloss                                  | French draft  | `ar-TN` as shipped | `ar-Latn-TN` as shipped | Status |
+| -------------- | ---------------------------------------------- | ------------- | ------------------ | ----------------------- | ------ |
+| `header.help`  | How to play (the "?" button's name)            | Comment jouer | كيفاش تلعب         | Kifech tel3eb           | DRAFT  |
+| `header.stats` | Your stats (the record button's name)          | Tes stats     | الأرقام متاعك      | El ar9am mte3ek         | DRAFT  |
+| `header.close` | Close (a dialog's close button, Tasks 2 and 3) | Fermer        | سكّر               | Sakker                  | DRAFT  |
+
 ## Go-live checklist (Chkoun?)
 
 The game page is reachable by its URL but hidden until all of these are done, in this order:
