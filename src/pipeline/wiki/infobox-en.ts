@@ -113,6 +113,8 @@ export type CurrentClub = {
   foreign?: string;
   /** The club a staff post names, when it names one (not a national team). */
   staffClub?: string;
+  /** P59: the field is absent or empty: no opinion, unlike "Retired". */
+  missing?: true;
 };
 
 /**
@@ -130,6 +132,9 @@ export function readCurrentClub(
 ): CurrentClub {
   const plain = plainText(text);
   const club = read(text);
+  // A {{Lien}} club has no plain text: only both empty mean no field.
+  if (plain.trim() === "" && club.title.trim() === "")
+    return { title: null, staff: false, missing: true };
   if (NO_CLUB.test(plain) && NO_CLUB.test(club.title.trim()))
     return { title: null, staff: false };
   const link = links(text)[0];
@@ -245,11 +250,17 @@ export function parseEnInfobox(
     if (beyond) skipped.push({ ...beyond, reason: "limit" });
   }
 
-  const current = readCurrentClub(get("currentclub"), STAFF, NATIONAL_TEAM);
+  // splitParams writes "current_club" as "current club".
+  const current = readCurrentClub(
+    get("currentclub") || get("current club"),
+    STAFF,
+    NATIONAL_TEAM,
+  );
   return {
     lang: "en",
     title,
     currentClub: current.title,
+    ...(current.missing ? { currentClubMissing: true } : {}),
     currentClubIsStaff: current.staff,
     ...(current.staffClub === undefined
       ? {}

@@ -15,7 +15,7 @@ import { GOALSCORERS_URL, goalsFloors, tunisiaScorers } from "./goalscorers.ts";
 import { fameOf } from "./fame.ts";
 import { createPoliteClient } from "./http.ts";
 import type { FetchLike, PoliteClient } from "./http.ts";
-import { buildClubIndex, chosenClubOf } from "./merge.ts";
+import { buildClubIndex, chosenClubOf, openSpellOf } from "./merge.ts";
 import type { MergeContext } from "./merge.ts";
 import { validateOverrides } from "./overrides.ts";
 import {
@@ -766,23 +766,17 @@ async function build(deps: RunDeps): Promise<RunResult> {
   const boxesOf = (m: Map<string, Infobox>) => [...new Set(m.values())];
 
   // Current-club links often go through a redirect; resolve them before
-  // asking Wikidata which club each title is. The exact count is known now:
-  // check the budget again before the first redirect request.
+  // asking Wikidata which club each title is. P59: a page with no current
+  // club field may be given its open spell's club, so that title is
+  // resolved too. The exact count is known now: check the budget again
+  // before the first redirect request.
+  const clubLinks = (b: Infobox) => [
+    b.currentClub,
+    b.currentClubMissing ? openSpellOf(b)?.clubTitle : undefined,
+  ];
   const currentClubs = {
-    en: [
-      ...new Set(
-        boxesOf(en)
-          .map((b) => b.currentClub)
-          .filter(present),
-      ),
-    ],
-    fr: [
-      ...new Set(
-        boxesOf(fr)
-          .map((b) => b.currentClub)
-          .filter(present),
-      ),
-    ],
+    en: [...new Set(boxesOf(en).flatMap(clubLinks).filter(present))],
+    fr: [...new Set(boxesOf(fr).flatMap(clubLinks).filter(present))],
   };
   const exact = planRequests({
     en: titles.en.length,
