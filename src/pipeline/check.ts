@@ -2,6 +2,7 @@ import { access, readFile } from "node:fs/promises";
 import path from "node:path";
 import { buildSeasonData, seasonProblems } from "../engine/season/data.ts";
 import { validateOverrides } from "./overrides.ts";
+import { activeRefusal, ALLOW_POOL_DROP } from "./report.ts";
 import type { KnownIds } from "./overrides.ts";
 import { competitions, regions } from "./types.ts";
 import type { IdRegistry, Pool } from "./types.ts";
@@ -159,6 +160,12 @@ export async function checkData(root: string): Promise<string[]> {
 /** Errors fail data:check; warnings (overrides the next build will decide) are printed and pass. */
 export async function inspectData(
   root: string,
+  options: {
+    /** P59: the previous night's pool, for the active guard. */
+    against?: string;
+    /** P59: KORA_ALLOW_POOL_DROP=1: the active guard warns instead. */
+    allowPoolDrop?: boolean;
+  } = {},
 ): Promise<{ errors: string[]; warnings: string[] }> {
   const warnings: string[] = [];
   const errors: string[] = [];
@@ -200,6 +207,22 @@ export async function inspectData(
   }
 
   const pool = await read("pool.json");
+  if (options.against !== undefined && usablePool(pool)) {
+    let previous: unknown;
+    try {
+      previous = JSON.parse(await readFile(options.against, "utf8"));
+    } catch (error) {
+      errors.push(`${options.against}: ${(error as Error).message}`);
+    }
+    if (previous !== undefined && !usablePool(previous))
+      errors.push(`${options.against}: not a pool`);
+    else if (previous !== undefined) {
+      const refusal = activeRefusal(previous, pool);
+      if (refusal && options.allowPoolDrop)
+        warnings.push(`data/pool.json: ${ALLOW_POOL_DROP}=1: ${refusal}`);
+      else if (refusal) errors.push(`data/pool.json: ${refusal}`);
+    }
+  }
   // data/ids.json is written by the first build; before it, there is no registry to check.
   const registry = await read("ids.json");
   const overrides = await read("overrides.json");

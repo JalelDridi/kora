@@ -31,6 +31,9 @@ import { syncPhotos } from "./photos.ts";
 import { buildPool, emptyRegistry } from "./pool.ts";
 import {
   diffPools,
+  activeCounts,
+  activeRefusal,
+  ALLOW_POOL_DROP,
   guardChange,
   renderReport,
   squadSummary,
@@ -134,6 +137,12 @@ export type RunDeps = {
   photoFetch?: FetchLike;
   /** The wait between two photo downloads (tests make it instant). */
   sleep?: (ms: number) => Promise<void>;
+  /**
+   * P59: KORA_ALLOW_POOL_DROP=1 (read by the CLI) lets a night through that
+   * loses over 5% of the actives or turns over 10 clubs into none; the
+   * report says so. The shrink guard still applies.
+   */
+  allowPoolDrop?: boolean;
 };
 
 export type ClientName = "wdqs" | "wikimedia" | "github";
@@ -1291,8 +1300,12 @@ async function build(deps: RunDeps): Promise<RunResult> {
       `the new pool is invalid (${invalid.length} errors): ${invalid.slice(0, 5).join("; ")}`,
     );
   }
-  const refusal = guardChange(previous, pool);
+  const refusal = guardChange(previous, pool, {
+    allowPoolDrop: deps.allowPoolDrop,
+  });
   if (refusal) throw new Refusal(refusal);
+  const letThrough = deps.allowPoolDrop ? activeRefusal(previous, pool) : null;
+  if (letThrough) deps.log(`${ALLOW_POOL_DROP}=1 lets through: ${letThrough}`);
 
   const diff = diffPools(previous, pool);
   // P30: copies no footballer uses any more stay; deleting is Jalel's call.
@@ -1323,6 +1336,8 @@ async function build(deps: RunDeps): Promise<RunResult> {
         statuses,
         today,
         honoursReading: wikidata.honoursReading,
+        ...(previous ? { active: activeCounts(previous, pool) } : {}),
+        ...(letThrough ? { activeLetThrough: letThrough } : {}),
         overrideWarnings: checked.warnings,
         offline: deps.offline === true,
         witness: witnessSummary(witness, pool, today),

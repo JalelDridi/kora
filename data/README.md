@@ -19,6 +19,10 @@ Nothing here reaches the database until a pull request is merged: the deploy tha
 
 Every night at 01:17 UTC (02:17 in Tunis) the `Nightly data` workflow (`.github/workflows/nightly-data.yml`) runs `pnpm data:build` online, then `pnpm data:check`. If the build refuses or a check fails, the run fails in the Actions tab and no pull request is opened. Otherwise, when `pool.json`, `ids.json` or the copied photos changed, it commits `pool.json`, `ids.json`, `report.md` and `public/photos/` to the branch `data/nightly` as `github-actions[bot]`, force-pushes it, and opens or updates one pull request into `main`, whose description is `report.md`. It never merges by itself. When nothing changed it does nothing (`report.md` alone changes every night: it carries the date). It can also be started by hand: Actions → Nightly data → Run workflow, on `main`.
 
+### The guards
+
+The build refuses a pool that has a tenth fewer footballers than the previous one (the shrink guard), and, since P59, a night that loses more than 5% of the active footballers or turns more than 10 footballers' clubs into none (the active guard); `data:check --against <previous pool.json>` applies the active guard too, and the workflow runs it against `main`'s pool. Each refusal names the counts. A few transfers a week stay well under both limits; a source that changes its pages does not. When a drop is real (the end of a season, say), Jalel lets that one night through: Actions → Nightly data → Run workflow with **allow_pool_drop** ticked, or locally `KORA_ALLOW_POOL_DROP=1 pnpm data:build`. The report then says "Let through by KORA_ALLOW_POOL_DROP=1" with the counts. The shrink guard cannot be let through.
+
 ### Once, in the repository settings (Jalel)
 
 - Settings → Actions → General → Workflow permissions: tick **Allow GitHub Actions to create and approve pull requests**. Without it the job cannot open the pull request. The workflow asks for its own permissions per job, so the default token setting can stay read-only.
