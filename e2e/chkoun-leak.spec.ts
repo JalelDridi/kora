@@ -17,7 +17,9 @@ test.beforeEach(async ({ page }) => skipHelp(page));
 // Task 12, "Readings" 1). Every active footballer is guessable, so his name
 // is in the page by design: the page, its RSC payload and its scripts must
 // hold today's (and tomorrow's) answer exactly as often as any other
-// footballer, and no API response before the end may name him.
+// footballer, and no API response before the end may name him. The same
+// holds for yesterday's footballer (mobile polish M7) on its own page and
+// through the guesses on yesterday's number.
 
 let fixture: ChkounFixture;
 test.beforeAll(async () => {
@@ -38,6 +40,18 @@ const NEEDLES: Record<string, Needle> = {
   photo: (p) => `photos/${p.id}`,
 };
 
+/** What only his card adds: the encyclopedia pages it links to. */
+const CARD_NEEDLES: Needle[] = [
+  (p) => p.wiki?.en ?? null,
+  (p) => p.wiki?.fr ?? null,
+];
+
+/** Every string that names `p` or his card. */
+const secretsOf = (p: PoolPlayer) =>
+  [...Object.values(NEEDLES), ...CARD_NEEDLES]
+    .map((needle) => needle(p))
+    .filter((s): s is string => Boolean(s));
+
 /**
  * A footballer who is never an answer and whose `needle` occurs as often in
  * the name list as `id`'s: the control the answer is compared with.
@@ -46,7 +60,12 @@ function controlFor(id: string, needle: Needle): PoolPlayer {
   const a = footballer(id);
   const target = needle(a)!;
   const control = pool.players.find((c) => {
-    if (!c.pools.active || fixture.answers.includes(c.id)) return false;
+    if (
+      !c.pools.active ||
+      fixture.answers.includes(c.id) ||
+      c.id === fixture.yesterday
+    )
+      return false;
     const value = needle(c);
     return value !== null && count(names, value) === count(names, target);
   });
@@ -73,8 +92,11 @@ for (const [path, locale] of [
   ["/ar/chkoun", "ar-TN"],
   ["/tn/chkoun", "ar-Latn-TN"],
   ["/fr/chkoun", "fr"],
+  ["/ar/chkoun/yesterday", "ar-TN"],
+  ["/tn/chkoun/yesterday", "ar-Latn-TN"],
+  ["/fr/chkoun/yesterday", "fr"],
 ] as const) {
-  test(`${path}: today's and tomorrow's answers appear as often as a control footballer`, async ({
+  test(`${path}: today's, tomorrow's and yesterday's answers appear as often as a control footballer`, async ({
     request,
   }) => {
     const { html, rsc } = await pageAndPayload(request, path);
@@ -83,7 +105,11 @@ for (const [path, locale] of [
     const data = await request.get(`/chkoun-data/${locale}.json`);
     expect(data.status()).toBe(200);
     const list = await data.text();
-    for (const id of [fixture.answers[0], fixture.answers[1]]) {
+    for (const id of [
+      fixture.answers[0],
+      fixture.answers[1],
+      fixture.yesterday,
+    ]) {
       const answer = footballer(id);
       expect(count(list, answer.id)).toBeGreaterThan(0);
       // The page itself carries no footballer: the list comes after it.
@@ -122,14 +148,13 @@ test("no JS chunk contains the answer's id or a control footballer's id", async 
   }
 });
 
-test("today's endpoint and seven wrong guesses never contain today's or tomorrow's answer's id, names or photo path", async ({
+test("today's endpoint and seven wrong guesses never contain today's, tomorrow's or yesterday's answer's id, names or photo path", async ({
   request,
 }) => {
   const answer = footballer(fixture.answers[0]);
-  const secrets = [fixture.answers[0], fixture.answers[1]]
+  const secrets = [fixture.answers[0], fixture.answers[1], fixture.yesterday]
     .map(footballer)
-    .flatMap((p) => Object.values(NEEDLES).map((needle) => needle(p)))
-    .filter((s): s is string => Boolean(s));
+    .flatMap(secretsOf);
   const todayText = await (await request.get("/api/chkoun/today")).text();
   for (const s of secrets) expect(todayText).not.toContain(s);
   const { number } = JSON.parse(todayText);
@@ -154,6 +179,51 @@ test("today's endpoint and seven wrong guesses never contain today's or tomorrow
     status: "lost",
     card: { id: answer.id, nameLatin: answer.nameLatin },
   });
+});
+
+test("seven wrong guesses on yesterday's number never contain yesterday's answer; the 8th returns his card", async ({
+  request,
+}) => {
+  const answer = footballer(fixture.yesterday);
+  const secrets = [fixture.yesterday, fixture.answers[0], fixture.answers[1]]
+    .map(footballer)
+    .flatMap(secretsOf);
+  const today = await (await request.get("/api/chkoun/today")).json();
+  expect(today.yesterday).toMatchObject({ number: today.number - 1 });
+  const n = today.yesterday.number;
+  let token: string | null = null;
+  for (const guess of fixture.others.slice(0, 7)) {
+    const response: APIResponse = await request.post("/api/chkoun/guess", {
+      data: { n, token, guess },
+    });
+    expect(response.status()).toBe(200);
+    const text: string = await response.text();
+    const body = JSON.parse(text);
+    expect(body).toMatchObject({ status: "playing", past: true });
+    token = body.token;
+    expect(decodedToken(token)).toContain(guess);
+    for (const s of secrets) {
+      expect(text).not.toContain(s);
+      expect(decodedToken(token)).not.toContain(s);
+    }
+  }
+  // Positive control: the 8th wrong guess ends the game and returns the card.
+  const last = await request.post("/api/chkoun/guess", {
+    data: { n, token, guess: fixture.others[7] },
+  });
+  const body = await last.json();
+  expect(body).toMatchObject({
+    status: "lost",
+    past: true,
+    store: "device",
+    card: {
+      id: answer.id,
+      nameLatin: answer.nameLatin,
+      wiki: { en: answer.wiki?.en ?? null, fr: answer.wiki?.fr ?? null },
+    },
+  });
+  expect(body.stats).toBeUndefined();
+  expect(last.headers()["set-cookie"]).toBeUndefined();
 });
 
 test("the page names no answer in its title, preview or image URLs", async ({
