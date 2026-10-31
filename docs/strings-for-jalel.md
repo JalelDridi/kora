@@ -362,12 +362,12 @@ The record dialog (M3): the header's stats button opens it before, during and af
 - `chkoun.stats.distribution`: حسب and عدد lean towards Modern Standard Arabic; a Derja form may exist.
 - `season.hall.empty` was not in the plan: the 30–0 dialog needed a line before any season.
 
-| Key                         | English gloss                                        | French draft                                 | `ar-TN` as shipped                      | `ar-Latn-TN` as shipped                          | Status |
-| --------------------------- | ---------------------------------------------------- | -------------------------------------------- | --------------------------------------- | ------------------------------------------------ | ------ |
-| `chkoun.stats.distribution` | Wins by number of guesses (the chart's heading)      | Victoires par nombre d'essais                | الربحات حسب عدد المحاولات               | Er-rab7at 7asb 3add el mou7awlet                 | DRAFT  |
-| `chkoun.stats.bar`          | One bar, for screen readers: in {n} guesses: {count} | En {n} essais : {count}                      | في {n} محاولات: {count}                 | Fi {n} mou7awlet: {count}                        | DRAFT  |
-| `chkoun.stats.empty`        | No game yet on this device                           | Pas encore de partie sur cet appareil.       | مازلت ما لعبت حتى لعبة في التليفون هذا. | Mazelt ma l3abt 7atta le3ba fel telifoun hedha.  | DRAFT  |
-| `season.hall.empty`         | No season yet on this device                         | Pas encore de saison jouée sur cet appareil. | مازلت ما لعبت حتى موسم في التليفون هذا. | Mazelt ma l3abt 7atta mousem fel telifoun hedha. | DRAFT  |
+| Key                         | English gloss                                                                                       | French draft                                 | `ar-TN` as shipped                      | `ar-Latn-TN` as shipped                          | Status |
+| --------------------------- | --------------------------------------------------------------------------------------------------- | -------------------------------------------- | --------------------------------------- | ------------------------------------------------ | ------ |
+| `chkoun.stats.distribution` | Wins by number of guesses (the chart's heading)                                                     | Victoires par nombre d'essais                | الربحات حسب عدد المحاولات               | Er-rab7at 7asb 3add el mou7awlet                 | DRAFT  |
+| `chkoun.stats.bar`          | One bar, for screen readers: guesses {n}, wins {count} (noun-free form: no plural after the number) | Essais : {n}, victoires : {count}            | محاولات: {n}، ربحات: {count}            | Mou7awlet: {n}, rba7at: {count}                  | DRAFT  |
+| `chkoun.stats.empty`        | No game yet on this device                                                                          | Pas encore de partie sur cet appareil.       | مازلت ما لعبت حتى لعبة في التليفون هذا. | Mazelt ma l3abt 7atta le3ba fel telifoun hedha.  | DRAFT  |
+| `season.hall.empty`         | No season yet on this device                                                                        | Pas encore de saison jouée sur cet appareil. | مازلت ما لعبت حتى موسم في التليفون هذا. | Mazelt ma l3abt 7atta mousem fel telifoun hedha. | DRAFT  |
 
 ## Go-live checklist (Chkoun?)
 

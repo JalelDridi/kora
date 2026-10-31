@@ -125,7 +125,7 @@
       "onDevice": "Ma7fouth fel telifoun hedha",
       "onServer": "Ma7fouth fi Kora",
       "distribution": "Er-rab7at 7asb 3add el mou7awlet",
-      "bar": "Fi {n} mou7awlet: {count}",
+      "bar": "Mou7awlet: {n}, rba7at: {count}",
       "empty": "Mazelt ma l3abt 7atta le3ba fel telifoun hedha."
     },
     "next": "El la3eb ejjey ba3d {time}"

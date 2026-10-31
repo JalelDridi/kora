@@ -125,7 +125,7 @@
       "onDevice": "Enregistré sur cet appareil",
       "onServer": "Enregistré sur Kora",
       "distribution": "Victoires par nombre d'essais",
-      "bar": "En {n} essais : {count}",
+      "bar": "Essais : {n}, victoires : {count}",
       "empty": "Pas encore de partie sur cet appareil."
     },
     "next": "Prochain joueur dans {time}"
