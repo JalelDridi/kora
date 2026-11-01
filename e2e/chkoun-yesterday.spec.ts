@@ -243,9 +243,11 @@ for (const locale of locales) {
       .first()
       .boundingBox())!;
     expect(label.y - (back.y + back.height)).toBeLessThanOrEqual(64);
+    // Below 0.01: a sub-pixel font shift (0.0005 on GitHub's Chromium) is
+    // not a visible shift.
     expect(
       await page.evaluate(() => (window as unknown as { cls: number }).cls),
-    ).toBe(0);
+    ).toBeLessThan(0.01);
   });
 
   test(`${url}: at 320 px no sideways scroll`, async ({ page }) => {

@@ -188,28 +188,32 @@ for (const locale of locales) {
     await expect(page.locator("#chkoun-result")).toBeFocused();
   });
 
-  test(`${url}: at 320 px the tiles sit 3 by 2, show their column's icon, and break no word`, async ({
-    page,
-  }) => {
-    await page.setViewportSize({ width: 320, height: 740 });
-    await page.goto(url);
-    await ready(page);
-    for (const id of fixture.others.slice(0, 8)) await guess(page, id);
-    const row = page.locator("[data-guess]").first();
-    const box = async (c: string) =>
-      (await row.locator(`[data-column="${c}"]`).boundingBox())!;
-    expect((await box("club")).y).toBeCloseTo((await box("position")).y, 0);
-    expect((await box("age")).y).toBeGreaterThan((await box("club")).y);
-    // Under 340 px each tile shows its column's icon (D-MP-1); the header
-    // row is there once, 3 by 2 as well.
-    await expect(row.locator('[data-column="caps"] [data-icon]')).toBeVisible();
-    await expect(page.locator("[data-tile-headers]")).toHaveCount(1);
-    await expect(page.locator("[data-tile-headers]")).toBeVisible();
-    expect(await splitWords(page)).toEqual([]);
-    expect(await noSidewaysScroll(page)).toBe(0);
-  });
+  for (const width of [320, 340, 360]) {
+    test(`${url}: at ${width} px the tiles sit 3 by 2, show their column's icon, and break no word`, async ({
+      page,
+    }) => {
+      await page.setViewportSize({ width, height: 740 });
+      await page.goto(url);
+      await ready(page);
+      for (const id of fixture.others.slice(0, 8)) await guess(page, id);
+      const row = page.locator("[data-guess]").first();
+      const box = async (c: string) =>
+        (await row.locator(`[data-column="${c}"]`).boundingBox())!;
+      expect((await box("club")).y).toBeCloseTo((await box("position")).y, 0);
+      expect((await box("age")).y).toBeGreaterThan((await box("club")).y);
+      // Under 375 px each tile shows its column's icon (D-MP-1); the header
+      // row is there once, 3 by 2 as well.
+      await expect(
+        row.locator('[data-column="caps"] [data-icon]'),
+      ).toBeVisible();
+      await expect(page.locator("[data-tile-headers]")).toHaveCount(1);
+      await expect(page.locator("[data-tile-headers]")).toBeVisible();
+      expect(await splitWords(page)).toEqual([]);
+      expect(await noSidewaysScroll(page)).toBe(0);
+    });
+  }
 
-  for (const width of [360, 375, 412]) {
+  for (const width of [375, 390, 412]) {
     test(`${url}: at ${width} px each guess is one row of six, values at 14 px or more`, async ({
       page,
     }) => {
@@ -279,7 +283,7 @@ for (const locale of locales) {
     });
   }
 
-  for (const width of [340, 360, 375, 412]) {
+  for (const width of [320, 340, 360, 375, 390, 412]) {
     test(`${url}: at ${width} px no tile value or header word is cut or overflows`, async ({
       page,
     }) => {
@@ -297,10 +301,12 @@ for (const locale of locales) {
   }
 
   // Every value the pool can show (the day's label tables, every country,
-  // governorate, line, caps band and age), measured in the real tiles: the
-  // columns are sized from the pool's words (fix round 1).
-  for (const width of [340, 360]) {
-    test(`${url}: at ${width} px every value the pool can show fits its column`, async ({
+  // governorate, line, caps band and age) and every header word, measured in
+  // the real tiles with 2 px to spare, so a renderer that draws text up to
+  // 2 px wider (GitHub's Chromium against ours) still fits: the columns are
+  // sized from the pool's words (fix rounds 1 and 2).
+  for (const width of [320, 375, 390, 412]) {
+    test(`${url}: at ${width} px every value the pool can show fits its column with 2 px to spare`, async ({
       page,
     }) => {
       await page.setViewportSize({ width, height: 800 });
@@ -344,6 +350,7 @@ for (const locale of locales) {
         ]),
       );
       const tooWide = await page.evaluate((words) => {
+        const SLACK = 2;
         const bad: string[] = [];
         const row = document.querySelector("[data-guess]")!;
         for (const [column, list] of Object.entries(words)) {
@@ -364,12 +371,25 @@ for (const locale of locales) {
           for (const word of list) {
             probe.textContent = word;
             const w = probe.getBoundingClientRect().width;
-            if (w > room)
+            if (w + SLACK > room)
               bad.push(
                 `${column}: ${word} ${w.toFixed(1)} > ${room.toFixed(1)}`,
               );
           }
           probe.remove();
+        }
+        // The header words, in the header row as drawn.
+        for (const head of document.querySelectorAll<HTMLElement>(
+          "[data-tile-headers] [data-head]",
+        )) {
+          const room = head.getBoundingClientRect().width;
+          for (const word of head.querySelectorAll<HTMLElement>(
+            "[data-word]",
+          )) {
+            const w = word.scrollWidth;
+            if (w + SLACK > room)
+              bad.push(`header: ${word.textContent} ${w} > ${room.toFixed(1)}`);
+          }
         }
         return bad;
       }, words);
