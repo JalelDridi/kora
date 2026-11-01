@@ -1,18 +1,18 @@
-# Nightly pool, 2026-10-31
+# Nightly pool, 2026-11-01
 
 | Source | Status | Read on | Note |
 | --- | --- | --- | --- |
-| wikidata | fresh | 2026-10-31 |  |
-| infobox-en | fresh | 2026-10-31 |  |
-| infobox-fr | fresh | 2026-10-31 |  |
-| redirects | fresh | 2026-10-31 |  |
-| clubs | fresh | 2026-10-31 |  |
-| commons | fresh | 2026-10-31 |  |
-| squads | fresh | 2026-10-31 |  |
-| squad-links | fresh | 2026-10-31 |  |
-| martj42 | fresh | 2026-10-31 |  |
-| martj42-goals | fresh | 2026-10-31 |  |
-| pageviews | fresh | 2026-10-31 | 8 of 8 articles read; 0 active footballers not measured yet |
+| wikidata | fresh | 2026-11-01 |  |
+| infobox-en | fresh | 2026-11-01 |  |
+| infobox-fr | fresh | 2026-11-01 |  |
+| redirects | fresh | 2026-11-01 |  |
+| clubs | fresh | 2026-11-01 |  |
+| commons | fresh | 2026-11-01 |  |
+| squads | fresh | 2026-11-01 |  |
+| squad-links | fresh | 2026-11-01 |  |
+| martj42 | fresh | 2026-11-01 |  |
+| martj42-goals | fresh | 2026-11-01 |  |
+| pageviews | fresh | 2026-11-01 | 613 of 613 articles read; 0 active footballers not measured yet |
 
 **367 footballers** (248 active, 150 legends, 34 in both), 629 clubs, 111 honours.
 
@@ -24,7 +24,7 @@ In grace (P54): 4
 
 Active footballers ready to be a daily answer (P27): 119 of 248.
 Of them, ready through caps agreed at band level (D-S2-6): 1.
-Fame tiers among them (D-S2-4; D is never an answer, C only at weekends): A 7, B 13, C 46, D 53, not measured yet 0.
+Fame tiers among them (D-S2-4; D is never an answer, C only at weekends): A 14, B 21, C 78, D 6, not measured yet 0.
 
 ### One field away from a daily answer (54)
 
@@ -85,9 +85,9 @@ Active footballers who fail exactly one of the fields a puzzle needs: an overrid
 - youssef-mosraty: clubId (low)
 - zied-machmoum: birthPlace (missing)
 
-## Low confidence, review first (601)
+## Low confidence, review first (605)
 
-Fields that two sources could confirm but do not, by footballer: the value, the sources that give it, and why it is low. Club histories are often low on a first build: French club titles often match no known club, so the French career cannot agree with the English one. 157 of the 601 are club histories; the rules are not tuned to hide them.
+Fields that two sources could confirm but do not, by footballer: the value, the sources that give it, and why it is low. Club histories are often low on a first build: French club titles often match no known club, so the French career cannot agree with the English one. 158 of the 605 are club histories; the rules are not tuned to hide them.
 
 - abdallah-amri: caps 0: no senior national row; sources: enwiki
 - abdallah-amri: goals 0: no senior national row; sources: enwiki
@@ -169,10 +169,10 @@ Fields that two sources could confirm but do not, by footballer: the value, the 
 - amor-jebali: history 1 spells: no club in this history matches a known club; sources: enwiki
 - anis-ajroud: caps 0: no senior national row; sources: enwiki
 - anis-ajroud: goals 0: no senior national row; sources: enwiki
-- anis-ajroud: clubId es-cannet-rocheville: one source, as of 2024-12-14; sources: enwiki
+- anis-ajroud: clubId es-cannet-rocheville: one undated source; sources: enwiki
 - anis-ajroud: position forward: wikidata midfielder (undated) differs; sources: enwiki
 - anis-ajroud: positionDetail Winger: wikidata midfielder (undated) differs; sources: enwiki
-- anis-ajroud: history 4 spells: one source, as of 2024-12-14; sources: enwiki
+- anis-ajroud: history 4 spells: one undated source; sources: enwiki
 - anis-ayari: history 3 spells: one source, as of 2022-02-24; sources: frwiki
 - anis-boussaidi: caps 37: one undated source; sources: frwiki
 - anis-boussaidi: goals 2: one undated source; sources: frwiki
@@ -239,9 +239,9 @@ Fields that two sources could confirm but do not, by footballer: the value, the 
 - fahmi-ben-romdhane: caps 0: no senior national row; sources: enwiki
 - fahmi-ben-romdhane: goals 0: no senior national row; sources: enwiki
 - fahmi-ben-romdhane: clubId esperance-sportive-de-tunis: one undated source; sources: enwiki
-- … 451 more in data/pool.json
+- … 455 more in data/pool.json
 
-Single-source fields: one source each. The governorate and the birthplace are medium when Wikidata gives a precise place (P36), else low; the Arabic name and the photo stay low until Jalel confirms them. Low: governorate 0, birthPlace 27, nameArabic 346, photo 148.
+Single-source fields: one source each. The governorate and the birthplace are medium when Wikidata gives a precise place (P36), else low; the Arabic name and the photo stay low until Jalel confirms them. Low: governorate 0, birthPlace 27, nameArabic 346, photo 149.
 
 ### Rows the infobox parsers skipped (3)
 
@@ -316,7 +316,7 @@ Stale (over 21 days): 133. Unused (our value changed, or no longer in the pool):
 
 ## Photos (P30)
 
-145 of the 148 footballers with a Commons photo have a copy in public/photos/. Tonight: 7 downloaded, 0 waiting for a later night's budget.
+146 of the 149 footballers with a Commons photo have a copy in public/photos/. Tonight: 7 downloaded, 0 waiting for a later night's budget.
 
 ### Not copied (3)
 
@@ -324,13 +324,12 @@ Stale (over 21 days): 133. Unused (our value changed, or no longer in the pool):
 - ghailene-chaalali: not copied, 125430 bytes, over 122880
 - mahmoud-ben-salah: not copied, 125174 bytes, over 122880
 
-### Copies no footballer uses any more (3)
+### Copies no footballer uses any more (2)
 
 Kept: deleting a file is Jalel's call.
 
 - public/photos/mohsen-habacha.jpg
 - public/photos/mokhtar-dhouieb.jpg
-- public/photos/yasin-ayari.jpg
 
 ## 30–0 spins
 
@@ -357,8 +356,8 @@ Per Ligue 1 club, how many footballers each decade and line can offer a spin. A 
 ## Left out of the pool (729)
 
 - excluded: 0
-- not-candidate: 504
-- no-pool: 225
+- not-candidate: 505
+- no-pool: 224
 - missing-field: 0
 
 ### In neither pool, with unknown caps or goals or skipped rows (6)
@@ -394,7 +393,7 @@ None.
 | --- | --- | --- |
 | Arabic name | 346 of 367 | 94% |
 | French name | 367 of 367 | 100% |
-| Photo | 148 of 367 | 40% |
+| Photo | 149 of 367 | 41% |
 | Governorate or born abroad | 293 of 367 | 80% |
 | Current club | 249 of 367 | 68% |
 | Caps with an as-of date | 174 of 367 | 47% |
@@ -409,38 +408,36 @@ None means the field has no value to rate (for example no current club).
 
 | Field | High | Medium | Low | None |
 | --- | --- | --- | --- | --- |
-| caps | 54 | 151 | 162 | 0 |
-| goals | 76 | 143 | 148 | 0 |
-| clubId | 132 | 42 | 79 | 114 |
+| caps | 52 | 152 | 163 | 0 |
+| goals | 74 | 144 | 149 | 0 |
+| clubId | 132 | 41 | 80 | 114 |
 | birthDate | 339 | 15 | 13 | 0 |
 | position | 302 | 45 | 20 | 0 |
 | positionDetail | 302 | 45 | 11 | 9 |
-| history | 109 | 100 | 157 | 1 |
+| history | 109 | 99 | 158 | 1 |
 | nameLatin | 336 | 20 | 11 | 0 |
 | governorate | 8 | 197 | 0 | 162 |
 | birthPlace | 1 | 285 | 27 | 54 |
 | nameArabic | 0 | 0 | 346 | 21 |
-| photo | 0 | 0 | 148 | 219 |
+| photo | 0 | 0 | 149 | 218 |
 
 ## Changes since the previous pool
 
-373 footballers before, 367 now. Shrink guard passed (it refuses a loss of more than a tenth).
+367 footballers before, 367 now. Shrink guard passed (it refuses a loss of more than a tenth).
 
-244 active footballers before, 248 now; 1 lost their club. Active guard passed (it refuses a loss of more than 5% of the actives, or more than 10 clubs becoming none; P59).
+248 active footballers before, 248 now; 0 lost their club. Active guard passed (it refuses a loss of more than 5% of the actives, or more than 10 clubs becoming none; P59).
 
-## Club changes, review each (3)
+## Club changes, review each (0)
 
-- ali-boumnijel: none → Al Hazem SC
-- louay-ben-hassine: none → Gol Gohar F.C.
-- oussama-boughanmi: FC Supra du Québec → none
+None.
 
 ## Other changes
 
-- Added (5): ammar-ben-sassi, bilel-ben-messaoud, charfeddine-ouni, eskander-mzoughi, mohsen-labidi
-- Removed (11): ahmed-mghirbi, boubaker-ezzitouni, imad-mizouri, mohsen-habacha, mokhtar-dhouieb, moncef-cherif, mourad-gharbi, mourad-okbi, rached-meddeb, riadh-jelassi, taoufik-hicheri
-- Caps or goals changed: 23. Other fields changed: 73.
+- Added (0): none
+- Removed (0): none
+- Caps or goals changed: 0. Other fields changed: 244.
 
-## Flags (365)
+## Flags (364)
 
 ### birthdate-january-first (5)
 
@@ -514,9 +511,8 @@ None means the field has no value to rate (for example no current club).
 - Sadok Sassi (Q510516): 116 caps; Tunisia played 109 matches in his national years
 - Samir Bakaou (Q5564378): 45 caps; Tunisia played 17 matches in his national years
 
-### caps-closed-career-disagree (3)
+### caps-closed-career-disagree (2)
 
-- Sirajeddine Chihi (Q2033683): enwiki 85 (undated): his national career ended in 2001; the dates cannot explain it
 - Raouf Bouzaiene (Q2707274): enwiki 45 (undated): his national career ended in 2003; the dates cannot explain it
 - Mourad Melki (Q2711091): enwiki 14 (undated): his national career ended in 2003; the dates cannot explain it
 
