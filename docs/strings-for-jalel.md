@@ -424,6 +424,113 @@ The short club labels live in `data/curated/club-short.json` (`by: claude`, DRAF
 
 Points to check: بن ڤردان with the Tunisian ڤ (against بنقردان of the club's Arabic name); حمام سوسة and حمام الأنف (the town, two words) against a nickname; العمران and ساقية الدائر (the district) for JS El Omrane and PS Sakiet Eddaïer. The file also gives 102 clubs abroad or in the lower Tunisian divisions a short form (their usual short name or acronym: ASG and SG for the two Gabès clubs, JSK, UST, EGSG, SAMB; since fix round 1, every guessable club whose name has a word too wide for a 360 px tile, such as BP for IF Brommapojkarna, Razgrad for Ludogorets, KSK for Kasımpaşa, FCGB for Bordeaux, ألبا for Albalonga and نورشوبنغ for Norrköping); a club not listed shows its full name, and the browser tests fail if one of its words does not fit.
 
+The other 102 clubs (abroad or in the lower Tunisian divisions), in id order:
+
+| Club id                           | Full name (Latin)               | `latin`    | `arabic`     | Status |
+| --------------------------------- | ------------------------------- | ---------- | ------------ | ------ |
+| `1-fc-koln`                       | 1. FC Köln                      | Köln       | كولن         | DRAFT  |
+| `1-fc-union-berlin`               | 1. FC Union Berlin              | Union      | يونيون       | DRAFT  |
+| `a-s-d-albalonga`                 | A.S.D. Albalonga                | ASD        | ألبا         | DRAFT  |
+| `aek-larnaca-f-c`                 | AEK Larnaca F.C.                | Larnaca    | لارنكا       | DRAFT  |
+| `al-ahly-sc-benghazi`             | Al Ahly SC (Benghazi)           | Al Ahly    | الأهلي       | DRAFT  |
+| `al-ain-fc-q23773622`             | Al-Ain FC                       | Al-Ain     | العين        | DRAFT  |
+| `al-bidaa-sc`                     | Al Bidaa SC                     | Al Bidaa   | البدع        | DRAFT  |
+| `al-dhahra-sc`                    | Al Dhahra SC                    | Al Dhahra  | الظهرة       | DRAFT  |
+| `al-entsar-fc`                    | Al Entsar FC                    | Entsar     | الانتصار     | DRAFT  |
+| `al-faisaly-sc`                   | Al-Faisaly SC                   | Faisaly    | الفيصلي      | DRAFT  |
+| `al-gharafa-sc`                   | Al-Gharafa SC                   | Gharafa    | الغرافة      | DRAFT  |
+| `al-hazem-sc`                     | Al Hazem SC                     | Al Hazem   | الحزم        | DRAFT  |
+| `al-hilal-sc`                     | Al-Hilal SC                     | Al Hilal   | الهلال       | DRAFT  |
+| `al-jeel`                         | Al-Jeel                         | Al-Jeel    | الجيل        | DRAFT  |
+| `al-mina-a-sc`                    | Al-Mina'a SC                    | Mina'a     | الميناء      | DRAFT  |
+| `al-nairyah-club`                 | Al-Nairyah Club                 | Nairyah    | النعيرية     | DRAFT  |
+| `al-nasser-sc`                    | Al-Nasser SC                    | Al Nasr    | النصر        | DRAFT  |
+| `al-quwa-al-jawiya`               | Al-Quwa Al-Jawiya               | Al-Quwa    | القوة الجوية | DRAFT  |
+| `al-ramtha-sc`                    | Al-Ramtha SC                    | Ramtha     | الرمثا       | DRAFT  |
+| `al-rayyan-club`                  | Al-Rayyan Club                  | Al Rayyan  | الريان       | DRAFT  |
+| `al-safa-fc`                      | Al Safa FC                      | Al Safa    | الصفا        | DRAFT  |
+| `al-shamal-sports-club`           | Al-Shamal Sports Club           | Al Shamal  | الشمال       | DRAFT  |
+| `al-swehly-f-c`                   | Al Swehly F.C                   | Swehly     | السويحلي     | DRAFT  |
+| `al-ta-awon`                      | Al Ta'awon                      | Ta'awon    | التعاون      | DRAFT  |
+| `al-wahda-s-c-c`                  | Al-Wahda S.C.C.                 | Al Wahda   | الوحدة       | DRAFT  |
+| `al-wakrah-sports-club`           | Al-Wakrah Sports Club           | Al Wakrah  | الوكرة       | DRAFT  |
+| `al-yarmouk-kuwait`               | Al Yarmouk Kuwait               | Yarmouk    | اليرموك      | DRAFT  |
+| `angouleme-charente-fc`           | Angoulême Charente FC           | ACFC       | أنغوليم      | DRAFT  |
+| `as-beauvais-oise`                | AS Beauvais Oise                | Beauvais   | بوفيه        | DRAFT  |
+| `as-gabes`                        | AS Gabès                        | ASG        | مستقبل قابس  | DRAFT  |
+| `as-roma`                         | AS Roma                         | Roma       | روما         | DRAFT  |
+| `as-saint-etienne`                | AS Saint-Étienne                | ASSE       | سانت إتيان   | DRAFT  |
+| `as-valence`                      | AS Valence                      | Valence    | فالنس        | DRAFT  |
+| `beijing-guoan-f-c`               | Beijing Guoan F.C.              | Guoan      | غوان         | DRAFT  |
+| `bologna-f-c-1909`                | Bologna F.C. 1909               | Bologna    | بولونيا      | DRAFT  |
+| `brighton-hove-albion-f-c`        | Brighton & Hove Albion F.C.     | Brighton   | برايتون      | DRAFT  |
+| `burnley-f-c`                     | Burnley F.C.                    | Burnley    | بيرنلي       | DRAFT  |
+| `c-d-nacional`                    | C.D. Nacional                   | Nacional   | ناسيونال     | DRAFT  |
+| `cavalry-fc`                      | Cavalry FC                      | Cavalry    | كافالري      | DRAFT  |
+| `cd-leganes`                      | CD Leganés                      | Leganés    | ليغانيس      | DRAFT  |
+| `celtic-f-c`                      | Celtic F.C.                     | Celtic     | سلتيك        | DRAFT  |
+| `cr-belouizdad`                   | CR Belouizdad                   | CRB        | بلوزداد      | DRAFT  |
+| `cracovia`                        | Cracovia                        | Cracovia   | كراكوفيا     | DRAFT  |
+| `dijon-fco`                       | Dijon FCO                       | Dijon      | ديجون        | DRAFT  |
+| `diyala-fc`                       | Diyala FC                       | Diyala     | ديالى        | DRAFT  |
+| `egs-gafsa`                       | EGS Gafsa                       | EGSG       | القوافل      | DRAFT  |
+| `emirates-club`                   | Emirates Club                   | Emirates   | الإمارات     | DRAFT  |
+| `enppi-sc`                        | ENPPI SC                        | ENPPI      | إنبي         | DRAFT  |
+| `es-cannet-rocheville`            | ES Cannet Rocheville            | ESCR       | كاني         | DRAFT  |
+| `f-c-lorient`                     | F.C. Lorient                    | Lorient    | لوريان       | DRAFT  |
+| `fc-cska-1948-sofia`              | FC CSKA 1948 Sofia              | CSKA 1948  | سسكا 1948    | DRAFT  |
+| `fc-girondins-de-bordeaux`        | FC Girondins de Bordeaux        | FCGB       | بوردو        | DRAFT  |
+| `fc-nantes`                       | FC Nantes                       | Nantes     | نانت         | DRAFT  |
+| `fc-nouadhibou`                   | FC Nouadhibou                   | FCN        | نواذيبو      | DRAFT  |
+| `fc-shakhtar-donetsk`             | FC Shakhtar Donetsk             | Shakhtar   | شاختار       | DRAFT  |
+| `fc-sochaux-montbeliard`          | FC Sochaux-Montbéliard          | Sochaux    | سوشو         | DRAFT  |
+| `fc-vihren-sandanski`             | FC Vihren Sandanski             | Vihren     | فيهرين       | DRAFT  |
+| `gamba-osaka`                     | Gamba Osaka                     | Gamba      | غامبا        | DRAFT  |
+| `ghazl-el-mahalla-sc`             | Ghazl El Mahalla SC             | Ghazl      | غزل المحلة   | DRAFT  |
+| `halmstads-bk`                    | Halmstads BK                    | HBK        | هالمستاد     | DRAFT  |
+| `hassania-agadir`                 | Hassania Agadir                 | HUSA       | حسنية        | DRAFT  |
+| `hatta-club`                      | Hatta Club                      | Hatta      | حتا          | DRAFT  |
+| `hertha-bsc-ii`                   | Hertha BSC II                   | Hertha II  | هيرتا        | DRAFT  |
+| `if-brommapojkarna`               | IF Brommapojkarna               | BP         | برومّا       | DRAFT  |
+| `ifk-haninge-brandbergen`         | IFK Haninge/Brandbergen         | Haninge    | هانينغه      | DRAFT  |
+| `ifk-norrkoping`                  | IFK Norrköping                  | IFK        | نورشوبنغ     | DRAFT  |
+| `js-kairouan`                     | JS Kairouan                     | JSK        | الشبيبة      | DRAFT  |
+| `k-beerschot-va`                  | K Beerschot VA                  | KBVA       | بيرشوت       | DRAFT  |
+| `karlsruher-sc`                   | Karlsruher SC                   | KSC        | كارلسروه     | DRAFT  |
+| `kas-mpasa-s-k`                   | Kasımpaşa S.K.                  | KSK        | قاسم باشا    | DRAFT  |
+| `kuwait-sc`                       | Kuwait SC                       | Kuwait SC  | الكويت       | DRAFT  |
+| `leyton-orient-f-c`               | Leyton Orient F.C.              | Orient     | أورينت       | DRAFT  |
+| `muglaspor`                       | Muğlaspor                       | Muğla      | موغلا        | DRAFT  |
+| `naft-maysan`                     | Naft Maysan                     | Naft       | نفط ميسان    | DRAFT  |
+| `najaf-fc`                        | Najaf FC                        | Najaf      | النجف        | DRAFT  |
+| `nashville-sc`                    | Nashville SC                    | NSC        | ناشفيل       | DRAFT  |
+| `norwich-city-f-c`                | Norwich City F.C.               | Norwich    | نورويتش      | DRAFT  |
+| `ogc-nice`                        | OGC Nice                        | Nice       | نيس          | DRAFT  |
+| `olympic-azzaweya-s-c`            | Olympic Azzaweya S.C.           | Zawiya     | الزاوية      | DRAFT  |
+| `olympique-ales`                  | Olympique Alès                  | Alès       | أليس         | DRAFT  |
+| `pfc-ludogorets-1945`             | PFC Ludogorets 1945             | Razgrad    | رازغراد      | DRAFT  |
+| `r-e-virton`                      | R.E. Virton                     | Virton     | فيرتون       | DRAFT  |
+| `raja-club-athletic`              | Raja Club Athletic              | Raja       | الرجاء       | DRAFT  |
+| `red-star-f-c`                    | Red Star F.C.                   | Red Star   | ريد ستار     | DRAFT  |
+| `riga-fc`                         | Riga FC                         | Riga FC    | ريغا         | DRAFT  |
+| `rs-berkane`                      | RS Berkane                      | Berkane    | بركان        | DRAFT  |
+| `s-l-benfica`                     | S.L. Benfica                    | Benfica    | بنفيكا       | DRAFT  |
+| `san-diego-fc`                    | San Diego FC                    | San Diego  | سان دييغو    | DRAFT  |
+| `servette-fc`                     | Servette FC                     | Servette   | سيرفيت       | DRAFT  |
+| `sheffield-wednesday-f-c`         | Sheffield Wednesday F.C.        | SWFC       | شيفيلد       | DRAFT  |
+| `stade-africain-menzel-bourguiba` | Stade Africain Menzel Bourguiba | SAMB       | منزل بورقيبة | DRAFT  |
+| `stade-gabesien`                  | Stade Gabèsien                  | SG         | ستاد قابس    | DRAFT  |
+| `sv-wacker-burghausen`            | SV Wacker Burghausen            | Wacker     | فاكر         | DRAFT  |
+| `tremblay-en-france`              | Tremblay-en-France              | TFC        | تريمبلي      | DRAFT  |
+| `umm-salal-sc`                    | Umm Salal SC                    | Umm Salal  | أم صلال      | DRAFT  |
+| `us-creteil-lusitanos`            | US Créteil-Lusitanos            | Créteil    | كريتيل       | DRAFT  |
+| `us-tataouine`                    | US Tataouine                    | UST        | تطاوين       | DRAFT  |
+| `usl-dunkerque`                   | USL Dunkerque                   | USLD       | دونكيرك      | DRAFT  |
+| `vancouver-whitecaps-fc`          | Vancouver Whitecaps FC          | VWFC       | فانكوفر      | DRAFT  |
+| `viborg-ff`                       | Viborg FF                       | Viborg     | فيبورج       | DRAFT  |
+| `wadi-degla-sc`                   | Wadi Degla SC                   | Wadi Degla | وادي دجلة    | DRAFT  |
+| `zakho-s-c`                       | Zakho S.C.                      | Zakho      | زاخو         | DRAFT  |
+
 ### Task 6: the hub says what is left today
 
 The line under each live hub card (M6), read from the visitor's device: today's Chkoun? (not yet, in progress, found or missed, with the puzzle number and the streak) and today's 30–0 record. Reused, not duplicated: `hub.language` (the hub's new language menu) and the language names of the switcher. The number `#27`, the score `3/8` and the record `21-5-4` read left to right inside an Arabic line, in Western digits. Points to check:
@@ -470,6 +577,29 @@ From the 5th guess on, a line under the guess counter gives the first letter of 
 | Key                 | English gloss                                     | French draft                                     | `ar-TN` as shipped             | `ar-Latn-TN` as shipped       | Status |
 | ------------------- | ------------------------------------------------- | ------------------------------------------------ | ------------------------------ | ----------------------------- | ------ |
 | `chkoun.hint.label` | A bit of help: his name starts with {letter} (M8) | Un coup de pouce : son nom commence par {letter} | عاونة: اسمو يبدا بحرف {letter} | 3awna: esmou yebda b {letter} | DRAFT  |
+
+### Open wording questions (all tasks, deduplicated)
+
+Gathered from the task sections above and the task reports' notes for Jalel; each key appears once. The strings ship as drafted until he corrects them.
+
+- **French: « footballeur » or « joueur ».** `chkoun.help.goal`, `chkoun.help.daily` and every `chkoun.yesterday.*` say « footballeur »; `chkoun.help.example`, `season.help.*`, `chkoun.next` and `chkoun.search.label` say « joueur ». « Le joueur d'hier » would match the game's older strings.
+- `header.help`: « Comment jouer » against « Règles » (and كيفاش تلعب / `Kifech tel3eb`).
+- `header.stats`: « Tes stats » / الأرقام متاعك against a word for "your record".
+- `hub.language`, reused in the header's language menu, reads "Langue: Français" in French; French spacing wants « Langue : Français ».
+- `season.help.draft`: عشرية as `3ochriya` against `3achriya` in `season.rules`; and على الأكثر / `3al akther` (leaning towards Modern Standard Arabic) against the shipped ولا أقل / `wala a9al`.
+- `chkoun.help.example`: `akber` against `akbar` in `chkoun.tiles.older`; `el ashem` for السهم, which may want `es-sahm`.
+- `chkoun.help.tiles`: the birthplace is وين تولد / `win tweled` / lieu de naissance, while its column is headed مولود في / `Mawloud fi` / Né à.
+- `chkoun.help.goal` repeats `chkoun.rules` word for word in `ar-TN` and `ar-Latn-TN`: correct both together.
+- `chkoun.stats.distribution`: حسب and عدد lean towards Modern Standard Arabic.
+- `chkoun.stats.bar` (screen readers only): the noun-free form « Essais : {n}, victoires : {count} » / محاولات: {n}، ربحات: {count} replaced the plan's « En {n} essais », which was wrong in the singular and the dual (محاولتين).
+- `season.loading`: الأولى / `el oula` against the spoken اللولة / `el loula`.
+- `season.result.allMatches`: the button keeps "see all 30" once the list is open.
+- **Short position forms** (`positions.short.*`): « Déf. » and « Att. » in French because the full words do not fit a 360 px tile; حارس، مدافع، وسط، مهاجم and `7ares`, `Mdafe3`, `Wost`, `Mhajem` in Derja. `chkoun.tiles.capsShort`: « Sél. » against « Sélec. ».
+- **Short club labels** (`data/curated/club-short.json`): بن ڤردان with the Tunisian ڤ; حمام سوسة and حمام الأنف (the towns) against a nickname; العمران and ساقية الدائر; and among the others ألبا (Albalonga), نورشوبنغ (Norrköping), BP, Razgrad, KSK.
+- `hub.state.seasonNotYet`: `mousem` against `mawsem`; `hub.state.notYet` and `hub.state.seasonNotYet`: مازلت ما لعبتش against a shorter ما لعبتش.
+- **« Série » on /tn**: `hub.state.streak` and `chkoun.yesterday.note` keep the French word, as `chkoun.stats.streak` does; a Derja word (`Silsla`) may read better.
+- `chkoun.yesterday.back`: ارجع للاعب اليوم against a shorter لاعب اليوم.
+- **The hint** (`chkoun.hint.label`): عاونة / `3awna` against مساعدة (closer to Modern Standard Arabic; the plan's recommendation is عاونة); بحرف {letter} against the plan's بـ{letter} (بـ joins a letter such as أ into one word); « son nom » against « son prénom » in French.
 
 ## Go-live checklist (Chkoun?)
 
