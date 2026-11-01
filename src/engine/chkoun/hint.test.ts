@@ -9,10 +9,13 @@ describe("the first-letter hint", () => {
     expect(firstLetter(null)).toBeNull();
     expect(firstLetter("  ")).toBeNull();
   });
-  it("a win after the 5th guess is a hinted win", () => {
+  it("a win is hinted only when the hint was shown before it", () => {
     expect(HINT_AFTER).toBe(5);
-    expect([5, 6, 8].map((k) => hinted(true, k))).toEqual([false, true, true]);
-    expect(hinted(false, 8)).toBe(false);
+    const hint = { latin: "E", arabic: "إ", french: null };
+    expect(hinted(true, hint)).toBe(true);
+    // A win on the 5th guess: its answer carries no hint, none was shown.
+    expect(hinted(true, undefined)).toBe(false);
+    expect(hinted(false, hint)).toBe(false);
   });
   it("is never more than one letter, whatever the name", () => {
     for (const name of [

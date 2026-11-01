@@ -410,7 +410,8 @@ export function Game({
           solved: body.status === "won",
           locale,
           past: past || undefined,
-          hinted: hinted(body.status === "won", rows.length),
+          // The hint shown before this guess, if any (M8).
+          hinted: hinted(body.status === "won", game.hint),
         });
       }
       // Yesterday's game never counts: the record stays as it was (M7).
@@ -675,10 +676,7 @@ export function Game({
               url: shareUrl,
               marks: scoreMarks(
                 past ? t.share.yesterday : null,
-                hinted(
-                  game.status === "won",
-                  game.rows.length || (game.grid?.length ?? 0),
-                ),
+                hinted(game.status === "won", game.hint),
               ),
             })}
             strings={t.share}

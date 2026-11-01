@@ -25,9 +25,13 @@ export function firstLetter(name: string | null): string | null {
   return [...upper].length === 1 ? upper : first;
 }
 
-/** A win that came after the hint was shown: the share text marks it. */
-export function hinted(solved: boolean, guesses: number): boolean {
-  return solved && guesses > HINT_AFTER;
+/**
+ * A win that came after the hint was shown: the share text marks it. `hint`
+ * is the one the page holds (from the answer to the 5th guess on), not a
+ * count of guesses, so the mark follows what the visitor actually saw.
+ */
+export function hinted(solved: boolean, hint: Hint | undefined): boolean {
+  return solved && hint !== undefined;
 }
 
 /**
