@@ -1,7 +1,7 @@
 {
   "by": "claude",
   "at": "2026-10-31",
-  "note": "DRAFT for Jalel (mobile polish M5, D-MP-1): what a Chkoun? tile and a 30–0 match row print when the club's full name does not fit. latin is shown on /tn and /fr (the acronym fans write for Tunisian clubs), arabic on /ar (the Derja nickname). At most two words of at most 8 characters each. A club not listed shows its full name.",
+  "note": "DRAFT for Jalel (mobile polish M5, D-MP-1): what a Chkoun? tile and a 30–0 match row print when the club's full name does not fit. latin is shown on /tn and /fr (the acronym fans write for Tunisian clubs), arabic on /ar (the Derja nickname). At most two words of at most 8 characters each. A club not listed gets an automatic label (src/pipeline/short-label.ts: its name when it fits, else its initials or its first Arabic word), and data:check lists those clubs as a warning.",
   "clubs": {
     "esperance-sportive-de-tunis": {
       "latin": "EST",

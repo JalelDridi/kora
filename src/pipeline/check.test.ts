@@ -16,6 +16,7 @@ import { promisify } from "node:util";
 import { describe, expect, it } from "vitest";
 import {
   checkData,
+  clubsWithAutoShort,
   inspectData,
   validateAfcon,
   validateClubShort,
@@ -577,6 +578,80 @@ describe("the 30–0 curated files (Sprint 3)", () => {
     });
     expect(await checkData(root)).toContain(
       "data/curated/club-short.json: missing",
+    );
+  });
+
+  it("lists the clubs shown without a curated label whose name does not fit, with their automatic labels", () => {
+    const named = (
+      id: string,
+      nameLatin: string,
+      nameArabic: string | null = null,
+    ) => ({ ...pool.clubs[0], id, nameLatin, nameArabic, ligue1: false });
+    const fixture = {
+      ...pool,
+      players: [
+        { ...pool.players[0], clubId: "hb" },
+        { ...pool.players[0], id: "p2", clubId: "cshl" },
+        { ...pool.players[0], id: "p3", clubId: "fch" },
+        { ...pool.players[0], id: "p4", clubId: "curated" },
+        {
+          ...pool.players[0],
+          id: "p5",
+          clubId: "gone",
+          pools: { active: false, legend: true },
+        },
+      ],
+      clubs: [
+        named("hb", "Haninge/Brandbergen"),
+        named(
+          "cshl",
+          "Club Sportif de Hammam-Lif",
+          "النادي الرياضي القابسي الكبير",
+        ),
+        named("fch", "FC Hammamet", "الحمامات"),
+        named("curated", "Espérance Sportive de Tunis"),
+        named("gone", "Not Shown Any Longer"),
+      ],
+    } as Pool;
+    expect(
+      clubsWithAutoShort(fixture, {
+        curated: { latin: "EST", arabic: "الترجي" },
+      }),
+    ).toEqual(["cshl (CSHL / القابسي)", "fch (FCH)", "hb (HB)"]);
+  });
+
+  it("data:check warns, without failing, about the clubs printing an automatic label", async () => {
+    const { root } = await copyOfData();
+    const file = path.join(root, "data", "curated", "club-short.json");
+    const short = JSON.parse(await readFile(file, "utf8")) as {
+      clubs: Record<string, unknown>;
+    };
+    const real = JSON.parse(
+      await readFile(path.join(root, "data", "pool.json"), "utf8"),
+    ) as Pool;
+    // Keep the Ligue 1 clubs' labels only (they are required).
+    const ligue1 = new Set(real.clubs.filter((c) => c.ligue1).map((c) => c.id));
+    short.clubs = Object.fromEntries(
+      Object.entries(short.clubs).filter(([id]) => ligue1.has(id)),
+    );
+    await writeFile(file, JSON.stringify(short));
+    const { errors, warnings } = await inspectData(root);
+    expect(errors).toEqual([]);
+    const line = warnings.find((w) =>
+      w.startsWith("data/curated/club-short.json: "),
+    );
+    expect(line).toMatch(
+      /^data\/curated\/club-short\.json: \d+ clubs the game shows print an automatic short label; curate them: [a-z0-9-]+ \(/,
+    );
+    expect(line).toContain(clubsWithAutoShort(real, short.clubs).join(", "));
+    // Exit 0 (run rejects otherwise), the line printed.
+    const { stdout } = await run(
+      process.execPath,
+      [...NO_NETWORK_ARGS, CLI, "check"],
+      { cwd: root },
+    );
+    expect(stdout).toContain(
+      "data:check: warning: data/curated/club-short.json: ",
     );
   });
 

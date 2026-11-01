@@ -30,13 +30,13 @@ export function Result({ view, locale, strings: t, children }: Props) {
   };
   /**
    * An opponent in a match row. Under 400 px the club's short label
-   * (club-short.json, as on the Chkoun? tiles) when it has one; screen
-   * readers always hear the whole name.
+   * (club-short.json, else the automatic one, as on the Chkoun? tiles) when
+   * the name does not fit as it is; screen readers always hear the whole name.
    */
   const opponent = (id: string) => {
     const full = club(id);
-    const short = shortName(clubShort.clubs, id, locale);
-    if (short === null || short === full) return <bdi>{full}</bdi>;
+    const short = shortName(clubShort.clubs, id, locale, full);
+    if (short === full) return <bdi>{full}</bdi>;
     return (
       <>
         <bdi aria-hidden="true" className="min-[400px]:hidden">

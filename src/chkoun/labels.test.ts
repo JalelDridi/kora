@@ -8,6 +8,7 @@ import {
   format,
   frenchCountryName,
   localName,
+  shortName,
   shownCountryCodes,
   tileText,
 } from "./labels";
@@ -217,18 +218,59 @@ describe("labels", () => {
       est: { latin: "EST", arabic: "الترجي" },
       gone: { latin: "G", arabic: "غ" },
     };
+    // abroad-fc has no curated label: its Latin name, "abroad-fc Latin", has
+    // a word of 9 characters, so it gets its initials (it has no Arabic name).
+    // A label equal to the name it shortens is left out: the tile prints the name.
     expect(buildLabels(pool, governorates, "ar-TN", {}, short).short).toEqual({
-      est: "الترجي",
+      "abroad-fc": "AFL",
     });
     expect(
       buildLabels(pool, governorates, "ar-Latn-TN", {}, short).short,
     ).toEqual({
       est: "EST",
+      "abroad-fc": "AFL",
     });
+    // "Abroad FC fr" has three words: its initials. "Espérance de Tunis"
+    // too, without the curated label.
     expect(buildLabels(pool, governorates, "fr", null, short).short).toEqual({
       est: "EST",
+      "abroad-fc": "AFCF",
     });
-    expect(buildLabels(pool, governorates, "fr", null).short).toEqual({});
+    expect(buildLabels(pool, governorates, "fr", null).short).toEqual({
+      est: "ET",
+      "abroad-fc": "AFCF",
+    });
+  });
+
+  it("a club without a curated label gets an automatic one; the curated one wins", () => {
+    const long = {
+      ...pool,
+      clubs: pool.clubs.map((c) =>
+        c.id === "est"
+          ? {
+              ...c,
+              nameLatin: "Club Sportif de Hammam-Lif",
+              nameArabic: "الملعب الرياضي القابسي الكبير",
+            }
+          : c,
+      ),
+    } as Pool;
+    expect(buildLabels(long, governorates, "ar-Latn-TN", {}).short.est).toBe(
+      "CSHL",
+    );
+    expect(buildLabels(long, governorates, "ar-TN", {}).short.est).toBe(
+      "الملعب",
+    );
+    const curated = { est: { latin: "Hammam", arabic: "الحمام" } };
+    expect(
+      buildLabels(long, governorates, "ar-Latn-TN", {}, curated).short.est,
+    ).toBe("Hammam");
+    expect(
+      buildLabels(long, governorates, "ar-TN", {}, curated).short.est,
+    ).toBe("الحمام");
+    expect(shortName({}, "x", "fr", "FC Hammamet")).toBe("FCH");
+    expect(shortName({}, "x", "fr", "AS Gabès")).toBe("AS Gabès");
+    expect(shortName({}, "x", "fr", "Haninge/Brandbergen")).toBe("HB");
   });
 
   it("a code missing from the tables prints as itself, never as nothing", () => {

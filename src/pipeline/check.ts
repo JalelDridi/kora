@@ -1,6 +1,8 @@
 import { access, readFile } from "node:fs/promises";
 import path from "node:path";
+import { autoShort } from "./short-label.ts";
 import { buildSeasonData, seasonProblems } from "../engine/season/data.ts";
+import { isGuessable } from "./grace.ts";
 import { validateOverrides } from "./overrides.ts";
 import { activeRefusal, ALLOW_POOL_DROP } from "./report.ts";
 import type { KnownIds } from "./overrides.ts";
@@ -226,6 +228,37 @@ export function validateClubShort(
   return errors;
 }
 
+/**
+ * The clubs the game can show (those of guessable footballers) that
+ * club-short.json does not list and whose name, in one of its three forms,
+ * does not fit a tile as it is: they print an automatic label
+ * (src/pipeline/short-label.ts). Each with its automatic labels, for the
+ * nightly report: these are the labels to curate.
+ */
+export function clubsWithAutoShort(
+  pool: Pool,
+  curated: Record<string, unknown>,
+): string[] {
+  const shown = new Set(
+    pool.players.filter((p) => isGuessable(p.pools)).map((p) => p.clubId),
+  );
+  const listed: string[] = [];
+  for (const c of pool.clubs) {
+    if (!shown.has(c.id) || c.id in curated) continue;
+    const names = new Set([
+      c.nameLatin,
+      c.nameFrench ?? c.nameLatin,
+      c.nameArabic ?? c.nameLatin,
+    ]);
+    const autos = [...names]
+      .filter((name) => autoShort(name) !== name)
+      .map(autoShort);
+    if (autos.length > 0)
+      listed.push(`${c.id} (${[...new Set(autos)].join(" / ")})`);
+  }
+  return listed.sort();
+}
+
 /** The errors of checkData. */
 export async function checkData(root: string): Promise<string[]> {
   return (await inspectData(root)).errors;
@@ -392,6 +425,15 @@ export async function inspectData(
           pool.clubs.filter((c) => isRecord(c) && c.ligue1).map((c) => c.id),
         ).map((e) => `data/curated/${e}`),
       );
+    // Not an error: the tiles print an automatic label meanwhile (fix round
+    // after the mobile polish review, §1.1); the nightly report shows them.
+    if (isRecord(clubShort) && isRecord(clubShort.clubs)) {
+      const auto = clubsWithAutoShort(pool, clubShort.clubs);
+      if (auto.length > 0)
+        warnings.push(
+          `data/curated/club-short.json: ${auto.length} club${auto.length === 1 ? "" : "s"} the game shows print an automatic short label; curate them: ${auto.join(", ")}`,
+        );
+    }
   }
   const afcon = await read("curated/afcon-2004.json");
   if (afcon !== undefined)

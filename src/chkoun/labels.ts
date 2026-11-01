@@ -3,6 +3,7 @@ import type { Locale } from "@/i18n/locales";
 import { isGuessable } from "@/pipeline/grace.ts";
 import type { ClubShortFile } from "@/pipeline/check.ts";
 import type { GovernorateRow, Pool } from "@/pipeline/types.ts";
+import { autoShort } from "@/pipeline/short-label.ts";
 
 // What the tiles and the card print, per locale (plan Task 12). The page
 // builds the tables once at build time from data/pool.json and the
@@ -13,7 +14,10 @@ import type { GovernorateRow, Pool } from "@/pipeline/types.ts";
 
 export type Labels = {
   clubs: Record<string, string>;
-  /** A club's short label for a tile (club-short.json, D-MP-1), when it has one. */
+  /**
+   * A club's short label for a tile (club-short.json, D-MP-1), else an
+   * automatic one (src/pipeline/short-label.ts); absent when the full name fits as it is.
+   */
   short: Record<string, string>;
   governorates: Record<string, string>;
   countries: Record<string, string>;
@@ -69,8 +73,8 @@ export function buildLabels(
   for (const c of pool.clubs) {
     if (!clubIds.has(c.id)) continue;
     clubs[c.id] = localName(c, locale);
-    const s = shortName(clubShort, c.id, locale);
-    if (s !== null) short[c.id] = s;
+    const s = shortName(clubShort, c.id, locale, clubs[c.id]);
+    if (s !== clubs[c.id]) short[c.id] = s;
   }
   const govs: Record<string, string> = {};
   for (const g of governorates) govs[g.id] = localName(g, locale);
@@ -80,14 +84,20 @@ export function buildLabels(
   return { clubs, short, governorates: govs, countries };
 }
 
-/** A club's short label in the locale's script: the Derja nickname on /ar, else the Latin one. */
+/**
+ * A club's short label in the locale's script: the curated one (the Derja
+ * nickname on /ar, else the Latin one) when club-short.json lists the club,
+ * else the automatic one made from `name`, the club's full name as the
+ * locale prints it (the name itself when it fits).
+ */
 export function shortName(
   clubShort: ClubShortFile["clubs"],
   id: string,
   locale: Locale,
-): string | null {
+  name: string,
+): string {
   const forms = clubShort[id];
-  if (!forms) return null;
+  if (!forms) return autoShort(name);
   return locale === "ar-TN" ? forms.arabic : forms.latin;
 }
 
