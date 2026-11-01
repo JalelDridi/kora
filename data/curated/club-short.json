@@ -156,7 +156,7 @@
       "arabic": "اليرموك"
     },
     "as-beauvais-oise": {
-      "latin": "Beauvais",
+      "latin": "ASBO",
       "arabic": "بوفيه"
     },
     "as-gabes": {
@@ -180,7 +180,7 @@
       "arabic": "بولونيا"
     },
     "brighton-hove-albion-f-c": {
-      "latin": "Brighton",
+      "latin": "BHA",
       "arabic": "برايتون"
     },
     "burnley-f-c": {
@@ -188,7 +188,7 @@
       "arabic": "بيرنلي"
     },
     "c-d-nacional": {
-      "latin": "Nacional",
+      "latin": "CDN",
       "arabic": "ناسيونال"
     },
     "cavalry-fc": {
@@ -208,7 +208,7 @@
       "arabic": "بلوزداد"
     },
     "cracovia": {
-      "latin": "Cracovia",
+      "latin": "Pasy",
       "arabic": "كراكوفيا"
     },
     "diyala-fc": {
@@ -224,7 +224,7 @@
       "arabic": "القوافل"
     },
     "emirates-club": {
-      "latin": "Emirates",
+      "latin": "Emarat",
       "arabic": "الإمارات"
     },
     "enppi-sc": {
@@ -256,7 +256,7 @@
       "arabic": "نواذيبو"
     },
     "fc-shakhtar-donetsk": {
-      "latin": "Shakhtar",
+      "latin": "Donetsk",
       "arabic": "شاختار"
     },
     "fc-sochaux-montbeliard": {
@@ -336,7 +336,7 @@
       "arabic": "سان دييغو"
     },
     "servette-fc": {
-      "latin": "Servette",
+      "latin": "SFC",
       "arabic": "سيرفيت"
     },
     "stade-africain-menzel-bourguiba": {

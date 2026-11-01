@@ -508,7 +508,7 @@ describe("the 30–0 curated files (Sprint 3)", () => {
     ).toHaveLength(2);
   });
 
-  it("a club-short file names known clubs, 1 to 8 characters, both scripts", () => {
+  it("a club-short file names known clubs, words of 7 Latin or 8 Arabic letters, both scripts", () => {
     const file = (clubs: Record<string, unknown>) => ({
       by: "claude",
       at: "2026-10-31",
@@ -525,7 +525,14 @@ describe("the 30–0 curated files (Sprint 3)", () => {
         file({ est: { latin: "Espérance", arabic: "الترجي" } }),
         ["est"],
       ),
-    ).toContain("club-short.json: est latin is longer than 8");
+    ).toContain("club-short.json: est latin is longer than 7");
+    // 8 Arabic letters fit; 8 Latin ones do not (fix round 2).
+    expect(
+      validateClubShort(
+        file({ est: { latin: "Beauvais", arabic: "الإفريقي" } }),
+        ["est"],
+      ),
+    ).toEqual(["club-short.json: est latin is longer than 7"]);
     // Two words wrap in a tile: each word counts, at most two.
     expect(
       validateClubShort(file({ est: { latin: "EST", arabic: "حمام سوسة" } }), [
@@ -555,7 +562,7 @@ describe("the 30–0 curated files (Sprint 3)", () => {
     expect(
       validateClubShort(file({ est }), ["est", "ca"], ["est", "ca"]),
     ).toContain(
-      'club-short.json: no short label for ca: add "ca": { "latin": …, "arabic": … } to data/curated/club-short.json (at most two words of at most 8 characters each)',
+      'club-short.json: no short label for ca: add "ca": { "latin": …, "arabic": … } to data/curated/club-short.json (at most two words: 7 Latin or 8 Arabic letters each)',
     );
     // Claude's drafts are marked as such.
     expect(

@@ -81,22 +81,26 @@ export function TileRow({
 
 /**
  * The grid of the header row and of every guess (D-MP-1, Jalel's approved
- * mock): from 360 px, six narrow columns in one row; under 360 px, 3 by 2,
+ * mock): from 375 px, six narrow columns in one row; under 375 px, 3 by 2,
  * with the column's icon in each tile. Header and rows share the tracks, so
- * the columns line up. Each track is as wide as the widest word its column
- * can show at 14 px (fix round 1, measured on the pool of 31 October 2026:
- * a club's short label up to "Beauvais", "Danemark", "Mhajem", the header
- * "3omr", "30-59", "Zaghouan"); between 360 and 400 px the board takes 10 px
- * of each side gutter so the six fit. The browser tests measure every value
- * the pool can show against these tracks. The help's example stays 3 by 2.
+ * the columns line up. Each track holds the widest word its column can show
+ * at 14 px with slack for other renderers (fix round 2: GitHub's Chromium
+ * draws text 1 to 3 px wider than ours). Measured here on the pool of
+ * 1 November 2026, widest word (track at 375 px): club "Yarmouk" 60.1 px
+ * (66), country "Danemark" 69.4 (75), line "Mhajem" 54.1 (59), age the
+ * header "3omr" 34.6 (39), caps "30-59" 42.2 (47), birthplace "Danemark" /
+ * "Zaghouan" 69.4 (75): at least 4 px of slack at 375 px, 10 at 412.
+ * Between 375 and 440 px the board takes the side gutter down to 4 px and
+ * the gaps to 1 px so the six fit. The browser tests measure every value the
+ * pool can show against these tracks. The help's example stays 3 by 2.
  */
 const LAYOUT = {
   game: {
-    grid: "grid grid-cols-3 gap-[2px] min-[360px]:grid-cols-[minmax(0,63fr)_minmax(0,70fr)_minmax(0,55fr)_minmax(0,35fr)_minmax(0,43fr)_minmax(0,70fr)]",
-    tile: "min-h-11 max-[360px]:min-h-14",
-    icon: "hidden max-[360px]:block",
-    headers: "max-[360px]:gap-y-1.5",
-    head: "flex-col gap-0.5 max-[360px]:flex-row max-[360px]:justify-center max-[360px]:gap-1",
+    grid: "grid grid-cols-3 gap-[2px] min-[375px]:max-[440px]:gap-[1px] min-[375px]:grid-cols-[minmax(0,66fr)_minmax(0,75fr)_minmax(0,59fr)_minmax(0,39fr)_minmax(0,47fr)_minmax(0,75fr)]",
+    tile: "min-h-11 max-[375px]:min-h-14",
+    icon: "hidden max-[375px]:block",
+    headers: "max-[375px]:gap-y-1.5",
+    head: "flex-col gap-0.5 max-[375px]:flex-row max-[375px]:justify-center max-[375px]:gap-1",
   },
   example: {
     grid: "grid grid-cols-3 gap-[2px]",
@@ -107,9 +111,9 @@ const LAYOUT = {
   },
 } as const;
 
-/** Between 360 and 400 px the board takes 10 px of each side gutter (see LAYOUT). */
-export const BOARD_BLEED = "min-[360px]:max-[400px]:-mx-[10px]";
-const NAME_INSET = "min-[360px]:max-[400px]:px-[10px]";
+/** Between 375 and 440 px the board takes the 17 px side gutter down to 4 px (see LAYOUT). */
+export const BOARD_BLEED = "min-[375px]:max-[440px]:-mx-[13px]";
+const NAME_INSET = "min-[375px]:max-[440px]:px-[13px]";
 
 /**
  * The six tiles of a row, in the page's direction. Each shows its short
@@ -323,7 +327,7 @@ function ColumnIcon({
 
 /**
  * The header row, once above the rows (D-MP-1): each column's icon and short
- * name at 14 px, on the same tracks as the tiles; 3 by 2 under 360 px.
+ * name at 14 px, on the same tracks as the tiles; 3 by 2 under 375 px.
  * Hidden from screen readers, which hear the column's full name with every
  * tile.
  */

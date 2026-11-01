@@ -8,10 +8,11 @@
 //
 // The rules (Claude's call, recorded in the fix round report):
 // - at most two words, each of at most 6 Latin or 8 Arabic letters: the name
-//   as it is. Measured at 360 px, the club tile holds 63 px of 14 px bold:
-//   "Hammamet" (77.6 px) and "Gabèsien" (63.8 px) do not fit, so 8 Latin
-//   letters is too many without a person checking the word (the curated
-//   file's limit stays 8: Jalel picks narrow words); 8 Arabic letters fit;
+//   as it is. The club tile holds 66 px of 14 px bold at 375 px, with slack
+//   for other renderers (fix round 2): "Hammamet" (77.6 px) and "Gabèsien"
+//   (63.8 px) do not fit with slack, so 8 Latin letters is too many without
+//   a person checking the word (the curated file's limit is 7 since fix
+//   round 2: Jalel picks narrow words); 8 Arabic letters fit;
 // - an Arabic name: its first word that names the club (not نادي, فريق, كرة
 //   القدم, الرياضي…), when there is one, cut to 8 letters if longer, never
 //   between a lam and the alef that follows it (they are drawn as one sign);

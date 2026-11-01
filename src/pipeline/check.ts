@@ -166,14 +166,17 @@ export type ClubShortFile = {
   clubs: Record<string, { latin: string; arabic: string }>;
 };
 
-/** The longest word a six-column tile holds at 14 px. */
-const SHORT_WORD = 8;
+/**
+ * The longest word a six-column tile holds at 14 px with slack for other
+ * renderers (fix round 2): 7 Latin letters, 8 Arabic ones (narrower).
+ */
+const SHORT_WORD = { latin: 7, arabic: 8 } as const;
 const NON_WESTERN_DIGIT = /[\u0660-\u0669\u06F0-\u06F9]/;
 
 /**
  * Every id a club of the pool, every Ligue 1 club given (`ligue1ClubIds`),
  * both forms present: at most two words (a tile wraps between them), each at
- * most 8 characters, Western digits only.
+ * most 7 Latin or 8 Arabic letters, Western digits only.
  */
 export function validateClubShort(
   json: unknown,
@@ -198,7 +201,7 @@ export function validateClubShort(
   for (const id of ligue1ClubIds)
     if (!(id in json.clubs))
       errors.push(
-        `${at}: no short label for ${id}: add "${id}": { "latin": …, "arabic": … } to data/curated/club-short.json (at most two words of at most 8 characters each)`,
+        `${at}: no short label for ${id}: add "${id}": { "latin": …, "arabic": … } to data/curated/club-short.json (at most two words: 7 Latin or 8 Arabic letters each)`,
       );
   for (const [id, forms] of Object.entries(json.clubs)) {
     if (!known.has(id)) {
@@ -219,8 +222,10 @@ export function validateClubShort(
       if (words.length === 0) errors.push(`${at}: ${id} ${script} is empty`);
       else if (words.length > 2)
         errors.push(`${at}: ${id} ${script} has more than two words`);
-      else if (words.some((w) => [...w].length > SHORT_WORD))
-        errors.push(`${at}: ${id} ${script} is longer than ${SHORT_WORD}`);
+      else if (words.some((w) => [...w].length > SHORT_WORD[script]))
+        errors.push(
+          `${at}: ${id} ${script} is longer than ${SHORT_WORD[script]}`,
+        );
       if (NON_WESTERN_DIGIT.test(value))
         errors.push(`${at}: ${id} ${script} has a non-Western digit`);
     }
