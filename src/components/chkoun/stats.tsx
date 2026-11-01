@@ -129,7 +129,7 @@ function Distribution({
           >
             <span
               aria-hidden="true"
-              className="w-4 shrink-0 text-center text-base font-semibold tabular-nums"
+              className="inline-4 shrink-0 text-center text-base font-semibold tabular-nums"
             >
               {bar.guesses}
             </span>

@@ -43,7 +43,9 @@ export function StatsDialog({ strings }: Props) {
   useEffect(() => {
     const onStats = (event: CustomEvent<StatsDetail>) =>
       setPublished(event.detail);
-    // Read again on each opening: another tab may have played meanwhile.
+    // The device's record is read again on each opening, but it is only the
+    // fallback until the game first publishes; from then on the dialog shows
+    // what the game published, even if another tab has played since.
     const onOpen = (event: CustomEvent<string>) => {
       if (event.detail !== "stats") return;
       const stats = loadStats(deviceStorage());
