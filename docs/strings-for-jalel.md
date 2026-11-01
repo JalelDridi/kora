@@ -422,9 +422,9 @@ The short club labels live in `data/curated/club-short.json` (`by: claude`, DRAF
 | `jeunesse-sportive-d-el-omrane` | Jeunesse sportive d'El Omrane | JSO     | العمران      | DRAFT  |
 | `ps-sakiet-eddaier`             | PS Sakiet Eddaïer             | PSS     | ساقية الدائر | DRAFT  |
 
-Points to check: بن ڤردان with the Tunisian ڤ (against بنقردان of the club's Arabic name); حمام سوسة and حمام الأنف (the town, two words) against a nickname; العمران and ساقية الدائر (the district) for JS El Omrane and PS Sakiet Eddaïer. The file also gives 102 clubs abroad or in the lower Tunisian divisions a short form (their usual short name or acronym: ASG and SG for the two Gabès clubs, JSK, UST, EGSG, SAMB; since fix round 1, every guessable club whose name has a word too wide for a 360 px tile, such as BP for IF Brommapojkarna, Razgrad for Ludogorets, KSK for Kasımpaşa, FCGB for Bordeaux, ألبا for Albalonga and نورشوبنغ for Norrköping); a club not listed shows its full name, and the browser tests fail if one of its words does not fit.
+Points to check: بن ڤردان with the Tunisian ڤ (against بنقردان of the club's Arabic name); حمام سوسة and حمام الأنف (the town, two words) against a nickname; العمران and ساقية الدائر (the district) for JS El Omrane and PS Sakiet Eddaïer. The file also gives 103 clubs abroad or in the lower Tunisian divisions a short form (their usual short name or acronym: ASG and SG for the two Gabès clubs, JSK, UST, EGSG, SAMB; since fix round 1, every guessable club whose name has a word too wide for a 360 px tile, such as BP for IF Brommapojkarna, Razgrad for Ludogorets, KSK for Kasımpaşa, FCGB for Bordeaux, ألبا for Albalonga and نورشوبنغ for Norrköping); a club not listed shows its full name, and the browser tests fail if one of its words does not fit.
 
-The other 102 clubs (abroad or in the lower Tunisian divisions), in id order:
+The other 103 clubs (abroad or in the lower Tunisian divisions), in id order:
 
 | Club id                           | Full name (Latin)               | `latin`    | `arabic`     | Status |
 | --------------------------------- | ------------------------------- | ---------- | ------------ | ------ |
@@ -480,6 +480,7 @@ The other 102 clubs (abroad or in the lower Tunisian divisions), in id order:
 | `f-c-lorient`                     | F.C. Lorient                    | Lorient    | لوريان       | DRAFT  |
 | `fc-cska-1948-sofia`              | FC CSKA 1948 Sofia              | CSKA 1948  | سسكا 1948    | DRAFT  |
 | `fc-girondins-de-bordeaux`        | FC Girondins de Bordeaux        | FCGB       | بوردو        | DRAFT  |
+| `fc-hammamet`                     | FC Hammamet                     | FCH        | الحمامات     | DRAFT  |
 | `fc-nantes`                       | FC Nantes                       | Nantes     | نانت         | DRAFT  |
 | `fc-nouadhibou`                   | FC Nouadhibou                   | FCN        | نواذيبو      | DRAFT  |
 | `fc-shakhtar-donetsk`             | FC Shakhtar Donetsk             | Shakhtar   | شاختار       | DRAFT  |
@@ -595,7 +596,7 @@ Gathered from the task sections above and the task reports' notes for Jalel; eac
 - `season.loading`: الأولى / `el oula` against the spoken اللولة / `el loula`.
 - `season.result.allMatches`: the button keeps "see all 30" once the list is open.
 - **Short position forms** (`positions.short.*`): « Déf. » and « Att. » in French because the full words do not fit a 360 px tile; حارس، مدافع، وسط، مهاجم and `7ares`, `Mdafe3`, `Wost`, `Mhajem` in Derja. `chkoun.tiles.capsShort`: « Sél. » against « Sélec. ».
-- **Short club labels** (`data/curated/club-short.json`): بن ڤردان with the Tunisian ڤ; حمام سوسة and حمام الأنف (the towns) against a nickname; العمران and ساقية الدائر; and among the others ألبا (Albalonga), نورشوبنغ (Norrköping), BP, Razgrad, KSK.
+- **Short club labels** (`data/curated/club-short.json`): بن ڤردان with the Tunisian ڤ; حمام سوسة and حمام الأنف (the towns) against a nickname; العمران and ساقية الدائر; and among the others FCH and الحمامات (FC Hammamet, added with the 31 October pool), ألبا (Albalonga), نورشوبنغ (Norrköping), BP, Razgrad, KSK.
 - `hub.state.seasonNotYet`: `mousem` against `mawsem`; `hub.state.notYet` and `hub.state.seasonNotYet`: مازلت ما لعبتش against a shorter ما لعبتش.
 - **« Série » on /tn**: `hub.state.streak` and `chkoun.yesterday.note` keep the French word, as `chkoun.stats.streak` does; a Derja word (`Silsla`) may read better.
 - `chkoun.yesterday.back`: ارجع للاعب اليوم against a shorter لاعب اليوم.
