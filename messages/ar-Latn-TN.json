@@ -8,7 +8,16 @@
     "games": "El al3ab",
     "soon": "9rib",
     "language": "Logha",
-    "play": "El3ab"
+    "play": "El3ab",
+    "state": {
+      "notYet": "#{n} · mazelt ma l3abtech",
+      "playing": "#{n} · mazelt tel3eb, {guesses}/8",
+      "won": "#{n} · l9itou fi {score}",
+      "lost": "#{n} · ma l9itouch, X/8",
+      "streak": "Série: {n}",
+      "seasonNotYet": "Mazelt ma l3abt 7atta mousem el youm",
+      "seasonPlayed": "El youm: {w}-{d}-{l}"
+    }
   },
   "badges": {
     "daily": "Kol youm",
@@ -34,12 +43,23 @@
     "body": "Ymken el lien ghalet wala el page tna77at.",
     "home": "Arja3 lel al3ab"
   },
+  "header": {
+    "help": "Kifech tel3eb",
+    "stats": "El ar9am mte3ek",
+    "close": "Sakker"
+  },
   "chkoun": {
     "meta": {
       "title": "Chkoun? · Kora",
       "description": "A3ref la3eb el youm fi 8 mou7awlet. Kol youm la3eb jdid."
     },
     "rules": "A3ref la3eb el youm fi 8 mou7awlet. Ken el la3ba elli mazelou yel3bou.",
+    "help": {
+      "goal": "A3ref la3eb el youm fi 8 mou7awlet. Ken el la3ba elli mazelou yel3bou.",
+      "tiles": "Kol mou7awla twarrik 6 khanet: el far9, blad el far9, el blasa, el 3omr, matchet el mountakhab, win tweled.",
+      "example": "Mithel: nafs blad el far9 w nafs el blasa; el ashem y9ollek elli la3eb el youm akber.",
+      "daily": "Kol nhar la3eb jdid m3a nos ellil mta3 Tounes."
+    },
     "legend": {
       "title": "El alwen",
       "same": "Kif kif",
@@ -72,6 +92,12 @@
       "age": "El 3omr",
       "caps": "Matchet el mountakhab",
       "governorate": "Mawloud fi",
+      "clubShort": "Far9",
+      "countryShort": "Blad",
+      "positionShort": "Blasa",
+      "ageShort": "3omr",
+      "capsShort": "Dawli",
+      "governorateShort": "Mnin",
       "older": "Howa akbar",
       "younger": "Howa asghar",
       "moreCaps": "3andou matchet akther m3a el mountakhab",
@@ -103,7 +129,8 @@
       "copied": "Tcopa!",
       "whatsapp": "Eb3ath 3la WhatsApp",
       "longPress": "Edhghat mtawwel 3al ktiba bech tcopiha",
-      "header": "Kora · Chkoun?"
+      "header": "Kora · Chkoun?",
+      "yesterday": "lbare7"
     },
     "stats": {
       "title": "El ar9am mte3ek",
@@ -112,15 +139,37 @@
       "played": "El le3bet",
       "winRate": "Rba7t",
       "onDevice": "Ma7fouth fel telifoun hedha",
-      "onServer": "Ma7fouth fi Kora"
+      "onServer": "Ma7fouth fi Kora",
+      "distribution": "Er-rab7at 7asb 3add el mou7awlet",
+      "bar": "Mou7awlet: {n}, rba7at: {count}",
+      "empty": "Mazelt ma l3abt 7atta le3ba fel telifoun hedha."
     },
-    "next": "El la3eb ejjey ba3d {time}"
+    "next": "El la3eb ejjey ba3d {time}",
+    "hint": {
+      "label": "3awna: esmou yebda b {letter}"
+    },
+    "yesterday": {
+      "link": "El3ab la3eb lbare7",
+      "title": "La3eb lbare7",
+      "note": "Lel mot3a bark: ma yet7sebch fel série.",
+      "back": "Arja3 l la3eb el youm",
+      "closed": "La3eb lbare7 mouch mawjoud tawa.",
+      "meta": {
+        "title": "La3eb lbare7 · Chkoun? · Kora"
+      }
+    }
   },
   "positions": {
     "goalkeeper": "7ares",
     "defender": "Mdafe3",
     "midfielder": "Wost midan",
-    "forward": "Mhajem"
+    "forward": "Mhajem",
+    "short": {
+      "goalkeeper": "7ares",
+      "defender": "Mdafe3",
+      "midfielder": "Wost",
+      "forward": "Mhajem"
+    }
   },
   "credit": {
     "photo": "Tsawira: {author}, {licence}",
@@ -218,7 +267,13 @@
       "description": "Kawwen far9tek men la3ba tounsiyin, blasa blasa, w ba3d el3ab mawsem kemel: 30 match."
     },
     "rules": "Fi kol blasa yetla3lek far9 w 3achriya: ekhtar la3eb men khamsa wala a9al, w ba3d el3ab 30 match.",
+    "help": {
+      "draft": "L kol blasa yetla3lek far9 w 3ochriya: ekhtar la3eb mel khamsa 3al akther.",
+      "respin": "Tnajjem t3awed ed-dawra marra bark.",
+      "play": "Ki tkammel 11 la3eb, el3ab 30 match: 30–0 howa el 7elm."
+    },
     "noscript": "El le3ba hedhi test7a99 JavaScript.",
+    "loading": "Ed-dawra el oula jeya…",
     "lines": {
       "goalkeeper": "El 7ares",
       "defender": "El difa3",
@@ -260,6 +315,7 @@
       "teamRating": "Ta9yim el far9",
       "replaces": "Tal3ab fi blaset {club}",
       "matches": "El 30 match",
+      "allMatches": "Chouf el 30 match el kol",
       "round": "Jawla {n}",
       "home": "Fi darha",
       "away": "Barra",
@@ -284,7 +340,8 @@
       "day": "En nhar",
       "record": "El natija",
       "points": "No9at",
-      "rating": "Ta9yim"
+      "rating": "Ta9yim",
+      "empty": "Mazelt ma l3abt 7atta mousem fel telifoun hedha."
     },
     "board": {
       "title": "A7sen el fra9 el youm",

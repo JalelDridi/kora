@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { LRM, shareText, type ShareInput } from "./share.ts";
+import {
+  HINT_MARK,
+  LRM,
+  scoreMarks,
+  shareText,
+  type ShareInput,
+} from "./share.ts";
 
 // Exact strings, byte for byte (plan Task 13). "‎" below is written as
 // ${M}, the left-to-right mark U+200E.
@@ -115,5 +121,40 @@ describe("shareText", () => {
       const text = shareText({ ...base, locale, grid: ["gaxuxx"] });
       expect(text).toContain(`${M}🟩🟨⬛⬜⬛⬛`);
     }
+  });
+
+  it("marks follow the score on its line, inside the marks in Arabic script", () => {
+    expect(shareText({ ...base, marks: ["البارح"] }).split("\n")[1]).toBe(
+      `${M}#12 · 4/8 · البارح${M}`,
+    );
+    expect(
+      shareText({ ...base, locale: "fr", marks: ["hier"] }).split("\n")[1],
+    ).toBe("#12 · 4/8 · hier");
+    expect(shareText({ ...base, marks: [] })).toBe(shareText(base));
+  });
+
+  it("a hinted win ends its score line with 💡, after yesterday's word; the rows are unchanged (M8)", () => {
+    const six = {
+      ...base,
+      guesses: 6,
+      grid: [...base.grid, "xxxxxx", "gggggg"],
+    };
+    expect(HINT_MARK).toBe("💡");
+    expect(scoreMarks(null, false)).toEqual([]);
+    expect(scoreMarks(null, true)).toEqual(["💡"]);
+    expect(scoreMarks("البارح", true)).toEqual(["البارح", "💡"]);
+    expect(scoreMarks("hier", false)).toEqual(["hier"]);
+    const hinted = shareText({ ...six, marks: scoreMarks(null, true) });
+    expect(hinted.split("\n")[1]).toBe(`${M}#12 · 6/8 · 💡${M}`);
+    expect(
+      shareText({
+        ...six,
+        locale: "fr",
+        marks: scoreMarks("hier", true),
+      }).split("\n")[1],
+    ).toBe("#12 · 6/8 · hier · 💡");
+    expect(hinted.split("\n").slice(2)).toEqual(
+      shareText(six).split("\n").slice(2),
+    );
   });
 });

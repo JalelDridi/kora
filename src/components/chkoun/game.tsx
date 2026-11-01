@@ -6,9 +6,11 @@ import type { Card } from "@/chkoun/attributes";
 import {
   deviceStorage,
   loadGame,
+  loadPast,
   loadStats,
   recordFinish,
   saveGame,
+  savePast,
   saveStats,
   type SavedGame,
 } from "@/chkoun/device";
@@ -20,7 +22,8 @@ import {
   type Labels,
 } from "@/chkoun/labels";
 import { unpackNames, type PackedName } from "@/chkoun/search-index";
-import { shareText } from "@/engine/chkoun/share";
+import { hinted, letterFor, type Hint } from "@/engine/chkoun/hint";
+import { scoreMarks, shareText } from "@/engine/chkoun/share";
 import type { Stats } from "@/engine/chkoun/stats";
 import { colourKey } from "@/engine/chkoun/tiles";
 import type { TileRow as Row } from "@/engine/chkoun/types";
@@ -32,8 +35,10 @@ import { LEGEND_KEY } from "./legend";
 import { Result } from "./result";
 import { ShareButton } from "./share-button";
 import { Stats as StatsPanel } from "./stats";
+import { publishStats } from "./stats-dialog";
 import { SearchBox } from "./search-box";
-import { TileHeaders, TileRow, type RowStrings } from "./tile-row";
+import { GAME_TOP, SEARCH_BLOCK } from "./shell";
+import { BOARD_BLEED, TileHeaders, TileRow, type RowStrings } from "./tile-row";
 
 export type GameStrings = {
   chkoun: (typeof fr)["chkoun"];
@@ -49,12 +54,33 @@ type Props = {
   /** The game in the sharer's language, absolute (Q4.1). */
   shareUrl: string;
   sourcesHref: string;
+  /**
+   * "yesterday" plays yesterday's footballer (mobile polish M7): the game is
+   * kept apart on the device and never counts in the record.
+   */
+  mode?: "today" | "yesterday";
+  /** Yesterday's page, linked from today's result when there was one. */
+  yesterdayHref?: string;
 };
 
 type Store = "server" | "device";
 type GameData = { names: PackedName[]; labels: Labels };
-const NO_LABELS: Labels = { clubs: {}, governorates: {}, countries: {} };
-type Today = { number: number; day: string; endsAt: string; store: Store };
+const NO_LABELS: Labels = {
+  clubs: {},
+  short: {},
+  governorates: {},
+  countries: {},
+};
+type Today = {
+  number: number;
+  day: string;
+  endsAt: string;
+  store: Store;
+  /** Today's number: the record's bar to mark (yesterday's game too). */
+  current: number;
+  /** Whether a yesterday's game exists (puzzle 2 on). */
+  yesterday: boolean;
+};
 type Phase =
   | { kind: "loading" }
   | { kind: "failed" }
@@ -85,20 +111,26 @@ type TodayBody = {
     card: Card | null;
   };
   stats?: Stats;
+  yesterday?: { number: number; day: string };
 };
 
 // The Chkoun? game in the browser (plan Task 12). It asks the server for
 // today's number, restores today's game from the device, sends each guess
 // with the signed state the server gave last, and keeps the result on the
-// device. It never knows the answer before the server ends the game.
+// device. It never knows the answer before the server ends the game. In
+// mode "yesterday" it plays yesterday's number instead, under its own
+// storage key, and records nothing (M7).
 export function Game({
   locale,
   dataUrl,
   strings,
   shareUrl,
   sourcesHref,
+  mode = "today",
+  yesterdayHref,
 }: Props) {
   const t = strings.chkoun;
+  const past = mode === "yesterday";
   // The names and labels come after the first paint (a static JSON file):
   // on an idle moment, when the visitor reaches the search, or at once when
   // today's game has rows to show. The search keys are built on first use.
@@ -136,16 +168,23 @@ export function Game({
   const current = useRef<number | null>(null);
   /** Set by the guess that ends the game: the result heading takes focus. */
   const finishedNow = useRef(false);
+  /** Set by a guess in this page view: its row scrolls into view. */
+  const guessedNow = useRef(false);
+  const rowList = useRef<HTMLOListElement>(null);
+  const searchBlock = useRef<HTMLDivElement>(null);
   /** What a screen reader hears after each guess: the row's words. */
   const [announcement, setAnnouncement] = useState("");
   const retry = useRef<number | undefined>(undefined);
   /** loadToday itself, for the timer that asks again after a zero. */
   const again = useRef<() => void>(() => {});
 
-  const update = useCallback((next: SavedGame) => {
-    setGame(next);
-    saveGame(deviceStorage(), next);
-  }, []);
+  const update = useCallback(
+    (next: SavedGame) => {
+      setGame(next);
+      (past ? savePast : saveGame)(deviceStorage(), next);
+    },
+    [past],
+  );
 
   const loadToday = useCallback(async () => {
     window.clearTimeout(retry.current);
@@ -174,12 +213,28 @@ export function Game({
       setPhase({ kind: "closed" });
       return;
     }
-    const today: Today = {
-      number: body.number,
-      day: body.day,
-      endsAt: body.endsAt,
-      store: body.store === "server" ? "server" : "device",
-    };
+    if (past && !body.yesterday) {
+      setPhase({ kind: "closed" });
+      return;
+    }
+    const today: Today =
+      past && body.yesterday
+        ? {
+            number: body.yesterday.number,
+            day: body.yesterday.day,
+            endsAt: body.endsAt,
+            store: "device",
+            current: body.number,
+            yesterday: false,
+          }
+        : {
+            number: body.number,
+            day: body.day,
+            endsAt: body.endsAt,
+            store: body.store === "server" ? "server" : "device",
+            current: body.number,
+            yesterday: body.yesterday !== undefined,
+          };
     const previous = current.current;
     if (previous !== null && previous === today.number) {
       // The phone's clock reached zero first: ask again a little later.
@@ -193,8 +248,10 @@ export function Game({
     current.current = today.number;
 
     const storage = deviceStorage();
-    let saved = loadGame(storage, today.number);
-    if (!saved && body.finished) {
+    let saved = past
+      ? loadPast(storage, today.number)
+      : loadGame(storage, today.number);
+    if (!past && !saved && body.finished) {
       saved = {
         n: today.number,
         token: null,
@@ -214,8 +271,12 @@ export function Game({
     setAnimateFrom(Infinity);
     setPhase({ kind: "open", today });
     if (previous !== today.number)
-      track("chkoun_opened", { n: today.number, locale });
-  }, [locale, loadData]);
+      track("chkoun_opened", {
+        n: today.number,
+        locale,
+        past: past || undefined,
+      });
+  }, [locale, loadData, past]);
 
   useEffect(() => {
     again.current = () => void loadToday();
@@ -245,11 +306,45 @@ export function Game({
     return () => window.clearTimeout(id);
   }, [loadData]);
 
+  const todayNumber = phase.kind === "open" ? phase.today.current : null;
+  useEffect(() => {
+    // The header's record dialog shows what the game shows (mobile polish M3).
+    if (stats) publishStats({ stats, store: statsStore, n: todayNumber });
+  }, [stats, statsStore, todayNumber]);
+
   useEffect(() => {
     if (game?.status === "playing" || !finishedNow.current) return;
     finishedNow.current = false;
     document.getElementById("chkoun-result")?.focus();
   }, [game?.status]);
+
+  const rowCount = game?.rows.length ?? 0;
+  useEffect(() => {
+    // The newest row comes into view above the pinned search (M4), so the
+    // visitor sees his guess's tiles without scrolling. Smooth unless the
+    // visitor asked for less motion.
+    if (!guessedNow.current || rowCount === 0) return;
+    guessedNow.current = false;
+    const frame = requestAnimationFrame(() => {
+      const newest = rowList.current?.lastElementChild;
+      if (!(newest instanceof HTMLElement)) return;
+      // Measured against the search as drawn, not with scrollIntoView
+      // "nearest": a row of six (one line of tiles, D-MP-1) fits on screen
+      // behind the pinned search, and "nearest" then does not move.
+      const row = newest.getBoundingClientRect();
+      const limit =
+        (searchBlock.current?.getBoundingClientRect().top ??
+          window.innerHeight) - 8;
+      const by =
+        row.bottom > limit ? row.bottom - limit : row.top < 0 ? row.top : 0;
+      if (by === 0) return;
+      const reduced = window.matchMedia(
+        "(prefers-reduced-motion: reduce)",
+      ).matches;
+      window.scrollBy({ top: by, behavior: reduced ? "auto" : "smooth" });
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [rowCount]);
 
   async function guess(id: string) {
     if (phase.kind !== "open" || !game || game.status !== "playing") return;
@@ -270,6 +365,7 @@ export function Game({
         card?: Card | null;
         stats?: Stats;
         store?: Store;
+        hint?: Hint;
         error?: string;
       };
       if (response.status === 409) {
@@ -289,18 +385,37 @@ export function Game({
         rows,
         status: body.status,
         card: body.status === "playing" ? null : (body.card ?? null),
+        // The first letters, from the 5th guess on (M8); the end keeps them.
+        ...(body.hint
+          ? { hint: body.hint }
+          : game.hint
+            ? { hint: game.hint }
+            : {}),
       };
+      // The guess that ends the game focuses the result instead.
+      guessedNow.current = body.status === "playing";
       update(next);
       setAnnouncement(describeRow(id, body.row));
       if (body.status !== "playing") finishedNow.current = true;
-      track("chkoun_guessed", { n: game.n, guesses: rows.length, locale });
+      track("chkoun_guessed", {
+        n: game.n,
+        guesses: rows.length,
+        locale,
+        past: past || undefined,
+      });
       if (body.status !== "playing") {
         track("chkoun_finished", {
           n: game.n,
           guesses: rows.length,
           solved: body.status === "won",
           locale,
+          past: past || undefined,
+          // The hint shown before this guess, if any (M8).
+          hinted: hinted(body.status === "won", game.hint),
         });
+      }
+      // Yesterday's game never counts: the record stays as it was (M7).
+      if (body.status !== "playing" && !past) {
         setStats(
           recordFinish(
             deviceStorage(),
@@ -321,6 +436,7 @@ export function Game({
 
   const rowStrings: RowStrings = {
     positions: strings.positions,
+    positionsShort: strings.positions.short,
     caps: t.caps,
     abroad: t.tiles.abroad,
     noClub: t.tiles.noClub,
@@ -331,6 +447,14 @@ export function Game({
       age: t.tiles.age,
       caps: t.tiles.caps,
       governorate: t.tiles.governorate,
+    },
+    heads: {
+      club: t.tiles.clubShort,
+      country: t.tiles.countryShort,
+      position: t.tiles.positionShort,
+      age: t.tiles.ageShort,
+      caps: t.tiles.capsShort,
+      governorate: t.tiles.governorateShort,
     },
     words: t.legend,
     arrows: {
@@ -369,6 +493,13 @@ export function Game({
     [game],
   );
   const playing = phase.kind === "open" && game?.status === "playing";
+  /** The search sits under rows: its suggestions open upward. */
+  const pinned = playing && rowCount > 0;
+  /** The first letter in this page's name form, once the server gave it. */
+  const hintText =
+    playing && game?.hint
+      ? format(t.hint.label, { letter: letterFor(game.hint, locale) })
+      : null;
   const noticeText =
     notice === null
       ? null
@@ -377,10 +508,10 @@ export function Game({
         : t.error[notice];
 
   return (
-    <div className="chkoun-live mt-8 max-w-2xl">
+    <div className={`chkoun-live ${GAME_TOP[mode].box} max-w-2xl`}>
       {/* One slot for the day's state, sized for its tallest content, so a
           closed day or a failed request moves nothing below it (CLS). */}
-      <div className="mb-3 min-h-12">
+      <div className={GAME_TOP[mode].slot}>
         {phase.kind === "failed" ? (
           <div role="alert" className="flex flex-wrap items-center gap-3">
             <p className="text-lg">{t.error.network}</p>
@@ -398,7 +529,7 @@ export function Game({
         ) : null}
         {phase.kind === "closed" ? (
           <p role="status" className="text-lg">
-            {t.error.closed}
+            {past ? t.yesterday.closed : t.error.closed}
           </p>
         ) : null}
         {phase.kind === "soon" ? (
@@ -411,53 +542,13 @@ export function Game({
         ) : null}
       </div>
 
-      {/* The search stays in place, disabled, while the day loads, is closed
-          or failed, so nothing below it jumps. */}
-      {phase.kind === "loading" ||
-      phase.kind === "closed" ||
-      phase.kind === "failed" ||
-      playing ? (
-        <div>
-          <SearchBox
-            locale={locale}
-            entries={entries}
-            names={byId}
-            ready={entries.length > 0}
-            onWant={() => {
-              loadData();
-              setWanted(true);
-            }}
-            guessed={guessed}
-            disabled={!playing}
-            onGuess={(id) => void guess(id)}
-            onNoMatch={() =>
-              track("chkoun_no_match", {
-                n: phase.kind === "open" ? phase.today.number : undefined,
-                locale,
-              })
-            }
-            strings={t.search}
-          />
-          <p className="text-base text-chalk-dim">
-            {format(t.guessCount, {
-              n: Math.min((game?.rows.length ?? 0) + 1, MAX_GUESSES),
-            })}
-          </p>
-        </div>
-      ) : null}
-
-      <p
-        role="status"
-        aria-live="polite"
-        className="mt-2 min-h-6 text-base font-semibold"
-      >
-        {noticeText}
-      </p>
-
       {data && game && game.rows.length > 0 ? (
-        <section aria-label={t.guesses} className="mt-4 flex flex-col gap-3">
-          <TileHeaders headers={rowStrings.headers} />
-          <ol className="flex flex-col gap-4">
+        <section
+          aria-label={t.guesses}
+          className={`mb-4 flex flex-col gap-3 ${BOARD_BLEED}`}
+        >
+          <TileHeaders heads={rowStrings.heads} />
+          <ol ref={rowList} className="flex flex-col gap-4">
             {game.rows.map((r, i) => {
               const n = byId.get(r.guess);
               const shown = n ? localName(n, locale) : r.guess;
@@ -478,6 +569,78 @@ export function Game({
         </section>
       ) : null}
 
+      {/* The search stays in place, disabled, while the day loads, is closed
+          or failed, so nothing below it jumps. It comes after the guesses
+          and, while playing, is pinned to the bottom of the screen with its
+          suggestions opening upward (mobile polish M4, T-MP-4); the result
+          takes its place at the end. */}
+      {phase.kind === "loading" ||
+      phase.kind === "closed" ||
+      phase.kind === "failed" ||
+      playing ? (
+        <div
+          ref={searchBlock}
+          data-pinned={pinned || undefined}
+          className={`${SEARCH_BLOCK} ${playing ? "sticky inset-be-0 z-10" : ""}`}
+        >
+          <SearchBox
+            locale={locale}
+            entries={entries}
+            names={byId}
+            ready={entries.length > 0}
+            onWant={() => {
+              loadData();
+              setWanted(true);
+            }}
+            guessed={guessed}
+            disabled={!playing}
+            onGuess={(id) => void guess(id)}
+            onNoMatch={() =>
+              track("chkoun_no_match", {
+                n: phase.kind === "open" ? phase.today.number : undefined,
+                locale,
+                past: past || undefined,
+              })
+            }
+            placement={pinned ? "above" : "below"}
+            strings={t.search}
+          />
+          <p className="text-base text-chalk-dim">
+            {format(t.guessCount, {
+              n: Math.min((game?.rows.length ?? 0) + 1, MAX_GUESSES),
+            })}
+          </p>
+          {/* The first letter (M8): a live region always there, so it is
+              announced once when the 5th guess brings it; a line tall only
+              from then on. */}
+          <p
+            role="status"
+            aria-live="polite"
+            data-testid="chkoun-hint"
+            className={
+              hintText ? "min-h-6 text-base font-semibold text-mint" : ""
+            }
+          >
+            {hintText}
+          </p>
+          <p
+            role="status"
+            aria-live="polite"
+            className="mt-2 min-h-6 text-base font-semibold"
+          >
+            {noticeText}
+          </p>
+        </div>
+      ) : (
+        <p
+          role="status"
+          aria-live="polite"
+          className="mt-2 min-h-6 text-base font-semibold"
+        >
+          {noticeText}
+        </p>
+      )}
+
       {phase.kind === "open" && data && game && game.status !== "playing" ? (
         <Result
           solved={game.status === "won"}
@@ -489,6 +652,12 @@ export function Game({
           sourcesHref={sourcesHref}
           endsAt={phase.today.endsAt}
           onNextDay={() => void loadToday()}
+          countdown={!past}
+          link={
+            !past && phase.today.yesterday && yesterdayHref
+              ? { href: yesterdayHref, text: t.yesterday.link }
+              : null
+          }
         >
           <ShareButton
             text={shareText({
@@ -501,22 +670,37 @@ export function Game({
                 game.rows.length > 0
                   ? game.rows.map((r) => colourKey(r.row))
                   : (game.grid ?? []),
-              streak: stats && stats.last === game.n ? stats.streak : null,
+              streak:
+                !past && stats && stats.last === game.n ? stats.streak : null,
               streakLabel: t.stats.streak,
               url: shareUrl,
+              marks: scoreMarks(
+                past ? t.share.yesterday : null,
+                hinted(game.status === "won", game.hint),
+              ),
             })}
             strings={t.share}
             onShared={(channel) =>
-              track("chkoun_shared", { n: game.n, channel, locale })
+              track("chkoun_shared", {
+                n: game.n,
+                channel,
+                locale,
+                past: past || undefined,
+              })
             }
           />
-          {stats ? (
-            <StatsPanel stats={stats} store={statsStore} strings={t.stats} />
+          {stats && !past ? (
+            <StatsPanel
+              stats={stats}
+              store={statsStore}
+              today={game.n}
+              strings={t.stats}
+            />
           ) : null}
         </Result>
       ) : null}
 
-      {phase.kind === "open" && playing ? (
+      {phase.kind === "open" && playing && !past ? (
         <Countdown
           endsAt={phase.today.endsAt}
           template={t.next}
@@ -525,7 +709,8 @@ export function Game({
         />
       ) : phase.kind === "loading" ||
         phase.kind === "closed" ||
-        phase.kind === "failed" ? (
+        phase.kind === "failed" ||
+        playing ? (
         // The countdown's line, kept so nothing below moves (CLS).
         <p aria-hidden="true" className="mt-6 min-h-7" />
       ) : null}

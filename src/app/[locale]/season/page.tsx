@@ -4,7 +4,10 @@ import {
   getTranslations,
   setRequestLocale,
 } from "next-intl/server";
-import { PageHeader } from "@/components/page-header";
+import { GameHeader } from "@/components/game-header";
+import { SeasonHelp } from "@/components/season/help";
+import { SeasonHelpDialog } from "@/components/season/help-dialog";
+import { LanguageSwitcher } from "@/components/language-switcher";
 import { SeasonIsland, type SeasonStrings } from "@/components/season/island";
 import { getGame } from "@/games";
 import { isLocale, localeInfo } from "@/i18n/locales";
@@ -50,21 +53,35 @@ export default async function SeasonPage({
 
   return (
     <div className="mx-auto flex max-w-5xl flex-col px-4 py-5 sm:px-8">
-      <PageHeader
+      <GameHeader
         locale={locale}
         path={ROUTE}
-        home={t("notFound.home")}
-        language={t("hub.language")}
+        name={t("games.season.name")}
+        strings={{
+          home: t("notFound.home"),
+          language: t("hub.language"),
+          help: t("header.help"),
+          stats: t("header.stats"),
+        }}
+        actions
       />
 
-      <main className="py-8 sm:py-12">
-        <h1 className="text-5xl font-extrabold sm:text-7xl">
-          <bdi>{t("games.season.name")}</bdi>
-        </h1>
-        <p className="mt-4 max-w-2xl text-xl text-chalk-dim">
-          {t("season.rules")}
-        </p>
+      <SeasonHelpDialog title={t("header.help")} close={t("header.close")}>
+        <SeasonHelp
+          strings={{
+            draft: t("season.help.draft"),
+            respin: t("season.help.respin"),
+            play: t("season.help.play"),
+          }}
+        />
+      </SeasonHelpDialog>
+
+      <main className="pt-2 pb-8 sm:pb-12">
+        {/* Without JavaScript there is no help dialog: the rules stay here. */}
         <noscript>
+          <p className="max-w-2xl text-xl text-chalk-dim">
+            {t("season.rules")}
+          </p>
           <p className="mt-6 text-xl font-semibold">{t("season.noscript")}</p>
         </noscript>
         <SeasonIsland
@@ -72,8 +89,16 @@ export default async function SeasonPage({
           strings={messages.season}
           prefix={localeInfo[locale].prefix}
           shareOrigin={site.url}
+          dialog={{ title: t("header.stats"), close: t("header.close") }}
         />
       </main>
+
+      <LanguageSwitcher
+        current={locale}
+        label={t("hub.language")}
+        path={ROUTE}
+        className="self-center"
+      />
     </div>
   );
 }

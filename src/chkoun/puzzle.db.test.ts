@@ -10,7 +10,11 @@ import {
   eligible,
   syncFootballers,
 } from "@/pipeline/__fixtures__/calendar-pool.ts";
-import { createPuzzleReader, puzzleKey } from "./puzzle.server.ts";
+import {
+  createPastReader,
+  createPuzzleReader,
+  puzzleKey,
+} from "./puzzle.server.ts";
 import type { PuzzleDeps, PuzzleKv, SqlRows } from "./puzzle.server.ts";
 
 // Today's puzzle against the local Postgres: read once, reserve once.
@@ -300,5 +304,99 @@ describe("an empty day", () => {
     // The next day may warn again.
     await read(new Date("2026-10-21T10:00:00Z"));
     expect(lines).toHaveLength(2);
+  });
+});
+
+// Mobile polish M7: yesterday's footballer is read, never drawn.
+describe("puzzleOn (a past day)", () => {
+  const yesterday = addDays(today, -1);
+  const past = (over: Partial<PuzzleDeps> = {}) =>
+    createPastReader({
+      sql: counted().sql,
+      kv: null,
+      env: "test",
+      log: () => {},
+      firstDay: "2026-10-01",
+      ...over,
+    });
+  const count = async () =>
+    Number(
+      (await client.query("SELECT count(*)::int AS c FROM puzzles")).rows[0].c,
+    );
+
+  it("puzzleOn reads a past day's row and writes no reserve for an empty day", async () => {
+    await insert(yesterday, eligible[1].id);
+    await insert(today, eligible[0].id);
+    const before = await count();
+    const { sql, seen } = counted();
+    const read = past({ sql });
+    expect(await read(yesterday)).toEqual({
+      day: yesterday,
+      number: puzzleNumber(yesterday, "2026-10-01"),
+      playerId: eligible[1].id,
+    });
+    const empty = addDays(today, -2);
+    expect(await read(empty)).toBeNull();
+    expect(await count()).toBe(before);
+    expect(seen.every((text) => /^\s*SELECT/i.test(text))).toBe(true);
+  });
+
+  it("reads Redis first and writes nothing to it", async () => {
+    const { kv, store } = fakeKv();
+    store.set(puzzleKey("test", yesterday), { value: eligible[2].id, ex: 1 });
+    const { sql, seen } = counted();
+    expect((await past({ sql, kv })(yesterday))?.playerId).toBe(eligible[2].id);
+    expect(seen).toEqual([]);
+    const empty = addDays(today, -2);
+    expect(await past({ kv })(empty)).toBeNull();
+    expect([...store.keys()]).toEqual([puzzleKey("test", yesterday)]);
+  });
+
+  it("an empty marker in Redis is no puzzle; a failing Redis falls back to the row", async () => {
+    await insert(yesterday, eligible[1].id);
+    const { kv, store } = fakeKv();
+    store.set(puzzleKey("test", yesterday), { value: "-", ex: 60 });
+    expect(await past({ kv })(yesterday)).toBeNull();
+    const failing: PuzzleKv = {
+      get: async () => {
+        throw new Error("down");
+      },
+      set: async () => {
+        throw new Error("down");
+      },
+    };
+    expect((await past({ kv: failing })(yesterday))?.playerId).toBe(
+      eligible[1].id,
+    );
+  });
+
+  it("a database that does not answer is null", async () => {
+    const sql: SqlRows = async () => {
+      throw new Error("down");
+    };
+    expect(await past({ sql })(yesterday)).toBeNull();
+  });
+
+  it("through Prisma, with a seed set, an empty past day stays empty", async () => {
+    const saved = { ...process.env };
+    process.env.DATABASE_URL = TEST_DATABASE_URL;
+    process.env.CHKOUN_SEED = seed;
+    process.env.UPSTASH_REDIS_REST_URL = "";
+    process.env.UPSTASH_REDIS_REST_TOKEN = "";
+    try {
+      const { puzzleOn } = await import("./puzzle.server.ts");
+      expect(await puzzleOn(yesterday)).toBeNull();
+      expect(await count()).toBe(0);
+      await insert(yesterday, eligible[3].id);
+      expect(await puzzleOn(yesterday)).toMatchObject({
+        day: yesterday,
+        playerId: eligible[3].id,
+      });
+      expect(await count()).toBe(1);
+    } finally {
+      process.env = saved;
+      const { getDb } = await import("@/db/client");
+      await getDb().$disconnect();
+    }
   });
 });

@@ -1,12 +1,12 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { puzzleNumber, tunisDay } from "@/engine/chkoun/day.ts";
+import { addDays, puzzleNumber, tunisDay } from "@/engine/chkoun/day.ts";
 import { footballer } from "@/pipeline/__fixtures__/calendar-pool.ts";
 import type { Pool, PoolPlayer } from "@/pipeline/types.ts";
 import { buildFootballers } from "./attributes.ts";
 import { handleGuess, MAX_BODY_BYTES } from "./guess.ts";
 import type { GameDeps, Puzzle } from "./guess.ts";
 import { FakeKv } from "./kv.ts";
-import { signToken, tokenKey } from "./token.ts";
+import { pastTokenKey, signToken, tokenKey } from "./token.ts";
 
 // A test seed and fixed test footballers; never the real seed or calendar.
 const seed = "test-seed-not-the-real-one";
@@ -89,6 +89,17 @@ const deps = (over: Partial<GameDeps> = {}): GameDeps => ({
   secureCookie: true,
   ...over,
 });
+
+/** As in production: yesterday's number is played (mobile polish M7). */
+const wired = (over: Partial<GameDeps> = {}): GameDeps =>
+  deps({
+    pastPuzzle: async (day) => ({
+      day,
+      number: puzzleNumber(day, firstDay),
+      playerId: answer.id,
+    }),
+    ...over,
+  });
 
 const n = puzzleNumber("2026-10-19", firstDay);
 const post = (
@@ -175,6 +186,40 @@ describe("handleGuess", () => {
     );
   });
 
+  it("the hint comes with the 5th guess and after, never before, never at the end", async () => {
+    const out = await play(deps(), [...wrong.slice(0, 6), answer.id]);
+    expect(out.slice(0, 4).every((r) => r.body.hint === undefined)).toBe(true);
+    expect(out[4].body.hint).toEqual({ latin: "E", arabic: "إ", french: "E" });
+    expect(out[5].body.hint).toEqual(out[4].body.hint);
+    expect(out[6].body).toMatchObject({ status: "won" });
+    expect(out[6].body.hint).toBeUndefined();
+    expect(out.slice(0, 6).flatMap((r) => leaks(r.body))).toEqual([]);
+  });
+
+  it("the hint is one letter per name form, never more of the name", async () => {
+    const out = await play(deps({ kv }), wrong.slice(0, 8));
+    for (const r of out.slice(4, 7)) {
+      const hint = r.body.hint as Record<string, string | null>;
+      expect(Object.keys(hint).sort()).toEqual(["arabic", "french", "latin"]);
+      for (const letter of Object.values(hint))
+        expect(letter === null || [...letter].length === 1).toBe(true);
+    }
+    // The 8th wrong guess ends the game: the card, no hint.
+    expect(out[7].body).toMatchObject({ status: "lost" });
+    expect(out[7].body.hint).toBeUndefined();
+  });
+
+  it("a finished game gets no hint, only the refusal", async () => {
+    const key = tokenKey(seed);
+    const done = signToken(
+      { n, d: "2026-10-19", g: [...wrong.slice(0, 5), answer.id] },
+      key,
+    );
+    const r = await post(deps(), { token: done, guess: wrong[6] });
+    expect(r.status).toBe(422);
+    expect(r.body.hint).toBeUndefined();
+  });
+
   it("the 8th wrong guess returns status lost and the card", async () => {
     const responses = await play(deps(), wrong.slice(0, 8));
     expect(responses[7].body).toMatchObject({
@@ -227,14 +272,15 @@ describe("handleGuess", () => {
       { n: n - 1, d: "2026-10-18", g: [wrong[0]] },
       tokenKey(seed),
     );
-    for (const body of [
-      { n: n - 1, token: yesterday, guess: wrong[1] },
-      { n, token: yesterday, guess: wrong[1] },
-    ])
-      expect(await post(deps(), body)).toEqual({
-        status: 409,
-        body: { error: "newDay", number: n },
-      });
+    for (const d of [deps(), wired()])
+      for (const body of [
+        { n: n - 1, token: yesterday, guess: wrong[1] },
+        { n, token: yesterday, guess: wrong[1] },
+      ])
+        expect(await post(d, body)).toEqual({
+          status: 409,
+          body: { error: "newDay", number: n },
+        });
   });
 
   it("day boundary: a token for 19 Oct posted at 22:59:59 UTC is accepted; at 23:00:00 UTC it gets 409", async () => {
@@ -242,19 +288,23 @@ describe("handleGuess", () => {
       { n, d: "2026-10-19", g: [wrong[0]] },
       tokenKey(seed),
     );
-    const late = await post(
-      deps({ now: new Date("2026-10-19T22:59:59.999Z") }),
-      { token, guess: wrong[1] },
-    );
-    expect(late.status).toBe(200);
-    const midnight = await post(
-      deps({ now: new Date("2026-10-19T23:00:00.000Z") }),
-      { token, guess: wrong[1] },
-    );
-    expect(midnight).toEqual({
-      status: 409,
-      body: { error: "newDay", number: n + 1 },
-    });
+    // Also with yesterday's game wired, as in production: at midnight the
+    // game's number is yesterday's, and its token still gets newDay.
+    for (const make of [deps, wired]) {
+      const late = await post(
+        make({ now: new Date("2026-10-19T22:59:59.999Z") }),
+        { token, guess: wrong[1] },
+      );
+      expect(late.status).toBe(200);
+      const midnight = await post(
+        make({ now: new Date("2026-10-19T23:00:00.000Z") }),
+        { token, guess: wrong[1] },
+      );
+      expect(midnight).toEqual({
+        status: 409,
+        body: { error: "newDay", number: n + 1 },
+      });
+    }
   });
 
   it('with Redis off: the game is playable, the response says store "device", no cookie is set, no rate limit', async () => {
@@ -368,4 +418,196 @@ describe("handleGuess", () => {
     ];
     for (const b of bodies) expect(leaks(b)).toEqual([]);
   });
+});
+
+describe("yesterday's footballer (M7)", () => {
+  const yesterday = addDays("2026-10-19", -1);
+  const past = (over: Partial<GameDeps> = {}) =>
+    deps({
+      pastPuzzle: async (day) => ({ day, number: n - 1, playerId: answer.id }),
+      ...over,
+    });
+  const postPast = (
+    d: GameDeps,
+    body: { token?: string | null; guess: string },
+  ) =>
+    handleGuess(d, JSON.stringify({ n: n - 1, token: null, ...body }), {
+      cookie: null,
+      ip,
+    });
+
+  it("a guess on yesterday's number gets a row and a past token for that day", async () => {
+    const r = await postPast(past(), { guess: wrong[0] });
+    expect(r.status).toBe(200);
+    expect(r.body).toMatchObject({
+      guesses: 1,
+      status: "playing",
+      store: "device",
+      past: true,
+    });
+    expect(leaks(r.body)).toEqual([]);
+  });
+
+  it("asks for yesterday's day, never today's puzzle", async () => {
+    const asked: string[] = [];
+    let todayRead = false;
+    await postPast(
+      past({
+        puzzle: async (now) => {
+          todayRead = true;
+          return todayPuzzle(now);
+        },
+        pastPuzzle: async (day) => {
+          asked.push(day);
+          return { day, number: n - 1, playerId: answer.id };
+        },
+      }),
+      { guess: wrong[0] },
+    );
+    expect(asked).toEqual([yesterday]);
+    expect(todayRead).toBe(false);
+  });
+
+  it("tokens do not cross: today's on yesterday's number, yesterday's on today's", async () => {
+    const today = signToken(
+      { n, d: "2026-10-19", g: [wrong[0]] },
+      tokenKey(seed),
+    );
+    expect(
+      (await postPast(past(), { token: today, guess: wrong[1] })).status,
+    ).toBe(403);
+    const old = signToken(
+      { n: n - 1, d: yesterday, g: [wrong[0]] },
+      pastTokenKey(seed),
+    );
+    expect((await post(past(), { token: old, guess: wrong[1] })).status).toBe(
+      403,
+    );
+  });
+
+  it("a today token on yesterday's number is 409 only when it is that day's own game; tampered or forged, 403", async () => {
+    // Yesterday's own game under today's key: the day turned mid-game.
+    const crossed = signToken(
+      { n: n - 1, d: yesterday, g: [wrong[0]] },
+      tokenKey(seed),
+    );
+    expect(await postPast(past(), { token: crossed, guess: wrong[1] })).toEqual(
+      { status: 409, body: { error: "newDay", number: n } },
+    );
+    // Another number or day inside a today-key token: refused.
+    for (const state of [
+      { n, d: yesterday, g: [wrong[0]] },
+      { n: n - 1, d: "2026-10-19", g: [wrong[0]] },
+    ])
+      expect(
+        (
+          await postPast(past(), {
+            token: signToken(state, tokenKey(seed)),
+            guess: wrong[1],
+          })
+        ).status,
+      ).toBe(403);
+    // Signed by neither key: refused.
+    const forged = signToken(
+      { n: n - 1, d: yesterday, g: [wrong[0]] },
+      tokenKey("another-test-seed"),
+    );
+    expect(
+      (await postPast(past(), { token: forged, guess: wrong[1] })).status,
+    ).toBe(403);
+  });
+
+  it("a past token from the day before yesterday is refused as a new day", async () => {
+    const older = signToken(
+      { n: n - 2, d: addDays(yesterday, -1), g: [wrong[0]] },
+      pastTokenKey(seed),
+    );
+    expect(
+      (await postPast(past(), { token: older, guess: wrong[1] })).status,
+    ).toBe(409);
+  });
+
+  it("a finished past game gives the card and records nothing: no stats, no cookie, no result key", async () => {
+    let token: string | null = null;
+    let last: Awaited<ReturnType<typeof handleGuess>> | undefined;
+    for (const guess of [wrong[0], answer.id]) {
+      last = await postPast(past({ kv }), { token, guess });
+      token = last.body.token as string;
+    }
+    const out = last!;
+    expect(out.body).toMatchObject({
+      status: "won",
+      store: "device",
+      past: true,
+    });
+    expect(out.body.card).toMatchObject({ id: answer.id });
+    expect(out.body.stats).toBeUndefined();
+    expect(out.setCookie).toBeUndefined();
+    expect(out.setCookies).toBeUndefined();
+    expect(
+      [...kv.entries.keys()].filter((k) => /:chkoun:(r|s):/.test(k)),
+    ).toEqual([]);
+  });
+
+  it("yesterday's guesses share today's rate limit", async () => {
+    const tight = past({ kv });
+    let last = 0;
+    for (let i = 0; i < 200 && last !== 429; i++)
+      last = (await postPast(tight, { guess: wrong[i % wrong.length] })).status;
+    expect(last).toBe(429);
+    expect((await post(tight, { guess: wrong[0] })).status).toBe(429);
+  });
+
+  it("two days back, or before puzzle 1, is refused as a new day", async () => {
+    expect(
+      (
+        await handleGuess(
+          past(),
+          JSON.stringify({ n: n - 2, token: null, guess: wrong[0] }),
+          { cookie: null, ip },
+        )
+      ).status,
+    ).toBe(409);
+    const early = deps({
+      now: new Date("2026-10-05T11:00:00Z"),
+      pastPuzzle: async () => null,
+    });
+    expect(
+      (
+        await handleGuess(
+          early,
+          JSON.stringify({ n: 0, token: null, guess: wrong[0] }),
+          { cookie: null, ip },
+        )
+      ).status,
+    ).toBe(409);
+  });
+
+  it("a past game gets the same hint after its 5th guess", async () => {
+    const d = deps({
+      pastPuzzle: async (day) => ({ day, number: n - 1, playerId: answer.id }),
+    });
+    let token: string | null = null;
+    let last: Awaited<ReturnType<typeof handleGuess>> | undefined;
+    for (const guess of wrong.slice(0, 5)) {
+      last = await handleGuess(d, JSON.stringify({ n: n - 1, token, guess }), {
+        cookie: null,
+        ip,
+      });
+      token = last.body.token as string;
+    }
+    expect(last!.body).toMatchObject({ past: true, hint: { latin: "E" } });
+  });
+
+  it("no row for yesterday is closed (503), never a reserve", async () =>
+    expect(
+      (
+        await postPast(past({ pastPuzzle: async () => null }), {
+          guess: wrong[0],
+        })
+      ).status,
+    ).toBe(503));
+
+  it("without a past reader, yesterday's number is a new day (409)", async () =>
+    expect((await postPast(deps(), { guess: wrong[0] })).status).toBe(409));
 });

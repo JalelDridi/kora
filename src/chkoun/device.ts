@@ -1,4 +1,6 @@
+import { puzzleNumber, tunisDay } from "@/engine/chkoun/day.ts";
 import { nextStats, parseStats } from "@/engine/chkoun/stats.ts";
+import type { Hint } from "@/engine/chkoun/hint.ts";
 import type { Finished, Stats } from "@/engine/chkoun/stats.ts";
 import type { TileRow } from "@/engine/chkoun/types.ts";
 import type { Card } from "./attributes.ts";
@@ -11,6 +13,8 @@ import type { Card } from "./attributes.ts";
 
 export const GAME_KEY = "kora.chkoun.v1.game";
 export const STATS_KEY = "kora.chkoun.v1.stats";
+/** Yesterday's game (mobile polish M7), apart from today's: never counted. */
+export const PAST_KEY = "kora.chkoun.v1.past";
 
 export type StorageLike = Pick<Storage, "getItem" | "setItem">;
 
@@ -28,6 +32,8 @@ export type SavedGame = {
   card: Card | null;
   /** The colour grid when only the server's copy is known (no rows). */
   grid?: string[];
+  /** The first letters, from the 5th guess on (M8). */
+  hint?: Hint;
 };
 
 /** The browser's local storage, or null where it is refused. */
@@ -69,6 +75,36 @@ function isSavedGame(v: unknown): v is SavedGame {
   );
 }
 
+/** One letter, or null where the form allows it: never more of a name. */
+function isLetter(v: unknown, nullable: boolean): boolean {
+  if (v === null) return nullable;
+  return typeof v === "string" && [...v].length === 1;
+}
+
+function isHint(v: unknown): v is Hint {
+  if (typeof v !== "object" || v === null) return false;
+  const h = v as Record<string, unknown>;
+  return (
+    isLetter(h.latin, false) &&
+    isLetter(h.arabic, true) &&
+    isLetter(h.french, true)
+  );
+}
+
+/** A saved game as read back: the card defaults to null, a bad hint is dropped. */
+function restore(saved: SavedGame): SavedGame {
+  const { hint, ...rest } = saved;
+  return {
+    ...rest,
+    card: saved.card ?? null,
+    ...(isHint(hint)
+      ? {
+          hint: { latin: hint.latin, arabic: hint.arabic, french: hint.french },
+        }
+      : {}),
+  };
+}
+
 /** Today's saved game; null when none, unreadable, or from another day. */
 export function loadGame(
   storage: StorageLike | null,
@@ -76,11 +112,33 @@ export function loadGame(
 ): SavedGame | null {
   const saved = read(storage, GAME_KEY);
   if (!isSavedGame(saved) || saved.n !== n) return null;
-  return { ...saved, card: saved.card ?? null };
+  return restore(saved);
+}
+
+/**
+ * Whether this device holds a game of today's puzzle, by the browser's
+ * clock: the first-visit help stays shut over it (mobile polish M2).
+ */
+export function hasGameToday(storage: StorageLike | null, now: Date): boolean {
+  return loadGame(storage, puzzleNumber(tunisDay(now))) !== null;
 }
 
 export function saveGame(storage: StorageLike | null, game: SavedGame): void {
   write(storage, GAME_KEY, game);
+}
+
+/** Yesterday's saved game, by its puzzle number; null otherwise. */
+export function loadPast(
+  storage: StorageLike | null,
+  n: number,
+): SavedGame | null {
+  const saved = read(storage, PAST_KEY);
+  if (!isSavedGame(saved) || saved.n !== n) return null;
+  return restore(saved);
+}
+
+export function savePast(storage: StorageLike | null, game: SavedGame): void {
+  write(storage, PAST_KEY, game);
 }
 
 export function loadStats(storage: StorageLike | null): Stats | null {

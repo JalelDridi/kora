@@ -1,6 +1,6 @@
 import fc from "fast-check";
 import { describe, expect, it } from "vitest";
-import { nextStats } from "./stats.ts";
+import { distribution, nextStats, parseStats } from "./stats.ts";
 import type { Stats } from "./stats.ts";
 
 const win = (n: number, guesses = 3) => ({ n, solved: true, guesses });
@@ -16,6 +16,7 @@ describe("nextStats", () => {
       played: 1,
       won: 1,
       dist: [0, 1, 0, 0, 0, 0, 0, 0],
+      lastGuesses: 2,
     });
   });
 
@@ -81,5 +82,78 @@ describe("nextStats", () => {
     expect(s.dist).toEqual([2, 0, 0, 0, 0, 0, 0, 1]);
     expect(s.won).toBe(3);
     expect(s.played).toBe(4);
+  });
+});
+
+describe("distribution", () => {
+  it("eight bars, scaled to the most frequent, today's win marked", () => {
+    let s = nextStats(null, { n: 1, solved: true, guesses: 3 });
+    s = nextStats(s, { n: 2, solved: true, guesses: 3 });
+    s = nextStats(s, { n: 3, solved: true, guesses: 5 });
+    const bars = distribution(s, 3);
+    expect(bars).toHaveLength(8);
+    expect(bars.map((b) => b.count)).toEqual([0, 0, 2, 0, 1, 0, 0, 0]);
+    expect(bars[2].share).toBe(1);
+    expect(bars[4]).toMatchObject({ share: 0.5, today: true });
+    expect(bars.filter((b) => b.today)).toHaveLength(1);
+  });
+
+  it("a loss today marks nothing; no record gives eight empty bars", () => {
+    const lost = nextStats(null, { n: 4, solved: false, guesses: 8 });
+    expect(distribution(lost, 4).some((b) => b.today)).toBe(false);
+    expect(
+      distribution(null, null).every((b) => b.count === 0 && b.share === 0),
+    ).toBe(true);
+  });
+
+  it("numbers the bars 1 to 8 and marks nothing for another day", () => {
+    const s = nextStats(null, { n: 7, solved: true, guesses: 2 });
+    expect(distribution(s, 8).map((b) => b.guesses)).toEqual([
+      1, 2, 3, 4, 5, 6, 7, 8,
+    ]);
+    expect(distribution(s, 8).some((b) => b.today)).toBe(false);
+    expect(distribution(s, null).some((b) => b.today)).toBe(false);
+  });
+
+  it("a record kept before the last win's guesses were stored marks nothing", () => {
+    const old = parseStats({
+      last: 5,
+      lastSolved: true,
+      streak: 1,
+      best: 1,
+      played: 1,
+      won: 1,
+      dist: [0, 0, 1, 0, 0, 0, 0, 0],
+    });
+    expect(old).not.toBeNull();
+    expect(distribution(old, 5).some((b) => b.today)).toBe(false);
+  });
+});
+
+describe("parseStats", () => {
+  it("keeps the last win's guesses, and drops one out of range", () => {
+    const base = {
+      last: 5,
+      lastSolved: true,
+      streak: 1,
+      best: 1,
+      played: 1,
+      won: 1,
+      dist: [0, 0, 1, 0, 0, 0, 0, 0],
+    };
+    expect(parseStats({ ...base, lastGuesses: 3 })?.lastGuesses).toBe(3);
+    expect(parseStats({ ...base, lastGuesses: 9 })).not.toHaveProperty(
+      "lastGuesses",
+    );
+    expect(parseStats(base)).not.toHaveProperty("lastGuesses");
+  });
+
+  it("a loss keeps no guesses", () => {
+    const s = nextStats(nextStats(null, { n: 1, solved: true, guesses: 2 }), {
+      n: 2,
+      solved: false,
+      guesses: 8,
+    });
+    expect(s).not.toHaveProperty("lastGuesses");
   });
 });

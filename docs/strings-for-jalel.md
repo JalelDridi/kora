@@ -322,6 +322,286 @@ The visitor cookie now serves every game's API (`/api`), not only Chkoun?'s, so 
 - `season.board.you`: هذا إنت / Hedha enti ("that's you"); إنتي is the spoken spelling some prefer in Arabic script.
 - `season.board.off` and `season.board.notCounted`: الترتيب / el tartib; spoken alternative الكلاسمون / el classement.
 
+## Mobile polish (31 October 2026)
+
+### Task 1: the game header
+
+The one-line header of Chkoun? and 30–0 (M1). Reused, not duplicated: `notFound.home` (the back arrow's name for screen readers) and `hub.language` (the language menu's name, "Langue: Français"); the menu shows the language names of the switcher. `header.close` is for the dialogs of Tasks 2 and 3 and is not on screen yet. Research: كيفاش (how) and سكّر (close, shut) are the spoken Tunisian forms; الأرقام متاعك keeps متاع for "your", as the other strings do.
+
+| Key            | English gloss                                  | French draft  | `ar-TN` as shipped | `ar-Latn-TN` as shipped | Status |
+| -------------- | ---------------------------------------------- | ------------- | ------------------ | ----------------------- | ------ |
+| `header.help`  | How to play (the "?" button's name)            | Comment jouer | كيفاش تلعب         | Kifech tel3eb           | DRAFT  |
+| `header.stats` | Your stats (the record button's name)          | Tes stats     | الأرقام متاعك      | El ar9am mte3ek         | DRAFT  |
+| `header.close` | Close (a dialog's close button, Tasks 2 and 3) | Fermer        | سكّر               | Sakker                  | DRAFT  |
+
+### Task 2: how to play
+
+The "how to play" dialog of each game (M2): it opens by itself on a game's first visit on a device, then from the header's "?". Reused, not duplicated: `header.help` (the dialog's title), `header.close` (its close button), the six column names `chkoun.tiles.*` and the four colour words `chkoun.legend.*` (the example row and the colours). `chkoun.rules` and `season.rules` stay, shown only without JavaScript. In French, `season.help.draft` is `season.rules` without its last clause, which `season.help.play` now says; in the two Derja locales the wording also changes (لكل against في كل, على الأكثر against ولا أقل). Points to check:
+
+- `season.help.draft`: على الأكثر / `3al akther` against the shipped ولا أقل / `wala a9al` (the shipped form is the Derja one; the draft leans towards Modern Standard Arabic), and `3ochriya` against `3achriya` in `season.rules`.
+- `chkoun.help.example`: `akber` against `akbar` in `chkoun.tiles.older`; `el ashem` (السهم, the arrow) in the Latin example.
+- `chkoun.help.tiles`: the birthplace is named وين تولد / `win tweled` / lieu de naissance, but its column is headed مولود في / `Mawloud fi` / Né à (`chkoun.tiles.governorate`). The other five names match their headers.
+- French: the help says « footballeur » in `chkoun.help.goal` and `chkoun.help.daily` but « joueur » in `chkoun.help.example` and `season.help.*`.
+- `chkoun.help.goal` repeats `chkoun.rules` word for word in `ar-TN` and `ar-Latn-TN` (the rules line now shows only without JavaScript): correct both together.
+
+| Key                   | English gloss                                         | French draft                                                                                   | `ar-TN` as shipped                                                                       | `ar-Latn-TN` as shipped                                                                                     | Status |
+| --------------------- | ----------------------------------------------------- | ---------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- | ------ |
+| `chkoun.help.goal`    | Find today's footballer in 8 tries; active ones only  | Trouve le footballeur du jour en 8 essais. Seulement des joueurs en activité.                  | أعرف لاعب اليوم في 8 محاولات. كان اللاعبين اللي مازالو يلعبو.                            | A3ref la3eb el youm fi 8 mou7awlet. Ken el la3ba elli mazelou yel3bou.                                      | DRAFT  |
+| `chkoun.help.tiles`   | Each try shows six tiles (the six columns)            | Chaque essai montre six cases : club, pays du club, poste, âge, sélections, lieu de naissance. | كل محاولة تورّيك 6 خانات: الفريق، بلاد الفريق، البلاصة، العمر، ماتشات المنتخب، وين تولد. | Kol mou7awla twarrik 6 khanet: el far9, blad el far9, el blasa, el 3omr, matchet el mountakhab, win tweled. | DRAFT  |
+| `chkoun.help.example` | The example row's caption                             | Exemple : même pays de club et même poste ; la flèche dit que le joueur du jour est plus âgé.  | مثال: نفس بلاد الفريق ونفس البلاصة؛ السهم يقلّك اللي لاعب اليوم أكبر.                    | Mithel: nafs blad el far9 w nafs el blasa; el ashem y9ollek elli la3eb el youm akber.                       | DRAFT  |
+| `chkoun.help.daily`   | A new footballer every day at Tunis midnight          | Un nouveau footballeur chaque jour à minuit, heure de Tunis.                                   | كل نهار لاعب جديد مع نص الليل متاع تونس.                                                 | Kol nhar la3eb jdid m3a nos ellil mta3 Tounes.                                                              | DRAFT  |
+| `season.help.draft`   | Each place draws a club and a decade; pick one of ≤ 5 | Pour chaque place, un club et une décennie sont tirés : choisis un joueur parmi cinq au plus.  | لكل بلاصة يطلعلك فريق وعشرية: اختار لاعب من خمسة على الأكثر.                             | L kol blasa yetla3lek far9 w 3ochriya: ekhtar la3eb mel khamsa 3al akther.                                  | DRAFT  |
+| `season.help.respin`  | You may spin again once                               | Tu peux relancer une seule fois.                                                               | تنجم تعاود الدورة مرة برك.                                                               | Tnajjem t3awed ed-dawra marra bark.                                                                         | DRAFT  |
+| `season.help.play`    | With 11, play 30 matches; 30–0 is the dream           | Avec 11 joueurs, joue 30 matchs : 30–0 est le rêve.                                            | كي تكمّل 11 لاعب، العب 30 ماتش: 30–0 هو الحلم.                                           | Ki tkammel 11 la3eb, el3ab 30 match: 30–0 howa el 7elm.                                                     | DRAFT  |
+
+### Task 3: the record at any time
+
+The record dialog (M3): the header's stats button opens it before, during and after a game. Chkoun? shows the four numbers and, under them, the wins by number of guesses; 30–0 shows the best seasons on this device. Reused, not duplicated: `header.stats` (the dialog's title), `header.close`, the `chkoun.stats.*` numbers and the `season.hall.*` table. Points to look at:
+
+- `chkoun.stats.bar` is read by screen readers only, once per bar from 1 to 8: « En 1 essais », في 1 محاولات and `Fi 1 mou7awlet` are wrong in the singular (and في 2 محاولات in the dual: محاولتين). A form without the plural after the number avoids it, for example « Essais : {n}, victoires : {count} » / محاولات: {n}، ربحات: {count}.
+- `chkoun.stats.distribution`: حسب and عدد lean towards Modern Standard Arabic; a Derja form may exist.
+- `season.hall.empty` was not in the plan: the 30–0 dialog needed a line before any season.
+
+| Key                         | English gloss                                                                                       | French draft                                 | `ar-TN` as shipped                      | `ar-Latn-TN` as shipped                          | Status |
+| --------------------------- | --------------------------------------------------------------------------------------------------- | -------------------------------------------- | --------------------------------------- | ------------------------------------------------ | ------ |
+| `chkoun.stats.distribution` | Wins by number of guesses (the chart's heading)                                                     | Victoires par nombre d'essais                | الربحات حسب عدد المحاولات               | Er-rab7at 7asb 3add el mou7awlet                 | DRAFT  |
+| `chkoun.stats.bar`          | One bar, for screen readers: guesses {n}, wins {count} (noun-free form: no plural after the number) | Essais : {n}, victoires : {count}            | محاولات: {n}، ربحات: {count}            | Mou7awlet: {n}, rba7at: {count}                  | DRAFT  |
+| `chkoun.stats.empty`        | No game yet on this device                                                                          | Pas encore de partie sur cet appareil.       | مازلت ما لعبت حتى لعبة في التليفون هذا. | Mazelt ma l3abt 7atta le3ba fel telifoun hedha.  | DRAFT  |
+| `season.hall.empty`         | No season yet on this device                                                                        | Pas encore de saison jouée sur cet appareil. | مازلت ما لعبت حتى موسم في التليفون هذا. | Mazelt ma l3abt 7atta mousem fel telifoun hedha. | DRAFT  |
+
+### Task 4: guesses towards the thumb, and the minors
+
+Two lines for 30–0 (§2.12): the button under the first five matches of a played season, and the line in the spin area until the first spin arrives. ‎الدورة / `ed-dawra` is the spin, as in `season.help.respin`. Points to look at:
+
+- `season.loading`: الأولى / `el oula` leans towards Modern Standard Arabic; the spoken form may be اللولة / `el loula`.
+- `season.result.allMatches`: the button stays visible once open, so it still says "see all 30" while all 30 show.
+
+| Key                        | English gloss                                        | French draft              | `ar-TN` as shipped  | `ar-Latn-TN` as shipped  | Status |
+| -------------------------- | ---------------------------------------------------- | ------------------------- | ------------------- | ------------------------ | ------ |
+| `season.result.allMatches` | See all 30 matches (the button under the first five) | Voir les 30 matchs        | شوف الـ30 ماتش الكل | Chouf el 30 match el kol | DRAFT  |
+| `season.loading`           | The first spin is on its way (before the first spin) | Le premier tirage arrive… | الدورة الأولى جاية… | Ed-dawra el oula jeya…   | DRAFT  |
+
+### Task 5: the six-column tile row
+
+The tile row of Jalel's approved mock (D-MP-1): six narrow columns from 375 px (3 by 2 below; fix round 2), a header row once with each column's icon and short name, each tile its short value. Each column has a short header key (fix round 1: the mock's words, so `Far9`, `Blasa` and `3omr` on /tn rather than the full `El far9`, `El blasa`, `El 3omr`, which did not fit); the full names `chkoun.tiles.*` stay what a screen reader hears with every tile. Research: منين (from where) is the spoken Tunisian question for a birthplace, دولي (international) is how fans call a capped footballer; البلاد keeps the word of `chkoun.tiles.country`. The short lines follow the mock where it shows them (مدافع / `Mdafe3`, مهاجم / `Mhajem`, the full words, which fit); وسط / `Wost` shortens وسط ميدان / `Wost midan`. Points to check:
+
+- `chkoun.tiles.capsShort` « Sél. » in French: an abbreviation with a dot; « Sélec. » is the other usual one.
+- `positions.short.defender` and `positions.short.forward` in French (« Déf. », « Att. »): the full words do not fit a six-column tile at 375 px.
+
+| Key                             | English gloss                            | French draft | `ar-TN` as shipped | `ar-Latn-TN` as shipped | Status |
+| ------------------------------- | ---------------------------------------- | ------------ | ------------------ | ----------------------- | ------ |
+| `chkoun.tiles.clubShort`        | Club (header row)                        | Club         | الفريق             | Far9                    | DRAFT  |
+| `chkoun.tiles.countryShort`     | Country (the club's country, header row) | Pays         | البلاد             | Blad                    | DRAFT  |
+| `chkoun.tiles.positionShort`    | Line (header row)                        | Poste        | البلاصة            | Blasa                   | DRAFT  |
+| `chkoun.tiles.ageShort`         | Age (header row)                         | Âge          | العمر              | 3omr                    | DRAFT  |
+| `chkoun.tiles.capsShort`        | Caps (header row)                        | Sél.         | دولي               | Dawli                   | DRAFT  |
+| `chkoun.tiles.governorateShort` | Born in (header row)                     | Né à         | منين               | Mnin                    | DRAFT  |
+| `positions.short.goalkeeper`    | Goalkeeper, in a tile                    | Gardien      | حارس               | 7ares                   | DRAFT  |
+| `positions.short.defender`      | Defender, in a tile                      | Déf.         | مدافع              | Mdafe3                  | DRAFT  |
+| `positions.short.midfielder`    | Midfielder, in a tile                    | Milieu       | وسط                | Wost                    | DRAFT  |
+| `positions.short.forward`       | Forward, in a tile                       | Att.         | مهاجم              | Mhajem                  | DRAFT  |
+
+The short club labels live in `data/curated/club-short.json` (`by: claude`, DRAFT), checked by `pnpm data:check` (every Ligue 1 club listed; at most two words of at most 7 Latin or 8 Arabic letters, since fix round 2; Western digits). `latin` shows on `/tn` and `/fr` (the acronym fans write), `arabic` on `/ar` (the Derja nickname); a Chkoun? tile and, under 400 px, a 30–0 match row print it, and the full name stays in the tile's title and screen-reader text. The 16 Ligue 1 clubs:
+
+| Club id                         | Full name (Latin)             | `latin` | `arabic`     | Status |
+| ------------------------------- | ----------------------------- | ------- | ------------ | ------ |
+| `esperance-sportive-de-tunis`   | Espérance Sportive de Tunis   | EST     | الترجي       | DRAFT  |
+| `etoile-sportive-du-sahel`      | Étoile Sportive du Sahel      | ESS     | النجم        | DRAFT  |
+| `club-africain`                 | Club Africain                 | CA      | الإفريقي     | DRAFT  |
+| `cs-sfaxien`                    | CS Sfaxien                    | CSS     | الصفاقسي     | DRAFT  |
+| `us-monastir`                   | US Monastir                   | USM     | المنستير     | DRAFT  |
+| `stade-tunisien`                | Stade Tunisien                | ST      | الملعب       | DRAFT  |
+| `ca-bizertine`                  | CA Bizertine                  | CAB     | البنزرتي     | DRAFT  |
+| `us-ben-guerdane`               | US Ben Guerdane               | USBG    | بن ڤردان     | DRAFT  |
+| `olympique-beja`                | Olympique Béja                | OB      | الباجي       | DRAFT  |
+| `es-zarzis`                     | ES Zarzis                     | ESZ     | جرجيس        | DRAFT  |
+| `etoile-sportive-de-metlaoui`   | Etoile Sportive de Metlaoui   | ESM     | المتلوي      | DRAFT  |
+| `as-marsa`                      | AS Marsa                      | ASM     | المرسى       | DRAFT  |
+| `es-hammam-sousse`              | ES Hammam-Sousse              | ESHS    | حمام سوسة    | DRAFT  |
+| `cs-hammam-lif`                 | CS Hammam-Lif                 | CSHL    | حمام الأنف   | DRAFT  |
+| `jeunesse-sportive-d-el-omrane` | Jeunesse sportive d'El Omrane | JSO     | العمران      | DRAFT  |
+| `ps-sakiet-eddaier`             | PS Sakiet Eddaïer             | PSS     | ساقية الدائر | DRAFT  |
+
+Points to check: بن ڤردان with the Tunisian ڤ (against بنقردان of the club's Arabic name); حمام سوسة and حمام الأنف (the town, two words) against a nickname; العمران and ساقية الدائر (the district) for JS El Omrane and PS Sakiet Eddaïer. The file also gives 103 clubs abroad or in the lower Tunisian divisions a short form (their usual short name or acronym: ASG and SG for the two Gabès clubs, JSK, UST, EGSG, SAMB; since fix round 1, every guessable club whose name has a word too wide for a tile, such as BP for IF Brommapojkarna, Razgrad for Ludogorets, KSK for Kasımpaşa, FCGB for Bordeaux, ألبا for Albalonga and نورشوبنغ for Norrköping; since fix round 2, 7 Latin letters a word at most: ASBO for AS Beauvais Oise, BHA for Brighton, CDN for Nacional, Pasy (its nickname) for Cracovia, Emarat for Emirates Club, Donetsk for Shakhtar, SFC for Servette); a club not listed shows its full name, and the browser tests fail if one of its words does not fit. Since the branch fix round (1 November 2026), a club not listed gets an automatic label instead (`src/pipeline/short-label.ts`: the name when it has at most two words of at most 6 Latin or 8 Arabic letters, else the initials of its Latin name, such as FCH or CSHL, or the first Arabic word that names the club, such as الحمامات), and `pnpm data:check` prints a warning listing those clubs with their automatic labels, in the nightly job's log: the labels to curate here. The automatic Arabic forms are a word of the club's Arabic name, not a Derja nickname: worth replacing as they come up.
+
+The other 103 clubs (abroad or in the lower Tunisian divisions), in id order:
+
+| Club id                           | Full name (Latin)               | `latin`    | `arabic`     | Status |
+| --------------------------------- | ------------------------------- | ---------- | ------------ | ------ |
+| `1-fc-koln`                       | 1. FC Köln                      | Köln       | كولن         | DRAFT  |
+| `1-fc-union-berlin`               | 1. FC Union Berlin              | Union      | يونيون       | DRAFT  |
+| `a-s-d-albalonga`                 | A.S.D. Albalonga                | ASD        | ألبا         | DRAFT  |
+| `aek-larnaca-f-c`                 | AEK Larnaca F.C.                | Larnaca    | لارنكا       | DRAFT  |
+| `al-ahly-sc-benghazi`             | Al Ahly SC (Benghazi)           | Al Ahly    | الأهلي       | DRAFT  |
+| `al-ain-fc-q23773622`             | Al-Ain FC                       | Al-Ain     | العين        | DRAFT  |
+| `al-bidaa-sc`                     | Al Bidaa SC                     | Al Bidaa   | البدع        | DRAFT  |
+| `al-dhahra-sc`                    | Al Dhahra SC                    | Al Dhahra  | الظهرة       | DRAFT  |
+| `al-entsar-fc`                    | Al Entsar FC                    | Entsar     | الانتصار     | DRAFT  |
+| `al-faisaly-sc`                   | Al-Faisaly SC                   | Faisaly    | الفيصلي      | DRAFT  |
+| `al-gharafa-sc`                   | Al-Gharafa SC                   | Gharafa    | الغرافة      | DRAFT  |
+| `al-hazem-sc`                     | Al Hazem SC                     | Al Hazem   | الحزم        | DRAFT  |
+| `al-hilal-sc`                     | Al-Hilal SC                     | Al Hilal   | الهلال       | DRAFT  |
+| `al-jeel`                         | Al-Jeel                         | Al-Jeel    | الجيل        | DRAFT  |
+| `al-mina-a-sc`                    | Al-Mina'a SC                    | Mina'a     | الميناء      | DRAFT  |
+| `al-nairyah-club`                 | Al-Nairyah Club                 | Nairyah    | النعيرية     | DRAFT  |
+| `al-nasser-sc`                    | Al-Nasser SC                    | Al Nasr    | النصر        | DRAFT  |
+| `al-quwa-al-jawiya`               | Al-Quwa Al-Jawiya               | Al-Quwa    | القوة الجوية | DRAFT  |
+| `al-ramtha-sc`                    | Al-Ramtha SC                    | Ramtha     | الرمثا       | DRAFT  |
+| `al-rayyan-club`                  | Al-Rayyan Club                  | Al Rayyan  | الريان       | DRAFT  |
+| `al-safa-fc`                      | Al Safa FC                      | Al Safa    | الصفا        | DRAFT  |
+| `al-shamal-sports-club`           | Al-Shamal Sports Club           | Al Shamal  | الشمال       | DRAFT  |
+| `al-swehly-f-c`                   | Al Swehly F.C                   | Swehly     | السويحلي     | DRAFT  |
+| `al-ta-awon`                      | Al Ta'awon                      | Ta'awon    | التعاون      | DRAFT  |
+| `al-wahda-s-c-c`                  | Al-Wahda S.C.C.                 | Al Wahda   | الوحدة       | DRAFT  |
+| `al-wakrah-sports-club`           | Al-Wakrah Sports Club           | Al Wakrah  | الوكرة       | DRAFT  |
+| `al-yarmouk-kuwait`               | Al Yarmouk Kuwait               | Yarmouk    | اليرموك      | DRAFT  |
+| `angouleme-charente-fc`           | Angoulême Charente FC           | ACFC       | أنغوليم      | DRAFT  |
+| `as-beauvais-oise`                | AS Beauvais Oise                | Beauvais   | بوفيه        | DRAFT  |
+| `as-gabes`                        | AS Gabès                        | ASG        | مستقبل قابس  | DRAFT  |
+| `as-roma`                         | AS Roma                         | Roma       | روما         | DRAFT  |
+| `as-saint-etienne`                | AS Saint-Étienne                | ASSE       | سانت إتيان   | DRAFT  |
+| `as-valence`                      | AS Valence                      | Valence    | فالنس        | DRAFT  |
+| `beijing-guoan-f-c`               | Beijing Guoan F.C.              | Guoan      | غوان         | DRAFT  |
+| `bologna-f-c-1909`                | Bologna F.C. 1909               | Bologna    | بولونيا      | DRAFT  |
+| `brighton-hove-albion-f-c`        | Brighton & Hove Albion F.C.     | Brighton   | برايتون      | DRAFT  |
+| `burnley-f-c`                     | Burnley F.C.                    | Burnley    | بيرنلي       | DRAFT  |
+| `c-d-nacional`                    | C.D. Nacional                   | Nacional   | ناسيونال     | DRAFT  |
+| `cavalry-fc`                      | Cavalry FC                      | Cavalry    | كافالري      | DRAFT  |
+| `cd-leganes`                      | CD Leganés                      | Leganés    | ليغانيس      | DRAFT  |
+| `celtic-f-c`                      | Celtic F.C.                     | Celtic     | سلتيك        | DRAFT  |
+| `cr-belouizdad`                   | CR Belouizdad                   | CRB        | بلوزداد      | DRAFT  |
+| `cracovia`                        | Cracovia                        | Cracovia   | كراكوفيا     | DRAFT  |
+| `dijon-fco`                       | Dijon FCO                       | Dijon      | ديجون        | DRAFT  |
+| `diyala-fc`                       | Diyala FC                       | Diyala     | ديالى        | DRAFT  |
+| `egs-gafsa`                       | EGS Gafsa                       | EGSG       | القوافل      | DRAFT  |
+| `emirates-club`                   | Emirates Club                   | Emirates   | الإمارات     | DRAFT  |
+| `enppi-sc`                        | ENPPI SC                        | ENPPI      | إنبي         | DRAFT  |
+| `es-cannet-rocheville`            | ES Cannet Rocheville            | ESCR       | كاني         | DRAFT  |
+| `f-c-lorient`                     | F.C. Lorient                    | Lorient    | لوريان       | DRAFT  |
+| `fc-cska-1948-sofia`              | FC CSKA 1948 Sofia              | CSKA 1948  | سسكا 1948    | DRAFT  |
+| `fc-girondins-de-bordeaux`        | FC Girondins de Bordeaux        | FCGB       | بوردو        | DRAFT  |
+| `fc-hammamet`                     | FC Hammamet                     | FCH        | الحمامات     | DRAFT  |
+| `fc-nantes`                       | FC Nantes                       | Nantes     | نانت         | DRAFT  |
+| `fc-nouadhibou`                   | FC Nouadhibou                   | FCN        | نواذيبو      | DRAFT  |
+| `fc-shakhtar-donetsk`             | FC Shakhtar Donetsk             | Shakhtar   | شاختار       | DRAFT  |
+| `fc-sochaux-montbeliard`          | FC Sochaux-Montbéliard          | Sochaux    | سوشو         | DRAFT  |
+| `fc-vihren-sandanski`             | FC Vihren Sandanski             | Vihren     | فيهرين       | DRAFT  |
+| `gamba-osaka`                     | Gamba Osaka                     | Gamba      | غامبا        | DRAFT  |
+| `ghazl-el-mahalla-sc`             | Ghazl El Mahalla SC             | Ghazl      | غزل المحلة   | DRAFT  |
+| `halmstads-bk`                    | Halmstads BK                    | HBK        | هالمستاد     | DRAFT  |
+| `hassania-agadir`                 | Hassania Agadir                 | HUSA       | حسنية        | DRAFT  |
+| `hatta-club`                      | Hatta Club                      | Hatta      | حتا          | DRAFT  |
+| `hertha-bsc-ii`                   | Hertha BSC II                   | Hertha II  | هيرتا        | DRAFT  |
+| `if-brommapojkarna`               | IF Brommapojkarna               | BP         | برومّا       | DRAFT  |
+| `ifk-haninge-brandbergen`         | IFK Haninge/Brandbergen         | Haninge    | هانينغه      | DRAFT  |
+| `ifk-norrkoping`                  | IFK Norrköping                  | IFK        | نورشوبنغ     | DRAFT  |
+| `js-kairouan`                     | JS Kairouan                     | JSK        | الشبيبة      | DRAFT  |
+| `k-beerschot-va`                  | K Beerschot VA                  | KBVA       | بيرشوت       | DRAFT  |
+| `karlsruher-sc`                   | Karlsruher SC                   | KSC        | كارلسروه     | DRAFT  |
+| `kas-mpasa-s-k`                   | Kasımpaşa S.K.                  | KSK        | قاسم باشا    | DRAFT  |
+| `kuwait-sc`                       | Kuwait SC                       | Kuwait SC  | الكويت       | DRAFT  |
+| `leyton-orient-f-c`               | Leyton Orient F.C.              | Orient     | أورينت       | DRAFT  |
+| `muglaspor`                       | Muğlaspor                       | Muğla      | موغلا        | DRAFT  |
+| `naft-maysan`                     | Naft Maysan                     | Naft       | نفط ميسان    | DRAFT  |
+| `najaf-fc`                        | Najaf FC                        | Najaf      | النجف        | DRAFT  |
+| `nashville-sc`                    | Nashville SC                    | NSC        | ناشفيل       | DRAFT  |
+| `norwich-city-f-c`                | Norwich City F.C.               | Norwich    | نورويتش      | DRAFT  |
+| `ogc-nice`                        | OGC Nice                        | Nice       | نيس          | DRAFT  |
+| `olympic-azzaweya-s-c`            | Olympic Azzaweya S.C.           | Zawiya     | الزاوية      | DRAFT  |
+| `olympique-ales`                  | Olympique Alès                  | Alès       | أليس         | DRAFT  |
+| `pfc-ludogorets-1945`             | PFC Ludogorets 1945             | Razgrad    | رازغراد      | DRAFT  |
+| `r-e-virton`                      | R.E. Virton                     | Virton     | فيرتون       | DRAFT  |
+| `raja-club-athletic`              | Raja Club Athletic              | Raja       | الرجاء       | DRAFT  |
+| `red-star-f-c`                    | Red Star F.C.                   | Red Star   | ريد ستار     | DRAFT  |
+| `riga-fc`                         | Riga FC                         | Riga FC    | ريغا         | DRAFT  |
+| `rs-berkane`                      | RS Berkane                      | Berkane    | بركان        | DRAFT  |
+| `s-l-benfica`                     | S.L. Benfica                    | Benfica    | بنفيكا       | DRAFT  |
+| `san-diego-fc`                    | San Diego FC                    | San Diego  | سان دييغو    | DRAFT  |
+| `servette-fc`                     | Servette FC                     | Servette   | سيرفيت       | DRAFT  |
+| `sheffield-wednesday-f-c`         | Sheffield Wednesday F.C.        | SWFC       | شيفيلد       | DRAFT  |
+| `stade-africain-menzel-bourguiba` | Stade Africain Menzel Bourguiba | SAMB       | منزل بورقيبة | DRAFT  |
+| `stade-gabesien`                  | Stade Gabèsien                  | SG         | ستاد قابس    | DRAFT  |
+| `sv-wacker-burghausen`            | SV Wacker Burghausen            | Wacker     | فاكر         | DRAFT  |
+| `tremblay-en-france`              | Tremblay-en-France              | TFC        | تريمبلي      | DRAFT  |
+| `umm-salal-sc`                    | Umm Salal SC                    | Umm Salal  | أم صلال      | DRAFT  |
+| `us-creteil-lusitanos`            | US Créteil-Lusitanos            | Créteil    | كريتيل       | DRAFT  |
+| `us-tataouine`                    | US Tataouine                    | UST        | تطاوين       | DRAFT  |
+| `usl-dunkerque`                   | USL Dunkerque                   | USLD       | دونكيرك      | DRAFT  |
+| `vancouver-whitecaps-fc`          | Vancouver Whitecaps FC          | VWFC       | فانكوفر      | DRAFT  |
+| `viborg-ff`                       | Viborg FF                       | Viborg     | فيبورج       | DRAFT  |
+| `wadi-degla-sc`                   | Wadi Degla SC                   | Wadi Degla | وادي دجلة    | DRAFT  |
+| `zakho-s-c`                       | Zakho S.C.                      | Zakho      | زاخو         | DRAFT  |
+
+### Task 6: the hub says what is left today
+
+The line under each live hub card (M6), read from the visitor's device: today's Chkoun? (not yet, in progress, found or missed, with the puzzle number and the streak) and today's 30–0 record. Reused, not duplicated: `hub.language` (the hub's new language menu) and the language names of the switcher. The number `#27`, the score `3/8` and the record `21-5-4` read left to right inside an Arabic line, in Western digits. Points to check:
+
+- `hub.state.seasonNotYet` in `ar-Latn-TN`: `mousem` as in `season.hall.empty`, against the plan's `mawsem`.
+- `hub.state.streak` in `ar-Latn-TN` keeps the French « Série », as `chkoun.stats.streak` does there; a Derja word (`Silsla`) may read better.
+- `hub.state.notYet` and `hub.state.seasonNotYet`: مازلت ما لعبتش (you have not played yet) against a shorter ما لعبتش.
+
+| Key                      | English gloss                                        | French draft                     | `ar-TN` as shipped             | `ar-Latn-TN` as shipped              | Status |
+| ------------------------ | ---------------------------------------------------- | -------------------------------- | ------------------------------ | ------------------------------------ | ------ |
+| `hub.state.notYet`       | #27 · not played yet (Chkoun? card)                  | #{n} · pas encore joué           | #{n} · مازلت ما لعبتش          | #{n} · mazelt ma l3abtech            | DRAFT  |
+| `hub.state.playing`      | #27 · in progress, 2/8                               | #{n} · en cours, {guesses}/8     | #{n} · مازلت تلعب، {guesses}/8 | #{n} · mazelt tel3eb, {guesses}/8    | DRAFT  |
+| `hub.state.won`          | #27 · found in 3/8                                   | #{n} · trouvé en {score}         | #{n} · لقيتو في {score}        | #{n} · l9itou fi {score}             | DRAFT  |
+| `hub.state.lost`         | #27 · missed, X/8                                    | #{n} · raté, X/8                 | #{n} · ما لقيتوش، X/8          | #{n} · ma l9itouch, X/8              | DRAFT  |
+| `hub.state.streak`       | Streak: 2 (under the Chkoun? line while it is alive) | Série : {n}                      | السلسلة: {n}                   | Série: {n}                           | DRAFT  |
+| `hub.state.seasonNotYet` | No season played today (30–0 card)                   | Pas encore de saison aujourd'hui | مازلت ما لعبت حتى موسم اليوم   | Mazelt ma l3abt 7atta mousem el youm | DRAFT  |
+| `hub.state.seasonPlayed` | Today: 21-5-4 (the last season played today)         | Aujourd'hui : {w}-{d}-{l}        | اليوم: {w}-{d}-{l}             | El youm: {w}-{d}-{l}                 | DRAFT  |
+
+### Task 7: yesterday's footballer
+
+A visitor who has finished today's Chkoun? can play yesterday's footballer from a link on the result (M7); the game does not count in the record, and the share text marks the score line with the word for "yesterday". البارح / lbare7 is the Tunisian "yesterday" (not the Modern Standard الأمس). Reused, not duplicated: the header's back link, `hub.language` and the language names; the meta description is `chkoun.meta.description`. Points to check:
+
+- French says « footballeur » here, as the plan drafted it, while the game's other French strings say « joueur » (`chkoun.next`, `chkoun.search.label`); « Le joueur d'hier » would match them.
+- `chkoun.yesterday.note` in `ar-Latn-TN` keeps the French « série », as `chkoun.stats.streak` does there.
+- `chkoun.yesterday.back`: ارجع للاعب اليوم against a shorter لاعب اليوم.
+
+| Key                           | English gloss                                                        | French draft                                      | `ar-TN` as shipped                | `ar-Latn-TN` as shipped                 | Status |
+| ----------------------------- | -------------------------------------------------------------------- | ------------------------------------------------- | --------------------------------- | --------------------------------------- | ------ |
+| `chkoun.yesterday.link`       | Play yesterday's footballer (a link on today's result)               | Jouer le footballeur d'hier                       | العب لاعب البارح                  | El3ab la3eb lbare7                      | DRAFT  |
+| `chkoun.yesterday.title`      | Yesterday's footballer (the page's title line)                       | Le footballeur d'hier                             | لاعب البارح                       | La3eb lbare7                            | DRAFT  |
+| `chkoun.yesterday.note`       | Just for fun: it does not count in your streak.                      | Pour le plaisir : ça ne compte pas dans ta série. | للمتعة برك: ما يتحسبش في السلسلة. | Lel mot3a bark: ma yet7sebch fel série. | DRAFT  |
+| `chkoun.yesterday.back`       | Back to today's footballer                                           | Retour au footballeur du jour                     | ارجع للاعب اليوم                  | Arja3 l la3eb el youm                   | DRAFT  |
+| `chkoun.yesterday.closed`     | Yesterday's footballer is no longer available.                       | Le footballeur d'hier n'est plus disponible.      | لاعب البارح موش موجود توّا.       | La3eb lbare7 mouch mawjoud tawa.        | DRAFT  |
+| `chkoun.yesterday.meta.title` | The page's title in the browser tab                                  | Le footballeur d'hier · C'est qui ? · Kora        | لاعب البارح · شكون؟ · Kora        | La3eb lbare7 · Chkoun? · Kora           | DRAFT  |
+| `chkoun.share.yesterday`      | yesterday (after the score in the share text: #26 · 4/8 · yesterday) | hier                                              | البارح                            | lbare7                                  | DRAFT  |
+
+### Task 8: the first letter after the 5th guess
+
+From the 5th guess on, a line under the guess counter gives the first letter of the footballer's name in the page's name form (M8): Arabic on /ar, French on /fr, Latin on /tn, the Latin one where a form is missing; the share text then marks a win after the 5th guess with 💡 on the score line (no word, so no string). عاونة / `3awna` is the Tunisian "a bit of help". Points to check:
+
+- `ar-TN`: the plan drafted اسمو يبدا بـ{letter}; it shipped as اسمو يبدا بحرف {letter} because بـ joins a letter such as أ into one word on screen (بأ), and the letter must stand alone.
+- French: « son nom » is the full name as the search lists it (the given name first, so « Ellyes Skhiri » gives E); « son prénom » would say it more exactly but is wrong for a footballer known by one name.
+
+| Key                 | English gloss                                     | French draft                                     | `ar-TN` as shipped             | `ar-Latn-TN` as shipped       | Status |
+| ------------------- | ------------------------------------------------- | ------------------------------------------------ | ------------------------------ | ----------------------------- | ------ |
+| `chkoun.hint.label` | A bit of help: his name starts with {letter} (M8) | Un coup de pouce : son nom commence par {letter} | عاونة: اسمو يبدا بحرف {letter} | 3awna: esmou yebda b {letter} | DRAFT  |
+
+### Open wording questions (all tasks, deduplicated)
+
+Gathered from the task sections above and the task reports' notes for Jalel; each key appears once. The strings ship as drafted until he corrects them.
+
+- **French: « footballeur » or « joueur ».** `chkoun.help.goal`, `chkoun.help.daily` and every `chkoun.yesterday.*` say « footballeur »; `chkoun.help.example`, `season.help.*`, `chkoun.next` and `chkoun.search.label` say « joueur ». « Le joueur d'hier » would match the game's older strings.
+- `header.help`: « Comment jouer » against « Règles » (and كيفاش تلعب / `Kifech tel3eb`).
+- `header.stats`: « Tes stats » / الأرقام متاعك against a word for "your record".
+- `hub.language`, reused in the header's language menu, reads "Langue: Français" in French; French spacing wants « Langue : Français ».
+- `season.help.draft`: عشرية as `3ochriya` against `3achriya` in `season.rules`; and على الأكثر / `3al akther` (leaning towards Modern Standard Arabic) against the shipped ولا أقل / `wala a9al`.
+- `chkoun.help.example`: `akber` against `akbar` in `chkoun.tiles.older`; `el ashem` for السهم, which may want `es-sahm`.
+- `chkoun.help.tiles`: the birthplace is وين تولد / `win tweled` / lieu de naissance, while its column is headed مولود في / `Mawloud fi` / Né à.
+- `chkoun.help.goal` repeats `chkoun.rules` word for word in `ar-TN` and `ar-Latn-TN`: correct both together.
+- `chkoun.stats.distribution`: حسب and عدد lean towards Modern Standard Arabic.
+- `chkoun.stats.bar` (screen readers only): the noun-free form « Essais : {n}, victoires : {count} » / محاولات: {n}، ربحات: {count} replaced the plan's « En {n} essais », which was wrong in the singular and the dual (محاولتين).
+- `season.loading`: الأولى / `el oula` against the spoken اللولة / `el loula`.
+- `season.result.allMatches`: the button keeps "see all 30" once the list is open.
+- **Short position forms** (`positions.short.*`): « Déf. » and « Att. » in French because the full words do not fit a six-column tile; حارس، مدافع، وسط، مهاجم and `7ares`, `Mdafe3`, `Wost`, `Mhajem` in Derja. `chkoun.tiles.capsShort`: « Sél. » against « Sélec. ».
+- **Short club labels** (`data/curated/club-short.json`): بن ڤردان with the Tunisian ڤ; حمام سوسة and حمام الأنف (the towns) against a nickname; العمران and ساقية الدائر; and among the others FCH and الحمامات (FC Hammamet, added with the 31 October pool), ألبا (Albalonga), نورشوبنغ (Norrköping), BP, Razgrad, KSK.
+- `hub.state.seasonNotYet`: `mousem` against `mawsem`; `hub.state.notYet` and `hub.state.seasonNotYet`: مازلت ما لعبتش against a shorter ما لعبتش.
+- **« Série » on /tn**: `hub.state.streak` and `chkoun.yesterday.note` keep the French word, as `chkoun.stats.streak` does; a Derja word (`Silsla`) may read better.
+- `chkoun.yesterday.back`: ارجع للاعب اليوم against a shorter لاعب اليوم.
+- **The hint** (`chkoun.hint.label`): عاونة / `3awna` against مساعدة (closer to Modern Standard Arabic; the plan's recommendation is عاونة); بحرف {letter} against the plan's بـ{letter} (بـ joins a letter such as أ into one word); « son nom » against « son prénom » in French.
+
 ## Go-live checklist (Chkoun?)
 
 The game page is reachable by its URL but hidden until all of these are done, in this order:

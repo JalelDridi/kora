@@ -6,6 +6,7 @@ import {
   clearDraft,
   loadDraftView,
   saveDraft,
+  saveLast,
   saveSeason,
 } from "@/season/device";
 import type { DeviceSeason, DraftView } from "@/season/device";
@@ -15,6 +16,7 @@ import { track } from "@/analytics/events";
 import { format } from "@/chkoun/labels";
 import type { Locale } from "@/i18n/locales";
 import type fr from "../../../messages/fr.json";
+import { Dialog } from "../dialog";
 import { Board } from "./board";
 import { Hall } from "./hall";
 import { Pitch } from "./pitch";
@@ -31,6 +33,8 @@ type Props = {
   prefix: string;
   /** The site's address for the shared replay link (site.url). */
   shareOrigin: string;
+  /** The header's record dialog: its title and its close button's name. */
+  dialog: { title: string; close: string };
 };
 
 /** idle → drafting → complete → simulated. */
@@ -150,6 +154,7 @@ export function SeasonIsland({
   strings: t,
   prefix,
   shareOrigin,
+  dialog,
 }: Props) {
   const [phase, setPhase] = useState<Phase>("idle");
   const [view, setView] = useState<DraftView | null>(null);
@@ -284,7 +289,7 @@ export function SeasonIsland({
         rating: season.rating,
         locale,
       });
-      saveSeason({
+      const entry: DeviceSeason = {
         day: answer.view.day,
         xi: answer.view.code,
         w: season.w,
@@ -294,7 +299,10 @@ export function SeasonIsland({
         rating: season.rating,
         replaces: season.replaces,
         at: new Date().toISOString(),
-      });
+      };
+      saveSeason(entry);
+      // The hub's 30–0 card says what was played today (M6).
+      saveLast(entry);
       setHall(bestSeasons());
       setPlayed(answer.view);
       setLastCode(answer.view.code);
@@ -327,6 +335,21 @@ export function SeasonIsland({
 
   return (
     <div className="mt-8 grid gap-6 lg:grid-cols-2 lg:items-start">
+      {/* The header's stats button: the best seasons on this device (M3). */}
+      <Dialog
+        id="season-stats"
+        name="stats"
+        title={dialog.title}
+        close={dialog.close}
+      >
+        {hall.length > 0 ? (
+          <Hall seasons={hall} prefix={prefix} strings={t} compact />
+        ) : (
+          <p data-hall-empty="" className="text-base">
+            {t.hall.empty}
+          </p>
+        )}
+      </Dialog>
       <div className="flex flex-col gap-3">
         <div
           className={
@@ -351,6 +374,13 @@ export function SeasonIsland({
             >
               {t.error.retry}
             </button>
+          ) : null}
+          {reserve && !spin && !notice ? (
+            // Until the first spin arrives (the server renders this), the
+            // reserved area says something is coming (mobile polish §2.12).
+            <p data-spin-loading="" className="text-lg text-chalk-dim">
+              {t.loading}
+            </p>
           ) : null}
           {spin ? (
             <SpinPanel

@@ -2,11 +2,13 @@ import { describe, expect, it } from "vitest";
 import type { Tile } from "@/engine/chkoun/types.ts";
 import type { GovernorateRow, Pool } from "@/pipeline/types.ts";
 import {
+  type TileColumn,
   birthText,
   buildLabels,
   format,
   frenchCountryName,
   localName,
+  shortName,
   shownCountryCodes,
   tileText,
 } from "./labels";
@@ -60,6 +62,12 @@ const strings = {
     defender: "D",
     midfielder: "M",
     forward: "F",
+  },
+  positionsShort: {
+    goalkeeper: "Gk",
+    defender: "Df",
+    midfielder: "Mf",
+    forward: "Fw",
   },
   caps: {
     band0: "0",
@@ -139,11 +147,11 @@ describe("labels", () => {
     expect(tileText("club", tile("est"), labels, strings).text).toBe(
       "Espérance de Tunis",
     );
-    expect(tileText("club", tile(null), labels, strings)).toEqual({
+    expect(tileText("club", tile(null), labels, strings)).toMatchObject({
       text: "?",
       label: "No club",
     });
-    expect(tileText("caps", tile(null), labels, strings)).toEqual({
+    expect(tileText("caps", tile(null), labels, strings)).toMatchObject({
       text: "?",
       label: null,
     });
@@ -163,8 +171,110 @@ describe("labels", () => {
     ).toBe("Abroad: Allemagne");
   });
 
+  it("a tile shows the short value; the full value stays in title and screen-reader text", () => {
+    const labels = {
+      clubs: { est: "Espérance Sportive de Tunis" },
+      short: { est: "EST" },
+      governorates: { tunis: "Tunis" },
+      countries: { SA: "Arabie saoudite", FR: "France" },
+    };
+    const t = (column: TileColumn, value: string | number | null) =>
+      tileText(column, { colour: "grey", arrow: null, value }, labels, strings);
+    expect(t("club", "est")).toEqual({
+      text: "Espérance Sportive de Tunis",
+      short: "EST",
+      label: null,
+    });
+    expect(t("club", "unknown-club").short).toBe("unknown-club");
+    expect(t("country", "FR").short).toBe("France");
+    expect(t("country", "SA").short).toBe("SA");
+    expect(t("position", "midfielder").short).toBe(
+      strings.positionsShort.midfielder,
+    );
+    expect(t("position", "midfielder").text).toBe(strings.positions.midfielder);
+    expect(t("age", 27).short).toBe("27");
+    expect(t("caps", 2).short).toBe("10-29");
+    // A birthplace abroad shows the country only; the words keep "Abroad".
+    expect(t("governorate", "abroad:FR")).toEqual({
+      text: "Abroad: France",
+      short: "France",
+      label: null,
+    });
+    expect(t("governorate", "abroad:SA")).toEqual({
+      text: "Abroad: Arabie saoudite",
+      short: "SA",
+      label: null,
+    });
+    expect(t("governorate", "gov:tunis").short).toBe("Tunis");
+    expect(t("club", null)).toEqual({
+      text: "?",
+      short: "?",
+      label: "No club",
+    });
+  });
+
+  it("short club labels: Arabic on /ar, Latin on /tn and /fr, only for clubs shown", () => {
+    const short = {
+      est: { latin: "EST", arabic: "الترجي" },
+      gone: { latin: "G", arabic: "غ" },
+    };
+    // abroad-fc has no curated label: its Latin name, "abroad-fc Latin", has
+    // a word of 9 characters, so it gets its initials (it has no Arabic name).
+    // A label equal to the name it shortens is left out: the tile prints the name.
+    expect(buildLabels(pool, governorates, "ar-TN", {}, short).short).toEqual({
+      "abroad-fc": "AFL",
+    });
+    expect(
+      buildLabels(pool, governorates, "ar-Latn-TN", {}, short).short,
+    ).toEqual({
+      est: "EST",
+      "abroad-fc": "AFL",
+    });
+    // "Abroad FC fr" has three words: its initials. "Espérance de Tunis"
+    // too, without the curated label.
+    expect(buildLabels(pool, governorates, "fr", null, short).short).toEqual({
+      est: "EST",
+      "abroad-fc": "AFCF",
+    });
+    expect(buildLabels(pool, governorates, "fr", null).short).toEqual({
+      est: "ET",
+      "abroad-fc": "AFCF",
+    });
+  });
+
+  it("a club without a curated label gets an automatic one; the curated one wins", () => {
+    const long = {
+      ...pool,
+      clubs: pool.clubs.map((c) =>
+        c.id === "est"
+          ? {
+              ...c,
+              nameLatin: "Club Sportif de Hammam-Lif",
+              nameArabic: "الملعب الرياضي القابسي الكبير",
+            }
+          : c,
+      ),
+    } as Pool;
+    expect(buildLabels(long, governorates, "ar-Latn-TN", {}).short.est).toBe(
+      "CSHL",
+    );
+    expect(buildLabels(long, governorates, "ar-TN", {}).short.est).toBe(
+      "الملعب",
+    );
+    const curated = { est: { latin: "Hammam", arabic: "الحمام" } };
+    expect(
+      buildLabels(long, governorates, "ar-Latn-TN", {}, curated).short.est,
+    ).toBe("Hammam");
+    expect(
+      buildLabels(long, governorates, "ar-TN", {}, curated).short.est,
+    ).toBe("الحمام");
+    expect(shortName({}, "x", "fr", "FC Hammamet")).toBe("FCH");
+    expect(shortName({}, "x", "fr", "AS Gabès")).toBe("AS Gabès");
+    expect(shortName({}, "x", "fr", "Haninge/Brandbergen")).toBe("HB");
+  });
+
   it("a code missing from the tables prints as itself, never as nothing", () => {
-    const labels = { clubs: {}, governorates: {}, countries: {} };
+    const labels = { clubs: {}, short: {}, governorates: {}, countries: {} };
     expect(birthText("abroad:XK", labels, strings)).toBe("Abroad: XK");
     expect(tileText("club", tile("gone"), labels, strings).text).toBe("gone");
   });

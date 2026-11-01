@@ -6,14 +6,21 @@ type Props = {
   label: string;
   /** The same page in each language: "" for the hub, "/chkoun". */
   path?: string;
+  /** Placement on the page, such as the foot of a game page. */
+  className?: string;
 };
 
 // On a narrow screen or with large text the row wraps instead of scrolling
 // sideways (WCAG 1.4.10). No prefetch: few visitors switch, and a full load
 // is the surest way to swap <html lang dir>.
-export function LanguageSwitcher({ current, label, path = "" }: Props) {
+export function LanguageSwitcher({
+  current,
+  label,
+  path = "",
+  className = "",
+}: Props) {
   return (
-    <nav aria-label={label} className="max-w-full">
+    <nav aria-label={label} className={`max-w-full ${className}`.trim()}>
       <ul className="flex flex-wrap justify-end gap-1 rounded-3xl bg-pitch-800 p-1">
         {locales.map((locale) => (
           <li key={locale}>

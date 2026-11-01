@@ -1,10 +1,10 @@
 import AxeBuilder from "@axe-core/playwright";
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test, type Locator, type Page } from "@playwright/test";
 import arLatnTN from "../messages/ar-Latn-TN.json";
 import arTN from "../messages/ar-TN.json";
 import fr from "../messages/fr.json";
 import { localeInfo, locales } from "../src/i18n/locales";
-import { noSidewaysScroll, shot } from "./chkoun-helpers";
+import { noSidewaysScroll, shot, skipHelp } from "./chkoun-helpers";
 
 // The 30–0 draft page on the built server (Redis off: no rate limit, the
 // draft lives in its signed token). Each test has its own browser context,
@@ -15,8 +15,17 @@ const fill = (s: string, values: Record<string, string | number>) =>
   s.replace(/\{(\w+)\}/g, (_, k: string) => String(values[k]));
 const escape = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
+/** The dialog has finished rising in, so axe reads its final colours. */
+const settled = (dialog: Locator) =>
+  dialog.evaluate((d) => Promise.all(d.getAnimations().map((a) => a.finished)));
 const axe = async (page: Page) =>
   (await new AxeBuilder({ page }).analyze()).violations;
+
+// Every test starts with the help already seen, but the first-visit ones.
+const FIRST_VISIT = "on a first visit";
+test.beforeEach(async ({ page }, info) => {
+  if (!info.titlePath.includes(FIRST_VISIT)) await skipHelp(page);
+});
 
 for (const locale of locales) {
   const { prefix } = localeInfo[locale];
@@ -28,6 +37,51 @@ for (const locale of locales) {
     page.getByRole("button", { name: new RegExp(escape(t.pick)) });
   const spinning = async (page: Page, n: number) =>
     expect(page.getByText(fill(t.slot, { n }))).toBeVisible();
+
+  test.describe(FIRST_VISIT, () => {
+    test(`${url}: the help opens on the first visit only, traps focus, closes on Escape, reopens from ?`, async ({
+      page,
+    }) => {
+      await page.setViewportSize({ width: 320, height: 800 });
+      await page.goto(url);
+      const help = page.getByRole("dialog", {
+        name: messages[locale].header.help,
+      });
+      await expect(help).toBeVisible();
+      expect(await noSidewaysScroll(page)).toBe(0);
+      for (const line of [t.help.draft, t.help.respin, t.help.play])
+        await expect(help.getByText(line)).toBeVisible();
+      // Focus never leaves the dialog, Tab after Tab.
+      for (let i = 0; i < 6; i++) {
+        await page.keyboard.press("Tab");
+        expect(
+          await help.evaluate((d) => d.contains(document.activeElement)),
+          `after Tab ${i + 1}`,
+        ).toBe(true);
+      }
+      await page.keyboard.press("Escape");
+      await expect(help).toBeHidden();
+      await page.reload();
+      await spinning(page, 1);
+      await expect(help).toBeHidden();
+      const button = page.getByRole("button", {
+        name: messages[locale].header.help,
+      });
+      await button.click();
+      await expect(help).toBeVisible();
+      expect(await axe(page)).toEqual([]);
+      await help
+        .getByRole("button", { name: messages[locale].header.close })
+        .click();
+      await expect(button).toBeFocused();
+    });
+  });
+
+  test(`${url}: the rules prose is no longer on the page`, async ({ page }) => {
+    await page.goto(url);
+    await spinning(page, 1);
+    await expect(page.locator("main").getByText(t.rules)).toBeHidden();
+  });
 
   test(`${url} drafts eleven at 320 px`, async ({ page }) => {
     await page.setViewportSize({ width: 320, height: 640 });
@@ -148,10 +202,12 @@ for (const locale of locales) {
     const html = await (await request.get(url)).text();
     const noscript = /<noscript>([\s\S]*?)<\/noscript>/.exec(html)?.[1];
     expect(noscript).toContain(t.noscript);
+    // The rules prose lives only there now: the help dialog explains the game.
+    expect(noscript).toContain(t.rules);
     const context = await browser.newContext({ javaScriptEnabled: false });
     const page = await context.newPage();
     await page.goto(url);
-    await expect(page.getByText(t.rules)).toBeVisible();
+    await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
     await context.close();
   });
 
@@ -266,6 +322,53 @@ for (const locale of locales) {
     });
   });
 
+  test(`${url} the stats button opens the hall of best seasons`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 360, height: 800 });
+    await page.goto(url);
+    await spinning(page, 1);
+    const button = page
+      .locator("body > div header")
+      .first()
+      .getByRole("button", { name: messages[locale].header.stats });
+    const dialog = page.getByRole("dialog", {
+      name: messages[locale].header.stats,
+    });
+    // Before any season: nothing kept on this device yet.
+    await button.click();
+    await expect(dialog).toBeVisible();
+    await expect(dialog.getByText(t.hall.empty)).toBeVisible();
+    await settled(dialog);
+    expect(await axe(page)).toEqual([]);
+    await page.screenshot({ path: shot(3, slug, 360, "hall-empty") });
+    await page.keyboard.press("Escape");
+    await expect(dialog).toBeHidden();
+    // After a season: the hall, one row, its replay link.
+    await playSeason(page);
+    await button.click();
+    const hall = dialog.getByRole("table", { name: t.hall.title });
+    await expect(hall.locator("tbody tr")).toHaveCount(1);
+    await expect(
+      hall.locator("tbody tr").first().getByRole("link"),
+    ).toHaveAttribute("href", new RegExp(`^${prefix}/season/r/`));
+    await settled(dialog);
+    expect(await axe(page)).toEqual([]);
+    for (const width of [320, 360, 412]) {
+      await page.setViewportSize({ width, height: 800 });
+      expect(await noSidewaysScroll(page)).toBe(0);
+      // The table fits the dialog: nothing cut off at its end.
+      expect(
+        await hall.evaluate(
+          (table) => table.scrollWidth - table.parentElement!.clientWidth,
+        ),
+      ).toBeLessThanOrEqual(0);
+      await page.screenshot({ path: shot(3, slug, width, "hall") });
+    }
+    await page.keyboard.press("Escape");
+    await expect(dialog).toBeHidden();
+  });
+
   test(`${url} draft, re-spin, play, share, at 320 px in three locales, axe clean at each state`, async ({
     page,
   }) => {
@@ -327,6 +430,133 @@ for (const locale of locales) {
     });
   });
 
+  test(`${url}: the result shows 5 matches, then all 30 behind one button`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 360, height: 800 });
+    await page.goto(url);
+    for (let slot = 0; slot < 11; slot++) {
+      await spinning(page, slot + 1);
+      await pickButtons(page).first().click();
+    }
+    await page.getByRole("button", { name: t.play }).click();
+    await expect(page.locator("#season-result")).toBeVisible();
+    const matches = page
+      .getByRole("list", { name: t.result.matches })
+      .getByRole("listitem");
+    await expect(matches.filter({ visible: true })).toHaveCount(5);
+    await expect(matches.first()).toContainText(fill(t.result.round, { n: 1 }));
+    const more = page.getByText(t.result.allMatches, { exact: true });
+    await expect(more).toBeVisible();
+    expect(await axe(page)).toEqual([]);
+    expect(await noSidewaysScroll(page)).toBe(0);
+    await page.screenshot({
+      path: shot(4, slug, 360, "season-result"),
+      fullPage: true,
+    });
+    await more.click();
+    await expect(matches.filter({ visible: true })).toHaveCount(30);
+    await expect(matches.nth(5)).toContainText(fill(t.result.round, { n: 6 }));
+    expect(await axe(page)).toEqual([]);
+  });
+
+  test(`${url}: the first five matches break club names between words only, at 320, 360 and 412 px`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 360, height: 800 });
+    await page.goto(url);
+    for (let slot = 0; slot < 11; slot++) {
+      await spinning(page, slot + 1);
+      await pickButtons(page).first().click();
+    }
+    await page.getByRole("button", { name: t.play }).click();
+    await expect(page.locator("#season-result")).toBeVisible();
+    for (const width of [320, 360, 412]) {
+      await page.setViewportSize({ width, height: 800 });
+      // Each word of an opponent's name on one line, nothing overflowing,
+      // and the score never wraps.
+      const bad = await page.evaluate(() => {
+        const out: string[] = [];
+        const cells = [...document.querySelectorAll("[data-opponent]")].filter(
+          (e) => e.checkVisibility(),
+        );
+        if (cells.length !== 5) out.push(`${cells.length} visible matches`);
+        for (const el of cells) {
+          if (el.scrollWidth > el.clientWidth + 1)
+            out.push(`overflow: ${el.textContent}`);
+          const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+          for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+            // Hidden at this width, or the screen-reader copy (1 px wide).
+            const parent = node.parentElement as HTMLElement;
+            if (
+              !parent.checkVisibility() ||
+              parent.getBoundingClientRect().width <= 1
+            )
+              continue;
+            const text = node.textContent ?? "";
+            // A word ends at a space or a hyphen ("Hammam-Sousse").
+            for (const m of text.matchAll(/[^\s-]+/g)) {
+              const range = document.createRange();
+              range.setStart(node, m.index!);
+              range.setEnd(node, m.index! + m[0].length);
+              const lines = new Set(
+                [...range.getClientRects()].map((r) => Math.round(r.top)),
+              );
+              if (lines.size > 1) out.push(m[0]);
+            }
+          }
+        }
+        for (const score of [
+          ...document.querySelectorAll("[data-score]"),
+        ].filter((e) => e.checkVisibility())) {
+          const lines = new Set(
+            [...score.getClientRects()].map((r) => Math.round(r.top)),
+          );
+          if (lines.size > 1) out.push(`score wraps: ${score.textContent}`);
+        }
+        return out;
+      });
+      expect(bad, `${width} px`).toEqual([]);
+      expect(await noSidewaysScroll(page)).toBe(0);
+      await page.evaluate(() =>
+        window.scrollBy(
+          0,
+          document.querySelector("#season-matches")!.getBoundingClientRect()
+            .top - 16,
+        ),
+      );
+      await page.screenshot({
+        path: shot(5, slug, width, "season-matches"),
+      });
+    }
+  });
+
+  test(`${url}: the spin area says it is loading until the first spin`, async ({
+    page,
+  }) => {
+    // One column at 360 px: the reserved spin area comes before the pitch.
+    await page.setViewportSize({ width: 360, height: 800 });
+    let release: () => void = () => {};
+    const held = new Promise<void>((resolve) => (release = resolve));
+    await page.route("**/api/season/draft", async (route) => {
+      await held;
+      await route.continue();
+    });
+    await page.goto(url);
+    const loading = page.getByText(t.loading, { exact: true });
+    await expect(loading).toBeVisible();
+    // It sits in the reserved spin area, above the pitch, on the first screen.
+    expect((await loading.boundingBox())!.y).toBeLessThan(800);
+    const pitch = page.getByRole("region", { name: t.squad });
+    await expect(pitch).toBeAttached();
+    expect((await loading.boundingBox())!.y).toBeLessThan(
+      (await pitch.boundingBox())!.y,
+    );
+    release();
+    await spinning(page, 1);
+    await expect(loading).toHaveCount(0);
+  });
+
   for (const width of [1280, 320]) {
     test(`${url} screenshots at ${width} px: idle, spinning, drafted`, async ({
       page,
@@ -365,6 +595,30 @@ for (const locale of locales) {
     });
   }
 }
+
+test("the help never opens over a draft already under way on the device", async ({
+  page,
+}) => {
+  // skipHelp (beforeEach) lets the first pick through; then the flag is
+  // forgotten, and a fresh page without the init script sees the draft.
+  const t = fr.season;
+  const pick = (p: Page) =>
+    p.getByRole("button", { name: new RegExp(escape(t.pick)) });
+  await page.goto("/fr/season");
+  await expect(page.getByText(fill(t.slot, { n: 1 }))).toBeVisible();
+  await pick(page).first().click();
+  await expect(page.getByText(fill(t.slot, { n: 2 }))).toBeVisible();
+  await page.evaluate(() => localStorage.removeItem("kora.help.v1"));
+  const fresh = await page.context().newPage();
+  await fresh.goto("/fr/season");
+  await expect(fresh.getByText(fill(t.slot, { n: 2 }))).toBeVisible();
+  await expect(
+    fresh.getByRole("dialog", { name: fr.header.help }),
+  ).toBeHidden();
+  expect(await fresh.evaluate(() => localStorage.getItem("kora.help.v1"))).toBe(
+    null,
+  );
+});
 
 // No layout shift while drafting: the spin area keeps at least a screen's
 // height until the 11th pick, so the first spin's arrival moves nothing the

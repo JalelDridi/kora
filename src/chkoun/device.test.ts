@@ -1,12 +1,17 @@
 import { describe, expect, it } from "vitest";
+import { puzzleNumber, tunisDay } from "@/engine/chkoun/day.ts";
 import type { Stats } from "@/engine/chkoun/stats.ts";
 import type { TileRow } from "@/engine/chkoun/types.ts";
 import {
   GAME_KEY,
+  hasGameToday,
   loadGame,
+  loadPast,
+  PAST_KEY,
   loadStats,
   recordFinish,
   saveGame,
+  savePast,
   STATS_KEY,
   type SavedGame,
   type StorageLike,
@@ -121,5 +126,78 @@ describe("the device's record", () => {
       recordFinish(storage, { n: 2, solved: true, guesses: 3 }, server),
     ).toEqual(server);
     expect(JSON.parse(storage.getItem(STATS_KEY)!)).toEqual(server);
+  });
+});
+
+describe("a game of today on the device (the help stays shut over it)", () => {
+  // 12:00 in Tunis on 31 October 2026; 23:30 UTC is already 1 November there.
+  const noon = new Date("2026-10-31T11:00:00Z");
+  const today = puzzleNumber(tunisDay(noon));
+
+  it("is there when today's game is saved, playing or finished", () => {
+    const storage = new MemoryStorage();
+    saveGame(storage, game(today));
+    expect(hasGameToday(storage, noon)).toBe(true);
+    saveGame(storage, { ...game(today), status: "won" });
+    expect(hasGameToday(storage, noon)).toBe(true);
+  });
+
+  it("is not there for yesterday's game, after Tunis midnight, or with no storage", () => {
+    const storage = new MemoryStorage();
+    saveGame(storage, game(today - 1));
+    expect(hasGameToday(storage, noon)).toBe(false);
+    saveGame(storage, game(today));
+    expect(hasGameToday(storage, new Date("2026-10-31T23:30:00Z"))).toBe(false);
+    expect(hasGameToday(null, noon)).toBe(false);
+    expect(hasGameToday(throwing, noon)).toBe(false);
+  });
+});
+
+describe("yesterday's game on the device (M7)", () => {
+  it("yesterday's game is kept apart from today's", () => {
+    const storage = new MemoryStorage();
+    saveGame(storage, game(12));
+    savePast(storage, { ...game(11), status: "won" });
+    expect(storage.data.has(PAST_KEY)).toBe(true);
+    expect(PAST_KEY).not.toBe(GAME_KEY);
+    expect(loadGame(storage, 12)).toEqual(game(12));
+    expect(loadGame(storage, 11)).toBeNull();
+    expect(loadPast(storage, 11)).toEqual({ ...game(11), status: "won" });
+    expect(loadPast(storage, 12)).toBeNull();
+    expect(loadPast(storage, 10)).toBeNull();
+    expect(storage.data.has(STATS_KEY)).toBe(false);
+  });
+
+  it("survives a storage that throws, or none", () => {
+    savePast(throwing, game(11));
+    expect(loadPast(throwing, 11)).toBeNull();
+    savePast(null, game(11));
+    expect(loadPast(null, 11)).toBeNull();
+  });
+});
+
+describe("the hint on the device (M8)", () => {
+  const hint = { latin: "E", arabic: "إ", french: "E" };
+  it("a reload keeps the hint, today's and yesterday's", () => {
+    const storage = new MemoryStorage();
+    saveGame(storage, { ...game(12), hint });
+    savePast(storage, { ...game(11), hint });
+    expect(loadGame(storage, 12)?.hint).toEqual(hint);
+    expect(loadPast(storage, 11)?.hint).toEqual(hint);
+  });
+
+  it("a game with no hint has none; a hint that is not one letter per form is dropped", () => {
+    const storage = new MemoryStorage();
+    saveGame(storage, game(12));
+    expect(loadGame(storage, 12)?.hint).toBeUndefined();
+    for (const bad of [
+      { latin: "El", arabic: null, french: null },
+      { latin: "E", arabic: "إل", french: null },
+      { latin: null, arabic: "إ", french: "E" },
+      "E",
+    ]) {
+      storage.setItem(GAME_KEY, JSON.stringify({ ...game(12), hint: bad }));
+      expect(loadGame(storage, 12)).toEqual(game(12));
+    }
   });
 });

@@ -1,0 +1,41 @@
+import { describe, expect, it } from "vitest";
+import { firstLetter, hinted, HINT_AFTER, letterFor } from "./hint.ts";
+
+describe("the first-letter hint", () => {
+  it("is the first letter as written, Latin in capitals", () => {
+    expect(firstLetter("ellyes Skhiri")).toBe("E");
+    expect(firstLetter("  إلياس السخيري")).toBe("إ");
+    expect(firstLetter("Éric")).toBe("É");
+    expect(firstLetter(null)).toBeNull();
+    expect(firstLetter("  ")).toBeNull();
+  });
+  it("a win is hinted only when the hint was shown before it", () => {
+    expect(HINT_AFTER).toBe(5);
+    const hint = { latin: "E", arabic: "إ", french: null };
+    expect(hinted(true, hint)).toBe(true);
+    // A win on the 5th guess: its answer carries no hint, none was shown.
+    expect(hinted(true, undefined)).toBe(false);
+    expect(hinted(false, hint)).toBe(false);
+  });
+  it("is never more than one letter, whatever the name", () => {
+    for (const name of [
+      "Ellyes Skhiri",
+      "إلياس السخيري",
+      "Ïssam Jebali",
+      "Œdipe",
+      "ß",
+      "x",
+      "عبد الله",
+    ])
+      expect([...firstLetter(name)!]).toHaveLength(1);
+  });
+  it("each page shows its own name form's letter, the Latin one where it has none", () => {
+    const hint = { latin: "E", arabic: "إ", french: "É" };
+    expect(letterFor(hint, "ar-TN")).toBe("إ");
+    expect(letterFor(hint, "fr")).toBe("É");
+    expect(letterFor(hint, "ar-Latn-TN")).toBe("E");
+    const latinOnly = { latin: "E", arabic: null, french: null };
+    expect(letterFor(latinOnly, "ar-TN")).toBe("E");
+    expect(letterFor(latinOnly, "fr")).toBe("E");
+  });
+});

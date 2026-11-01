@@ -105,10 +105,58 @@ html {
 }
 
 /* A guessed row's tiles turn over one after another, only for visitors who
-   have not asked for less motion. */
+   have not asked for less motion: 0.3 s each, 60 ms apart (tile-row.tsx),
+   so a whole row lands in 0.6 s (mobile polish §2.12). */
 @media (prefers-reduced-motion: no-preference) {
   .tile-flip {
-    animation: kora-flip 0.45s ease-out both;
+    animation: kora-flip 0.3s ease-out both;
+  }
+}
+
+/* The modal dialogs (src/components/dialog.tsx): the native <dialog> in the
+   top layer, scrolling inside, never wider than the screen. */
+.kora-dialog {
+  inline-size: 100%;
+  max-inline-size: min(32rem, 100% - 2rem);
+  max-block-size: 85dvh;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  margin: auto;
+  padding: 1.25rem;
+  border: 2px solid var(--color-pitch-700);
+  border-radius: 1rem;
+  background: var(--color-pitch-900);
+  color: var(--color-chalk);
+}
+
+/* Under 360 px (a 320 px phone) every pixel counts: the 30–0 record's
+   four columns fit only with a narrower frame. */
+@media (width < 360px) {
+  .kora-dialog {
+    max-inline-size: calc(100% - 1rem);
+    padding: 1rem;
+  }
+}
+
+.kora-dialog::backdrop {
+  background: rgb(0 0 0 / 0.7);
+}
+
+/* It rises in, only for visitors who have not asked for less motion. */
+@media (prefers-reduced-motion: no-preference) {
+  .kora-dialog[open] {
+    animation: kora-rise 0.2s ease-out;
+  }
+}
+
+@keyframes kora-rise {
+  from {
+    opacity: 0;
+    transform: translateY(1rem);
+  }
+  to {
+    opacity: 1;
+    transform: none;
   }
 }
 

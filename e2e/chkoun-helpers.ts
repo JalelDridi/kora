@@ -32,11 +32,49 @@ export async function guess(page: Page, id: string) {
   await expect(page.locator(`[data-guess="${id}"]`)).toHaveCount(1);
 }
 
+/** Resolves once the page has not scrolled for ten frames (a smooth scroll ended). */
+export async function scrolled(page: Page) {
+  await page.evaluate(
+    () =>
+      new Promise<void>((done) => {
+        let last = window.scrollY;
+        let still = 0;
+        const tick = () => {
+          if (window.scrollY === last) still++;
+          else {
+            still = 0;
+            last = window.scrollY;
+          }
+          if (still >= 10) done();
+          else requestAnimationFrame(tick);
+        };
+        requestAnimationFrame(tick);
+      }),
+  );
+}
+
 export async function noSidewaysScroll(page: Page) {
   return page.evaluate(
     () =>
       document.documentElement.scrollWidth -
       document.documentElement.clientWidth,
+  );
+}
+
+/** The round whose folder holds the screenshots. */
+export const ROUND = "2026-10-31-mobile-polish";
+
+/**
+ * Marks the help as already seen on this page's device, before any page
+ * loads, so a test starts on the game and not behind the first-visit help
+ * (src/chkoun/help-seen.ts).
+ */
+export async function skipHelp(page: Page) {
+  await page.addInitScript(() =>
+    localStorage.setItem(
+      "kora.help.v1",
+      JSON.stringify({ chkoun: 1, season: 1 }),
+    ),
   );
 }
 
@@ -47,5 +85,5 @@ export function shot(
   width: number,
   state: string,
 ): string {
-  return `.superpowers/sdd/2026-10-07-sprint-3/screens/task-${task}/${locale}-${width}-${state}.png`;
+  return `.superpowers/sdd/${ROUND}/screens/task-${task}/${locale}-${width}-${state}.png`;
 }

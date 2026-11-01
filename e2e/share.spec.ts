@@ -14,7 +14,10 @@ import {
   shareImageSize,
 } from "../src/share";
 import { site } from "../src/site";
-import { shot } from "./chkoun-helpers";
+import { shot, skipHelp } from "./chkoun-helpers";
+
+// The game pages open with the help already seen (src/chkoun/help-seen.ts).
+test.beforeEach(async ({ page }) => skipHelp(page));
 
 for (const locale of locales) {
   const { prefix } = localeInfo[locale];

@@ -8,7 +8,16 @@
     "games": "Les jeux",
     "soon": "Bientôt",
     "language": "Langue",
-    "play": "Jouer"
+    "play": "Jouer",
+    "state": {
+      "notYet": "#{n} · pas encore joué",
+      "playing": "#{n} · en cours, {guesses}/8",
+      "won": "#{n} · trouvé en {score}",
+      "lost": "#{n} · raté, X/8",
+      "streak": "Série : {n}",
+      "seasonNotYet": "Pas encore de saison aujourd'hui",
+      "seasonPlayed": "Aujourd'hui : {w}-{d}-{l}"
+    }
   },
   "badges": {
     "daily": "Quotidien",
@@ -34,12 +43,23 @@
     "body": "Le lien est peut-être faux, ou la page a été retirée.",
     "home": "Retour aux jeux"
   },
+  "header": {
+    "help": "Comment jouer",
+    "stats": "Tes stats",
+    "close": "Fermer"
+  },
   "chkoun": {
     "meta": {
       "title": "C'est qui ? · Kora",
       "description": "Trouve le joueur tunisien du jour en 8 essais. Un nouveau joueur chaque jour."
     },
     "rules": "Trouve le joueur du jour en 8 essais. Seulement des joueurs en activité.",
+    "help": {
+      "goal": "Trouve le footballeur du jour en 8 essais. Seulement des joueurs en activité.",
+      "tiles": "Chaque essai montre six cases : club, pays du club, poste, âge, sélections, lieu de naissance.",
+      "example": "Exemple : même pays de club et même poste ; la flèche dit que le joueur du jour est plus âgé.",
+      "daily": "Un nouveau footballeur chaque jour à minuit, heure de Tunis."
+    },
     "legend": {
       "title": "Les couleurs",
       "same": "Pareil",
@@ -72,6 +92,12 @@
       "age": "Âge",
       "caps": "Sélections",
       "governorate": "Né à",
+      "clubShort": "Club",
+      "countryShort": "Pays",
+      "positionShort": "Poste",
+      "ageShort": "Âge",
+      "capsShort": "Sél.",
+      "governorateShort": "Né à",
       "older": "Il est plus âgé",
       "younger": "Il est plus jeune",
       "moreCaps": "Il a plus de sélections",
@@ -103,7 +129,8 @@
       "copied": "Copié !",
       "whatsapp": "Envoyer sur WhatsApp",
       "longPress": "Appuie longuement sur le texte pour le copier",
-      "header": "Kora · C'est qui ?"
+      "header": "Kora · C'est qui ?",
+      "yesterday": "hier"
     },
     "stats": {
       "title": "Tes stats",
@@ -112,15 +139,37 @@
       "played": "Parties",
       "winRate": "Gagnées",
       "onDevice": "Enregistré sur cet appareil",
-      "onServer": "Enregistré sur Kora"
+      "onServer": "Enregistré sur Kora",
+      "distribution": "Victoires par nombre d'essais",
+      "bar": "Essais : {n}, victoires : {count}",
+      "empty": "Pas encore de partie sur cet appareil."
     },
-    "next": "Prochain joueur dans {time}"
+    "next": "Prochain joueur dans {time}",
+    "hint": {
+      "label": "Un coup de pouce : son nom commence par {letter}"
+    },
+    "yesterday": {
+      "link": "Jouer le footballeur d'hier",
+      "title": "Le footballeur d'hier",
+      "note": "Pour le plaisir : ça ne compte pas dans ta série.",
+      "back": "Retour au footballeur du jour",
+      "closed": "Le footballeur d'hier n'est plus disponible.",
+      "meta": {
+        "title": "Le footballeur d'hier · C'est qui ? · Kora"
+      }
+    }
   },
   "positions": {
     "goalkeeper": "Gardien",
     "defender": "Défenseur",
     "midfielder": "Milieu",
-    "forward": "Attaquant"
+    "forward": "Attaquant",
+    "short": {
+      "goalkeeper": "Gardien",
+      "defender": "Déf.",
+      "midfielder": "Milieu",
+      "forward": "Att."
+    }
   },
   "credit": {
     "photo": "Photo : {author}, {licence}",
@@ -218,7 +267,13 @@
       "description": "Monte ton équipe de joueurs tunisiens, place par place, puis joue une saison de 30 matchs."
     },
     "rules": "Pour chaque place, un club et une décennie sont tirés : choisis un joueur parmi cinq au plus, puis joue 30 matchs.",
+    "help": {
+      "draft": "Pour chaque place, un club et une décennie sont tirés : choisis un joueur parmi cinq au plus.",
+      "respin": "Tu peux relancer une seule fois.",
+      "play": "Avec 11 joueurs, joue 30 matchs : 30–0 est le rêve."
+    },
     "noscript": "Ce jeu a besoin de JavaScript.",
+    "loading": "Le premier tirage arrive…",
     "lines": {
       "goalkeeper": "Gardien",
       "defender": "Défense",
@@ -260,6 +315,7 @@
       "teamRating": "Note de l'équipe",
       "replaces": "Joue à la place de {club}",
       "matches": "Les 30 matchs",
+      "allMatches": "Voir les 30 matchs",
       "round": "Journée {n}",
       "home": "Domicile",
       "away": "Extérieur",
@@ -284,7 +340,8 @@
       "day": "Jour",
       "record": "Bilan",
       "points": "Points",
-      "rating": "Note"
+      "rating": "Note",
+      "empty": "Pas encore de saison jouée sur cet appareil."
     },
     "board": {
       "title": "Les meilleures équipes du jour",

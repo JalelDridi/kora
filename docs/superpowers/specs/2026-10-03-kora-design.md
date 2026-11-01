@@ -36,9 +36,17 @@ Launch with three; add the rest in order. Names are working names in Derja (Arab
 
 Game 1 is detailed in §4. Game 2 is the growth bet: 82-0's authors said the simulator, not the puzzles, went viral. Ratings are computed, not invented: caps, goals, honours and era weight, published on each card so arguments can happen in the comments.
 
+On the hub, each live game's card carries one line read from the visitor's device after the page loads, in a space reserved in the server HTML so no card moves (mobile polish M6, T-MP-7, 31 October 2026): for Chkoun?, today's puzzle number and "not yet", "in progress" with the guesses, "found in" or "missed", and the streak while it is alive; for 30–0, today's last season (W-D-L) or "not yet". No request is made for it; a wiped storage only means "not yet".
+
 ## 4. Chkoun? in detail
 
 Pool: Tunisian internationals since 2000, current Ligue 1 squads, Tunisians abroad; about 300 curated players. Eight guesses. Six tiles per guess: Club (green same, amber same country), Country of club (amber same confederation), Position (amber same line), Age (amber within 2, arrows), Caps band (amber adjacent, arrows), Governorate of birth (amber same region). Autocomplete accepts Arabic, Arabizi and French spellings. After the game: player card, share grid, streak, countdown; at 00:00 Africa/Tunis the page rolls to the new puzzle on its own.
+
+Added by the mobile polish round (31 October 2026, P58):
+
+- **How to play.** A native dialog opens by itself on the first visit to the game on a device (the "seen" flag in `kora.help.v1`), never over a game under way, and again from the "?" of the one-line header: the goal, the six tiles with one example row, a new footballer at Tunis midnight (M2, T-MP-2). The header's stats button opens the record at any time, with the wins by number of guesses (M3).
+- **The hint.** From the 5th guess on, the guess answer carries the first letter of the footballer's name in each name form, and the page shows the one of its locale under the guess counter (M8, T-MP-6). Nothing else leaks before the end. A win after the 5th guess is a hinted win: the record counts it as any win, and the share's score line carries `💡`.
+- **Yesterday's footballer.** A visitor who finished today's game can play yesterday's from a link on the result, at `/{locale}/chkoun/yesterday` (noindex, outside the sitemap), through the same guess endpoint with yesterday's number and tokens signed by a separate key (M7, T-MP-5). It writes nothing to the server and never touches the record or the streak; the device keeps it under `kora.chkoun.v1.past`, and the share's score line carries the word for yesterday. At Tunis midnight, the first guess on a yesterday's page left open gets `409 newDay` and the page reloads into the new yesterday; today's page reloads the day as before.
 
 ## 5. Language: Derja first
 

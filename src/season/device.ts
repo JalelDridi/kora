@@ -11,6 +11,8 @@ import type { CandidateView, SpinView } from "./views.ts";
 
 export const DRAFT_KEY = "kora.season.v1.draft";
 export const BEST_KEY = "kora.season.v1.best";
+/** The season played last, whatever its points: the hub's line (M6). */
+export const LAST_KEY = "kora.season.v1.last";
 const BEST_KEPT = 10;
 
 export type DeviceSeason = {
@@ -28,7 +30,7 @@ export type DeviceSeason = {
   at: string;
 };
 
-type StorageLike = Pick<Storage, "getItem" | "setItem"> &
+export type StorageLike = Pick<Storage, "getItem" | "setItem"> &
   Partial<Pick<Storage, "removeItem">>;
 
 function storage(): StorageLike | null {
@@ -40,9 +42,9 @@ function storage(): StorageLike | null {
   }
 }
 
-function read(key: string): unknown {
+function read(key: string, from: StorageLike | null = storage()): unknown {
   try {
-    const text = storage()?.getItem(key) ?? null;
+    const text = from?.getItem(key) ?? null;
     return text === null ? null : JSON.parse(text);
   } catch {
     return null;
@@ -96,6 +98,16 @@ export function loadDraftView(): unknown {
   return readDraft()?.view ?? null;
 }
 
+/**
+ * Whether a kept draft view has a pick already: the first-visit help stays
+ * shut over it (mobile polish M2). A draft just started has none.
+ */
+export function draftUnderWay(view: unknown): boolean {
+  if (typeof view !== "object" || view === null) return false;
+  const squad = (view as { squad?: unknown }).squad;
+  return Array.isArray(squad) && squad.length > 0;
+}
+
 export function clearDraft(): void {
   try {
     const s = storage();
@@ -135,4 +147,20 @@ export function saveSeason(entry: DeviceSeason): void {
     (a, b) => b.points - a.points || a.at.localeCompare(b.at),
   );
   write(BEST_KEY, all.slice(0, BEST_KEPT));
+}
+
+/** Keeps the season just played, in place of the one before. */
+export function saveLast(entry: DeviceSeason): void {
+  write(LAST_KEY, entry);
+}
+
+/**
+ * The season played last on this device; null when none or unreadable. The
+ * hub passes the storage it reads; the game reads its own.
+ */
+export function loadLast(
+  from: StorageLike | null = storage(),
+): DeviceSeason | null {
+  const v = read(LAST_KEY, from);
+  return isSeason(v) ? v : null;
 }

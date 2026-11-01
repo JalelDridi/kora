@@ -11,8 +11,9 @@ import { readToday } from "./store.ts";
 import { readVisitorId, widenVisitorCookie } from "./visitor.ts";
 
 // GET /api/chkoun/today, without Next: the day's number, when it ends, where
-// results are kept, and, for a visitor who has already finished today's
-// game on the server, his game and record. The answer's card goes only to
+// results are kept, yesterday's number and day when there was one (mobile
+// polish M7), and, for a visitor who has already finished today's game on
+// the server, his game and record. The answer's card goes only to
 // a visitor whose finished game the server holds.
 
 export type TodayDeps = Pick<
@@ -82,17 +83,22 @@ async function answerToday(
       body: { status: "closed", number, day, endsAt, store },
     };
 
+  // Yesterday's game, from puzzle 2 on: its number and day only, no read.
+  const yesterday =
+    number - 1 >= 1
+      ? { yesterday: { number: number - 1, day: addDays(day, -1) } }
+      : {};
   if (!deps.kv || !visitorId)
     return {
       status: 200,
-      body: { status: "open", number, day, endsAt, store },
+      body: { status: "open", number, day, endsAt, store, ...yesterday },
     };
   const mine = await readToday(deps.kv, deps.env, day, visitorId);
   if (mine === "unavailable") {
     store = "device";
     return {
       status: 200,
-      body: { status: "open", number, day, endsAt, store },
+      body: { status: "open", number, day, endsAt, store, ...yesterday },
     };
   }
   const finished = mine.finished
@@ -111,6 +117,7 @@ async function answerToday(
       day,
       endsAt,
       store,
+      ...yesterday,
       ...(finished ? { finished } : {}),
       ...(mine.stats ? { stats: mine.stats } : {}),
     },

@@ -5,6 +5,7 @@ import type { Locale } from "@/i18n/locales";
 import type { GovernorateRow, Pool } from "@/pipeline/types.ts";
 import arLatnTNCountries from "../../messages/countries/ar-Latn-TN.json";
 import arTNCountries from "../../messages/countries/ar-TN.json";
+import clubShort from "../../data/curated/club-short.json";
 import { buildLabels, type Labels } from "./labels";
 import { packNames, type PackedName } from "./search-index";
 
@@ -49,6 +50,12 @@ export async function gamePageData(
   const { pool, governorates } = await readGameFiles();
   return {
     names: packNames(pool),
-    labels: buildLabels(pool, governorates, locale, derjaCountries[locale]),
+    labels: buildLabels(
+      pool,
+      governorates,
+      locale,
+      derjaCountries[locale],
+      clubShort.clubs,
+    ),
   };
 }

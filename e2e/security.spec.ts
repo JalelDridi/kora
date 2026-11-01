@@ -1,7 +1,10 @@
 import { expect, test } from "@playwright/test";
 import { securityHeaders } from "../src/security-headers";
-import { guess, ready } from "./chkoun-helpers";
+import { guess, ready, skipHelp } from "./chkoun-helpers";
 import { type ChkounFixture, seedChkoun } from "./fixtures/chkoun";
+
+// The game pages open with the help already seen (src/chkoun/help-seen.ts).
+test.beforeEach(async ({ page }) => skipHelp(page));
 
 // Seeded before any page asks the server for today's puzzle (the server
 // remembers it for the day).
@@ -22,6 +25,7 @@ for (const path of [
   "/fr",
   "/ar/nope",
   "/ar/chkoun",
+  "/ar/chkoun/yesterday",
   "/fr/sources",
   "/tn/privacy",
   "/og/chkoun-ar-v1.png",
@@ -47,6 +51,7 @@ for (const path of [
   "/fr",
   "/ar/nope",
   "/ar/chkoun",
+  "/ar/chkoun/yesterday",
   "/fr/sources",
   "/tn/privacy",
 ]) {

@@ -110,3 +110,27 @@ describe("30–0 events (D-S3-13: no names, ids, codes or squads)", () => {
     expect(cleanProps({ rating: 89.5 })).toEqual({ rating: 90 });
   });
 });
+
+describe("yesterday's game (M7)", () => {
+  it("past is kept only as a boolean", () => {
+    expect(cleanProps({ n: 14, past: true })).toEqual({ n: 14, past: true });
+    expect(cleanProps({ past: false })).toEqual({ past: false });
+    expect(cleanProps({ past: "true" })).toEqual({});
+    expect(cleanProps({ past: 1 })).toEqual({});
+  });
+});
+
+describe("the first-letter hint (M8)", () => {
+  it("hinted is kept only as a boolean, and no letter ever passes", () => {
+    expect(cleanProps({ n: 14, hinted: true })).toEqual({
+      n: 14,
+      hinted: true,
+    });
+    expect(cleanProps({ hinted: false })).toEqual({ hinted: false });
+    expect(cleanProps({ hinted: "E" })).toEqual({});
+    expect(cleanProps({ hinted: 1 })).toEqual({});
+    expect(
+      cleanProps({ hint: { latin: "E" }, letter: "E", hinted: true }),
+    ).toEqual({ hinted: true });
+  });
+});

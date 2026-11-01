@@ -1,0 +1,483 @@
+{
+  "by": "claude",
+  "at": "2026-10-31",
+  "note": "DRAFT for Jalel (mobile polish M5, D-MP-1): what a Chkoun? tile and a 30–0 match row print when the club's full name does not fit. latin is shown on /tn and /fr (the acronym fans write for Tunisian clubs), arabic on /ar (the Derja nickname). At most two words of at most 8 characters each. A club not listed gets an automatic label (src/pipeline/short-label.ts: its name when it fits, else its initials or its first Arabic word), and data:check lists those clubs as a warning.",
+  "clubs": {
+    "esperance-sportive-de-tunis": {
+      "latin": "EST",
+      "arabic": "الترجي"
+    },
+    "etoile-sportive-du-sahel": {
+      "latin": "ESS",
+      "arabic": "النجم"
+    },
+    "club-africain": {
+      "latin": "CA",
+      "arabic": "الإفريقي"
+    },
+    "cs-sfaxien": {
+      "latin": "CSS",
+      "arabic": "الصفاقسي"
+    },
+    "us-monastir": {
+      "latin": "USM",
+      "arabic": "المنستير"
+    },
+    "stade-tunisien": {
+      "latin": "ST",
+      "arabic": "الملعب"
+    },
+    "ca-bizertine": {
+      "latin": "CAB",
+      "arabic": "البنزرتي"
+    },
+    "us-ben-guerdane": {
+      "latin": "USBG",
+      "arabic": "بن ڤردان"
+    },
+    "olympique-beja": {
+      "latin": "OB",
+      "arabic": "الباجي"
+    },
+    "es-zarzis": {
+      "latin": "ESZ",
+      "arabic": "جرجيس"
+    },
+    "etoile-sportive-de-metlaoui": {
+      "latin": "ESM",
+      "arabic": "المتلوي"
+    },
+    "as-marsa": {
+      "latin": "ASM",
+      "arabic": "المرسى"
+    },
+    "es-hammam-sousse": {
+      "latin": "ESHS",
+      "arabic": "حمام سوسة"
+    },
+    "cs-hammam-lif": {
+      "latin": "CSHL",
+      "arabic": "حمام الأنف"
+    },
+    "jeunesse-sportive-d-el-omrane": {
+      "latin": "JSO",
+      "arabic": "العمران"
+    },
+    "ps-sakiet-eddaier": {
+      "latin": "PSS",
+      "arabic": "ساقية الدائر"
+    },
+    "1-fc-koln": {
+      "latin": "Köln",
+      "arabic": "كولن"
+    },
+    "1-fc-union-berlin": {
+      "latin": "Union",
+      "arabic": "يونيون"
+    },
+    "aek-larnaca-f-c": {
+      "latin": "Larnaca",
+      "arabic": "لارنكا"
+    },
+    "al-ahly-sc-benghazi": {
+      "latin": "Al Ahly",
+      "arabic": "الأهلي"
+    },
+    "al-ain-fc-q23773622": {
+      "latin": "Al-Ain",
+      "arabic": "العين"
+    },
+    "al-bidaa-sc": {
+      "latin": "Al Bidaa",
+      "arabic": "البدع"
+    },
+    "al-dhahra-sc": {
+      "latin": "Al Dhahra",
+      "arabic": "الظهرة"
+    },
+    "al-entsar-fc": {
+      "latin": "Entsar",
+      "arabic": "الانتصار"
+    },
+    "al-faisaly-sc": {
+      "latin": "Faisaly",
+      "arabic": "الفيصلي"
+    },
+    "al-gharafa-sc": {
+      "latin": "Gharafa",
+      "arabic": "الغرافة"
+    },
+    "al-hazem-sc": {
+      "latin": "Al Hazem",
+      "arabic": "الحزم"
+    },
+    "al-hilal-sc": {
+      "latin": "Al Hilal",
+      "arabic": "الهلال"
+    },
+    "al-jeel": {
+      "latin": "Al-Jeel",
+      "arabic": "الجيل"
+    },
+    "al-nasser-sc": {
+      "latin": "Al Nasr",
+      "arabic": "النصر"
+    },
+    "al-rayyan-club": {
+      "latin": "Al Rayyan",
+      "arabic": "الريان"
+    },
+    "al-safa-fc": {
+      "latin": "Al Safa",
+      "arabic": "الصفا"
+    },
+    "al-shamal-sports-club": {
+      "latin": "Al Shamal",
+      "arabic": "الشمال"
+    },
+    "al-swehly-f-c": {
+      "latin": "Swehly",
+      "arabic": "السويحلي"
+    },
+    "al-ta-awon": {
+      "latin": "Ta'awon",
+      "arabic": "التعاون"
+    },
+    "al-wahda-s-c-c": {
+      "latin": "Al Wahda",
+      "arabic": "الوحدة"
+    },
+    "al-wakrah-sports-club": {
+      "latin": "Al Wakrah",
+      "arabic": "الوكرة"
+    },
+    "al-yarmouk-kuwait": {
+      "latin": "Yarmouk",
+      "arabic": "اليرموك"
+    },
+    "as-beauvais-oise": {
+      "latin": "ASBO",
+      "arabic": "بوفيه"
+    },
+    "as-gabes": {
+      "latin": "ASG",
+      "arabic": "مستقبل قابس"
+    },
+    "as-roma": {
+      "latin": "Roma",
+      "arabic": "روما"
+    },
+    "as-saint-etienne": {
+      "latin": "ASSE",
+      "arabic": "سانت إتيان"
+    },
+    "beijing-guoan-f-c": {
+      "latin": "Guoan",
+      "arabic": "غوان"
+    },
+    "bologna-f-c-1909": {
+      "latin": "Bologna",
+      "arabic": "بولونيا"
+    },
+    "brighton-hove-albion-f-c": {
+      "latin": "BHA",
+      "arabic": "برايتون"
+    },
+    "burnley-f-c": {
+      "latin": "Burnley",
+      "arabic": "بيرنلي"
+    },
+    "c-d-nacional": {
+      "latin": "CDN",
+      "arabic": "ناسيونال"
+    },
+    "cavalry-fc": {
+      "latin": "Cavalry",
+      "arabic": "كافالري"
+    },
+    "cd-leganes": {
+      "latin": "Leganés",
+      "arabic": "ليغانيس"
+    },
+    "celtic-f-c": {
+      "latin": "Celtic",
+      "arabic": "سلتيك"
+    },
+    "cr-belouizdad": {
+      "latin": "CRB",
+      "arabic": "بلوزداد"
+    },
+    "cracovia": {
+      "latin": "Pasy",
+      "arabic": "كراكوفيا"
+    },
+    "diyala-fc": {
+      "latin": "Diyala",
+      "arabic": "ديالى"
+    },
+    "dijon-fco": {
+      "latin": "Dijon",
+      "arabic": "ديجون"
+    },
+    "egs-gafsa": {
+      "latin": "EGSG",
+      "arabic": "القوافل"
+    },
+    "emirates-club": {
+      "latin": "Emarat",
+      "arabic": "الإمارات"
+    },
+    "enppi-sc": {
+      "latin": "ENPPI",
+      "arabic": "إنبي"
+    },
+    "f-c-lorient": {
+      "latin": "Lorient",
+      "arabic": "لوريان"
+    },
+    "fc-cska-1948-sofia": {
+      "latin": "CSKA 1948",
+      "arabic": "سسكا 1948"
+    },
+    "fc-girondins-de-bordeaux": {
+      "latin": "FCGB",
+      "arabic": "بوردو"
+    },
+    "fc-hammamet": {
+      "latin": "FCH",
+      "arabic": "الحمامات"
+    },
+    "fc-nantes": {
+      "latin": "Nantes",
+      "arabic": "نانت"
+    },
+    "fc-nouadhibou": {
+      "latin": "FCN",
+      "arabic": "نواذيبو"
+    },
+    "fc-shakhtar-donetsk": {
+      "latin": "Donetsk",
+      "arabic": "شاختار"
+    },
+    "fc-sochaux-montbeliard": {
+      "latin": "Sochaux",
+      "arabic": "سوشو"
+    },
+    "gamba-osaka": {
+      "latin": "Gamba",
+      "arabic": "غامبا"
+    },
+    "ghazl-el-mahalla-sc": {
+      "latin": "Ghazl",
+      "arabic": "غزل المحلة"
+    },
+    "halmstads-bk": {
+      "latin": "HBK",
+      "arabic": "هالمستاد"
+    },
+    "hassania-agadir": {
+      "latin": "HUSA",
+      "arabic": "حسنية"
+    },
+    "hatta-club": {
+      "latin": "Hatta",
+      "arabic": "حتا"
+    },
+    "js-kairouan": {
+      "latin": "JSK",
+      "arabic": "الشبيبة"
+    },
+    "kuwait-sc": {
+      "latin": "Kuwait SC",
+      "arabic": "الكويت"
+    },
+    "leyton-orient-f-c": {
+      "latin": "Orient",
+      "arabic": "أورينت"
+    },
+    "naft-maysan": {
+      "latin": "Naft",
+      "arabic": "نفط ميسان"
+    },
+    "najaf-fc": {
+      "latin": "Najaf",
+      "arabic": "النجف"
+    },
+    "norwich-city-f-c": {
+      "latin": "Norwich",
+      "arabic": "نورويتش"
+    },
+    "ogc-nice": {
+      "latin": "Nice",
+      "arabic": "نيس"
+    },
+    "raja-club-athletic": {
+      "latin": "Raja",
+      "arabic": "الرجاء"
+    },
+    "red-star-f-c": {
+      "latin": "Red Star",
+      "arabic": "ريد ستار"
+    },
+    "riga-fc": {
+      "latin": "Riga FC",
+      "arabic": "ريغا"
+    },
+    "rs-berkane": {
+      "latin": "Berkane",
+      "arabic": "بركان"
+    },
+    "s-l-benfica": {
+      "latin": "Benfica",
+      "arabic": "بنفيكا"
+    },
+    "san-diego-fc": {
+      "latin": "San Diego",
+      "arabic": "سان دييغو"
+    },
+    "servette-fc": {
+      "latin": "SFC",
+      "arabic": "سيرفيت"
+    },
+    "stade-africain-menzel-bourguiba": {
+      "latin": "SAMB",
+      "arabic": "منزل بورقيبة"
+    },
+    "stade-gabesien": {
+      "latin": "SG",
+      "arabic": "ستاد قابس"
+    },
+    "umm-salal-sc": {
+      "latin": "Umm Salal",
+      "arabic": "أم صلال"
+    },
+    "us-creteil-lusitanos": {
+      "latin": "Créteil",
+      "arabic": "كريتيل"
+    },
+    "us-tataouine": {
+      "latin": "UST",
+      "arabic": "تطاوين"
+    },
+    "viborg-ff": {
+      "latin": "Viborg",
+      "arabic": "فيبورج"
+    },
+    "wadi-degla-sc": {
+      "latin": "Wadi Degla",
+      "arabic": "وادي دجلة"
+    },
+    "zakho-s-c": {
+      "latin": "Zakho",
+      "arabic": "زاخو"
+    },
+    "ifk-haninge-brandbergen": {
+      "latin": "Haninge",
+      "arabic": "هانينغه"
+    },
+    "sv-wacker-burghausen": {
+      "latin": "Wacker",
+      "arabic": "فاكر"
+    },
+    "muglaspor": {
+      "latin": "Muğla",
+      "arabic": "موغلا"
+    },
+    "a-s-d-albalonga": {
+      "latin": "ASD",
+      "arabic": "ألبا"
+    },
+    "if-brommapojkarna": {
+      "latin": "BP",
+      "arabic": "برومّا"
+    },
+    "pfc-ludogorets-1945": {
+      "latin": "Razgrad",
+      "arabic": "رازغراد"
+    },
+    "fc-vihren-sandanski": {
+      "latin": "Vihren",
+      "arabic": "فيهرين"
+    },
+    "tremblay-en-france": {
+      "latin": "TFC",
+      "arabic": "تريمبلي"
+    },
+    "sheffield-wednesday-f-c": {
+      "latin": "SWFC",
+      "arabic": "شيفيلد"
+    },
+    "angouleme-charente-fc": {
+      "latin": "ACFC",
+      "arabic": "أنغوليم"
+    },
+    "ifk-norrkoping": {
+      "latin": "IFK",
+      "arabic": "نورشوبنغ"
+    },
+    "kas-mpasa-s-k": {
+      "latin": "KSK",
+      "arabic": "قاسم باشا"
+    },
+    "usl-dunkerque": {
+      "latin": "USLD",
+      "arabic": "دونكيرك"
+    },
+    "olympique-ales": {
+      "latin": "Alès",
+      "arabic": "أليس"
+    },
+    "as-valence": {
+      "latin": "Valence",
+      "arabic": "فالنس"
+    },
+    "al-nairyah-club": {
+      "latin": "Nairyah",
+      "arabic": "النعيرية"
+    },
+    "vancouver-whitecaps-fc": {
+      "latin": "VWFC",
+      "arabic": "فانكوفر"
+    },
+    "karlsruher-sc": {
+      "latin": "KSC",
+      "arabic": "كارلسروه"
+    },
+    "olympic-azzaweya-s-c": {
+      "latin": "Zawiya",
+      "arabic": "الزاوية"
+    },
+    "es-cannet-rocheville": {
+      "latin": "ESCR",
+      "arabic": "كاني"
+    },
+    "k-beerschot-va": {
+      "latin": "KBVA",
+      "arabic": "بيرشوت"
+    },
+    "al-quwa-al-jawiya": {
+      "latin": "Al-Quwa",
+      "arabic": "القوة الجوية"
+    },
+    "al-mina-a-sc": {
+      "latin": "Mina'a",
+      "arabic": "الميناء"
+    },
+    "nashville-sc": {
+      "latin": "NSC",
+      "arabic": "ناشفيل"
+    },
+    "hertha-bsc-ii": {
+      "latin": "Hertha II",
+      "arabic": "هيرتا"
+    },
+    "r-e-virton": {
+      "latin": "Virton",
+      "arabic": "فيرتون"
+    },
+    "al-ramtha-sc": {
+      "latin": "Ramtha",
+      "arabic": "الرمثا"
+    }
+  }
+}

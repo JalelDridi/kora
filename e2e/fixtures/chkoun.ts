@@ -10,7 +10,8 @@ const pool = JSON.parse(readFileSync("data/pool.json", "utf8")) as Pool;
 // The test database for the Chkoun? browser tests: data/pool.json synced
 // as a deploy syncs it, tier A given to the answer-ready footballers (the
 // committed pool may not carry fame yet), and the next 30 days filled with
-// known answers. Run before the server is first asked for today's puzzle;
+// known answers, and yesterday given its own answer (mobile polish M7).
+// Run before the server is first asked for today's puzzle;
 // it writes the same rows every time, so a second run changes nothing the
 // server could have cached.
 
@@ -20,6 +21,8 @@ export type ChkounFixture = {
   answers: string[];
   /** Active footballers that are never an answer: wrong guesses. */
   others: string[];
+  /** Yesterday's answer: answer-ready, never one of `answers` or `others`. */
+  yesterday: string;
 };
 
 export async function seedChkoun(): Promise<ChkounFixture> {
@@ -71,11 +74,23 @@ export async function seedChkoun(): Promise<ChkounFixture> {
        FROM unnest($2::text[]) WITH ORDINALITY AS a(id, n)`,
       [today, answers],
     );
+    const yesterday = ready.find((id) => !answers.includes(id));
+    if (!yesterday) throw new Error("no footballer left for yesterday");
+    await client.query(
+      `INSERT INTO puzzles (id, game, day, player_id, source)
+       VALUES (gen_random_uuid(), 'chkoun', $1::date - 1, $2, 'generator')`,
+      [today, yesterday],
+    );
     const { rows } = await client.query(
       "SELECT id FROM players WHERE pool_active AND NOT (id = ANY($1::text[])) ORDER BY id LIMIT 9",
-      [answers],
+      [[...answers, yesterday]],
     );
-    return { today, answers, others: rows.map((r) => String(r.id)) };
+    return {
+      today,
+      answers,
+      others: rows.map((r) => String(r.id)),
+      yesterday,
+    };
   } finally {
     await client.end();
   }

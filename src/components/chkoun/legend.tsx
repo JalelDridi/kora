@@ -30,15 +30,17 @@ export const LEGEND_KEY: Record<
 };
 
 type Props = {
+  /** The heading's id: one per page (the help dialog shows the legend too). */
+  id?: string;
   title: string;
   words: Record<"same" | "close" | "different" | "unknown", string>;
 };
 
-export function Legend({ title, words }: Props) {
+export function Legend({ id = "chkoun-legend", title, words }: Props) {
   const colours: Colour[] = ["green", "amber", "grey", "unknown"];
   return (
-    <section aria-labelledby="chkoun-legend" className="mt-6">
-      <h2 id="chkoun-legend" className="text-base font-semibold text-mint">
+    <section aria-labelledby={id} className="mt-6">
+      <h2 id={id} className="text-base font-semibold text-mint">
         {title}
       </h2>
       <ul className="mt-2 flex flex-wrap gap-x-5 gap-y-2">

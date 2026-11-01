@@ -4,9 +4,13 @@ import {
   bestSeasons,
   clearDraft,
   DRAFT_KEY,
+  draftUnderWay,
+  LAST_KEY,
   loadDraft,
+  loadLast,
   loadDraftView,
   saveDraft,
+  saveLast,
   saveSeason,
   type DeviceSeason,
 } from "./device";
@@ -139,5 +143,55 @@ describe("a storage that refuses", () => {
     expect(() => saveDraft("x")).not.toThrow();
     expect(loadDraft()).toBeNull();
     expect(bestSeasons()).toEqual([]);
+  });
+});
+
+describe("a draft under way (the help stays shut over it)", () => {
+  it("is under way once the squad has a pick", () => {
+    expect(draftUnderWay({ token: "t", squad: [{ id: "x" }] })).toBe(true);
+  });
+  it("is not under way when just started, missing or malformed", () => {
+    expect(draftUnderWay({ token: "t", squad: [] })).toBe(false);
+    expect(draftUnderWay(null)).toBe(false);
+    expect(draftUnderWay({ token: "t" })).toBe(false);
+    expect(draftUnderWay({ squad: "x" })).toBe(false);
+    expect(draftUnderWay(loadDraftView())).toBe(false);
+  });
+});
+
+describe("the last season on the device (the hub's line, M6)", () => {
+  it("keeps the season just played, replacing the one before", () => {
+    saveLast(season(70));
+    saveLast({ ...season(75), at: "2026-10-07T11:00:00Z" });
+    expect(loadLast()).toEqual({ ...season(75), at: "2026-10-07T11:00:00Z" });
+    expect(storage.data.has(LAST_KEY)).toBe(true);
+  });
+
+  it("nothing kept, corrupt or malformed reads as none", () => {
+    expect(loadLast()).toBeNull();
+    storage.setItem(LAST_KEY, "{not json");
+    expect(loadLast()).toBeNull();
+    storage.setItem(LAST_KEY, JSON.stringify({ ...season(70), w: "20" }));
+    expect(loadLast()).toBeNull();
+  });
+
+  it("reads a storage it is given (the hub passes its own)", () => {
+    const other = new MemoryStorage();
+    other.setItem(LAST_KEY, JSON.stringify(season(72)));
+    expect(loadLast(other)).toEqual(season(72));
+    expect(loadLast(null)).toBeNull();
+  });
+
+  it("a storage that refuses throws nothing", () => {
+    vi.stubGlobal("localStorage", {
+      getItem: () => {
+        throw new Error("blocked");
+      },
+      setItem: () => {
+        throw new Error("blocked");
+      },
+    });
+    expect(() => saveLast(season(80))).not.toThrow();
+    expect(loadLast()).toBeNull();
   });
 });

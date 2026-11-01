@@ -33,7 +33,14 @@ export function generateStaticParams() {
   return locales.map((locale) => ({ locale }));
 }
 
-export const viewport: Viewport = { themeColor: site.themeColor };
+// The on-screen keyboard shrinks the layout viewport (Chrome on Android),
+// so Chkoun?'s search, pinned to the bottom of the screen, rises above the
+// keyboard instead of hiding under it (mobile polish M4). Next keeps its
+// default width=device-width, initial-scale=1 beside it.
+export const viewport: Viewport = {
+  themeColor: site.themeColor,
+  interactiveWidget: "resizes-content",
+};
 
 export async function generateMetadata({
   params,

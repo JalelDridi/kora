@@ -16,8 +16,10 @@ import { promisify } from "node:util";
 import { describe, expect, it } from "vitest";
 import {
   checkData,
+  clubsWithAutoShort,
   inspectData,
   validateAfcon,
+  validateClubShort,
   validateStrength,
 } from "./check.ts";
 import type { Pool } from "./types.ts";
@@ -71,6 +73,17 @@ async function copyOfData(): Promise<{
           note: "fixture",
           clubs: Object.fromEntries(
             clubs.filter((c) => c.ligue1).map((c) => [c.id, 70]),
+          ),
+        });
+      // And a short label each, for the same reason.
+      if (name === "pool.json" && Array.isArray(clubs))
+        await write("curated/club-short.json", {
+          ...by,
+          note: "fixture",
+          clubs: Object.fromEntries(
+            clubs
+              .filter((c) => c.ligue1)
+              .map((c) => [c.id, { latin: "X", arabic: "س" }]),
           ),
         });
     },
@@ -493,6 +506,160 @@ describe("the 30–0 curated files (Sprint 3)", () => {
         ids,
       ),
     ).toHaveLength(2);
+  });
+
+  it("a club-short file names known clubs, words of 7 Latin or 8 Arabic letters, both scripts", () => {
+    const file = (clubs: Record<string, unknown>) => ({
+      by: "claude",
+      at: "2026-10-31",
+      note: "DRAFT",
+      clubs,
+    });
+    const est = { latin: "EST", arabic: "الترجي" };
+    expect(validateClubShort(file({ est }), ["est", "ca"])).toEqual([]);
+    expect(validateClubShort(file({ est, x: est }), ["est"])).toContain(
+      "club-short.json: x is not a club",
+    );
+    expect(
+      validateClubShort(
+        file({ est: { latin: "Espérance", arabic: "الترجي" } }),
+        ["est"],
+      ),
+    ).toContain("club-short.json: est latin is longer than 7");
+    // 8 Arabic letters fit; 8 Latin ones do not (fix round 2).
+    expect(
+      validateClubShort(
+        file({ est: { latin: "Beauvais", arabic: "الإفريقي" } }),
+        ["est"],
+      ),
+    ).toEqual(["club-short.json: est latin is longer than 7"]);
+    // Two words wrap in a tile: each word counts, at most two.
+    expect(
+      validateClubShort(file({ est: { latin: "EST", arabic: "حمام سوسة" } }), [
+        "est",
+      ]),
+    ).toEqual([]);
+    expect(
+      validateClubShort(
+        file({ est: { latin: "EST", arabic: "ساقية الدائر الكبرى" } }),
+        ["est"],
+      ),
+    ).toContain("club-short.json: est arabic has more than two words");
+    expect(
+      validateClubShort(file({ est: { latin: "", arabic: "الترجي" } }), [
+        "est",
+      ]),
+    ).toContain("club-short.json: est latin is empty");
+    expect(
+      validateClubShort(file({ est: { latin: "EST", arabic: "نادي ٢" } }), [
+        "est",
+      ]),
+    ).toContain("club-short.json: est arabic has a non-Western digit");
+    expect(
+      validateClubShort(file({ est: { latin: "EST" } }), ["est"]),
+    ).toContain("club-short.json: est must be { latin, arabic }");
+    // Every Ligue 1 club has its short forms.
+    expect(
+      validateClubShort(file({ est }), ["est", "ca"], ["est", "ca"]),
+    ).toContain(
+      'club-short.json: no short label for ca: add "ca": { "latin": …, "arabic": … } to data/curated/club-short.json (at most two words: 7 Latin or 8 Arabic letters each)',
+    );
+    // Claude's drafts are marked as such.
+    expect(
+      validateClubShort({ ...file({ est }), note: "short labels" }, ["est"]),
+    ).toContain("club-short.json: a file by claude must say DRAFT in its note");
+    expect(
+      validateClubShort({ ...file({ est }), by: "jalel", note: "checked" }, [
+        "est",
+      ]),
+    ).toEqual([]);
+    expect(validateClubShort({ clubs: {} }, [])).toContain(
+      "club-short.json: by must be a string",
+    );
+  });
+
+  it("checkData reports a missing club-short.json once there is a pool", async () => {
+    const { root } = await copyOfData();
+    await rm(path.join(root, "data", "curated", "club-short.json"), {
+      force: true,
+    });
+    expect(await checkData(root)).toContain(
+      "data/curated/club-short.json: missing",
+    );
+  });
+
+  it("lists the clubs shown without a curated label whose name does not fit, with their automatic labels", () => {
+    const named = (
+      id: string,
+      nameLatin: string,
+      nameArabic: string | null = null,
+    ) => ({ ...pool.clubs[0], id, nameLatin, nameArabic, ligue1: false });
+    const fixture = {
+      ...pool,
+      players: [
+        { ...pool.players[0], clubId: "hb" },
+        { ...pool.players[0], id: "p2", clubId: "cshl" },
+        { ...pool.players[0], id: "p3", clubId: "fch" },
+        { ...pool.players[0], id: "p4", clubId: "curated" },
+        {
+          ...pool.players[0],
+          id: "p5",
+          clubId: "gone",
+          pools: { active: false, legend: true },
+        },
+      ],
+      clubs: [
+        named("hb", "Haninge/Brandbergen"),
+        named(
+          "cshl",
+          "Club Sportif de Hammam-Lif",
+          "النادي الرياضي القابسي الكبير",
+        ),
+        named("fch", "FC Hammamet", "الحمامات"),
+        named("curated", "Espérance Sportive de Tunis"),
+        named("gone", "Not Shown Any Longer"),
+      ],
+    } as Pool;
+    expect(
+      clubsWithAutoShort(fixture, {
+        curated: { latin: "EST", arabic: "الترجي" },
+      }),
+    ).toEqual(["cshl (CSHL / القابسي)", "fch (FCH)", "hb (HB)"]);
+  });
+
+  it("data:check warns, without failing, about the clubs printing an automatic label", async () => {
+    const { root } = await copyOfData();
+    const file = path.join(root, "data", "curated", "club-short.json");
+    const short = JSON.parse(await readFile(file, "utf8")) as {
+      clubs: Record<string, unknown>;
+    };
+    const real = JSON.parse(
+      await readFile(path.join(root, "data", "pool.json"), "utf8"),
+    ) as Pool;
+    // Keep the Ligue 1 clubs' labels only (they are required).
+    const ligue1 = new Set(real.clubs.filter((c) => c.ligue1).map((c) => c.id));
+    short.clubs = Object.fromEntries(
+      Object.entries(short.clubs).filter(([id]) => ligue1.has(id)),
+    );
+    await writeFile(file, JSON.stringify(short));
+    const { errors, warnings } = await inspectData(root);
+    expect(errors).toEqual([]);
+    const line = warnings.find((w) =>
+      w.startsWith("data/curated/club-short.json: "),
+    );
+    expect(line).toMatch(
+      /^data\/curated\/club-short\.json: \d+ clubs the game shows print an automatic short label; curate them: [a-z0-9-]+ \(/,
+    );
+    expect(line).toContain(clubsWithAutoShort(real, short.clubs).join(", "));
+    // Exit 0 (run rejects otherwise), the line printed.
+    const { stdout } = await run(
+      process.execPath,
+      [...NO_NETWORK_ARGS, CLI, "check"],
+      { cwd: root },
+    );
+    expect(stdout).toContain(
+      "data:check: warning: data/curated/club-short.json: ",
+    );
   });
 
   it("an AFCON 2004 file lists Wikidata ids, at most 23, no repeats", () => {

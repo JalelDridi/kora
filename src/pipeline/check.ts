@@ -1,6 +1,8 @@
 import { access, readFile } from "node:fs/promises";
 import path from "node:path";
+import { autoShort } from "./short-label.ts";
 import { buildSeasonData, seasonProblems } from "../engine/season/data.ts";
+import { isGuessable } from "./grace.ts";
 import { validateOverrides } from "./overrides.ts";
 import { activeRefusal, ALLOW_POOL_DROP } from "./report.ts";
 import type { KnownIds } from "./overrides.ts";
@@ -150,6 +152,116 @@ export function validateAfcon(json: unknown): string[] {
     seen.add(q);
   }
   return errors;
+}
+
+/**
+ * data/curated/club-short.json: what a Chkoun? tile and a 30–0 match row
+ * print for a club whose full name does not fit (mobile polish M5, D-MP-1):
+ * the Derja nickname on /ar, the acronym fans write on /tn and /fr.
+ */
+export type ClubShortFile = {
+  by: string;
+  at: string;
+  note: string;
+  clubs: Record<string, { latin: string; arabic: string }>;
+};
+
+/**
+ * The longest word a six-column tile holds at 14 px with slack for other
+ * renderers (fix round 2): 7 Latin letters, 8 Arabic ones (narrower).
+ */
+const SHORT_WORD = { latin: 7, arabic: 8 } as const;
+const NON_WESTERN_DIGIT = /[\u0660-\u0669\u06F0-\u06F9]/;
+
+/**
+ * Every id a club of the pool, every Ligue 1 club given (`ligue1ClubIds`),
+ * both forms present: at most two words (a tile wraps between them), each at
+ * most 7 Latin or 8 Arabic letters, Western digits only.
+ */
+export function validateClubShort(
+  json: unknown,
+  clubIds: string[],
+  ligue1ClubIds: string[] = [],
+): string[] {
+  const at = "club-short.json";
+  if (!isRecord(json) || !isRecord(json.clubs))
+    return [`${at}: must be { by, at, note, clubs }`];
+  const errors: string[] = [];
+  for (const key of ["by", "at", "note"])
+    if (typeof json[key] !== "string" || json[key] === "")
+      errors.push(`${at}: ${key} must be a string`);
+  // Claude's drafts say so until Jalel takes them over (P51).
+  if (
+    json.by === "claude" &&
+    typeof json.note === "string" &&
+    !json.note.includes("DRAFT")
+  )
+    errors.push(`${at}: a file by claude must say DRAFT in its note`);
+  const known = new Set(clubIds);
+  for (const id of ligue1ClubIds)
+    if (!(id in json.clubs))
+      errors.push(
+        `${at}: no short label for ${id}: add "${id}": { "latin": …, "arabic": … } to data/curated/club-short.json (at most two words: 7 Latin or 8 Arabic letters each)`,
+      );
+  for (const [id, forms] of Object.entries(json.clubs)) {
+    if (!known.has(id)) {
+      errors.push(`${at}: ${id} is not a club`);
+      continue;
+    }
+    if (
+      !isRecord(forms) ||
+      typeof forms.latin !== "string" ||
+      typeof forms.arabic !== "string"
+    ) {
+      errors.push(`${at}: ${id} must be { latin, arabic }`);
+      continue;
+    }
+    for (const script of ["latin", "arabic"] as const) {
+      const value = forms[script] as string;
+      const words = value.split(/\s+/).filter(Boolean);
+      if (words.length === 0) errors.push(`${at}: ${id} ${script} is empty`);
+      else if (words.length > 2)
+        errors.push(`${at}: ${id} ${script} has more than two words`);
+      else if (words.some((w) => [...w].length > SHORT_WORD[script]))
+        errors.push(
+          `${at}: ${id} ${script} is longer than ${SHORT_WORD[script]}`,
+        );
+      if (NON_WESTERN_DIGIT.test(value))
+        errors.push(`${at}: ${id} ${script} has a non-Western digit`);
+    }
+  }
+  return errors;
+}
+
+/**
+ * The clubs the game can show (those of guessable footballers) that
+ * club-short.json does not list and whose name, in one of its three forms,
+ * does not fit a tile as it is: they print an automatic label
+ * (src/pipeline/short-label.ts). Each with its automatic labels, for the
+ * nightly report: these are the labels to curate.
+ */
+export function clubsWithAutoShort(
+  pool: Pool,
+  curated: Record<string, unknown>,
+): string[] {
+  const shown = new Set(
+    pool.players.filter((p) => isGuessable(p.pools)).map((p) => p.clubId),
+  );
+  const listed: string[] = [];
+  for (const c of pool.clubs) {
+    if (!shown.has(c.id) || c.id in curated) continue;
+    const names = new Set([
+      c.nameLatin,
+      c.nameFrench ?? c.nameLatin,
+      c.nameArabic ?? c.nameLatin,
+    ]);
+    const autos = [...names]
+      .filter((name) => autoShort(name) !== name)
+      .map(autoShort);
+    if (autos.length > 0)
+      listed.push(`${c.id} (${[...new Set(autos)].join(" / ")})`);
+  }
+  return listed.sort();
 }
 
 /** The errors of checkData. */
@@ -303,6 +415,30 @@ export async function inspectData(
           pool.clubs.filter((c) => isRecord(c) && c.ligue1).map((c) => c.id),
         ).map((e) => `data/curated/${e}`),
       );
+  }
+  // The short club labels (mobile polish M5): required once there is a pool.
+  const clubShort = await read("curated/club-short.json");
+  if (usablePool(pool)) {
+    if (clubShort === undefined) {
+      if (!errors.some((e) => e.startsWith("data/curated/club-short")))
+        errors.push("data/curated/club-short.json: missing");
+    } else
+      errors.push(
+        ...validateClubShort(
+          clubShort,
+          pool.clubs.filter(isRecord).map((c) => String(c.id)),
+          pool.clubs.filter((c) => isRecord(c) && c.ligue1).map((c) => c.id),
+        ).map((e) => `data/curated/${e}`),
+      );
+    // Not an error: the tiles print an automatic label meanwhile (fix round
+    // after the mobile polish review, §1.1); the nightly report shows them.
+    if (isRecord(clubShort) && isRecord(clubShort.clubs)) {
+      const auto = clubsWithAutoShort(pool, clubShort.clubs);
+      if (auto.length > 0)
+        warnings.push(
+          `data/curated/club-short.json: ${auto.length} club${auto.length === 1 ? "" : "s"} the game shows print an automatic short label; curate them: ${auto.join(", ")}`,
+        );
+    }
   }
   const afcon = await read("curated/afcon-2004.json");
   if (afcon !== undefined)
