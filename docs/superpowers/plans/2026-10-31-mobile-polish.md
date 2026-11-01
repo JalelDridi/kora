@@ -639,7 +639,7 @@ COMMIT `"docs: decisions for the mobile polish round (P58, T-MP-1 to T-MP-8)"` w
 | The first-visit modal becomes the LCP element in Lighthouse's fresh profile | T2 Step 5 measures; fallback: open after the first idle callback |
 | Android's keyboard covers the pinned search in some WebViews (Facebook) | `interactiveWidget: "resizes-content"` plus `scrollIntoView` on focus; Jalel's phone check; fallback: unpin while the keyboard is open (`visualViewport` resize) |
 | Short club labels read wrong to fans | DRAFT in a curated file Jalel corrects; the full name stays in `title` and for screen readers |
-| Yesterday's tokens confused with today's at midnight | Separate key (T-MP-5); a 409 at the turn of the day sends the page to "closed" with the link to today |
+| Yesterday's tokens confused with today's at midnight | Separate key (T-MP-5); on yesterday's page the first guess after midnight gets 409 `newDay` and the page reloads into the new yesterday; today's page still reloads the day (a today game crossing midnight gets the same 409, never a 403) |
 | The hint leaks more than the letter | Only first letters, from the 5th guess; `leaks()` runs on every answer before the end |
 | Storage wiped in the in-app browser | Every read wrapped; the help shows again, the hub says "not yet"; no error |
 | T5 waits on the mock | T6 to T8 do not depend on T5; if the mock is not approved when T8 is done, T9 runs without T5 and T5 ships in its own pull request |
