@@ -1,10 +1,10 @@
 import { readFileSync } from "node:fs";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { fsSource } from "../../pipeline/check.ts";
 import { FakeGitHub } from "../github/fake.ts";
 import { GitHubError } from "../github/types.ts";
 import type { GitHub } from "../github/types.ts";
-import { saveEdit } from "./commit.server.ts";
+import { DEPLOYMENT_DATA, saveEdit } from "./commit.server.ts";
 import { commitMessage } from "./message.ts";
 import { applyOverridePatch } from "./overrides-patch.ts";
 
@@ -88,16 +88,25 @@ describe("saveEdit", () => {
 
   it("when main moves under it (409), starts once more from main's new copy", async () => {
     const github = new FakeGitHub({ files: { [PATH]: text } });
-    let calls = 0;
+    const seen: string[] = [];
     const make = async (current: string) => {
-      calls++;
-      // Someone else commits between our read and our commit, the first time.
-      if (calls === 1) {
-        const other = await caps(90)(current);
+      seen.push(current);
+      // Someone else commits between our read and our commit, the first
+      // time: another field, so the result shows which copy we patched.
+      if (seen.length === 1) {
+        const other = await applyOverridePatch(
+          current,
+          {
+            qid: "Q2409513",
+            changes: [{ field: "goals", to: 7 }],
+            note: "elsewhere",
+          },
+          today,
+        );
         const { sha } = await github.readFile(PATH);
         await github.commitFile({
           path: PATH,
-          text: other.text.replace('"FTF page"', '"elsewhere"'),
+          text: other.text,
           sha,
           message: "other",
         });
@@ -106,12 +115,18 @@ describe("saveEdit", () => {
     };
     const result = await saveEdit({ path: PATH, make }, { github, base });
     expect(result.ok).toBe(true);
-    expect(calls).toBe(2);
+    expect(seen).toHaveLength(2);
+    expect(seen[1]).not.toBe(seen[0]);
     expect(github.state.commits).toHaveLength(2);
     const saved = JSON.parse((await github.readFile(PATH)).text);
     expect(saved.players.Q2409513.caps).toMatchObject({
       value: 102,
       note: "FTF page",
+    });
+    // The other commit's change survives: make was given main's new text.
+    expect(saved.players.Q2409513.goals).toMatchObject({
+      value: 7,
+      note: "elsewhere",
     });
   });
 
@@ -152,5 +167,49 @@ describe("saveEdit", () => {
       ok: false,
       errors: ["edits are off here: no GitHub token on this deployment"],
     });
+  });
+  it("refuses a file the dashboard does not edit, before asking GitHub", async () => {
+    const fake = new FakeGitHub({ files: { [PATH]: text } });
+    let reads = 0;
+    const github: GitHub = Object.assign(Object.create(fake) as GitHub, {
+      readFile: (p: string) => {
+        reads++;
+        return fake.readFile(p);
+      },
+    });
+    for (const path of [
+      "data/pool.json",
+      "data/ids.json",
+      "data/witness.json",
+      "data/curated/unknown.json",
+      "src/games.ts",
+    ])
+      expect(
+        await saveEdit({ path, make: caps(102) }, { github, base }),
+      ).toEqual({
+        ok: false,
+        errors: [`${path}: not a file the dashboard edits`],
+      });
+    expect(reads).toBe(0);
+  });
+
+  it("reuses the deployment's base result from one save to the next", async () => {
+    const github = new FakeGitHub({ files: { [PATH]: text } });
+    const read = vi.spyOn(DEPLOYMENT_DATA, "read");
+    const poolReads = () =>
+      read.mock.calls.filter(([name]) => name === "pool.json").length;
+    try {
+      expect(
+        (await saveEdit({ path: PATH, make: caps(102) }, { github })).ok,
+      ).toBe(true);
+      read.mockClear();
+      expect(
+        (await saveEdit({ path: PATH, make: caps(103) }, { github })).ok,
+      ).toBe(true);
+      // Only the edited overlay reads the pool: the base result is cached.
+      expect(poolReads()).toBe(1);
+    } finally {
+      read.mockRestore();
+    }
   });
 });

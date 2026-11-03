@@ -3,6 +3,7 @@ import { fsSource } from "../../pipeline/check.ts";
 import type { DataSource } from "../../pipeline/check.ts";
 import { getGitHub, GitHubError } from "../github/index.ts";
 import type { CommitInfo, GitHub } from "../github/index.ts";
+import { CURATED } from "./curated-patch.ts";
 import type { Applied } from "./overrides-patch.ts";
 import { EditRefused, validateEdit } from "./validate.ts";
 
@@ -13,6 +14,19 @@ import { EditRefused, validateEdit } from "./validate.ts";
 export type SaveResult =
   { ok: true; commit: CommitInfo } | { ok: false; errors: string[] };
 
+/**
+ * The deployment's data files (bundled for /admin, next.config.ts), read
+ * from one source for the life of the server, so validateEdit computes
+ * their own result once, not once per save.
+ */
+export const DEPLOYMENT_DATA: DataSource = fsSource(process.cwd());
+
+/** The files a dashboard page may commit; pool.json, ids.json and witness.json are the build's. */
+export const EDITABLE: readonly string[] = [
+  "data/overrides.json",
+  ...Object.values(CURATED).map((file) => file.path),
+];
+
 export async function saveEdit(
   {
     path,
@@ -21,13 +35,12 @@ export async function saveEdit(
     path: string;
     make: (text: string) => Promise<Applied & { message: string }>;
   },
-  deps: { github: GitHub | null; base: DataSource } = {
-    github: getGitHub(),
-    // The deployment's data files (bundled for /admin, next.config.ts).
-    base: fsSource(process.cwd()),
-  },
+  deps: { github?: GitHub | null; base?: DataSource } = {},
 ): Promise<SaveResult> {
-  const { github, base } = deps;
+  if (!EDITABLE.includes(path))
+    return { ok: false, errors: [`${path}: not a file the dashboard edits`] };
+  const github = "github" in deps ? (deps.github ?? null) : getGitHub();
+  const base = deps.base ?? DEPLOYMENT_DATA;
   if (!github)
     return {
       ok: false,
