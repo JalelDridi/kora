@@ -415,9 +415,20 @@ test("the Chkoun? view counts the pool and links each footballer to his editor",
     `/admin/footballers/${who.wikidataId}`,
   );
 
-  // Answer-ready with tier D: fame is the field, and the local-star form
-  // previews in his editor; nothing is committed.
+  // A 30–0 sort is not one of this page's: it reads, and prints, as name.
+  await page.goto("/admin/games/chkoun?sort=open");
+  await expect(page.getByRole("status")).toContainText("sorted by name.");
+  await expect(
+    page.getByRole("link", { name: /^Club ?, sort$/ }),
+  ).toHaveAttribute("href", "/admin/games/chkoun?sort=club");
+
+  // One field away is the pipeline's list: no local-star form there.
   await page.goto("/admin/games/chkoun?show=away");
+  await expect(page.getByRole("checkbox")).toHaveCount(0);
+
+  // Answer-ready with tier D: fame short, and the local-star form previews
+  // in his editor; nothing is committed.
+  await page.goto("/admin/games/chkoun?show=fame-short");
   const star = ready.find((p) => p.fame?.tier === "D" && !p.fame.localStar)!;
   const named = page
     .getByRole("row")

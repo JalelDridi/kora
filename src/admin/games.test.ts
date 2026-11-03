@@ -5,6 +5,7 @@ import type { SeasonFiles } from "@/engine/season/data.ts";
 import { footballer } from "@/pipeline/__fixtures__/calendar-pool.ts";
 import type { Pool, PoolPlayer } from "@/pipeline/types.ts";
 import {
+  chkounSort,
   chkounView,
   parseGameQuery,
   seasonView,
@@ -111,26 +112,44 @@ describe("chkounView", () => {
       fame: 5.5,
       ready: true,
       away: null,
+      fameShort: false,
       localStar: false,
     });
     expect(row("games-b")?.club).toBeNull();
-    expect(row("games-away")).toMatchObject({ ready: false, away: "caps" });
-    // Answer-ready, but no tier the calendar draws from: fame is the field.
-    expect(row("games-d")).toMatchObject({ ready: true, away: "fame" });
+    expect(row("games-away")).toMatchObject({
+      ready: false,
+      away: "caps",
+      fameShort: false,
+    });
+  });
+
+  it("keeps one field away to the pipeline's list, and counts the fame-short apart", () => {
+    // The pipeline's list (report.ts): active, not answer-ready, one field short.
+    expect(view.counts.oneFieldAway).toBe(1);
+    // Answer-ready, but no tier the calendar draws from (D, or not measured).
+    expect(row("games-d")).toMatchObject({
+      ready: true,
+      away: null,
+      fameShort: true,
+    });
     expect(row("games-unmeasured")).toMatchObject({
       ready: true,
       tier: "unmeasured",
       fame: null,
-      away: "fame",
+      away: null,
+      fameShort: true,
     });
-    expect(view.counts.oneFieldAway).toBe(3);
+    expect(view.counts.fameShort).toBe(2);
+    // Tiers A to C and the grace footballer are neither.
+    for (const id of ["games-a", "games-b", "games-c", "games-grace"])
+      expect(row(id)).toMatchObject({ away: null, fameShort: false });
   });
 
   it("filters by ?show= and sorts by ?sort=", () => {
     const ids = (rows: { id: string }[]) => rows.map((r) => r.id);
     expect(ids(showRows(view.rows, "ready"))).toHaveLength(5);
-    expect(ids(showRows(view.rows, "away"))).toEqual([
-      "games-away",
+    expect(ids(showRows(view.rows, "away"))).toEqual(["games-away"]);
+    expect(ids(showRows(view.rows, "fame-short"))).toEqual([
       "games-d",
       "games-unmeasured",
     ]);
@@ -167,6 +186,16 @@ describe("chkounView", () => {
     expect(
       parseGameQuery({ show: "tier-Z", sort: "__proto__", page: "-1" }),
     ).toEqual({ show: null, sort: null, page: 1 });
+    expect(parseGameQuery({ show: "fame-short" }).show).toBe("fame-short");
+  });
+
+  it("checks the Chkoun? sort against its own sorts: anything else is name", () => {
+    expect(chkounSort("fame")).toBe("fame");
+    expect(chkounSort("club")).toBe("club");
+    // A 30–0 sort is not one of this page's.
+    expect(chkounSort("open")).toBe("name");
+    expect(chkounSort("strength")).toBe("name");
+    expect(chkounSort(null)).toBe("name");
   });
 });
 

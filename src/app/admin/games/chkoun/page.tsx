@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import type { AdminDay } from "@/admin/calendar";
 import {
+  chkounSort,
   chkounView,
   parseGameQuery,
   showRows,
@@ -11,7 +12,7 @@ import type { ChkounRow, ChkounSort, GameQuery, Show } from "@/admin/games";
 import { answersAround } from "@/admin/home";
 import { loadPool } from "@/admin/load-pool";
 import { NavLink } from "@/admin/nav-link";
-import { FIELD_LABEL, paginate, summarize } from "@/admin/pool";
+import { FIELD_LABEL, paginate } from "@/admin/pool";
 import type { ProvenancedField } from "@/pipeline/types.ts";
 import { withPg } from "@/db/pg";
 import { tunisToday } from "@/pipeline/calendar.ts";
@@ -19,8 +20,8 @@ import { tunisToday } from "@/pipeline/calendar.ts";
 // What Chkoun? makes of the pool (Task 5): how many footballers can be an
 // answer, who is one field away, who is in grace, the fame tiers, and
 // today's and tomorrow's answers. Read only: every footballer links to his
-// editor; a footballer whose missing field is fame gets the local-star
-// form, a GET to the editor's own preview. Filters and sorting are query
+// editor; on the "answer-ready, fame short" list each footballer gets the
+// local-star form, a GET to the editor's own preview. Filters and sorting are query
 // parameters: no client script.
 
 export const dynamic = "force-dynamic";
@@ -28,9 +29,13 @@ export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Chkoun? view" };
 
 const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-/** The field's name as the pool review prints it; fame is the calendar's own. */
-const awayLabel = (field: string) =>
-  field === "fame" ? "Fame" : (FIELD_LABEL[field as ProvenancedField] ?? field);
+/** The field's name as the pool review prints it; "Fame" for the fame-short. */
+const awayLabel = (r: ChkounRow) =>
+  r.away
+    ? (FIELD_LABEL[r.away as ProvenancedField] ?? r.away)
+    : r.fameShort
+      ? "Fame"
+      : "";
 
 const TIER_LABEL = (tier: string) =>
   tier === "unmeasured" ? "not measured" : `tier ${tier}`;
@@ -135,14 +140,17 @@ export default async function ChkounViewPage({
   const query = parseGameQuery(await searchParams);
   // loadPool checks the admin password again (never the proxy alone).
   const [pool, around] = await Promise.all([loadPool(), readAround()]);
-  const buildDay = summarize(pool).newestRead ?? "";
-  const view = chkounView(pool, buildDay);
+  // No build day: any grace date counts, as in the game (isGuessable with
+  // none); the nightly build removes a date once it has passed.
+  const view = chkounView(pool, "");
   const qids = new Map(pool.players.map((p) => [p.id, p.wikidataId]));
-  const sort = (query.sort ?? "name") as ChkounSort;
+  // Only this page's sorts: a 30–0 sort (?sort=open) reads, and prints, as name.
+  const sort = chkounSort(query.sort);
   const shown = sortRows(showRows(view.rows, query.show), sort);
   const { items, page, pages } = paginate(shown, query.page);
+  const starForm = query.show === "fame-short";
   const href = (change: Partial<GameQuery>) => {
-    const next = { ...query, page: 1, ...change };
+    const next = { ...query, sort, page: 1, ...change };
     const params = new URLSearchParams();
     if (next.show) params.set("show", next.show);
     if (next.sort && next.sort !== "name") params.set("sort", next.sort);
@@ -155,6 +163,7 @@ export default async function ChkounViewPage({
     [null, "all"],
     ["ready", "answer-ready"],
     ["away", "one field away"],
+    ["fame-short", "answer-ready, fame short"],
     ["grace", "in grace"],
     ...TIERS.map((t) => [`tier-${t}` as Show, TIER_LABEL(t)] as [Show, string]),
   ];
@@ -162,6 +171,7 @@ export default async function ChkounViewPage({
     ["Active", view.counts.active, null],
     ["Answer-ready", view.counts.answerReady, "ready"],
     ["One field away", view.counts.oneFieldAway, "away"],
+    ["Answer-ready, fame short", view.counts.fameShort, "fame-short"],
     ["In grace", view.counts.grace, "grace"],
     ...TIERS.map(
       (t) =>
@@ -179,9 +189,11 @@ export default async function ChkounViewPage({
       <p className="dim">
         What Chkoun? makes of data/pool.json as committed with this deployment.
         An answer is an active footballer who is answer-ready and of tier A to
-        C. One field away: a field short of answer-ready, or answer-ready with
-        tier D or no fame measured yet (the field is then fame). Grace dates are
-        read against {buildDay || "no date"}, the pool&apos;s newest value.
+        C. One field away: active, and one field short of answer-ready, as the
+        nightly report lists them. Answer-ready, fame short: answer-ready, but
+        of tier D or with no fame measured yet; that list carries the local-star
+        form. In grace: any footballer with a grace date, as the game reads it;
+        the nightly build removes the date once it has passed.
       </p>
 
       <dl className="facts" aria-label="Counts">
@@ -287,12 +299,12 @@ export default async function ChkounViewPage({
                   <td>{r.tier === "unmeasured" ? "not measured" : r.tier}</td>
                   <td className="num">{r.fame ?? "none"}</td>
                   <td>{r.ready ? "yes" : "no"}</td>
-                  <td>{r.away ? awayLabel(r.away) : ""}</td>
+                  <td>{awayLabel(r)}</td>
                   <td>{r.graceUntil ?? ""}</td>
                 </tr>,
                 // Under his row, at the start of the scroll box, so a phone
                 // reaches it without scrolling sideways.
-                r.away === "fame" && !r.localStar ? (
+                starForm && r.fameShort && !r.localStar ? (
                   <tr key={`${r.id}-star`} className="quick-row">
                     <td colSpan={COLUMNS.length}>
                       <LocalStar row={r} />

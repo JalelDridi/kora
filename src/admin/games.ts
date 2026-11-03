@@ -28,11 +28,15 @@ export type ChkounRow = {
   fame: number | null;
   ready: boolean;
   /**
-   * The one field between him and the calendar: an answer-ready field
-   * (oneFieldAway), or "fame" when he is answer-ready but no tier the
-   * calendar draws from (D, or not measured yet). Null otherwise.
+   * The one answer-ready field he lacks, as the pipeline lists it
+   * (oneFieldAway, data/report.md's "one field away"). Null otherwise.
    */
   away: string | null;
+  /**
+   * Answer-ready and active, but of no tier the calendar draws from (D, or
+   * not measured yet): fame is what keeps him from being an answer.
+   */
+  fameShort: boolean;
   graceUntil: string | null;
   localStar: boolean;
 };
@@ -42,6 +46,7 @@ export type ChkounView = {
     active: number;
     answerReady: number;
     oneFieldAway: number;
+    fameShort: number;
     grace: number;
     tiers: Record<Tier, number>;
   };
@@ -78,7 +83,8 @@ export function chkounView(pool: Pool, buildDay: string): ChkounView {
       tier,
       fame: p.fame?.score ?? null,
       ready,
-      away: away.get(p.id) ?? (ready && !DRAWN.includes(tier) ? "fame" : null),
+      away: away.get(p.id) ?? null,
+      fameShort: ready && !DRAWN.includes(tier),
       graceUntil: grace ? (p.pools.graceUntil ?? null) : null,
       localStar: p.fame?.localStar ?? false,
     });
@@ -89,6 +95,7 @@ export function chkounView(pool: Pool, buildDay: string): ChkounView {
       active: rows.filter((r) => r.graceUntil === null).length,
       answerReady: rows.filter((r) => r.ready).length,
       oneFieldAway: rows.filter((r) => r.away !== null).length,
+      fameShort: rows.filter((r) => r.fameShort).length,
       grace: rows.filter((r) => r.graceUntil !== null).length,
       tiers,
     },
@@ -99,6 +106,7 @@ export function chkounView(pool: Pool, buildDay: string): ChkounView {
 export const SHOWS = [
   "ready",
   "away",
+  "fame-short",
   "grace",
   ...TIERS.map((t) => `tier-${t}`),
 ] as const;
@@ -131,6 +139,13 @@ export function parseGameQuery(query: Query): GameQuery {
   };
 }
 
+/** The Chkoun? view's sort: one of its own, or name (never a 30–0 sort). */
+export function chkounSort(sort: GameQuery["sort"]): ChkounSort {
+  return (CHKOUN_SORTS as readonly string[]).includes(sort ?? "")
+    ? (sort as ChkounSort)
+    : "name";
+}
+
 /** The rows `?show=` asks for; null shows every row. */
 export function showRows(rows: ChkounRow[], show: Show | null): ChkounRow[] {
   switch (show) {
@@ -140,6 +155,8 @@ export function showRows(rows: ChkounRow[], show: Show | null): ChkounRow[] {
       return rows.filter((r) => r.ready);
     case "away":
       return rows.filter((r) => r.away !== null);
+    case "fame-short":
+      return rows.filter((r) => r.fameShort);
     case "grace":
       return rows.filter((r) => r.graceUntil !== null);
     default:
