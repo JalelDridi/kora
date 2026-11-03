@@ -72,6 +72,16 @@ for (const [name, make] of [
         }),
       ).rejects.toMatchObject({ status: 409 });
     });
+    it("refuses a commit without a sha on an existing file with 422", async () => {
+      await expect(
+        make().commitFile({
+          path: "data/overrides.json",
+          text: "{}\n",
+          sha: "",
+          message: "m",
+        }),
+      ).rejects.toMatchObject({ status: 422 });
+    });
     it("answers 404 for a file that is not there", async () => {
       await expect(make().readFile("data/nope.json")).rejects.toMatchObject({
         status: 404,
@@ -79,12 +89,13 @@ for (const [name, make] of [
     });
     it("records a dispatch as a queued nightly run", async () => {
       const gh = make();
-      await gh.dispatchWorkflow("nightly-data.yml", {
+      const id = await gh.dispatchWorkflow("nightly-data.yml", {
         merge_when_green: "true",
       });
       expect(
         (await gh.workflowRuns("nightly-data.yml", { perPage: 1 }))[0],
-      ).toMatchObject({ event: "workflow_dispatch", status: "queued" });
+      ).toMatchObject({ id, event: "workflow_dispatch", status: "queued" });
+      expect(id).toEqual(expect.any(Number));
       expect(await gh.workflowRuns("ci.yml", { perPage: 1 })).toEqual([]);
     });
     it("has no data pull request before a nightly opens one", async () => {

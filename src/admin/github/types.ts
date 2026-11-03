@@ -73,10 +73,11 @@ export interface GitHub {
     perPage: number;
   }): Promise<CommitInfo[]>;
   getCommit(sha: string): Promise<CommitInfo>;
+  /** The new run's id when GitHub gives it; null when it does not (find it by time). */
   dispatchWorkflow(
     file: "nightly-data.yml",
     inputs: Record<string, string>,
-  ): Promise<void>;
+  ): Promise<number | null>;
   workflowRuns(
     file: Workflow,
     query: { headSha?: string; perPage: number },
@@ -86,7 +87,10 @@ export interface GitHub {
   jobLogTail(jobId: number, lines: number): Promise<string[]>;
   /** The newest pull request from data/nightly, open or not. */
   dataPullRequest(): Promise<PullInfo | null>;
-  /** Days until the token expires, from GitHub's response header; null when it never does. */
+  /**
+   * Days until the token expires, from GitHub's response header; null when
+   * unknown: no call made yet on this client, or a token that never expires.
+   */
   tokenDaysLeft(): number | null;
 }
 

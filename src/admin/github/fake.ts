@@ -133,12 +133,12 @@ export class FakeGitHub implements GitHub {
   }): Promise<CommitInfo> {
     return this.update((state) => {
       const current = state.files[input.path];
-      if (
-        current === undefined
-          ? input.sha !== ""
-          : input.sha !== blobSha(current)
-      )
-        throw new GitHubError(current === undefined ? 422 : 409, "commitFile");
+      // As GitHub: no sha for an existing file (or one for a new file) is
+      // 422; a stale sha is 409.
+      if (current === undefined ? input.sha !== "" : input.sha === "")
+        throw new GitHubError(422, "commitFile");
+      if (current !== undefined && input.sha !== blobSha(current))
+        throw new GitHubError(409, "commitFile");
       const parent = this.#head(state);
       const sha = sha1(
         `${parent}\0${input.path}\0${input.text}\0${input.message}`,
@@ -180,8 +180,8 @@ export class FakeGitHub implements GitHub {
   async dispatchWorkflow(
     file: "nightly-data.yml",
     inputs: Record<string, string>,
-  ): Promise<void> {
-    this.update((state) => {
+  ): Promise<number | null> {
+    return this.update((state) => {
       const id = Math.max(0, ...state.runs.map((r) => r.id)) + 1;
       state.runs.unshift({
         id,
@@ -194,6 +194,7 @@ export class FakeGitHub implements GitHub {
         url: `https://github.com/${REPO.owner}/${REPO.repo}/actions/runs/${id}`,
         headSha: this.#head(state),
       });
+      return id;
     });
   }
 

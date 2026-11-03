@@ -107,6 +107,8 @@ export function fakeGitHubFetch(
       };
       const current = files.get(path);
       if (put.branch !== "main") return json(422, {});
+      if (current !== undefined && !put.sha)
+        return json(422, { message: '"sha" wasn\'t supplied.' });
       if (current !== undefined && put.sha !== gitBlobSha(current))
         return json(409, { message: "does not match" });
       const text = Buffer.from(put.content, "base64").toString("utf8");

@@ -13,24 +13,33 @@ const eslintConfig = defineConfig([
   },
   {
     // Public code never imports the admin (decision P60): its GitHub client
-    // and edit modules stay out of the visitors' bundles. src/admin/access.ts
-    // is the one exception: pure, no secret, shared with the nightly route's
-    // constant-time comparison (src/chkoun/nightly.ts).
-    files: [
-      "src/app/[[]locale]/**",
-      "src/app/api/**",
-      "src/components/**",
-      "src/chkoun/**",
-      "src/season/**",
-      "src/engine/**",
-    ],
+    // and edit modules stay out of the visitors' bundles. Everything under
+    // src/ is public except the admin itself. The one exception is
+    // src/admin/access.ts: pure, no secret, shared with the proxy and the
+    // nightly route's constant-time comparison (src/chkoun/nightly.ts). Only
+    // that exact module: "@/admin/access/../github" is still refused.
+    files: ["src/**"],
+    ignores: ["src/admin/**", "src/app/admin/**"],
     rules: {
       "no-restricted-imports": [
         "error",
         {
           patterns: [
             {
-              group: ["@/admin/*", "**/admin/*", "!@/admin/access"],
+              group: [
+                "@/admin/*",
+                "**/admin/*",
+                "@/admin/*/**",
+                "**/admin/*/**",
+                "!@/admin/access",
+                "!./admin/access",
+              ],
+              message: "Public code must not import the admin (decision P60).",
+            },
+          ],
+          paths: [
+            {
+              name: "@/admin",
               message: "Public code must not import the admin (decision P60).",
             },
           ],

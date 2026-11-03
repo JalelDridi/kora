@@ -236,7 +236,7 @@ export class HttpGitHub implements GitHub {
   async dispatchWorkflow(
     file: "nightly-data.yml",
     inputs: Record<string, string>,
-  ): Promise<void> {
+  ): Promise<number | null> {
     const response = await this.call(
       "dispatchWorkflow",
       `actions/workflows/${file}/dispatches`,
@@ -245,7 +245,15 @@ export class HttpGitHub implements GitHub {
         body: { ref: REPO.branch, inputs, return_run_details: true },
       },
     );
-    await response.body?.cancel().catch(() => {});
+    // 200 with the run's id since February 2026; 204 and no body before.
+    const text = await response.text().catch(() => "");
+    try {
+      const id = (JSON.parse(text) as { workflow_run_id?: unknown })
+        .workflow_run_id;
+      return typeof id === "number" ? id : null;
+    } catch {
+      return null;
+    }
   }
 
   async workflowRuns(

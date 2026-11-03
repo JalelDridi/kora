@@ -1,7 +1,9 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { fakeGitHubFetch } from "./fake-fetch.ts";
 import { HttpGitHub } from "./http.ts";
 import { GitHubError } from "./types.ts";
+
+afterEach(() => vi.useRealTimers());
 
 describe("HttpGitHub", () => {
   it("sends the token as a bearer header and never puts it in an error", async () => {
@@ -54,6 +56,8 @@ describe("HttpGitHub", () => {
     expect(String(error) + JSON.stringify(error)).not.toContain("test-token");
   });
   it("reads the token's expiry from the response header", async () => {
+    vi.useFakeTimers({ toFake: ["Date"] });
+    vi.setSystemTime(new Date("2026-11-03T10:00:00Z"));
     const f = fakeGitHubFetch(
       { "a.json": "1\n" },
       { expiration: "2027-11-01 10:00:00 UTC" },
@@ -61,7 +65,7 @@ describe("HttpGitHub", () => {
     const gh = new HttpGitHub("test-token", f.fetch);
     expect(gh.tokenDaysLeft()).toBeNull();
     await gh.readFile("a.json");
-    expect(gh.tokenDaysLeft()).toBeGreaterThan(300);
+    expect(gh.tokenDaysLeft()).toBe(363);
   });
   it("keeps every path inside the repository", async () => {
     const f = fakeGitHubFetch({ "a.json": "1\n" });
@@ -80,5 +84,26 @@ describe("HttpGitHub", () => {
       ).rejects.toMatchObject({ status: 400 });
     }
     expect(f.requests).toEqual([]);
+  });
+  it("returns the dispatched run's id, or null on GitHub's older 204", async () => {
+    const f = fakeGitHubFetch({});
+    expect(
+      await new HttpGitHub("test-token", f.fetch).dispatchWorkflow(
+        "nightly-data.yml",
+        {},
+      ),
+    ).toBe(1);
+    expect(f.requests[0].body).toMatchObject({
+      ref: "main",
+      return_run_details: true,
+    });
+    const empty = (async () =>
+      new Response(null, { status: 204 })) as typeof fetch;
+    expect(
+      await new HttpGitHub("test-token", empty).dispatchWorkflow(
+        "nightly-data.yml",
+        {},
+      ),
+    ).toBeNull();
   });
 });
