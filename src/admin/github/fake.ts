@@ -12,6 +12,7 @@ import {
   type RunInfo,
   type Workflow,
 } from "./types.ts";
+import type { FakeSearch } from "../wikidata-search.ts";
 
 // GitHub in memory, with the same contract as HttpGitHub: blob shas as git
 // computes them, a 409 on a stale sha, a history that reads any file as it
@@ -39,8 +40,8 @@ export type FakeState = {
   /** Log texts by job id. */
   logs: Record<string, string>;
   pull: PullInfo | null;
-  /** The Wikidata search fake's answers (used by the add page's tests). */
-  search: Record<string, unknown>;
+  /** The Wikidata search fake's answers (the add page, src/admin/wikidata.ts). */
+  search: FakeSearch;
 };
 
 const sha1 = (text: string) => createHash("sha1").update(text).digest("hex");

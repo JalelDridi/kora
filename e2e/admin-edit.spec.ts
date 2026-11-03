@@ -3,7 +3,13 @@ import { readFileSync } from "node:fs";
 import { expect, test } from "@playwright/test";
 import { E2E_ENV } from "../playwright.config";
 import type { Pool } from "../src/pipeline/types";
-import { fakeCommits, fakeFile, resetFakes } from "./fixtures/admin-fakes";
+import {
+  fakeCommits,
+  fakeFile,
+  IN_POOL,
+  OUTSIDE,
+  resetFakes,
+} from "./fixtures/admin-fakes";
 
 // The footballer editor (/admin/footballers/[qid]) against the GitHub fake:
 // the server under test reads and commits the JSON state KORA_ADMIN_FAKES
@@ -117,4 +123,149 @@ test("the pool's footballer page links to his editor", async ({ page }) => {
   await page.goto(`/admin/pool/${someone.id}`);
   await page.getByRole("link", { name: "Edit overrides" }).click();
   await expect(page).toHaveURL(`/admin/footballers/${someone.wikidataId}`);
+});
+
+const overridesOf = (qid: string) =>
+  JSON.parse(fakeFile("data/overrides.json")).players[qid];
+/** The card of one Wikidata match on the add page. */
+const card = (page: import("@playwright/test").Page, label: string) =>
+  page
+    .getByRole("listitem")
+    .filter({ has: page.getByRole("heading", { name: label, exact: true }) });
+
+test("search, add with a note, land on his editor with the include in the diff", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 360, height: 800 });
+  await page.goto("/admin/add");
+  expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+  await page.getByLabel("Name on Wikidata").fill("Msakni");
+  await page.getByRole("button", { name: "Search" }).click();
+  const outside = card(page, OUTSIDE.label);
+  await expect(outside.getByTestId("footballer")).toHaveText("yes");
+  await expect(outside.getByTestId("tunisian")).toHaveText("no");
+  await expect(outside).toContainText("2003-04-05");
+  expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+  expect(
+    await page.evaluate(() => document.documentElement.scrollWidth),
+  ).toBeLessThanOrEqual(360);
+  await outside.getByLabel("Note").fill("Called up by Tunisia, FTF list");
+  await outside.getByRole("button", { name: /^Add to the pool/ }).click();
+  await expect(page).toHaveURL(
+    new RegExp(`/admin/footballers/${OUTSIDE.qid}\\?saved=[0-9a-f]{40}$`),
+  );
+  await expect(page.getByText(/^Saved as [0-9a-f]{7}/)).toBeVisible();
+  await expect(page.getByRole("table", { name: "Changes" })).toContainText(
+    `players.${OUTSIDE.qid}.include`,
+  );
+  await expect(
+    page.getByText(
+      "He joins the pool at the next rebuild if his data qualifies him",
+    ),
+  ).toBeVisible();
+  await expect(page.getByTestId("included")).toContainText(
+    "Called up by Tunisia, FTF list",
+  );
+  const commits = fakeCommits();
+  expect(commits).toHaveLength(1);
+  expect(commits[0].message.split("\n")[0]).toBe(
+    `data(overrides): ${OUTSIDE.qid} ${OUTSIDE.label}: include`,
+  );
+  expect(overridesOf(OUTSIDE.qid)).toEqual({
+    include: {
+      value: true,
+      by: "jalel",
+      at: expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/),
+      note: "Called up by Tunisia, FTF list",
+    },
+  });
+  expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+  // Back on the add page, he is waiting for the rebuild, not offered again.
+  await page.goto("/admin/add?q=Msakni");
+  await expect(card(page, OUTSIDE.label)).toContainText(
+    "joins the pool at the next rebuild",
+  );
+  await expect(
+    card(page, OUTSIDE.label).getByRole("button", { name: /^Add/ }),
+  ).toHaveCount(0);
+});
+
+test("a footballer already in the pool links to his editor instead of Add", async ({
+  page,
+}) => {
+  await page.goto("/admin/add?q=Msakni");
+  const known = card(page, IN_POOL.label);
+  await expect(known).toContainText("Already in the pool.");
+  await expect(known.getByTestId("tunisian")).toHaveText("yes");
+  await expect(known.getByRole("button")).toHaveCount(0);
+  await known.getByRole("link", { name: /^Edit his overrides/ }).click();
+  await expect(page).toHaveURL(`/admin/footballers/${IN_POOL.qid}`);
+  await page.goto("/admin/add?q=Zzz");
+  await expect(
+    page.getByRole("heading", { name: "No item on Wikidata matches “Zzz”" }),
+  ).toBeVisible();
+  expect(fakeCommits()).toEqual([]);
+});
+
+test("exclude previews every override that goes, saves, and Include again removes it", async ({
+  page,
+}) => {
+  // Firas Chaouat: a club, caps and caps-date override in force.
+  const qid = "Q58815643";
+  const before = overridesOf(qid);
+  const fields = Object.keys(before);
+  expect(fields).toEqual(expect.arrayContaining(["caps", "club"]));
+  await page.setViewportSize({ width: 360, height: 800 });
+  await page.goto(`/admin/footballers/${qid}`);
+  await page.getByLabel("Why exclude him").fill("Not Tunisian (test)");
+  await page.getByRole("button", { name: "Exclude from every game" }).click();
+  const table = page.getByRole("table", { name: "Changes" });
+  for (const field of fields)
+    await expect(
+      table.getByRole("row", {
+        name: new RegExp(`^players\\.${qid}\\.${field} `),
+      }),
+    ).toContainText("none (excluded)");
+  await expect(table).toContainText(`players.${qid}.exclude`);
+  expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+  await page.getByRole("button", { name: "Save" }).click();
+  await expect(page.getByText(/^Saved as [0-9a-f]{7}/)).toBeVisible();
+  expect(fakeCommits()[0].message.split("\n")[0]).toBe(
+    `data(overrides): ${qid} Firas Chaouat: exclude`,
+  );
+  expect(overridesOf(qid)).toEqual({
+    exclude: {
+      value: true,
+      by: "jalel",
+      at: expect.any(String),
+      note: "Not Tunisian (test)",
+    },
+  });
+  await expect(page.getByTestId("excluded")).toHaveText(
+    /^Excluded since \d{4}-\d{2}-\d{2} \(Not Tunisian \(test\)\)$/,
+  );
+  expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+  await page.getByLabel("Why include him again").fill("Excluded by mistake");
+  await page.getByRole("button", { name: "Include again" }).click();
+  // The page after this save, not the one before it.
+  await expect(
+    page.getByRole("button", { name: "Exclude from every game" }),
+  ).toBeVisible();
+  await expect(page.getByText(/^Saved as [0-9a-f]{7}/)).toBeVisible();
+  const commits = fakeCommits();
+  expect(commits).toHaveLength(2);
+  expect(commits[0].message).toContain(`- players.${qid}.exclude: yes → none`);
+  // Nothing else comes back: his other overrides went with the
+  // exclusion, and including him again restores none of them.
+  expect(overridesOf(qid)).toBeUndefined();
+});
+
+test("a saved link GitHub does not know names the commit and claims no save", async ({
+  page,
+}) => {
+  const sha = "a".repeat(40);
+  await page.goto(`/admin/footballers/${someone.wikidataId}?saved=${sha}`);
+  await expect(page.getByRole("status")).toHaveText("Commit aaaaaaa");
+  await expect(page.getByText(/Saved as/)).toHaveCount(0);
+  await expect(page.getByRole("table", { name: "Changes" })).toHaveCount(0);
 });

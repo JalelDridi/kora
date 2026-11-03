@@ -32,6 +32,12 @@ export async function footballerEdit(input: {
   names: Names;
   /** The Tunis day. */
   today: string;
+  /**
+   * His name when the pool has none for him (left out, or found on the add
+   * page): for the commit subject only, so whitespace is folded and it is
+   * cut to 80 characters.
+   */
+  name?: string;
 }): Promise<FootballerEdit> {
   const { patch, errors } = parseOverrideForm(input.form);
   if (!patch) return { ok: false, errors };
@@ -46,14 +52,22 @@ export async function footballerEdit(input: {
       { clubName: input.names.club },
     );
     const diff = diffAgainstToday(applied.diff, rows);
-    const fields = diff.map(
-      (line) =>
-        OVERRIDE_LABEL[line.path.split(".").at(-1) as OverrideField] ??
-        line.path,
+    // An exclusion takes his other overrides with it: the lines list
+    // them, the subject says what was decided.
+    const excluding = patch.changes.some(
+      (c) => c.field === "exclude" && "to" in c && c.to === true,
     );
-    const who = input.player
-      ? `${patch.qid} ${input.player.nameLatin}`
-      : patch.qid;
+    const fields = excluding
+      ? [OVERRIDE_LABEL.exclude]
+      : diff.map(
+          (line) =>
+            OVERRIDE_LABEL[line.path.split(".").at(-1) as OverrideField] ??
+            line.path,
+        );
+    const name =
+      input.player?.nameLatin ??
+      [...(input.name ?? "").replace(/\s+/g, " ").trim()].slice(0, 80).join("");
+    const who = name ? `${patch.qid} ${name}` : patch.qid;
     return {
       ok: true,
       applied: {

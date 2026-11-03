@@ -114,4 +114,43 @@ describe("footballerEdit", () => {
       "data(overrides): Q1: exclude",
     );
   });
+
+  it("an include from the add page names him in the subject when the pool cannot", async () => {
+    const out = await footballerEdit({
+      form: { qid: "Q999001", include: "on", note: "Tunisia squad, 2026" },
+      text,
+      player: null,
+      names,
+      today,
+      name: "Hamza\nMsakni ",
+    });
+    if (!out.ok) throw new Error(out.errors.join("; "));
+    expect(out.applied.diff).toEqual([
+      { path: "players.Q999001.include", before: "none", after: "yes" },
+    ]);
+    expect(out.applied.message.split("\n")[0]).toBe(
+      "data(overrides): Q999001 Hamza Msakni: include",
+    );
+  });
+
+  it("an exclusion's subject says exclude, while its lines list every override that goes", async () => {
+    const qid = "Q58815643";
+    const player = pool.players.find((p) => p.wikidataId === qid) ?? null;
+    const out = await footballerEdit({
+      form: { qid, exclude: "on", note: "test" },
+      text,
+      player,
+      names,
+      today,
+    });
+    if (!out.ok) throw new Error(out.errors.join("; "));
+    const gone = Object.keys(JSON.parse(text).players[qid]);
+    expect(out.applied.diff.map((d) => d.path)).toEqual([
+      ...gone.map((f) => `players.${qid}.${f}`),
+      `players.${qid}.exclude`,
+    ]);
+    expect(out.applied.message.split("\n")[0]).toBe(
+      `data(overrides): ${qid} ${player?.nameLatin}: exclude`,
+    );
+  });
 });

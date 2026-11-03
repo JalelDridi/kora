@@ -294,6 +294,7 @@ td.warn {
 }
 
 .editor input[type="text"],
+.editor input[type="search"],
 .editor input[type="number"],
 .editor input[type="date"],
 .editor select,
@@ -380,4 +381,50 @@ pre.message {
   padding: 0.5rem;
   white-space: pre-wrap;
   overflow-wrap: anywhere;
+}
+
+/* The add page (/admin/add): one card per Wikidata match. */
+
+ul.hits {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.hit {
+  background: var(--pitch-900);
+  border: 1px solid var(--pitch-700);
+  border-radius: 6px;
+  padding: 0.6rem 0.75rem;
+  margin-block-end: 0.75rem;
+}
+
+.hit h3 {
+  font-size: 1.1rem;
+  margin-block: 0 0.25rem;
+}
+
+.hit p {
+  margin-block: 0.25rem;
+}
+
+.hit-facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(8rem, 1fr));
+  gap: 0.25rem 0.75rem;
+  margin-block: 0.5rem;
+}
+
+.hit-facts dt {
+  color: var(--chalk-dim);
+  font-size: 0.85rem;
+}
+
+.hit-facts dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.hit label {
+  font-weight: 600;
 }

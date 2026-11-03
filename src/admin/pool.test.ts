@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import type { Pool, PoolPlayer } from "@/pipeline/types.ts";
 import {
@@ -286,6 +287,7 @@ describe("overrideRows", () => {
       "aliases",
       "pools",
       "exclude",
+      "include",
       "localStar",
     ]);
     const by = Object.fromEntries(rows.map((r) => [r.field, r]));
@@ -310,6 +312,7 @@ describe("overrideRows", () => {
       todayText: "active",
     });
     expect(by.exclude).toMatchObject({ today: false, todayText: "no" });
+    expect(by.include).toMatchObject({ today: false, todayText: "no" });
     expect(by.localStar).toMatchObject({ today: false, todayText: "no" });
   });
 
@@ -382,5 +385,25 @@ describe("overrideRows", () => {
       { path: "players.Q1.caps", before: "90", after: "91" },
       { path: "players.Q1.club", before: "none", after: "Q2" },
     ]);
+  });
+});
+
+// Task 3 review, M1: the pool pages need the field names, not Prettier,
+// which overrides-patch.ts loads (json-text.ts) to write the file.
+describe("what the pool pages load", () => {
+  it("takes the override fields from a module that does not load Prettier", () => {
+    const imports = (file: string) =>
+      [...readFileSync(file, "utf8").matchAll(/from "([^"]+)"/g)].map(
+        (m) => m[1],
+      );
+    expect(imports("src/admin/pool.ts")).not.toContain(
+      "@/admin/edit/overrides-patch.ts",
+    );
+    expect(imports("src/admin/pool.ts")).toContain("@/admin/edit/fields.ts");
+    expect(
+      imports("src/admin/edit/fields.ts").every((m) =>
+        m.startsWith("../../pipeline/"),
+      ),
+    ).toBe(true);
   });
 });

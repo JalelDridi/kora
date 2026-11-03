@@ -57,6 +57,55 @@ describe("an override patch", () => {
       { path: "players.Q2409513.governorate", before: "tunis", after: "none" },
     ]);
   });
+  // Task 2 review, M4: in, or out, not both.
+  it("include replaces an exclude in force, and stamps itself", async () => {
+    const seeded = JSON.stringify(
+      {
+        players: {
+          Q42: {
+            exclude: {
+              value: true,
+              by: "jalel",
+              at: "2026-10-01",
+              note: "not Tunisian",
+            },
+          },
+        },
+        clubTitles: {},
+      },
+      null,
+      2,
+    );
+    const out = await applyOverridePatch(
+      seeded,
+      {
+        qid: "Q42",
+        changes: [{ field: "include", to: true }],
+        note: "plays for Tunisia since 2026",
+      },
+      today,
+    );
+    expect(
+      (out.json as { players: Record<string, unknown> }).players.Q42,
+    ).toEqual({
+      include: {
+        value: true,
+        by: "jalel",
+        at: today,
+        note: "plays for Tunisia since 2026",
+      },
+    });
+    expect(out.diff).toEqual([
+      { path: "players.Q42.exclude", before: "yes", after: "none" },
+      { path: "players.Q42.include", before: "none", after: "yes" },
+    ]);
+  });
+  it("reads an include box like exclude: on is true", () => {
+    expect(
+      parseOverrideForm({ qid: "Q42", include: "on", note: "x" }).patch
+        ?.changes,
+    ).toEqual([{ field: "include", to: true }]);
+  });
   it("exclude replaces the whole entry; the diff lists what goes", async () => {
     const out = await applyOverridePatch(
       text,

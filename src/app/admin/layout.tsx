@@ -15,6 +15,7 @@ export default function AdminLayout({ children }: LayoutProps<"/admin">) {
       <body>
         <nav className="admin" aria-label="Admin pages">
           <NavLink href="/admin/pool">Pool review</NavLink>
+          <NavLink href="/admin/add">Add a footballer</NavLink>
           <NavLink href="/admin/chkoun">Chkoun? calendar</NavLink>
         </nav>
         {children}

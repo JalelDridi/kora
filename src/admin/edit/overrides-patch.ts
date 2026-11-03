@@ -1,6 +1,12 @@
 import { isDeepStrictEqual } from "node:util";
-import type { PlayerOverride } from "../../pipeline/overrides.ts";
 import { lines } from "../../pipeline/types.ts";
+import { FIELDS } from "./fields.ts";
+import type {
+  Applied,
+  DiffLine,
+  FieldChange,
+  OverridePatch,
+} from "./fields.ts";
 import { layoutOf, writeJson } from "./json-text.ts";
 import { EditRefused } from "./validate.ts";
 
@@ -8,39 +14,13 @@ import { EditRefused } from "./validate.ts";
 // dashboard (T-AD-2): each new or changed value says who decided it (Jalel),
 // when (the Tunis day) and why (the note); `clubTitles` is never touched.
 
-export type FieldChange =
-  | { field: keyof PlayerOverride; to: unknown }
-  | { field: keyof PlayerOverride; remove: true };
-export type OverridePatch = {
-  qid: string;
-  changes: FieldChange[];
-  note: string;
-};
-export type DiffLine = { path: string; before: string; after: string };
-export type Applied = {
-  text: string;
-  json: unknown;
-  diff: DiffLine[];
-  changed: boolean;
-};
-
-/** The fields in the order the editor shows them (src/pipeline/overrides.ts). */
-export const FIELDS = [
-  "club",
-  "position",
-  "positionDetail",
-  "caps",
-  "goals",
-  "capsAsOf",
-  "birthDate",
-  "governorate",
-  "birthCountry",
-  "nameArabic",
-  "aliases",
-  "pools",
-  "exclude",
-  "localStar",
-] as const satisfies readonly (keyof PlayerOverride)[];
+export { FIELDS } from "./fields.ts";
+export type {
+  Applied,
+  DiffLine,
+  FieldChange,
+  OverridePatch,
+} from "./fields.ts";
 
 type Entry = Record<string, { value: unknown } & Record<string, unknown>>;
 type DiffOptions = {
@@ -177,6 +157,7 @@ export function parseOverrideForm(form: Record<string, string | string[]>): {
           });
         continue;
       case "exclude":
+      case "include":
       case "localStar":
         if (raw === "on") set(true);
         continue;

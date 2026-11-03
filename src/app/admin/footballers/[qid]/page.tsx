@@ -5,9 +5,16 @@ import { footballerEdit } from "@/admin/edit/footballer";
 import { diffFromMessage } from "@/admin/edit/message";
 import type { DiffLine } from "@/admin/edit/overrides-patch";
 import { validateEdit } from "@/admin/edit/validate";
-import { editorNames, formRecord } from "@/admin/footballer-page";
+import { STATE_FIELDS } from "@/admin/edit/fields";
+import {
+  editorNames,
+  editorProblems,
+  formRecord,
+  SAVE_ERRORS,
+} from "@/admin/footballer-page";
 import type { EditorNames } from "@/admin/footballer-page";
-import { getGitHub, GitHubError, REPO } from "@/admin/github";
+import { readOverrides } from "@/admin/edit/read-overrides.server";
+import { REPO } from "@/admin/github";
 import type { CommitInfo, GitHub } from "@/admin/github";
 import { loadPool } from "@/admin/load-pool";
 import { NavLink } from "@/admin/nav-link";
@@ -35,46 +42,6 @@ export const dynamic = "force-dynamic";
 
 const PATH = "data/overrides.json";
 const QID = /^Q\d+$/;
-
-type Overrides = {
-  text: string;
-  /** null: saving is off (no GitHub, or it could not be read). */
-  github: GitHub | null;
-  notice: string | null;
-};
-
-/** main's copy, so a save made a minute ago shows; else the deployed file. */
-async function readOverrides(): Promise<Overrides> {
-  const deployed = async () => (await DEPLOYMENT_DATA.read("overrides.json"))!;
-  const github = getGitHub();
-  if (!github)
-    return {
-      text: await deployed(),
-      github: null,
-      notice:
-        "GitHub not connected: showing the deployed overrides; saving is off.",
-    };
-  try {
-    return { text: (await github.readFile(PATH)).text, github, notice: null };
-  } catch (error) {
-    if (!(error instanceof GitHubError)) throw error;
-    return {
-      text: await deployed(),
-      github: null,
-      notice: `GitHub could not be read (${error.message}): showing the deployed overrides; saving is off.`,
-    };
-  }
-}
-
-const SAVE_ERRORS: Record<string, string> = {
-  off: "Not saved: edits are off here (no GitHub token on this deployment).",
-  unchanged: "Not saved: no value changed.",
-  conflict: "Not saved: main changed twice while saving. Try again.",
-  github:
-    "Not saved: GitHub did not answer as expected. Try again in a minute.",
-  refused:
-    "Not saved: main's copy refuses this change now. Preview it again to see why.",
-};
 
 const one = (value: string | string[] | undefined) =>
   typeof value === "string" ? value : undefined;
@@ -105,11 +72,17 @@ export default async function FootballerEditorPage({
     JSON.parse(overrides.text) as { players: Record<string, PlayerOverride> }
   ).players[qid];
   const rows = overrideRows(player, entry, names);
+  // Task 3 review, M3: a list the selects need could not be read, or does
+  // not have his value: saving is off rather than a quiet "none".
+  const problems = editorProblems(names, player);
+  const canSave = overrides.github !== null && problems.length === 0;
 
-  // The form's own values, when they come back from a preview.
+  // The form's own values, when they come back from a preview. The
+  // exclusion is its own form: its preview goes back to the plain page.
   const sent = formRecord(query);
   for (const name of ["preview", "saved", "error"]) delete sent[name];
-  const returned = sent.qid === qid;
+  const exclusion = sent.exclude === "on";
+  const returned = sent.qid === qid && !exclusion;
   const saved = one(query.saved);
   const savedSha = saved && /^[0-9a-f]{40}$/.test(saved) ? saved : null;
   const error = SAVE_ERRORS[one(query.error) ?? ""] ?? null;
@@ -136,29 +109,46 @@ export default async function FootballerEditorPage({
             : ": not in the pool"}
       </p>
       {overrides.notice ? <p className="notice">{overrides.notice}</p> : null}
+      {problems.length > 0 ? (
+        <p className="notice">
+          The editor could not read its lists ({problems.join("; ")}): saving is
+          off.
+        </p>
+      ) : null}
       {error ? (
         <p role="alert" className="notice notice-error">
           {error}
         </p>
       ) : null}
-      {savedSha ? <Saved sha={savedSha} github={overrides.github} /> : null}
+      {savedSha ? (
+        <Saved
+          sha={savedSha}
+          github={overrides.github}
+          joins={player === null && entry?.include?.value === true}
+        />
+      ) : null}
       {one(query.preview) === "1" ? (
         <Preview
           qid={qid}
           sent={sent}
           text={overrides.text}
           player={player}
+          name={dropped?.name}
           names={names}
-          canSave={overrides.github !== null}
+          canSave={canSave}
+          back={exclusion ? `/admin/footballers/${qid}` : null}
         />
       ) : (
-        <EditForm
-          qid={qid}
-          rows={rows}
-          names={names}
-          sent={returned ? sent : null}
-          disabled={overrides.github === null}
-        />
+        <>
+          <EditForm
+            qid={qid}
+            rows={rows.filter((row) => !STATE_FIELDS.includes(row.field))}
+            names={names}
+            sent={returned ? sent : null}
+            disabled={!canSave}
+          />
+          <InOrOut qid={qid} entry={entry} disabled={!canSave} />
+        </>
       )}
     </main>
   );
@@ -189,7 +179,20 @@ function Diff({ diff }: { diff: DiffLine[] }) {
   );
 }
 
-async function Saved({ sha, github }: { sha: string; github: GitHub | null }) {
+/**
+ * After a save's redirect. "Saved as" only when GitHub returns the commit
+ * (Task 3 review, M6): a typed or stale `?saved=` gets the link, no claim.
+ */
+async function Saved({
+  sha,
+  github,
+  joins,
+}: {
+  sha: string;
+  github: GitHub | null;
+  /** Included and not in the deployed pool yet. */
+  joins: boolean;
+}) {
   const commit: CommitInfo | null = github
     ? await github.getCommit(sha).catch(() => null)
     : null;
@@ -200,13 +203,99 @@ async function Saved({ sha, github }: { sha: string; github: GitHub | null }) {
   return (
     <section aria-labelledby="saved" className="notice">
       <p role="status" id="saved">
-        Saved as <a href={url}>{sha.slice(0, 7)}</a> on main.
+        {commit ? (
+          <>
+            Saved as <a href={url}>{sha.slice(0, 7)}</a> on main.
+          </>
+        ) : (
+          <>
+            Commit <a href={url}>{sha.slice(0, 7)}</a>
+          </>
+        )}
       </p>
       {diff.length > 0 ? <Diff diff={diff} /> : null}
       <p>
-        The games change after a rebuild:{" "}
+        {joins
+          ? "He joins the pool at the next rebuild if his data qualifies him: "
+          : "The games change after a rebuild: "}
         <NavLink href="/admin/rebuild">Rebuild now</NavLink>
       </p>
+    </section>
+  );
+}
+
+/**
+ * In the games or out (T-AD-5): exclusion is its own form, previewed like
+ * any change (the preview lists every override of his that goes); an
+ * exclusion in force is undone by "Include again", which removes it.
+ */
+function InOrOut({
+  qid,
+  entry,
+  disabled,
+}: {
+  qid: string;
+  entry: PlayerOverride | undefined;
+  disabled: boolean;
+}) {
+  const excluded = entry?.exclude?.value === true ? entry.exclude : null;
+  const included = entry?.include?.value === true ? entry.include : null;
+  const since = (o: { at: string; note?: string }) =>
+    `${o.at}${o.note ? ` (${o.note})` : ""}`;
+  if (excluded)
+    return (
+      <section aria-labelledby="in-or-out" className="field">
+        <h2 id="in-or-out">Excluded</h2>
+        <p data-testid="excluded">Excluded since {since(excluded)}</p>
+        <form action={saveFootballer}>
+          <input type="hidden" name="qid" value={qid} />
+          <input type="hidden" name="remove.exclude" value="on" />
+          <label htmlFor="f-include-why">Why include him again</label>
+          <textarea
+            id="f-include-why"
+            name="note"
+            rows={2}
+            maxLength={500}
+            disabled={disabled}
+          />
+          {disabled ? null : (
+            <div className="actions">
+              <button type="submit">Include again</button>
+            </div>
+          )}
+        </form>
+      </section>
+    );
+  return (
+    <section aria-labelledby="in-or-out" className="field">
+      <h2 id="in-or-out">Exclude from every game</h2>
+      {included ? (
+        <p data-testid="included">Included by search since {since(included)}</p>
+      ) : null}
+      <p className="dim" id="f-exclude-hint">
+        He leaves every game at the next rebuild, and every override of his
+        goes. The preview lists them.
+      </p>
+      <form method="get" action={`/admin/footballers/${qid}`}>
+        <input type="hidden" name="preview" value="1" />
+        <input type="hidden" name="qid" value={qid} />
+        <input type="hidden" name="exclude" value="on" />
+        <label htmlFor="f-exclude-why">Why exclude him</label>
+        <textarea
+          id="f-exclude-why"
+          name="note"
+          rows={2}
+          maxLength={500}
+          required
+          disabled={disabled}
+          aria-describedby="f-exclude-hint"
+        />
+        {disabled ? null : (
+          <div className="actions">
+            <button type="submit">Exclude from every game</button>
+          </div>
+        )}
+      </form>
     </section>
   );
 }
@@ -216,15 +305,21 @@ async function Preview({
   sent,
   text,
   player,
+  name,
   names,
   canSave,
+  back,
 }: {
   qid: string;
   sent: Record<string, string | string[]>;
   text: string;
   player: Parameters<typeof footballerEdit>[0]["player"];
+  /** His name when the pool has none (left out). */
+  name: string | undefined;
   names: EditorNames;
   canSave: boolean;
+  /** Where "Change the values" goes when it is not the filled form. */
+  back: string | null;
 }) {
   const edit = await footballerEdit({
     form: { ...sent, qid },
@@ -232,17 +327,19 @@ async function Preview({
     player,
     names,
     today: tunisDay(new Date()),
+    ...(name ? { name } : {}),
   });
   const checked =
     edit.ok && edit.applied.changed
       ? await validateEdit(PATH, edit.applied.text, DEPLOYMENT_DATA)
       : { errors: [], warnings: [] };
   const errors = edit.ok ? checked.errors : edit.errors;
-  const back = new URLSearchParams();
+  const query = new URLSearchParams();
   for (const [key, value] of Object.entries(sent))
-    for (const v of Array.isArray(value) ? value : [value]) back.append(key, v);
-  back.set("qid", qid);
-  const changeHref = `/admin/footballers/${qid}?${back}`;
+    for (const v of Array.isArray(value) ? value : [value])
+      query.append(key, v);
+  query.set("qid", qid);
+  const changeHref = back ?? `/admin/footballers/${qid}?${query}`;
 
   return (
     <section aria-labelledby="preview">

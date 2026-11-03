@@ -3,8 +3,9 @@
 // Imports only types and pure helpers from the pipeline (decision P16 page).
 
 import { isDeepStrictEqual } from "node:util";
-import { FIELDS } from "@/admin/edit/overrides-patch.ts";
-import type { DiffLine, FieldChange } from "@/admin/edit/overrides-patch.ts";
+// The field names only: overrides-patch.ts would load Prettier with them.
+import { FIELDS } from "@/admin/edit/fields.ts";
+import type { DiffLine, FieldChange } from "@/admin/edit/fields.ts";
 import { CROSS_CHECKED, SINGLE_SOURCE } from "@/pipeline/confidence.ts";
 import type { PlayerOverride } from "@/pipeline/overrides.ts";
 import { SKIP_KINDS, sourceNames } from "@/pipeline/report.ts";
@@ -329,6 +330,7 @@ export const OVERRIDE_LABEL: Record<OverrideField, string> = {
   aliases: "Aliases",
   pools: "Pools",
   exclude: "Exclude",
+  include: "Include",
   localStar: "Local star",
 };
 
@@ -347,6 +349,7 @@ const PROVENANCE_OF: Record<OverrideField, ProvenancedField | null> = {
   aliases: null,
   pools: "pools",
   exclude: null,
+  include: null,
   localStar: null,
 };
 
@@ -387,6 +390,7 @@ function todayOf(
     case "pools":
       return { active: player.pools.active, legend: player.pools.legend };
     case "exclude":
+    case "include":
       return false;
     case "localStar":
       return player.fame?.localStar ?? false;
