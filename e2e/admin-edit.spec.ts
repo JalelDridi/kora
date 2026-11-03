@@ -744,7 +744,9 @@ test("club-short stays short at 360 px: a filter, a panel alone, warnings closed
     "href",
     "/admin/settings/club-short?q=zarzis",
   );
-  expect(await pageHeight(page)).toBeLessThan(1500);
+  // About two screens: 1,600 px since the 16 px base font and the 44 px
+  // controls of every admin page (Task 9).
+  expect(await pageHeight(page)).toBeLessThan(1600);
 
   // The preview: no rows either, and the warnings it has closed under their count.
   await page.getByLabel("Latin").fill("ZRZ");

@@ -8,11 +8,13 @@ import {
 import { addDays } from "@/engine/chkoun/day.ts";
 import {
   eligible,
+  footballer,
   syncFootballers,
 } from "@/pipeline/__fixtures__/calendar-pool.ts";
 import { topUpCalendar, tunisToday } from "@/pipeline/calendar.ts";
+import type { Pool, PoolPlayer } from "@/pipeline/types.ts";
 import { loadAdminCalendar } from "./calendar";
-import { answersAround } from "./home";
+import { answersAround, githubCard, homeSummary } from "./home";
 
 // Today's and tomorrow's Chkoun? answers, as the admin's game view shows
 // them: the same rows as /admin/chkoun, read from the local Postgres.
@@ -24,6 +26,15 @@ const sql = {
   query: (text: string, values?: unknown[]) => client.query(text, values),
 };
 let today: string;
+
+const poolOf = (players: PoolPlayer[]): Pool => ({
+  version: 1,
+  players,
+  clubs: [],
+  honours: [],
+  flags: [],
+  dropped: [],
+});
 
 beforeAll(async () => {
   await client.connect();
@@ -63,5 +74,46 @@ describe("answersAround", () => {
     const around = await answersAround(sql, last);
     expect(around.today?.day).toBe(last);
     expect(around.tomorrow).toBeNull();
+  });
+});
+
+describe("the home summary", () => {
+  it("the home summary reads one calendar query and no GitHub call when GitHub is off", async () => {
+    const asked: string[] = [];
+    const counted = {
+      query: (text: string, values?: unknown[]) => {
+        asked.push(text);
+        return client.query(text, values);
+      },
+    };
+    const players = [footballer("ready-a", "A"), footballer("ready-b", "B")];
+    const summary = await homeSummary({
+      db: counted,
+      today,
+      pool: poolOf(players),
+      github: null,
+    });
+    expect(asked).toHaveLength(1);
+    expect(summary.around?.today).toEqual(
+      (await answersAround(sql, today)).today,
+    );
+    expect(summary.around?.tomorrow?.day).toBe(addDays(today, 1));
+    expect(summary.rebuild).toBeNull();
+    expect(summary.github).toEqual(githubCard(null));
+    expect(summary.github.text).toMatch(/^Not connected/);
+  });
+
+  it("without a database the cards still read; the calendar says so", async () => {
+    const down = {
+      query: () => Promise.reject(new Error("connect ECONNREFUSED")),
+    };
+    const summary = await homeSummary({
+      db: down,
+      today,
+      pool: poolOf([]),
+      github: null,
+    });
+    expect(summary.around).toBeNull();
+    expect(summary.pool.active).toBe(0);
   });
 });

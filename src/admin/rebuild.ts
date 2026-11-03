@@ -40,6 +40,11 @@ export type RebuildState = {
 
 export type RebuildInput = {
   dispatchedAt: string | null;
+  /**
+   * The run to follow when it is known (the home's newest nightly run,
+   * scheduled or not); else the dispatched one found from `dispatchedAt`.
+   */
+  run?: RebuildRun;
   /** The nightly workflow's runs, newest first. */
   runs: RebuildRun[];
   jobs: JobInfo[];
@@ -107,7 +112,7 @@ export const NO_REQUIRED_CHECK =
 export function rebuildState(input: RebuildInput): RebuildState {
   if (input.dispatchedAt === null || Number.isNaN(time(input.dispatchedAt)))
     return { stage: "idle", refresh: false };
-  const run = findRun(input.runs, input.dispatchedAt);
+  const run = input.run ?? findRun(input.runs, input.dispatchedAt);
   if (!run) return { stage: "queued", refresh: true };
   if (run.status === "queued") return { stage: "queued", run, refresh: true };
   if (run.status !== "completed")
@@ -183,15 +188,19 @@ export type RebuildView = {
 /**
  * What the rebuild page shows, read from GitHub: one call for the nightly's
  * runs, and only what the run's stage needs after that (its jobs; the
- * failed job's log; the data pull request and CI on its head).
+ * failed job's log; the data pull request and CI on its head). With
+ * `newest`, the newest nightly run is followed, scheduled or dispatched,
+ * from its own start (the dashboard home's "Last rebuild").
  */
 export async function readRebuild(
   github: GitHub,
   since: string | null,
+  { newest = false }: { newest?: boolean } = {},
 ): Promise<RebuildView> {
   const runs = await github.workflowRuns("nightly-data.yml", { perPage: 10 });
   const busy = runs[0] !== undefined && runs[0].status !== "completed";
-  const run = since ? findRun(runs, since) : undefined;
+  const run = newest ? runs[0] : since ? findRun(runs, since) : undefined;
+  const from = newest ? (run?.createdAt ?? null) : since;
   let jobs: JobInfo[] = [];
   let log: string[] = [];
   let pull: PullInfo | null = null;
@@ -222,7 +231,15 @@ export async function readRebuild(
       log = await github.jobLogTail(propose.id, LOG_LINES).catch(() => []);
   }
   return {
-    state: rebuildState({ dispatchedAt: since, runs, jobs, log, pull, ci }),
+    state: rebuildState({
+      dispatchedAt: from,
+      ...(run ? { run } : {}),
+      runs,
+      jobs,
+      log,
+      pull,
+      ci,
+    }),
     jobs,
     recent: runs.slice(0, 5),
     busy,

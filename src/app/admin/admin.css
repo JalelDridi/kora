@@ -19,7 +19,7 @@ html {
   background: var(--pitch-950);
   color: var(--chalk);
   font:
-    15px/1.45 system-ui,
+    16px/1.45 system-ui,
     sans-serif;
 }
 
@@ -187,16 +187,135 @@ ul.plain {
   padding-inline-start: 1.25rem;
 }
 
-/* The Chkoun? calendar (/admin/chkoun). */
+/* The admin nav (Task 9): on a phone one row that scrolls sideways
+   inside itself, never the page; from 40rem a wrapping row. Each link a
+   44 px target; the current place underlined and bold. */
 
 nav.admin {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
   max-inline-size: 72rem;
   margin-inline: auto;
-  margin-block-end: 1rem;
+  margin-block: -0.75rem 1rem;
+  border-block-end: 1px solid var(--pitch-700);
 }
+
+nav.admin ul {
+  display: flex;
+  gap: 0.25rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+}
+
+nav.admin a {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  min-block-size: 44px;
+  padding-inline: 0.6rem;
+  white-space: nowrap;
+}
+
+nav.admin a[aria-current] {
+  border-block-end: 3px solid var(--mint);
+}
+
+@media (width >= 40rem) {
+  nav.admin ul {
+    flex-wrap: wrap;
+    overflow-x: visible;
+  }
+}
+
+/* Every form control a 44 px target at 16 px, so a phone does not zoom;
+   a checkbox keeps its own size inside its 44 px label. */
+input:not([type="checkbox"], [type="radio"], [type="hidden"]),
+button,
+select,
+textarea {
+  box-sizing: border-box;
+  min-block-size: 44px;
+  font-size: 16px;
+}
+
+/* The dashboard home (/admin): one card a column on a phone, two from
+   40rem (640 px). */
+
+.cards {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1rem;
+}
+
+@media (width >= 40rem) {
+  .cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.cards > section {
+  background: var(--pitch-900);
+  border: 1px solid var(--pitch-700);
+  border-radius: 6px;
+  padding-block: 0.25rem 0.5rem;
+  padding-inline: 0.9rem;
+  min-inline-size: 0;
+}
+
+.cards h2 {
+  margin-block: 0.6rem 0.5rem;
+}
+
+.cards .facts div {
+  background: var(--pitch-950);
+}
+
+.cards p,
+.cards dd {
+  overflow-wrap: anywhere;
+}
+
+.cards .more a,
+.cards dd a,
+ul.review a,
+ul.quick-links a {
+  display: inline-flex;
+  align-items: center;
+  min-block-size: 44px;
+}
+
+ul.review,
+ul.quick-links {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+ul.quick-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 1.25rem;
+}
+
+form.find {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+form.find label {
+  flex-basis: 100%;
+  font-weight: 600;
+}
+
+form.find input {
+  flex: 1 1 10rem;
+  min-inline-size: 0;
+}
+
+/* The Chkoun? calendar (/admin/chkoun). */
 
 tr.frozen {
   color: var(--chalk-dim);

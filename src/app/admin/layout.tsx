@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { NavLink } from "@/admin/nav-link";
 import "./admin.css";
 
 export const metadata: Metadata = {
@@ -9,17 +8,12 @@ export const metadata: Metadata = {
 
 // A second root layout: the review pages are English, left to right, and
 // share nothing with the localized site, not even its stylesheet or fonts.
+// The nav is each section's (src/admin/admin-nav.tsx), so it can mark the
+// section it is in.
 export default function AdminLayout({ children }: LayoutProps<"/admin">) {
   return (
     <html lang="en" dir="ltr">
-      <body>
-        <nav className="admin" aria-label="Admin pages">
-          <NavLink href="/admin/pool">Pool review</NavLink>
-          <NavLink href="/admin/add">Add a footballer</NavLink>
-          <NavLink href="/admin/chkoun">Chkoun? calendar</NavLink>
-        </nav>
-        {children}
-      </body>
+      <body>{children}</body>
     </html>
   );
 }
