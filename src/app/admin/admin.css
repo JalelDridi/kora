@@ -183,6 +183,14 @@ button {
   margin-block-start: 1rem;
 }
 
+/* The page links of a long list: 44 px targets on a phone. */
+.pages a {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  min-block-size: 44px;
+}
+
 ul.plain {
   padding-inline-start: 1.25rem;
 }

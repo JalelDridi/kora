@@ -342,3 +342,22 @@ test("every admin page has the nav with the current page marked", async ({
   await page.goto(`/admin/footballers/${sure.wikidataId}`);
   await expect(nav.locator("[aria-current]")).toHaveCount(0);
 });
+
+test("the page links of a long list are 44 px targets at 360 px", async ({
+  page,
+}) => {
+  await page.setExtraHTTPHeaders(RIGHT);
+  await page.setViewportSize({ width: 360, height: 800 });
+  for (const path of ["/admin/pool?page=2", "/admin/games/chkoun?page=2"]) {
+    await page.goto(path);
+    const links = page
+      .getByRole("navigation", { name: "Pages", exact: true })
+      .getByRole("link");
+    await expect(links, path).toHaveCount(2);
+    for (const link of await links.all())
+      expect(
+        (await link.boundingBox())!.height,
+        `${path} ${await link.textContent()}`,
+      ).toBeGreaterThanOrEqual(44);
+  }
+});
