@@ -1,15 +1,19 @@
 import type { Metadata } from "next";
+import { Fragment } from "react";
 import { LINES, parseGameQuery, seasonView, sortClubs } from "@/admin/games";
 import type { SeasonClub, SeasonSort } from "@/admin/games";
 import { loadPool } from "@/admin/load-pool";
 import { NavLink } from "@/admin/nav-link";
+import { LINE_SHORT } from "@/engine/season/data.ts";
 import { getSeasonData } from "@/season/data.server";
 
 // What 30–0 makes of the pool (Task 5): per Ligue 1 club, the candidates
 // of each decade and line with the rating their card shows, best first,
 // from the same season data the draft endpoint builds once per instance.
 // Read only: every name links to the footballer's editor, the strength to
-// its row in ligue1-strength.json. No client script.
+// its row in ligue1-strength.json. Each decade gives its counts per line,
+// the names in a closed <details> per line, so an open club stays short on
+// a phone. No client script.
 
 export const dynamic = "force-dynamic";
 
@@ -53,61 +57,69 @@ function Club({
         </NavLink>{" "}
         <span className="dim">in ligue1-strength.json</span>
       </p>
-      <div
-        className="scroll"
-        tabIndex={0}
-        role="region"
-        aria-label={`${club.name} candidates, scrolls sideways`}
-      >
-        <table className="season">
-          <caption className="visually-hidden">
-            {club.name}: candidates by decade and line, best rating first
-          </caption>
-          <thead>
-            <tr>
-              <th scope="col">Decade</th>
-              {LINES.map((line) => (
-                <th key={line} scope="col">
-                  {LINE_LABEL[line]}
-                </th>
-              ))}
+      <table className="season">
+        <caption className="visually-hidden">
+          {club.name}: candidates by decade and line, best rating first
+        </caption>
+        <thead>
+          <tr>
+            <th scope="col">Decade</th>
+            <th scope="col">Candidates per line</th>
+          </tr>
+        </thead>
+        <tbody>
+          {club.decades.map((d) => (
+            <tr key={d.decade}>
+              <th scope="row">{d.decade}s</th>
+              <td>
+                <div className="lines">
+                  {LINES.map((line, i) => {
+                    const list = d.candidates.filter((c) => c.line === line);
+                    const count = `${LINE_SHORT[line]} ${d.lines[line]}`;
+                    return (
+                      <Fragment key={line}>
+                        {i > 0 ? (
+                          <span className="sep" aria-hidden="true">
+                            ·
+                          </span>
+                        ) : null}
+                        {list.length === 0 ? (
+                          <span className="line-empty">{count}</span>
+                        ) : (
+                          <details className="line">
+                            <summary>
+                              {count}
+                              <span className="visually-hidden">
+                                , {LINE_LABEL[line]} of the {d.decade}s
+                              </span>
+                            </summary>
+                            <ol className="candidates">
+                              {list.map((c) => (
+                                <li key={c.footballerId}>
+                                  {qids.has(c.footballerId) ? (
+                                    <NavLink
+                                      href={`/admin/footballers/${qids.get(c.footballerId)}`}
+                                    >
+                                      {c.name}
+                                    </NavLink>
+                                  ) : (
+                                    c.name
+                                  )}{" "}
+                                  <span className="rating">{c.rating}</span>
+                                </li>
+                              ))}
+                            </ol>
+                          </details>
+                        )}
+                      </Fragment>
+                    );
+                  })}
+                </div>
+              </td>
             </tr>
-          </thead>
-          <tbody>
-            {club.decades.map((d) => (
-              <tr key={d.decade}>
-                <th scope="row">{d.decade}s</th>
-                {LINES.map((line) => {
-                  const list = d.candidates.filter((c) => c.line === line);
-                  return (
-                    <td key={line}>
-                      <span className="dim">{d.lines[line]} to spin</span>
-                      {list.length > 0 ? (
-                        <ol className="candidates">
-                          {list.map((c) => (
-                            <li key={c.footballerId}>
-                              {qids.has(c.footballerId) ? (
-                                <NavLink
-                                  href={`/admin/footballers/${qids.get(c.footballerId)}`}
-                                >
-                                  {c.name}
-                                </NavLink>
-                              ) : (
-                                c.name
-                              )}{" "}
-                              <span className="rating">{c.rating}</span>
-                            </li>
-                          ))}
-                        </ol>
-                      ) : null}
-                    </td>
-                  );
-                })}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+          ))}
+        </tbody>
+      </table>
     </details>
   );
 }

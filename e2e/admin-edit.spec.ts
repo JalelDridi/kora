@@ -371,10 +371,20 @@ test("excluding a footballer built from an include says the include goes with hi
   await expect(page.getByTestId("include-goes")).toHaveText(goes);
 });
 
-const fits360 = async (page: import("@playwright/test").Page) =>
+// Neither the page nor any scroll box in it scrolls sideways at 360 px.
+const fits360 = async (page: import("@playwright/test").Page) => {
   expect(
     await page.evaluate(() => document.documentElement.scrollWidth),
   ).toBeLessThanOrEqual(360);
+  expect(
+    await page.evaluate(
+      () =>
+        [...document.querySelectorAll(".scroll")].filter(
+          (box) => box.scrollWidth > box.clientWidth,
+        ).length,
+    ),
+  ).toBe(0);
+};
 
 // The Chkoun? rules, written out here rather than imported, so the page is
 // checked against an independent reading of data/pool.json:
@@ -450,13 +460,33 @@ test("the Chkoun? view counts the pool and links each footballer to his editor",
     "href",
     `/admin/footballers/${who.wikidataId}`,
   );
+  // On a phone his row is two lines: the name, then the other columns.
+  const firstRow = table.getByRole("row").nth(1);
+  await expect(firstRow.locator(".sub")).toBeVisible();
+  await expect(firstRow.locator(".sub")).toContainText(" · fame ");
+  await expect(table.getByRole("columnheader", { name: /^Club/ })).toBeHidden();
+  // From 40rem the columns are back and the second line is gone.
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await expect(firstRow.locator(".sub")).toBeHidden();
+  await expect(
+    table.getByRole("columnheader", { name: /^Club/ }),
+  ).toBeVisible();
+  await page.setViewportSize({ width: 360, height: 800 });
 
   // A 30–0 sort is not one of this page's: it reads, and prints, as name.
   await page.goto("/admin/games/chkoun?sort=open");
   await expect(page.getByRole("status")).toContainText("sorted by name.");
+  // On a phone the sorts sit with the filters, the column headers hidden.
   await expect(
-    page.getByRole("link", { name: /^Club ?, sort$/ }),
+    page
+      .getByRole("navigation", { name: "Filters" })
+      .getByRole("link", { name: "club", exact: true }),
   ).toHaveAttribute("href", "/admin/games/chkoun?sort=club");
+  await expect(
+    page
+      .getByRole("navigation", { name: "Filters" })
+      .getByRole("link", { name: "name", exact: true }),
+  ).toHaveAttribute("aria-current", "true");
 
   // One field away is the pipeline's list: no local-star form there.
   await page.goto("/admin/games/chkoun?show=away");
@@ -508,14 +538,22 @@ test("the 30–0 view lists every Ligue 1 club with its candidates and ratings",
   await fits360(page);
 
   const esperance = page.locator('details[id="esperance-sportive-de-tunis"]');
-  await esperance.locator("summary").click();
+  await esperance.locator("> summary").click();
+  // Per decade, the counts per line, the names closed: an open club stays
+  // short on a phone.
+  const lines = esperance.locator("details.line > summary");
+  await expect(lines.first()).toHaveText(/^(GK|DEF|MID|FWD) \d+/);
+  await expect(esperance.locator("ol.candidates").first()).toBeHidden();
+  expect((await esperance.boundingBox())!.height).toBeLessThan(900);
   await expect(
     esperance.getByRole("link", { name: /^Strength \d+/ }),
   ).toHaveAttribute(
     "href",
     "/admin/settings/ligue1-strength#esperance-sportive-de-tunis",
   );
+  await lines.first().click();
   const candidate = esperance.locator("ol.candidates li").first();
+  await expect(candidate).toBeVisible();
   await expect(candidate.locator(".rating")).toHaveText(/^\d+$/);
   const name = (await candidate.getByRole("link").textContent())!;
   const footballer = pool.players.find((p) => p.nameLatin === name)!;

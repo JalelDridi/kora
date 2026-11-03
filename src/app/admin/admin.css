@@ -478,6 +478,33 @@ tr.quick-row td {
   padding-block-start: 0;
 }
 
+table.game .sub,
+.phone-only {
+  display: none;
+}
+
+/* A phone: one column, two lines per footballer (his name, then the other
+   columns as one line), so nothing scrolls sideways. */
+@media (width < 40rem) {
+  table.game {
+    min-inline-size: 0;
+  }
+
+  table.game :is(th, td):not(:first-child) {
+    display: none;
+  }
+
+  table.game .sub {
+    display: block;
+    color: var(--chalk-dim);
+    font-size: 0.9rem;
+  }
+
+  .phone-only {
+    display: block;
+  }
+}
+
 form.quick {
   position: sticky;
   inset-inline-start: 0;
@@ -523,12 +550,41 @@ details.club p {
   margin-block: 0 0.5rem;
 }
 
-table.season {
-  min-inline-size: 44rem;
+table.season th[scope="row"] {
+  inline-size: 4rem;
 }
 
-table.season td {
-  inline-size: 25%;
+/* A decade's counts per line ("GK 3 · DEF 6 · MID 9 · FWD 4"), each line
+   that has anyone a closed <details>; an open one takes the whole width. */
+.lines {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0 0.5rem;
+}
+
+.lines .sep {
+  color: var(--chalk-dim);
+}
+
+.line-empty {
+  color: var(--chalk-dim);
+}
+
+details.line > summary {
+  box-sizing: border-box;
+  min-block-size: 44px;
+  padding-block: 0.6rem;
+  cursor: pointer;
+  font-variant-numeric: tabular-nums;
+}
+
+details.line[open] {
+  flex-basis: 100%;
+}
+
+details.line[open] > summary {
+  font-weight: 700;
 }
 
 ol.candidates {

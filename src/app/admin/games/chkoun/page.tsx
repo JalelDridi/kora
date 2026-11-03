@@ -124,6 +124,27 @@ function LocalStar({ row }: { row: ChkounRow }) {
   );
 }
 
+/**
+ * The row on a phone, under his name: "Club · tier · fame · <field short or
+ * ready> · grace until <date>". Hidden from 40rem, where the columns show.
+ */
+function Sub({ row: r }: { row: ChkounRow }) {
+  const parts = [
+    r.club ?? "no club",
+    TIER_LABEL(r.tier),
+    `fame ${r.fame ?? "none"}`,
+    r.away
+      ? `${awayLabel(r)} short`
+      : r.fameShort
+        ? "ready, fame short"
+        : r.ready
+          ? "ready"
+          : "not ready",
+    ...(r.graceUntil ? [`grace until ${r.graceUntil}`] : []),
+  ];
+  return <span className="sub">{parts.join(" · ")}</span>;
+}
+
 const COLUMNS: { sort: ChkounSort | null; label: string; num?: boolean }[] = [
   { sort: "name", label: "Footballer" },
   { sort: "club", label: "Club" },
@@ -238,6 +259,21 @@ export default async function ChkounViewPage({
             </span>
           ))}
         </p>
+        {/* On a phone the column headers are hidden: their sorts are here. */}
+        <p className="phone-only">
+          Sort by:{" "}
+          {COLUMNS.filter((c) => c.sort).map((c, i) => (
+            <span key={c.label}>
+              {i > 0 ? " · " : ""}
+              <NavLink
+                href={href({ sort: c.sort })}
+                {...current(c.sort === sort)}
+              >
+                {c.sort}
+              </NavLink>
+            </span>
+          ))}
+        </p>
       </nav>
       <p role="status">
         Showing {shown.length} of {view.rows.length} footballers
@@ -294,6 +330,7 @@ export default async function ChkounViewPage({
                         <span className="dim">local star</span>
                       </>
                     ) : null}
+                    <Sub row={r} />
                   </th>
                   <td>{r.club ?? "none"}</td>
                   <td>{r.tier === "unmeasured" ? "not measured" : r.tier}</td>

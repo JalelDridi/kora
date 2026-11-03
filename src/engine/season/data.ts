@@ -205,7 +205,8 @@ export function readCode(data: SeasonData, code: string): Candidate | null {
 export const LIGUE1_CLUBS = 16;
 
 const LINES = ["goalkeeper", "defender", "midfielder", "forward"] as const;
-const SHORT = {
+/** Each line's short name, as the nightly report's "30–0 spins" prints it. */
+export const LINE_SHORT = {
   goalkeeper: "GK",
   defender: "DEF",
   midfielder: "MID",
@@ -252,7 +253,7 @@ export function spinSummary(data: SeasonData): string[] {
       const counts = LINES.map((line) => {
         const n = data.index.get(tripleKey(clubId, decade, line))?.length ?? 0;
         if (n > 0) open += 1;
-        return `${SHORT[line]} ${n}`;
+        return `${LINE_SHORT[line]} ${n}`;
       });
       return `${decade}s ${counts.join(" ")}`;
     });
