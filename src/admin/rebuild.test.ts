@@ -203,6 +203,63 @@ describe("the rebuild stage, the edges", () => {
       }),
     ).toMatchObject({ stage: "merging", refresh: false }));
 
+  // Task 7 review, B1: the propose job arms auto-merge only when main
+  // requires the check `check`, and says so in its log when it does not.
+  it("green CI with the propose job's 'no required check' line says main requires no check", () =>
+    expect(
+      rebuildState({
+        ...green,
+        pull: { ...pull, autoMerge: false },
+        ci: [run({ headSha: "b" })],
+        log: [
+          "2026-11-03T10:09:00.1Z main has no required check: auto-merge left off",
+        ],
+      }),
+    ).toMatchObject({
+      stage: "merging",
+      noRequiredCheck: true,
+      refresh: false,
+    }));
+
+  it("green CI with auto-merge off and no log line still says main requires no check", () =>
+    expect(
+      rebuildState({
+        ...green,
+        pull: { ...pull, autoMerge: false },
+        ci: [run({ headSha: "b" })],
+      }),
+    ).toMatchObject({ stage: "merging", noRequiredCheck: true }));
+
+  it("green CI with auto-merge on is merging by itself, nothing missing", () => {
+    const s = rebuildState({ ...green, pull, ci: [run({ headSha: "b" })] });
+    expect(s).toMatchObject({ stage: "merging", refresh: true });
+    expect(s).not.toHaveProperty("noRequiredCheck");
+  });
+
+  it("CI still running with auto-merge off is checking, not yet the missing check", () => {
+    const s = rebuildState({
+      ...green,
+      pull: { ...pull, autoMerge: false },
+      ci: [run({ headSha: "b", status: "in_progress", conclusion: null })],
+    });
+    expect(s.stage).toBe("checking");
+    expect(s).not.toHaveProperty("noRequiredCheck");
+  });
+
+  it("only the propose job's failure is GitHub refusing auto-merge, never the missing check", () => {
+    const s = rebuildState({
+      ...base,
+      runs: [run({ conclusion: "failure" })],
+      jobs: [job("build", "success"), job("propose", "failure")],
+      log: [
+        "2026-11-03T10:09:00.1Z GraphQL: Auto merge is not allowed for this repository (enablePullRequestAutoMerge)",
+      ],
+      pull,
+    });
+    expect(s).toMatchObject({ stage: "failed", autoMergeRefused: true });
+    expect(s).not.toHaveProperty("noRequiredCheck");
+  });
+
   it("a pull request closed without merging is failed", () =>
     expect(
       rebuildState({
@@ -360,6 +417,49 @@ describe("reading the rebuild from GitHub", () => {
     });
     expect(view.recent.map((r) => r.id)).toEqual([7]);
     expect(view.busy).toBe(false);
+  });
+
+  it("a green run with auto-merge off reads the propose job's log for the reason", async () => {
+    const fake = github((s) => {
+      s.runs = [
+        nightly({ id: 8, workflow: "ci.yml", headSha: "b" }),
+        nightly({}),
+      ];
+      s.jobs["7"] = [
+        {
+          id: 1,
+          name: "build",
+          status: "completed",
+          conclusion: "success",
+          url: "j",
+        },
+        {
+          id: 2,
+          name: "propose",
+          status: "completed",
+          conclusion: "success",
+          url: "j",
+        },
+      ];
+      s.logs["2"] =
+        "2026-11-03T10:09:00.1Z main has no required check: auto-merge left off\n";
+      s.pull = {
+        number: 43,
+        state: "open",
+        merged: false,
+        autoMerge: false,
+        headSha: "b",
+        url: "p",
+        title: "t",
+      };
+    });
+    const log = vi.spyOn(fake, "jobLogTail");
+    const view = await readRebuild(fake, since);
+    expect(log).toHaveBeenCalledWith(2, 200);
+    expect(view.state).toMatchObject({
+      stage: "merging",
+      noRequiredCheck: true,
+    });
   });
 
   it("idle: the runs only, and busy while the newest runs", async () => {

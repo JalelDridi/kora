@@ -201,6 +201,76 @@ test("Rebuild now dispatches the nightly, then shows the run, a refusal, the pul
   expect(fakeCommits()).toEqual([]);
 });
 
+// Task 7 review, B1: main requires no check, so the propose job leaves
+// auto-merge off and says so; the page names the missing ruleset.
+test("a green rebuild that main requires no check for says it does not merge by itself", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 360, height: 800 });
+  await page.goto("/admin/rebuild");
+  await page.getByRole("button", { name: "Rebuild now" }).click();
+  await expect(page).toHaveURL(/\/admin\/rebuild\?since=/);
+  setRun((run) => {
+    run.status = "completed";
+    run.conclusion = "success";
+  });
+  updateFakes((s) => {
+    const id = s.runs[0]!.id;
+    s.jobs[String(id)] = [
+      {
+        id: 101,
+        name: "build",
+        status: "completed",
+        conclusion: "success",
+        url: "https://github.com/JalelDridi/kora/actions/runs/1/job/101",
+      },
+      {
+        id: 102,
+        name: "propose",
+        status: "completed",
+        conclusion: "success",
+        url: "https://github.com/JalelDridi/kora/actions/runs/1/job/102",
+      },
+    ];
+    s.logs["102"] = [
+      "2026-11-03T10:09:00.0Z ✓ Created workflow_dispatch event for ci.yml at data/nightly",
+      "2026-11-03T10:09:00.1Z main has no required check: auto-merge left off",
+      "2026-11-03T10:09:00.2Z pull request ready: data/nightly",
+      "",
+    ].join("\n");
+    s.pull = {
+      number: 43,
+      state: "open",
+      merged: false,
+      autoMerge: false,
+      headSha: HEAD,
+      url: "https://github.com/JalelDridi/kora/pull/43",
+      title: "data: nightly pool 2026-11-03",
+    };
+    s.runs.unshift({
+      id: 900,
+      workflow: "ci.yml",
+      inputs: {},
+      status: "completed",
+      conclusion: "success",
+      event: "workflow_dispatch",
+      createdAt: new Date().toISOString(),
+      url: "https://github.com/JalelDridi/kora/actions/runs/900",
+      headSha: HEAD,
+    });
+  });
+  await page.reload();
+  await expect(stage(page)).toHaveText(
+    "Not merged by itself: main has no required check. Add a ruleset on main requiring check (README: Auto-merge).",
+  );
+  await expect(page.getByTestId("pull")).toContainText("CI: passed");
+  await expect(page.getByTestId("pull")).toContainText("Auto-merge: off");
+  await expect(page.getByText(/Allow auto-merge/)).toHaveCount(0);
+  await expect(refresh(page)).toHaveCount(0);
+  await axeClean(page);
+  await shoot(page, "no-required-check");
+});
+
 test("a second Rebuild now while a nightly runs is refused, and the button says why", async ({
   page,
 }) => {

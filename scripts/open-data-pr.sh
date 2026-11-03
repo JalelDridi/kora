@@ -4,10 +4,14 @@
 # the repository root, after the build job's data/pool.json, data/ids.json
 # and data/report.md were copied over main's. Needs GH_TOKEN.
 # MERGE_WHEN_GREEN=1 (the admin dashboard's Rebuild now) turns GitHub
-# auto-merge on for the pull request, so GitHub merges it once CI passes;
-# any other night turns it off, so a scheduled night waits for review.
+# auto-merge on for the pull request, so GitHub merges it once CI passes,
+# but only when main requires the status check `check`: auto-merge waits
+# for required checks alone, so without one GitHub would merge at once,
+# before CI. Any other night turns it off, before the push, so a scheduled
+# night waits for review.
 #   bash scripts/open-data-pr.sh            commit, push, open or update the pull request
-#   bash scripts/open-data-pr.sh --dry-run  say what it would do; no commit, no push, no gh
+#   bash scripts/open-data-pr.sh --dry-run  say what it would do; no commit, no push, and
+#                                           no gh but the two reads of main's rules
 # Sourced (`source scripts/open-data-pr.sh`), it only defines the functions.
 set -euo pipefail
 
@@ -66,6 +70,24 @@ close_stale() {
   echo "data unchanged: closed the stale pull request #${open}"
 }
 
+readonly no_required_check="main has no required check: auto-merge left off"
+
+# main_requires_check: whether main requires the status check `check`,
+# from its rulesets or its classic protection. A read that fails (a 404:
+# no protection; a 403: the workflow's token may not read it) counts as
+# no; so auto-merge stays off, the safe side.
+main_requires_check() {
+  local rules protection
+  rules="$(gh api 'repos/{owner}/{repo}/rules/branches/main' \
+    --jq '[.[] | select(.type == "required_status_checks") | .parameters.required_status_checks[]?.context] | any(. == "check")' \
+    2>/dev/null || true)"
+  [ "$rules" = true ] && return 0
+  protection="$(gh api 'repos/{owner}/{repo}/branches/main/protection' \
+    --jq '[(.required_status_checks.contexts // [])[], ((.required_status_checks.checks // [])[] | .context)] | any(. == "check")' \
+    2>/dev/null || true)"
+  [ "$protection" = true ]
+}
+
 main() {
   local dry_run=false
   if [ "${1:-}" = "--dry-run" ] && [ "$#" -eq 1 ]; then
@@ -84,10 +106,18 @@ main() {
   title="data: nightly pool $(date -u +%F)"
   body="$(mktemp)"
   pr_body data/report.md "$body"
+  # Arm auto-merge only for a dashboard rebuild, and only when GitHub
+  # will wait for CI before merging.
+  local arm=false
+  if [ "$merge_when_green" = 1 ] && main_requires_check; then
+    arm=true
+  fi
   if [ "$dry_run" = true ]; then
     echo "dry run: would commit ${files[*]} to ${branch} as \"${title}\" with a $(($(wc -c <"$body")))-byte description"
-    if [ "$merge_when_green" = 1 ]; then
+    if [ "$arm" = true ]; then
       echo "dry run: would enable auto-merge (squash)"
+    elif [ "$merge_when_green" = 1 ]; then
+      echo "$no_required_check"
     else
       echo "dry run: would turn auto-merge off"
     fi
@@ -104,6 +134,11 @@ main() {
   git commit --quiet -m "$title"
   # Checkout keeps no token; gh lends GH_TOKEN to this push only.
   gh auth setup-git
+  if [ "$arm" = false ]; then
+    # Before the push: no head is ever pushed while an earlier rebuild's
+    # auto-merge is still on. No pull request, or off already, is fine.
+    gh pr merge "$branch" --disable-auto || true
+  fi
   git push --force origin "$branch"
 
   if [ -z "$(gh pr list --head "$branch" --base main --state open --json number --jq '.[].number')" ]; then
@@ -115,15 +150,16 @@ main() {
   # A pull request opened with the workflow's token starts no workflow; a
   # dispatch does, and its checks appear on the pull request's commit.
   gh workflow run ci.yml --ref "$branch"
-  if [ "$merge_when_green" = 1 ]; then
-    # GitHub merges it once CI passes. Refused when the repository's
-    # "Allow auto-merge" setting is off: the job fails and says so.
+  if [ "$arm" = true ]; then
+    # GitHub merges it once CI's required check passes. Refused when the
+    # repository's "Allow auto-merge" setting is off: the job fails and
+    # says so.
     gh pr merge "$branch" --auto --squash
     echo "pull request ready: ${branch}, auto-merge on"
   else
-    # A night never inherits an earlier rebuild's auto-merge; off already
-    # is fine.
-    gh pr merge "$branch" --disable-auto || true
+    if [ "$merge_when_green" = 1 ]; then
+      echo "$no_required_check"
+    fi
     echo "pull request ready: ${branch}"
   fi
 }

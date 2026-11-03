@@ -27,8 +27,19 @@ The build refuses a pool that has a tenth fewer footballers than the previous on
 ### Once, in the repository settings (Jalel)
 
 - Settings → Actions → General → Workflow permissions: tick **Allow GitHub Actions to create and approve pull requests**. Without it the job cannot open the pull request. The workflow asks for its own permissions per job, so the default token setting can stay read-only.
-- Settings → Branches: protect `main` (pull request required, CI's `check` required). The job that pushes may write to the repository; the protection is what keeps it off `main`.
 - Settings → General → Pull Requests: tick **Allow auto-merge**.
+- The ruleset on `main` below (Auto-merge).
+
+### Auto-merge
+
+GitHub's auto-merge waits for **required** checks only: with none on `main`, it would merge the pull request at once, before CI has run. So the propose job arms auto-merge on a dashboard rebuild only when a ruleset or the branch protection on `main` requires the status check `check`; otherwise it leaves auto-merge off and its log says `main has no required check: auto-merge left off`, and `/admin/rebuild` says the pull request does not merge by itself. Once, in the settings (Jalel):
+
+1. Settings → Rules → Rulesets → **New branch ruleset**. Target: the branch `main` (Add target → Include by pattern → `main`). Enforcement: Active.
+2. Tick **Require status checks to pass**, add the check `check`, with the source GitHub Actions.
+3. Bypass list: add **Repository admin**, set to **Always allow**, so the dashboard's direct commits to `main` (Jalel's token) still land.
+4. Settings → General → Pull Requests: tick **Allow auto-merge**.
+
+A pull request merged by GitHub through auto-merge armed with the workflow's token (`GITHUB_TOKEN`) starts no `ci.yml` run on `main`; the Vercel deploy still runs.
 
 ### Reviewing it
 
@@ -38,7 +49,7 @@ The build refuses a pool that has a tenth fewer footballers than the previous on
 4. **A wrong value** is fixed with an override in `data/overrides.json` (or a curated file) in a small pull request on `main`, never by editing `data/nightly`: the next run rebuilds the branch from `main` and drops any edit made there. After that merge, run the workflow by hand to refresh the pull request.
 5. **Merge** with a squash merge. The Production deploy that follows syncs the pool into the Production database. To skip a night, close the pull request; the next run that finds a change opens a new one.
 
-**From the dashboard.** `/admin/rebuild` → Rebuild now runs this workflow on `main` with `merge_when_green`: the pull request merges itself once CI passes; a refused night shows the guard's words there. The scheduled night still waits for review.
+**From the dashboard.** `/admin/rebuild` → Rebuild now runs this workflow on `main` with `merge_when_green`: the pull request merges itself once CI passes, when `main` requires CI's `check` (Auto-merge, above); a refused night shows the guard's words there. The scheduled night still waits for review.
 
 ## The cache and offline builds
 

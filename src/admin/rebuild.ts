@@ -30,6 +30,11 @@ export type RebuildState = {
   ciRun?: RebuildRun;
   /** GitHub refused auto-merge: "Allow auto-merge" is off in the settings. */
   autoMergeRefused?: boolean;
+  /**
+   * CI passed but nothing merges it: the propose job left auto-merge off
+   * because main requires no status check (scripts/open-data-pr.sh).
+   */
+  noRequiredCheck?: boolean;
   refresh: boolean;
 };
 
@@ -38,7 +43,10 @@ export type RebuildInput = {
   /** The nightly workflow's runs, newest first. */
   runs: RebuildRun[];
   jobs: JobInfo[];
-  /** The tail of the failed job's log (the build's when it failed). */
+  /**
+   * The tail of the failed job's log (the build's when it failed), or of
+   * the propose job's when the run passed and auto-merge is off.
+   */
   log: string[];
   pull: PullInfo | null;
   /** ci.yml's runs on the pull request's head, newest first. */
@@ -92,6 +100,9 @@ export function refusalLines(log: string[]): string[] {
 }
 
 const AUTO_MERGE_REFUSED = /auto[- ]?merge is not allowed/i;
+/** The propose job's line when it leaves auto-merge off (open-data-pr.sh). */
+export const NO_REQUIRED_CHECK =
+  "main has no required check: auto-merge left off";
 
 export function rebuildState(input: RebuildInput): RebuildState {
   if (input.dispatchedAt === null || Number.isNaN(time(input.dispatchedAt)))
@@ -141,8 +152,19 @@ export function rebuildState(input: RebuildInput): RebuildState {
     return { stage: "checking", run, pull, ...withCi, refresh: true };
   if (!["success", "neutral", "skipped"].includes(ciRun.conclusion ?? ""))
     return { stage: "ci-failed", run, pull, ciRun, refresh: false };
-  // Green: GitHub merges it when auto-merge is on; else it waits for a hand.
-  return { stage: "merging", run, pull, ciRun, refresh: pull.autoMerge };
+  // Green: GitHub merges it when auto-merge is on; else it waits for a
+  // hand. A dashboard rebuild leaves it off only when main requires no
+  // check (the propose job says so in its log).
+  const noRequiredCheck =
+    !pull.autoMerge || input.log.some((l) => l.includes(NO_REQUIRED_CHECK));
+  return {
+    stage: "merging",
+    run,
+    pull,
+    ciRun,
+    ...(noRequiredCheck ? { noRequiredCheck } : {}),
+    refresh: pull.autoMerge,
+  };
 }
 
 /** Enough of a log to hold data:check's errors and the post-job steps after them. */
@@ -189,6 +211,15 @@ export async function readRebuild(
         headSha: pull.headSha,
         perPage: 5,
       });
+    // Auto-merge off after a green run: the propose job's log says why.
+    const propose = jobs.find((j) => j.name === "propose");
+    if (
+      run.conclusion === "success" &&
+      pull?.state === "open" &&
+      !pull.autoMerge &&
+      propose
+    )
+      log = await github.jobLogTail(propose.id, LOG_LINES).catch(() => []);
   }
   return {
     state: rebuildState({ dispatchedAt: since, runs, jobs, log, pull, ci }),

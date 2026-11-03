@@ -76,12 +76,14 @@ function stageWords(state: RebuildState): [string, string] {
         "the pull request stays open and does not merge; CI's run says why.",
       ];
     case "merging":
-      return state.pull?.autoMerge
-        ? ["Merging", "CI passed; GitHub merges the pull request shortly."]
-        : [
-            "CI passed",
-            `auto-merge is off on this pull request: merge it by hand on GitHub (or tick ${SETTING} and rebuild).`,
-          ];
+      // Auto-merge off after a green run: the propose job found no
+      // required check on main (Task 7 review, B1).
+      return state.noRequiredCheck
+        ? [
+            "Not merged by itself",
+            "main has no required check. Add a ruleset on main requiring check (README: Auto-merge).",
+          ]
+        : ["Merging", "CI passed; GitHub merges the pull request shortly."];
     case "merged":
       return [
         "Merged",
@@ -165,7 +167,8 @@ export default async function RebuildPage({
       <p className="dim">
         Runs the nightly data workflow on main now. A night the guards refuse
         opens no pull request; otherwise the pull request merges itself once CI
-        passes. The scheduled night still waits for review.
+        passes, when main requires CI&apos;s check. The scheduled night still
+        waits for review.
       </p>
       {errorText ? (
         <p role="alert" className="notice notice-error">
