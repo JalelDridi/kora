@@ -2,8 +2,7 @@ import AxeBuilder from "@axe-core/playwright";
 import { readFileSync } from "node:fs";
 import { expect, test } from "@playwright/test";
 import { E2E_ENV } from "../playwright.config";
-import { isAnswerReady } from "../src/pipeline/confidence";
-import type { Pool } from "../src/pipeline/types";
+import type { Pool, PoolPlayer } from "../src/pipeline/types";
 import {
   fakeCommits,
   fakeFile,
@@ -377,11 +376,43 @@ const fits360 = async (page: import("@playwright/test").Page) =>
     await page.evaluate(() => document.documentElement.scrollWidth),
   ).toBeLessThanOrEqual(360);
 
+// The Chkoun? rules, written out here rather than imported, so the page is
+// checked against an independent reading of data/pool.json:
+// - the answer-ready fields are the club, position, birth date, caps and the
+//   governorate (born abroad: the birthplace); a field counts when its
+//   confidence is high or medium, or, for caps only, when its sources agree
+//   on a band;
+// - answer-ready: active, and every one of those fields counts;
+// - one field away: active, not answer-ready, exactly one field short;
+// - answer-ready, fame short: answer-ready, but of tier D or not measured
+//   (the calendar draws tiers A to C);
+// - in grace: out of the active pool with a grace date (the game keeps any
+//   date; the nightly build removes it once passed).
+const shortOf = (p: PoolPlayer) =>
+  [
+    "clubId",
+    "position",
+    "birthDate",
+    "caps",
+    p.governorate === null ? "birthPlace" : "governorate",
+  ].filter((field) => {
+    const entry = p.provenance[field as keyof PoolPlayer["provenance"]];
+    const sure = entry?.confidence === "high" || entry?.confidence === "medium";
+    return !sure && !(field === "caps" && entry?.bandAgreed === true);
+  });
+
 test("the Chkoun? view counts the pool and links each footballer to his editor", async ({
   page,
 }) => {
   const active = pool.players.filter((p) => p.pools.active);
-  const ready = active.filter((p) => isAnswerReady(p));
+  const ready = active.filter((p) => shortOf(p).length === 0);
+  const away = active.filter((p) => shortOf(p).length === 1);
+  const fameShort = ready.filter(
+    (p) => !["A", "B", "C"].includes(p.fame?.tier ?? ""),
+  );
+  const grace = pool.players.filter(
+    (p) => !p.pools.active && p.pools.graceUntil !== undefined,
+  );
   const tier = (t: string | null) =>
     active.filter((p) => (p.fame?.tier ?? null) === t).length;
   await page.setViewportSize({ width: 360, height: 800 });
@@ -395,6 +426,11 @@ test("the Chkoun? view counts the pool and links each footballer to his editor",
     `Active: ${active.length}, list them`,
   );
   await expect(count("Answer-ready")).toHaveText(String(ready.length));
+  await expect(count("In grace")).toHaveText(String(grace.length));
+  await expect(count("One field away")).toHaveText(String(away.length));
+  await expect(count("Answer-ready, fame short")).toHaveText(
+    String(fameShort.length),
+  );
   for (const t of ["A", "B", "C", "D"] as const)
     await expect(count(`Active, tier ${t}`)).toHaveText(String(tier(t)));
   await expect(count("Active, not measured")).toHaveText(String(tier(null)));
@@ -429,7 +465,9 @@ test("the Chkoun? view counts the pool and links each footballer to his editor",
   // Answer-ready with tier D: fame short, and the local-star form previews
   // in his editor; nothing is committed.
   await page.goto("/admin/games/chkoun?show=fame-short");
-  const star = ready.find((p) => p.fame?.tier === "D" && !p.fame.localStar)!;
+  const star = fameShort.find(
+    (p) => p.fame?.tier === "D" && !p.fame.localStar,
+  )!;
   const named = page
     .getByRole("row")
     .filter({ has: page.getByRole("link", { name: star.nameLatin }) });
