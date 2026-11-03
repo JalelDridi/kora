@@ -190,7 +190,9 @@ describe("open-data-pr.sh: is there anything to propose", () => {
 // scheduled night never inherits it.
 describe("open-data-pr.sh: auto-merge", () => {
   const RULES = "repos/{owner}/{repo}/rules/branches/main";
-  const PROTECTION = "repos/{owner}/{repo}/branches/main/protection";
+  // The branch, not its /protection endpoint: that one answers 403 to the
+  // workflow's GITHUB_TOKEN, while the branch carries the same summary.
+  const PROTECTION = "repos/{owner}/{repo}/branches/main";
   const NO_CHECK = "main has no required check: auto-merge left off";
   /** What GitHub answers: a ruleset requiring check, as the README asks. */
   const RULESET = [
@@ -203,12 +205,17 @@ describe("open-data-pr.sh: auto-merge", () => {
       },
     },
   ];
-  /** The classic protection, requiring check. */
+  /** The branch under a classic protection requiring check. */
   const CLASSIC = {
-    required_status_checks: {
-      strict: false,
-      contexts: ["check"],
-      checks: [{ context: "check", app_id: 15368 }],
+    name: "main",
+    protected: true,
+    protection: {
+      enabled: true,
+      required_status_checks: {
+        enforcement_level: "non_admins",
+        contexts: ["check"],
+        checks: [{ context: "check", app_id: 15368 }],
+      },
     },
   };
 
@@ -362,7 +369,13 @@ describe("open-data-pr.sh: auto-merge", () => {
       {
         [RULES]: [{ type: "deletion", parameters: {} }],
         [PROTECTION]: {
-          required_status_checks: { contexts: ["lint"], checks: [] },
+          protection: {
+            required_status_checks: {
+              enforcement_level: "everyone",
+              contexts: ["lint"],
+              checks: [],
+            },
+          },
         },
       },
       { MERGE_WHEN_GREEN: "1" },
@@ -373,11 +386,34 @@ describe("open-data-pr.sh: auto-merge", () => {
     expect(r.out.split("\n")).toContain(NO_CHECK);
   });
 
+  // What the branch shows an ordinary token when nothing is required.
+  it("leaves auto-merge off when the branch's check list is not enforced", async () => {
+    const r = await realRun(
+      {
+        [RULES]: [],
+        [PROTECTION]: {
+          protection: {
+            enabled: false,
+            required_status_checks: {
+              enforcement_level: "off",
+              contexts: ["check"],
+              checks: [],
+            },
+          },
+        },
+      },
+      { MERGE_WHEN_GREEN: "1" },
+    );
+    expect(r.status, r.err).toBe(0);
+    expect(r.calls.some((c) => c.includes("--auto"))).toBe(false);
+    expect(r.out.split("\n")).toContain(NO_CHECK);
+  });
+
   it("leaves auto-merge off when main has no protection (a 404), and still opens the pull request", async () => {
     const r = await realRun({ [RULES]: [] }, { MERGE_WHEN_GREEN: "1" });
     expect(r.status, r.err).toBe(0);
     expect(r.calls).toContain(
-      'api repos/{owner}/{repo}/branches/main/protection --jq [(.required_status_checks.contexts // [])[], ((.required_status_checks.checks // [])[] | .context)] | any(. == "check")',
+      'api repos/{owner}/{repo}/branches/main --jq .protection.required_status_checks // {} | select(.enforcement_level != "off") | [(.contexts // [])[], ((.checks // [])[] | .context)] | any(. == "check")',
     );
     expect(r.calls.some((c) => c.includes("--auto"))).toBe(false);
     expect(r.calls.some((c) => c.startsWith("pr create"))).toBe(true);

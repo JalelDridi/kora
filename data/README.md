@@ -34,7 +34,7 @@ The build refuses a pool that has a tenth fewer footballers than the previous on
 
 GitHub's auto-merge waits for **required** checks only: with none on `main`, it would merge the pull request at once, before CI has run. So the propose job arms auto-merge on a dashboard rebuild only when a ruleset or the branch protection on `main` requires the status check `check`; otherwise it leaves auto-merge off and its log says `main has no required check: auto-merge left off`, and `/admin/rebuild` says the pull request does not merge by itself. Once, in the settings (Jalel):
 
-1. Settings → Rules → Rulesets → **New branch ruleset**. Target: the branch `main` (Add target → Include by pattern → `main`). Enforcement: Active.
+1. Settings → Rules → Rulesets → **New ruleset** → **New branch ruleset**. Target: the branch `main` (Add target → Include by pattern → `main`). Enforcement: Active.
 2. Tick **Require status checks to pass**, add the check `check`, with the source GitHub Actions.
 3. Bypass list: add **Repository admin**, set to **Always allow**, so the dashboard's direct commits to `main` (Jalel's token) still land.
 4. Settings → General → Pull Requests: tick **Allow auto-merge**.

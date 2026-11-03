@@ -73,17 +73,19 @@ close_stale() {
 readonly no_required_check="main has no required check: auto-merge left off"
 
 # main_requires_check: whether main requires the status check `check`,
-# from its rulesets or its classic protection. A read that fails (a 404:
-# no protection; a 403: the workflow's token may not read it) counts as
-# no; so auto-merge stays off, the safe side.
+# from its rulesets or its classic protection. The classic protection is
+# read from the branch's own summary (`.protection`), which the workflow's
+# GITHUB_TOKEN may read; the /protection endpoint always answers it 403.
+# A list whose enforcement is "off" requires nothing. A read that fails
+# (a 404) counts as no; so auto-merge stays off, the safe side.
 main_requires_check() {
   local rules protection
   rules="$(gh api 'repos/{owner}/{repo}/rules/branches/main' \
     --jq '[.[] | select(.type == "required_status_checks") | .parameters.required_status_checks[]?.context] | any(. == "check")' \
     2>/dev/null || true)"
   [ "$rules" = true ] && return 0
-  protection="$(gh api 'repos/{owner}/{repo}/branches/main/protection' \
-    --jq '[(.required_status_checks.contexts // [])[], ((.required_status_checks.checks // [])[] | .context)] | any(. == "check")' \
+  protection="$(gh api 'repos/{owner}/{repo}/branches/main' \
+    --jq '.protection.required_status_checks // {} | select(.enforcement_level != "off") | [(.contexts // [])[], ((.checks // [])[] | .context)] | any(. == "check")' \
     2>/dev/null || true)"
   [ "$protection" = true ]
 }
