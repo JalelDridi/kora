@@ -51,6 +51,37 @@ A pull request merged by GitHub through auto-merge armed with the workflow's tok
 
 **From the dashboard.** `/admin/rebuild` → Rebuild now runs this workflow on `main` with `merge_when_green`: the pull request merges itself once CI passes, when `main` requires CI's `check` (Auto-merge, above); a refused night shows the guard's words there. The scheduled night still waits for review.
 
+## Editing from the dashboard
+
+`/admin` (behind the admin password, English only, never indexed) edits the data from a phone. Every save is one commit on `main`, made with Jalel's token (`KORA_GITHUB_TOKEN`), and nothing is written anywhere else. Before the commit, the dashboard reads `main`'s copy of the file, applies the change, writes it back in the file's own layout and Prettier's, and runs `data:check`'s rules (`inspectSource`) over the deployment's data with that file replaced: a value the validators refuse is shown with their message, and nothing is committed. If `main` moved between the read and the commit, it reads once more.
+
+| Page                                            | Writes                                                                                                                                    | Commit                                   |
+| ----------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------- |
+| `/admin/footballers/<Wikidata id>` (the editor) | his entry in `data/overrides.json`: any override field, exclude, local star; each value `by: "jalel"`, `at` today in Tunis, with the note | `data(overrides): <id> <name>: <fields>` |
+| `/admin/add` (search Wikidata)                  | `include: true` for a footballer the Tunisia selection misses (below)                                                                     | `data(overrides): <id> <name>: include`  |
+| `/admin/games/chkoun`, `/admin/games/season`    | nothing: what each game makes of the pool, with links to the editor; the Chkoun? view's local-star form opens the editor's preview        |                                          |
+| `/admin/settings/<file>`                        | one row of a curated file (`data/curated/<file>.json`); the file's `by` becomes `jalel` on his first edit                                 | `data(<file>): <row> …`                  |
+| `/admin/changes`                                | Undo: a new commit putting back what a dashboard commit changed                                                                           | `revert(data): …` with `Reverts: <sha>`  |
+| `/admin/rebuild`                                | nothing on `main`: Rebuild now runs the nightly workflow (above)                                                                          |                                          |
+| `/admin/chkoun` (the calendar)                  | the database, not the repository                                                                                                          |                                          |
+
+Each commit's body has one line per change, then the note, then the trailer `Admin-Edit: <file>`; the changes log shows only commits with that trailer as "edited here", and only those can be undone.
+
+**The games change only after a rebuild.** A commit changes the files the nightly reads, not the pool: the games see it once a rebuild's pull request is merged and the Production deploy that follows has run (Rebuild now, or the next night).
+
+**Undo** works per entry: each value the commit changed goes back to its earlier value, when nothing has changed it since; otherwise the undo is refused and names the entries to edit instead. A commit made by hand (several files, no trailer) is reverted on GitHub, not here.
+
+**Include.** `include: true` adds the footballer's Wikidata id to the three footballer queries, so the nightly fetches him although he has no Tunisia citizenship or team on Wikidata; the rest of the build treats him as any other, so he joins the pool only if his data qualifies him. `include` beside `exclude` is an error. An id Wikidata does not return is a warning in the build, never a refusal. An add not built yet is withdrawn from his editor (the include goes), not excluded.
+
+Without a token (Preview deployments, local runs) every page reads and every save, undo and Rebuild now button says edits are off here. The browser tests use a file-backed fake instead (`KORA_ADMIN_FAKES`), which refuses to run on Vercel.
+
+### Once, in the settings (Jalel)
+
+1. GitHub → Settings → Developer settings → Fine-grained tokens → **Generate new token**. Repository access: only `JalelDridi/kora`. Permissions: Contents read and write, Actions read and write, Pull requests read and write; Metadata, Checks and Commit statuses read. Expiry: one year (the dashboard home says when it runs out).
+2. Vercel → the project → Settings → Environment Variables → `KORA_GITHUB_TOKEN`, the token as its value, **Production only**, Sensitive. Redeploy Production so it takes effect.
+3. GitHub → the repository → Settings → General → Pull Requests: tick **Allow auto-merge**.
+4. The ruleset on `main` (Auto-merge, above) must let Jalel's own pushes through: Repository admin on its bypass list, Always allow. A ruleset without that bypass refuses every save.
+
 ## The cache and offline builds
 
 `cache/` keeps what each server sent, not what the pipeline made of it: section 0 of each Wikipedia article (the lead with its infobox) with its revision id and timestamp, the SPARQL results of each Wikidata query, each Commons file's metadata, and the header and Tunisia rows of the martj42 files. Two files hold the squad lists (decision P42): `squads.json`, the whole English and French articles of this season's Ligue 1 clubs and the English national team's article (about 1.7 MB), and `squad-links.json`, the `pageprops` answers that turn the lists' link targets into Wikidata ids. Every build parses these again, so a parser change takes effect without a new request. Each file records its format version, the day it was saved and its source; a copy of another version is ignored.
