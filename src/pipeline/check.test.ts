@@ -18,8 +18,12 @@ import {
   checkData,
   clubsWithAutoShort,
   inspectData,
+  inspectSource,
   validateAfcon,
   validateClubShort,
+  validateGovernorates,
+  validateHonours,
+  validateLigue1Clubs,
   validateStrength,
 } from "./check.ts";
 import type { Pool } from "./types.ts";
@@ -810,5 +814,105 @@ describe("data:check --against the previous pool (P59)", () => {
       { cwd: root, env: { ...process.env, KORA_ALLOW_POOL_DROP: "1" } },
     );
     expect(stdout).toContain("data:check: ok");
+  });
+});
+
+describe("the governorates, Ligue 1 clubs and honours validators (admin dashboard T2)", () => {
+  const governorates = JSON.parse(
+    readFileSync("data/curated/governorates.json", "utf8"),
+  ) as Record<string, unknown>[];
+
+  it("governorates: the 24, each with a good id, a known region and three names", () => {
+    expect(validateGovernorates(governorates)).toEqual([]);
+    expect(validateGovernorates(governorates.slice(0, 1))).toEqual([
+      "governorates.json: must list the 24 governorates",
+    ]);
+    expect(validateGovernorates({})).toEqual([
+      "governorates.json: must list the 24 governorates",
+    ]);
+    const broken = [
+      { ...governorates[0], id: "Tunis" },
+      { ...governorates[1], region: "north" },
+      { ...governorates[2], nameFrench: "" },
+      governorates[1],
+      "x",
+      ...governorates.slice(5),
+    ];
+    expect(validateGovernorates(broken)).toEqual([
+      "governorates.json: governorate Tunis: bad or duplicate id",
+      "governorates.json: governorate ariana: unknown region north",
+      "governorates.json: governorate ben-arous: a name is missing",
+      "governorates.json: governorate ariana: bad or duplicate id",
+      'governorates.json: governorate "x": not an object',
+    ]);
+  });
+
+  it("Ligue 1 clubs: a season and up to 20 English titles", () => {
+    const shape =
+      "ligue1-clubs.json: must be { season, clubs: [up to 20 English titles] }";
+    expect(
+      validateLigue1Clubs(
+        JSON.parse(readFileSync("data/curated/ligue1-clubs.json", "utf8")),
+      ),
+    ).toEqual([]);
+    expect(validateLigue1Clubs({ season: "2026–27", clubs: [] })).toEqual([]);
+    expect(
+      validateLigue1Clubs({
+        season: "2026–27",
+        clubs: Array.from({ length: 21 }, (_, i) => `Club ${i}`),
+      }),
+    ).toEqual([shape]);
+    expect(validateLigue1Clubs({ season: "2026–27", clubs: [""] })).toEqual([
+      shape,
+    ]);
+    expect(validateLigue1Clubs({ clubs: [] })).toEqual([shape]);
+    expect(validateLigue1Clubs([])).toEqual([shape]);
+  });
+
+  it("honours: the end year and one winner per edition, as the database checks", () => {
+    const cup = {
+      competition: "tn_cup",
+      seasonStart: 2018,
+      seasonEnd: 2019,
+      clubWikidataId: "Q1024482",
+      by: "jalel",
+      at: "2026-10-05",
+    };
+    expect(validateHonours([])).toEqual([]);
+    expect(validateHonours({})).toEqual(["honours.json: must be a list"]);
+    expect(
+      validateHonours([
+        cup,
+        { ...cup, seasonEnd: 2020 },
+        { ...cup, clubWikidataId: "Q44897" },
+        { ...cup, seasonEnd: undefined },
+      ]),
+    ).toEqual([
+      `honours.json: invalid entry ${JSON.stringify({ ...cup, seasonEnd: 2020 })}`,
+      "honours.json: edition tn_cup 2018–2019 twice",
+      `honours.json: invalid entry ${JSON.stringify({ ...cup, seasonEnd: undefined })}`,
+    ]);
+  });
+
+  it("inspectSource reads any source; without photos it never asks for a file in public/", async () => {
+    const asked: string[] = [];
+    const result = await inspectSource(
+      {
+        read: async (name) => {
+          try {
+            return await readFile(path.join("data", name), "utf8");
+          } catch {
+            return undefined;
+          }
+        },
+        publicFileExists: async (p) => {
+          asked.push(p);
+          return false;
+        },
+      },
+      { photos: false },
+    );
+    expect(result.errors).toEqual([]);
+    expect(asked).toEqual([]);
   });
 });
