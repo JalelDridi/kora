@@ -760,6 +760,8 @@ function RowField({
           name={name}
           type="text"
           defaultValue={value}
+          // A governorate's id is named by the pool and Chkoun?: kept.
+          readOnly={name === ROW_FIELDS[id][0] && !CURATED_OFFERS[id].add}
           aria-describedby={hint ? `${fid}-hint` : undefined}
         />
       );

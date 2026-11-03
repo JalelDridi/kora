@@ -354,11 +354,11 @@ export function readCuratedForm(
         ok: false,
         errors: [`${id}: no ${field === "" ? "header field" : field} to edit`],
       };
-    change = {
-      kind: "header",
-      field: field as HeaderField,
-      value: text(form, "value"),
-    };
+    const value = text(form, "value");
+    if (/[\r\n]/.test(value)) errors.push(`${field}: one line`);
+    else if (field === "note" && [...value].length > NOTE_MAX)
+      errors.push(`note: at most ${NOTE_MAX} characters`);
+    change = { kind: "header", field: field as HeaderField, value };
   } else if (op === "remove") {
     change = { kind: "row", op: { kind: "remove", key: text(form, "key") } };
   } else {
@@ -371,6 +371,10 @@ export function readCuratedForm(
         errors.push(`${name}: ${value === "" ? "required" : "a whole number"}`);
     }
     const key = op === "add" ? CURATED[id].key(row) : text(form, "key");
+    // A file whose rows are never added keys rows other files name (a
+    // governorate's id, a club's strength id): its keys stay as they are.
+    if (op === "set" && !offers.add && CURATED[id].key(row) !== key)
+      errors.push(`${ROW_FIELDS[id][0]}: cannot change on this file`);
     change = { kind: "row", op: { kind: op as "set" | "add", key, row } };
   }
   if (errors.length > 0) return { ok: false, errors };

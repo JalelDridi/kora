@@ -453,6 +453,70 @@ describe("the settings pages' forms (Task 6)", () => {
     });
   });
 
+  it("refuses a new key on a file whose rows are never added (branch review, I3)", () => {
+    const tunis = {
+      op: "set",
+      key: "tunis",
+      nameLatin: "Tunis",
+      nameArabic: "تونس",
+      nameFrench: "Tunis",
+      region: "north-east",
+      note: "x",
+    };
+    expect(
+      readCuratedForm("governorates", { ...tunis, id: "tunis-x" }),
+    ).toEqual({
+      ok: false,
+      errors: ["id: cannot change on this file"],
+    });
+    expect(
+      readCuratedForm("governorates", { ...tunis, id: "tunis" }),
+    ).toMatchObject({
+      ok: true,
+    });
+    expect(
+      readCuratedForm("ligue1-strength", {
+        op: "set",
+        key: "club-africain",
+        id: "club-africaine",
+        strength: "79",
+        note: "x",
+      }),
+    ).toEqual({ ok: false, errors: ["id: cannot change on this file"] });
+  });
+
+  it("refuses a header value on two lines and a file note over 500 characters (T6 M4)", () => {
+    const header = { op: "header", note: "x" };
+    expect(
+      readCuratedForm("ligue1-strength", {
+        ...header,
+        field: "note",
+        value: "one\ntwo",
+      }),
+    ).toEqual({ ok: false, errors: ["note: one line"] });
+    expect(
+      readCuratedForm("ligue1-clubs", {
+        ...header,
+        field: "season",
+        value: "2025\r26",
+      }),
+    ).toEqual({ ok: false, errors: ["season: one line"] });
+    expect(
+      readCuratedForm("ligue1-strength", {
+        ...header,
+        field: "note",
+        value: "a".repeat(501),
+      }),
+    ).toEqual({ ok: false, errors: ["note: at most 500 characters"] });
+    expect(
+      readCuratedForm("ligue1-strength", {
+        ...header,
+        field: "note",
+        value: "a".repeat(500),
+      }),
+    ).toMatchObject({ ok: true });
+  });
+
   it("commits one row with the subjects the plan names", async () => {
     const strength = await edit("ligue1-strength", {
       op: "set",

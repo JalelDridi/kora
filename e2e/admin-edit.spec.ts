@@ -898,6 +898,10 @@ test("governorates: no Remove button; editing a name commits", async ({
   ).toHaveCount(0);
   await rowOf(page, "manouba").getByRole("link", { name: /^Edit/ }).click();
   await expect(page.getByLabel("Region")).toHaveValue("grand_tunis");
+  await expect(page.getByLabel("Id", { exact: true })).toHaveAttribute(
+    "readonly",
+    "",
+  );
   await page.getByLabel("French name").fill("Manouba");
   await page.getByLabel("Why").fill("Shorter form (test)");
   await page.getByRole("button", { name: "Preview" }).click();
@@ -932,8 +936,13 @@ test("every page refuses an invalid file before any commit", async ({
   const refused: [string, string, string][] = [
     [
       "ligue1-strength",
+      "op=set&key=club-africain&id=club-africain&strength=95",
+      "strength must be a whole number from 55 to 90, not 95",
+    ],
+    [
+      "ligue1-strength",
       "op=set&key=club-africain&id=blois-football-41&strength=70",
-      "blois-football-41 is not a Ligue 1 club",
+      "id: cannot change on this file",
     ],
     ["afcon-2004", "op=add&id=X12", "X12 is not a Wikidata id"],
     [
@@ -945,6 +954,11 @@ test("every page refuses an invalid file before any commit", async ({
       "governorates",
       "op=set&key=tunis&id=tunis&nameLatin=Tunis&nameArabic=&nameFrench=Tunis&region=grand_tunis",
       "governorate tunis: a name is missing",
+    ],
+    [
+      "governorates",
+      "op=set&key=tunis&id=tunis-city&nameLatin=Tunis&nameArabic=%D8%AA%D9%88%D9%86%D8%B3&nameFrench=Tunis&region=grand_tunis",
+      "id: cannot change on this file",
     ],
     ["governorates", "op=remove&key=tunis", "rows are edited, never removed"],
   ];
