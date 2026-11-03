@@ -13,11 +13,19 @@ const nextConfig: NextConfig = {
     resolveAlias: { "next-intl/config": "./src/i18n/request.ts" },
   },
   // The admin pages read data/pool.json at request time (src/admin/load-pool.ts);
-  // this puts the file in their serverless bundle on Vercel.
+  // this puts the file in their serverless bundle on Vercel. The dashboard
+  // (decision P60) validates an edit against the deployment's other data
+  // files, so they are bundled too.
   // The game's API reads the same file and the governorates
   // (src/chkoun/attributes.server.ts).
   outputFileTracingIncludes: {
-    "/admin/**": ["./data/pool.json"],
+    "/admin/**": [
+      "./data/pool.json",
+      "./data/ids.json",
+      "./data/witness.json",
+      "./data/overrides.json",
+      "./data/curated/*.json",
+    ],
     "/api/chkoun/**": ["./data/pool.json", "./data/curated/*.json"],
     // Static at build; listed in case a locale is ever rendered on demand.
     "/chkoun-data/**": ["./data/pool.json", "./data/curated/*.json"],

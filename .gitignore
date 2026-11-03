@@ -24,6 +24,8 @@ next-env.d.ts
 /test-results/
 /playwright-report/
 /.lighthouseci/
+# the admin browser tests' GitHub and Wikidata fakes (KORA_ADMIN_FAKES)
+/.e2e/
 
 # last good answers from the data sources (kept by actions/cache in CI)
 /data/cache/
