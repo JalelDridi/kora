@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
-import { fsSource } from "../../pipeline/check.ts";
+import { fsSource, inspectSource } from "../../pipeline/check.ts";
 import type { DataSource } from "../../pipeline/check.ts";
 import { overlay, validateEdit } from "./validate.ts";
 
@@ -58,6 +58,42 @@ describe("validateEdit", () => {
     expect(errors).toEqual([
       "data/curated/ligue1-strength.json: no strength for club-africain",
     ]);
+  });
+
+  it("an edited file's warning the base already gives is not repeated; one the edit changes is kept", async () => {
+    const path = "data/curated/club-short.json";
+    const json = JSON.parse(committed(path)) as {
+      clubs: Record<string, { latin: string; arabic: string }>;
+    };
+    const before = await validateEdit(path, committed(path), base);
+    expect(before.warnings).toEqual([]);
+    // A row edited that leaves the automatic list as it was: no warning.
+    const first = Object.keys(json.clubs)[0];
+    json.clubs[first] = { ...json.clubs[first], latin: "ABC" };
+    const unchanged = await validateEdit(path, JSON.stringify(json), base);
+    expect(unchanged.errors).toEqual([]);
+    expect(unchanged.warnings).toEqual([]);
+    // A label given to a club on the automatic list changes the line: kept.
+    const all = await inspectSource(base, { photos: false });
+    const line = all.warnings.find((w) => w.startsWith(`${path}: `))!;
+    const club = /curate them: ([a-z0-9-]+) /.exec(line)![1];
+    json.clubs[club] = { latin: "XYZ", arabic: "س" };
+    const changed = await validateEdit(path, JSON.stringify(json), base);
+    expect(changed.warnings).toHaveLength(1);
+    expect(changed.warnings[0]).not.toBe(line);
+    expect(changed.warnings[0]).not.toContain(` ${club} (`);
+  });
+
+  it("keeps every error of the edited file, even one the base gives", async () => {
+    const path = "data/curated/afcon-2004.json";
+    const broken = JSON.stringify({
+      by: "jalel",
+      at: null,
+      footballers: ["X1"],
+    });
+    const shifted: DataSource = overlay(base, { [path]: broken });
+    const { errors } = await validateEdit(path, broken, shifted);
+    expect(errors.some((e) => e.startsWith(`${path}: `))).toBe(true);
   });
 
   it("a file that is not JSON is named", async () => {

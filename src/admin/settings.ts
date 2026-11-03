@@ -61,3 +61,20 @@ export function shortCount(value: string, most: number): string {
       : `${words.length} words, longest ${longest} letters`;
   return `${counted} (at most 2 words of ${most})`;
 }
+
+/**
+ * club-short's filter (`?q=`): keeps a row whose club name, id, Latin or
+ * Arabic label holds the query, ignoring case. A blank query keeps all.
+ */
+export function clubShortFilter(
+  q: string,
+  clubName: (id: string) => string | undefined,
+): (row: Record<string, unknown>) => boolean {
+  const needle = q.trim().toLowerCase();
+  return (row) =>
+    needle === "" ||
+    [clubName(String(row.id)), row.id, row.latin, row.arabic].some(
+      (value) =>
+        typeof value === "string" && value.toLowerCase().includes(needle),
+    );
+}

@@ -24,6 +24,7 @@ import {
   FIELD_LABEL,
   SETTINGS_BLURB,
   SETTINGS_TITLE,
+  clubShortFilter,
   shortCount,
 } from "@/admin/settings";
 import { tunisDay } from "@/engine/chkoun/day.ts";
@@ -38,7 +39,9 @@ import { saveCurated } from "./actions";
 // same values to a server action that commits that one change. The rows
 // carry their key as id, so /admin/settings/ligue1-strength#<club> (the
 // 30–0 view's link) lands on the club. English, plain forms, no client
-// script.
+// script. While a form or a preview is open the page holds only it, the
+// file's header and a link back (T6 fix round: short on a phone); club-short
+// filters its rows with ?q=.
 
 export const dynamic = "force-dynamic";
 
@@ -51,6 +54,7 @@ const CONTROL = [
   "add",
   "remove",
   "header",
+  "q",
 ];
 
 const one = (value: string | string[] | undefined) =>
@@ -136,6 +140,17 @@ export default async function CuratedPage({
   const byKey = (key: string | undefined) =>
     key === undefined ? undefined : rows.find((r) => curated.key(r) === key);
   const page = `/admin/settings/${id}`;
+  // club-short's filter, kept in the links that leave the list and come back.
+  const q = id === "club-short" ? (one(query.q)?.trim() ?? "") : "";
+  const withQ = (params: Record<string, string>) => {
+    const search = new URLSearchParams(params);
+    if (q !== "") search.set("q", q);
+    const text = search.toString();
+    return text === "" ? page : `${page}?${text}`;
+  };
+  const back = withQ({});
+
+  const shown = rows.filter(clubShortFilter(q, names.clubName));
 
   let panel: ReactNode = null;
   if (one(query.preview) === "1")
@@ -146,6 +161,7 @@ export default async function CuratedPage({
         text={read.text}
         canSave={editable}
         names={names}
+        q={q}
       />
     );
   else if (editKey !== undefined)
@@ -158,6 +174,8 @@ export default async function CuratedPage({
         sent={sent}
         names={names}
         disabled={!editable}
+        back={back}
+        q={q}
       />
     ) : (
       <p className="notice">No row {editKey} in this file.</p>
@@ -171,6 +189,8 @@ export default async function CuratedPage({
         sent={sent}
         names={names}
         disabled={!editable}
+        back={back}
+        q={q}
       />
     );
   else if (removeKey !== undefined)
@@ -181,6 +201,8 @@ export default async function CuratedPage({
         shown={rowName(id, byKey(removeKey)!, names)}
         sent={sent}
         disabled={!editable}
+        back={back}
+        q={q}
       />
     ) : (
       <p className="notice">No row {removeKey} in this file.</p>
@@ -193,6 +215,8 @@ export default async function CuratedPage({
         value={String((json as Record<string, unknown> | null)?.[header] ?? "")}
         sent={sent}
         disabled={!editable}
+        back={back}
+        q={q}
       />
     );
 
@@ -214,82 +238,95 @@ export default async function CuratedPage({
       ) : null}
       {savedSha ? <Saved sha={savedSha} commit={commit} /> : null}
       {panel}
-      <FileHeader id={id} json={json} />
-      {id === "club-short" && shapeProblem === null ? (
-        <AutoLabels pool={pool} json={json} names={names} />
-      ) : null}
-      <h2 id="rows">
-        {rows.length} {rows.length === 1 ? "row" : "rows"}
-      </h2>
-      {rows.length === 0 ? <p className="dim">None yet.</p> : null}
-      {rows.length > 0 ? (
-        <div className="scroll">
-          <table aria-label="Rows" className="rows">
-            <thead>
-              <tr>
-                {columns(id).map((c, n) => (
-                  <th
-                    key={c}
-                    scope="col"
-                    className={n > 0 ? "more" : undefined}
-                  >
-                    {c}
-                  </th>
-                ))}
-                <th scope="col">
-                  <span className="visually-hidden">Actions</span>
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map((row) => {
-                const key = curated.key(row);
-                const [first, ...rest] = cells(id, row, names);
-                const name = rowName(id, row, names);
-                return (
-                  <tr key={key} id={anchor(key)}>
-                    <th scope="row">
-                      {first}
-                      {rest.length > 0 ? (
-                        <span className="sub">
-                          {rest.map((cell, n) => (
-                            <span key={n}>
-                              {n > 0 ? " · " : ""}
-                              {cell}
-                            </span>
-                          ))}
-                        </span>
-                      ) : null}
-                    </th>
-                    {rest.map((cell, n) => (
-                      <td key={n} className="more">
-                        {cell}
-                      </td>
-                    ))}
-                    <td className="row-actions">
-                      <NavLink href={`${page}?edit=${encodeURIComponent(key)}`}>
-                        Edit<span className="visually-hidden"> {name}</span>
-                      </NavLink>
-                      {offers.remove ? (
-                        <NavLink
-                          href={`${page}?remove=${encodeURIComponent(key)}`}
-                        >
-                          Remove
-                          <span className="visually-hidden"> {name}</span>
-                        </NavLink>
-                      ) : null}
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-      ) : null}
-      {offers.add ? (
-        <p className="actions">
-          <NavLink href={`${page}?add=1`}>Add a row</NavLink>
+      {panel ? (
+        <p>
+          <NavLink href={back}>All rows</NavLink>
         </p>
+      ) : null}
+      <FileHeader id={id} json={json} />
+      {panel === null ? (
+        <>
+          {id === "club-short" && shapeProblem === null ? (
+            <AutoLabels pool={pool} json={json} names={names} />
+          ) : null}
+          {id === "club-short" ? <Filter page={page} q={q} /> : null}
+          <h2 id="rows">
+            {shown.length === rows.length
+              ? `${rows.length} ${rows.length === 1 ? "row" : "rows"}`
+              : `${shown.length} of ${rows.length} rows`}
+          </h2>
+          {rows.length === 0 ? <p className="dim">None yet.</p> : null}
+          {rows.length > 0 && shown.length === 0 ? (
+            <p className="dim">No row matches “{q}”.</p>
+          ) : null}
+          {shown.length > 0 ? (
+            <div className="scroll">
+              <table aria-label="Rows" className="rows">
+                <thead>
+                  <tr>
+                    {columns(id).map((c, n) => (
+                      <th
+                        key={c}
+                        scope="col"
+                        className={n > 0 ? "more" : undefined}
+                      >
+                        {c}
+                      </th>
+                    ))}
+                    <th scope="col">
+                      <span className="visually-hidden">Actions</span>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {shown.map((row) => {
+                    const key = curated.key(row);
+                    const [first, ...rest] = cells(id, row, names);
+                    const name = rowName(id, row, names);
+                    return (
+                      <tr key={key} id={anchor(key)}>
+                        <th scope="row">
+                          {first}
+                          {rest.length > 0 ? (
+                            <span className="sub">
+                              {rest.map((cell, n) => (
+                                <span key={n}>
+                                  {n > 0 ? " · " : ""}
+                                  {cell}
+                                </span>
+                              ))}
+                            </span>
+                          ) : null}
+                        </th>
+                        {rest.map((cell, n) => (
+                          <td key={n} className="more">
+                            {cell}
+                          </td>
+                        ))}
+                        <td className="row-actions">
+                          <NavLink href={withQ({ edit: key })}>
+                            Edit<span className="visually-hidden"> {name}</span>
+                          </NavLink>
+                          {offers.remove ? (
+                            <NavLink href={withQ({ remove: key })}>
+                              Remove
+                              <span className="visually-hidden"> {name}</span>
+                            </NavLink>
+                          ) : null}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          ) : null}
+          {offers.add ? (
+            <p className="actions">
+              <NavLink href={`${page}?add=1`}>Add a row</NavLink>
+            </p>
+          ) : null}
+        </>
       ) : null}
     </main>
   );
@@ -442,28 +479,64 @@ function AutoLabels({
         The game shows these clubs and prints a label made from their name (in
         brackets). Give each its own.
       </p>
-      <ul aria-labelledby="auto" className="auto plain">
-        {auto.map((line) => {
-          const club = line.split(" ")[0];
-          const name = names.clubName(club) ?? club;
-          return (
-            <li key={club}>
-              {name} <span className="dim">{line.slice(club.length + 1)}</span>{" "}
-              <NavLink
-                href={`/admin/settings/club-short?add=1&id=${encodeURIComponent(club)}`}
-              >
-                Add
-                <span className="visually-hidden">
-                  {" "}
-                  a label for {name} ({club})
-                </span>
-              </NavLink>
-            </li>
-          );
-        })}
-      </ul>
+      <details className="values">
+        <summary>
+          {auto.length} {auto.length === 1 ? "club" : "clubs"}
+        </summary>
+        <ul aria-labelledby="auto" className="auto plain">
+          {auto.map((line) => {
+            const club = line.split(" ")[0];
+            const name = names.clubName(club) ?? club;
+            return (
+              <li key={club}>
+                {name}{" "}
+                <span className="dim">{line.slice(club.length + 1)}</span>{" "}
+                <NavLink
+                  href={`/admin/settings/club-short?add=1&id=${encodeURIComponent(club)}`}
+                >
+                  Add
+                  <span className="visually-hidden">
+                    {" "}
+                    a label for {name} ({club})
+                  </span>
+                </NavLink>
+              </li>
+            );
+          })}
+        </ul>
+      </details>
     </section>
   );
+}
+
+/** club-short's filter: a GET box on the club's name, id or labels. */
+function Filter({ page, q }: { page: string; q: string }) {
+  return (
+    <form method="get" action={page} role="search" className="field">
+      <label htmlFor="q">Filter the rows</label>
+      <p className="dim" id="q-hint">
+        A club&rsquo;s name, id, Latin or Arabic label.
+      </p>
+      <input
+        id="q"
+        name="q"
+        type="search"
+        defaultValue={q}
+        maxLength={80}
+        autoComplete="off"
+        aria-describedby="q-hint"
+      />
+      <div className="actions">
+        <button type="submit">Filter</button>
+        {q !== "" ? <NavLink href={page}>All rows</NavLink> : null}
+      </div>
+    </form>
+  );
+}
+
+/** The filter a form came from, carried through its preview and back. */
+function KeepQ({ q }: { q: string }) {
+  return q === "" ? null : <input type="hidden" name="q" value={q} />;
 }
 
 /** The commit's note: why, and where it says so. */
@@ -500,6 +573,8 @@ function RowForm({
   sent,
   names,
   disabled,
+  back,
+  q,
 }: {
   id: CuratedId;
   op: "set" | "add";
@@ -508,6 +583,8 @@ function RowForm({
   sent: Record<string, string | string[]>;
   names: Names;
   disabled: boolean;
+  back: string;
+  q: string;
 }) {
   const value = (name: string) =>
     last(sent, name) ?? (row[name] === undefined ? "" : String(row[name]));
@@ -518,6 +595,7 @@ function RowForm({
       <h2 id="form-head">{heading}</h2>
       <form method="get" action={`/admin/settings/${id}`}>
         <input type="hidden" name="preview" value="1" />
+        <KeepQ q={q} />
         <input type="hidden" name="op" value={op} />
         {rowKey !== undefined ? (
           <input type="hidden" name="key" value={rowKey} />
@@ -538,7 +616,7 @@ function RowForm({
         {disabled ? null : (
           <div className="actions">
             <button type="submit">Preview</button>
-            <NavLink href={`/admin/settings/${id}`}>Cancel</NavLink>
+            <NavLink href={back}>Cancel</NavLink>
           </div>
         )}
       </form>
@@ -702,18 +780,23 @@ function RemoveForm({
   shown,
   sent,
   disabled,
+  back,
+  q,
 }: {
   id: CuratedId;
   rowKey: string;
   shown: string;
   sent: Record<string, string | string[]>;
   disabled: boolean;
+  back: string;
+  q: string;
 }) {
   return (
     <section aria-labelledby="form-head">
       <h2 id="form-head">Remove {shown}</h2>
       <form method="get" action={`/admin/settings/${id}`}>
         <input type="hidden" name="preview" value="1" />
+        <KeepQ q={q} />
         <input type="hidden" name="op" value="remove" />
         <input type="hidden" name="key" value={rowKey} />
         <fieldset disabled={disabled} className="fields">
@@ -723,7 +806,7 @@ function RemoveForm({
         {disabled ? null : (
           <div className="actions">
             <button type="submit">Preview</button>
-            <NavLink href={`/admin/settings/${id}`}>Cancel</NavLink>
+            <NavLink href={back}>Cancel</NavLink>
           </div>
         )}
       </form>
@@ -737,12 +820,16 @@ function HeaderForm({
   value,
   sent,
   disabled,
+  back,
+  q,
 }: {
   id: CuratedId;
   field: HeaderField;
   value: string;
   sent: Record<string, string | string[]>;
   disabled: boolean;
+  back: string;
+  q: string;
 }) {
   const current = last(sent, "value") ?? value;
   return (
@@ -750,6 +837,7 @@ function HeaderForm({
       <h2 id="form-head">Edit the {field}</h2>
       <form method="get" action={`/admin/settings/${id}`}>
         <input type="hidden" name="preview" value="1" />
+        <KeepQ q={q} />
         <input type="hidden" name="op" value="header" />
         <input type="hidden" name="field" value={field} />
         <fieldset disabled={disabled} className="fields">
@@ -779,7 +867,7 @@ function HeaderForm({
         {disabled ? null : (
           <div className="actions">
             <button type="submit">Preview</button>
-            <NavLink href={`/admin/settings/${id}`}>Cancel</NavLink>
+            <NavLink href={back}>Cancel</NavLink>
           </div>
         )}
       </form>
@@ -813,7 +901,11 @@ function Diff({ diff }: { diff: DiffLine[] }) {
 }
 
 /** Where "Change the values" goes: the form the preview came from, filled. */
-function backTo(id: CuratedId, sent: Record<string, string | string[]>) {
+function backTo(
+  id: CuratedId,
+  sent: Record<string, string | string[]>,
+  q: string,
+) {
   const query = new URLSearchParams();
   const op = last(sent, "op");
   const key = last(sent, "key") ?? "";
@@ -825,6 +917,7 @@ function backTo(id: CuratedId, sent: Record<string, string | string[]>) {
     if (!["op", "key", "field"].includes(name))
       for (const v of Array.isArray(value) ? value : [value])
         query.append(name, v);
+  if (q !== "") query.set("q", q);
   return `/admin/settings/${id}?${query}`;
 }
 
@@ -834,12 +927,14 @@ async function Preview({
   text,
   canSave,
   names,
+  q,
 }: {
   id: CuratedId;
   sent: Record<string, string | string[]>;
   text: string;
   canSave: boolean;
   names: Names;
+  q: string;
 }) {
   const edit = await curatedEdit({
     id,
@@ -885,14 +980,17 @@ async function Preview({
           <h3>Commit message</h3>
           <pre className="message">{edit.applied.message}</pre>
           {checked.warnings.length > 0 ? (
-            <>
-              <h3>Warnings</h3>
+            <details className="values">
+              <summary>
+                {checked.warnings.length}{" "}
+                {checked.warnings.length === 1 ? "warning" : "warnings"}
+              </summary>
               <ul className="plain warnings">
                 {checked.warnings.map((line) => (
                   <li key={line}>{line}</li>
                 ))}
               </ul>
-            </>
+            </details>
           ) : null}
         </>
       ) : null}
@@ -908,7 +1006,7 @@ async function Preview({
             <button type="submit">Save</button>
           </form>
         ) : null}
-        <NavLink href={backTo(id, sent)}>Change the values</NavLink>
+        <NavLink href={backTo(id, sent, q)}>Change the values</NavLink>
       </div>
     </section>
   );

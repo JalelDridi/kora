@@ -614,11 +614,18 @@ test("club-short: edit a row, preview the diff, save one commit that passes data
   await expect(page.getByRole("heading", { level: 1 })).toHaveText(
     "Short club labels",
   );
-  // The clubs on an automatic label come first, each with its Add link.
+  // The clubs on an automatic label come first, closed under their count,
+  // each with its Add link.
   const file = JSON.parse(fakeFile("data/curated/club-short.json")) as {
     clubs: Record<string, unknown>;
   };
   const auto = clubsWithAutoShort(pool, file.clubs);
+  const summary = page.locator("section[aria-labelledby=auto] summary");
+  await expect(summary).toHaveText(`${auto.length} clubs`);
+  await expect(
+    page.locator("section[aria-labelledby=auto] details"),
+  ).not.toHaveAttribute("open");
+  await summary.click();
   const autoList = page.getByRole("list", {
     name: "Clubs on an automatic label",
   });
@@ -658,6 +665,8 @@ test("club-short: edit a row, preview the diff, save one commit that passes data
   await expect(page.getByTestId("checked")).toHaveText(
     "data:check finds no error in this change.",
   );
+  // The automatic-label warning the deployment already gives is not repeated.
+  await expect(page.getByText(/automatic short label/)).toHaveCount(0);
   expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
   await fits360(page);
   await page.getByRole("button", { name: "Save" }).click();
@@ -674,6 +683,93 @@ test("club-short: edit a row, preview the diff, save one commit that passes data
   expect(saved.note).toContain("DRAFT");
   expect((await checkFake()).errors).toEqual([]);
   expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+});
+
+const pageHeight = (page: import("@playwright/test").Page) =>
+  page.evaluate(() => document.documentElement.scrollHeight);
+
+test("club-short stays short at 360 px: a filter, a panel alone, warnings closed", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 360, height: 800 });
+  await page.goto("/admin/settings/club-short");
+  const total = await page.locator("table[aria-label=Rows] tbody tr").count();
+  // Everything above the rows (the header, the closed automatic list and
+  // the filter) fits in about two screens.
+  expect(
+    await page.evaluate(
+      () => document.querySelector("#rows")!.getBoundingClientRect().top,
+    ),
+  ).toBeLessThan(1500);
+
+  // The filter matches the name, the id or a label, ignoring case.
+  await page.getByLabel("Filter the rows").fill("zarzis");
+  await page.getByRole("button", { name: "Filter" }).click();
+  await expect(page).toHaveURL(/\?q=zarzis$/);
+  await expect(
+    page.getByRole("heading", { name: `1 of ${total} rows` }),
+  ).toBeVisible();
+  await expect(rowOf(page, "es-zarzis")).toBeVisible();
+  expect(await pageHeight(page)).toBeLessThan(2500);
+  expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+  await fits360(page);
+  await page.goto(
+    "/admin/settings/club-short?q=%D8%AC%D8%B1%D8%AC%D9%8A%D8%B3",
+  );
+  await expect(page.locator("table[aria-label=Rows] tbody tr")).toHaveCount(1);
+  await page.goto("/admin/settings/club-short?q=ES-ZARZIS");
+  await expect(page.locator("table[aria-label=Rows] tbody tr")).toHaveCount(1);
+  await page.goto("/admin/settings/club-short?q=zarzis");
+
+  // The filter rides along: Edit and Remove keep it, the panel comes alone
+  // with a link back to the filtered rows.
+  const edit = rowOf(page, "es-zarzis").getByRole("link", { name: /^Edit/ });
+  await expect(edit).toHaveAttribute(
+    "href",
+    "/admin/settings/club-short?edit=es-zarzis&q=zarzis",
+  );
+  await expect(
+    rowOf(page, "es-zarzis").getByRole("link", { name: /^Remove/ }),
+  ).toHaveAttribute(
+    "href",
+    "/admin/settings/club-short?remove=es-zarzis&q=zarzis",
+  );
+  await edit.click();
+  await expect(page.getByLabel("Arabic")).toBeVisible();
+  await expect(page.locator("table[aria-label=Rows]")).toHaveCount(0);
+  await expect(page.locator("section[aria-labelledby=auto]")).toHaveCount(0);
+  await expect(page.getByRole("link", { name: "All rows" })).toHaveAttribute(
+    "href",
+    "/admin/settings/club-short?q=zarzis",
+  );
+  expect(await pageHeight(page)).toBeLessThan(1500);
+
+  // The preview: no rows either, and the warnings it has closed under their count.
+  await page.getByLabel("Latin").fill("ZRZ");
+  await page.getByLabel("Why").fill("Height test");
+  await page.getByRole("button", { name: "Preview" }).click();
+  await expect(page.getByRole("table", { name: "Changes" })).toBeVisible();
+  await expect(page.locator("table[aria-label=Rows]")).toHaveCount(0);
+  await expect(
+    page.getByRole("link", { name: "Change the values" }),
+  ).toHaveAttribute("href", /&q=zarzis$/);
+  // Giving an automatic-label club its own label changes the warning: shown, closed.
+  const club = clubsWithAutoShort(
+    pool,
+    (
+      JSON.parse(fakeFile("data/curated/club-short.json")) as {
+        clubs: Record<string, unknown>;
+      }
+    ).clubs,
+  )[0].split(" ")[0];
+  await page.goto(
+    `/admin/settings/club-short?preview=1&op=add&id=${club}&latin=AB&arabic=%D8%A8&note=x`,
+  );
+  const warnings = page.locator("details:has(ul.warnings)");
+  await expect(warnings.locator("summary")).toHaveText("1 warning");
+  await expect(warnings).not.toHaveAttribute("open");
+  expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+  expect(fakeCommits()).toEqual([]);
 });
 
 test("ligue1-strength: 91 is refused with the validator's message and no commit", async ({

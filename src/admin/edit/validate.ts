@@ -51,9 +51,11 @@ function inspectBase(base: DataSource): Promise<Result> {
 
 /**
  * data:check over `base` with `path` replaced by `nextText`, photos aside
- * (the dashboard does not hold them): every line about the edited file, and
- * any line about another file that the base did not already give (an
- * override naming a governorate just removed, a 30–0 slot left empty).
+ * (the dashboard does not hold them): every error about the edited file,
+ * and any other line the base did not already give (an override naming a
+ * governorate just removed, a 30–0 slot left empty, a warning the edit
+ * changes). A warning the base already gives is not repeated on every
+ * preview (the 20 clubs on an automatic label, T6 fix round).
  */
 export async function validateEdit(
   path: string,
@@ -65,12 +67,14 @@ export async function validateEdit(
     inspectSource(edited, { photos: false }),
     inspectBase(base),
   ]);
-  const keep = (lines: string[], known: string[]) => {
+  const fresh = (lines: string[], known: string[], edited: boolean) => {
     const old = new Set(known);
-    return lines.filter((l) => l.startsWith(`${path}: `) || !old.has(l));
+    return lines.filter(
+      (l) => (edited && l.startsWith(`${path}: `)) || !old.has(l),
+    );
   };
   return {
-    errors: keep(next.errors, before.errors),
-    warnings: keep(next.warnings, before.warnings),
+    errors: fresh(next.errors, before.errors, true),
+    warnings: fresh(next.warnings, before.warnings, false),
   };
 }
