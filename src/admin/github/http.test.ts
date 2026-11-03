@@ -63,4 +63,22 @@ describe("HttpGitHub", () => {
     await gh.readFile("a.json");
     expect(gh.tokenDaysLeft()).toBeGreaterThan(300);
   });
+  it("keeps every path inside the repository", async () => {
+    const f = fakeGitHubFetch({ "a.json": "1\n" });
+    const gh = new HttpGitHub("test-token", f.fetch);
+    for (const path of [
+      "../../other/repo/contents/x",
+      "data/../../../other/repo/contents/x",
+      "data/./a.json",
+      "data//a.json",
+      "/a.json",
+      "",
+    ]) {
+      await expect(gh.readFile(path)).rejects.toMatchObject({ status: 400 });
+      await expect(
+        gh.commitFile({ path, text: "x", sha: "abc", message: "m" }),
+      ).rejects.toMatchObject({ status: 400 });
+    }
+    expect(f.requests).toEqual([]);
+  });
 });

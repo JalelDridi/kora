@@ -22,8 +22,17 @@ const API = `https://api.github.com/repos/${REPO.owner}/${REPO.repo}`;
 const JSON_TYPE = "application/vnd.github+json";
 const RAW_TYPE = "application/vnd.github.raw+json";
 
-const encodePath = (path: string) =>
-  path.split("/").map(encodeURIComponent).join("/");
+/**
+ * A repository path, segment by segment. Empty, "." and ".." segments are
+ * refused: the URL parser would resolve them and the request could leave
+ * repos/JalelDridi/kora.
+ */
+function encodePath(path: string, what: string): string {
+  const segments = path.split("/");
+  if (segments.some((s) => s === "" || s === "." || s === ".."))
+    throw new GitHubError(400, what);
+  return segments.map(encodeURIComponent).join("/");
+}
 
 type RawCommit = {
   sha: string;
@@ -43,6 +52,27 @@ const toCommit = (c: RawCommit, files: string[]): CommitInfo => ({
   message: c.commit.message,
   date: c.commit.committer?.date ?? c.commit.author?.date ?? "",
   url: c.html_url,
+  files,
+});
+
+// The PUT contents answer's `commit` is a git commit object (GitHub's docs,
+// "Create or update file contents", 200 example): message, committer and
+// parents at its top level, no nested `commit`.
+type RawGitCommit = {
+  sha: string;
+  message: string;
+  author?: { date?: string } | null;
+  committer?: { date?: string } | null;
+  parents: { sha: string }[];
+};
+
+const fromGitCommit = (c: RawGitCommit, files: string[]): CommitInfo => ({
+  sha: c.sha,
+  parent: c.parents[0]?.sha ?? null,
+  message: c.message,
+  date: c.committer?.date ?? c.author?.date ?? "",
+  // Its html_url is the git object's page; the commit page is this one.
+  url: `https://github.com/${REPO.owner}/${REPO.repo}/commit/${c.sha}`,
   files,
 });
 
@@ -137,7 +167,7 @@ export class HttpGitHub implements GitHub {
     // 1 MB limit (data/pool.json is never read through here anyway).
     const meta = await this.json<{ sha: string; type: string }>(
       "readFile",
-      `contents/${encodePath(path)}?ref=${encodeURIComponent(ref)}`,
+      `contents/${encodePath(path, "readFile")}?ref=${encodeURIComponent(ref)}`,
     );
     if (meta.type !== "file") throw new GitHubError(404, "readFile");
     const raw = await this.call("readFile", `git/blobs/${meta.sha}`, {
@@ -152,9 +182,9 @@ export class HttpGitHub implements GitHub {
     sha: string;
     message: string;
   }): Promise<CommitInfo> {
-    const answer = await this.json<{ commit: RawCommit }>(
+    const answer = await this.json<{ commit: RawGitCommit }>(
       "commitFile",
-      `contents/${encodePath(input.path)}`,
+      `contents/${encodePath(input.path, "commitFile")}`,
       {
         method: "PUT",
         body: {
@@ -165,7 +195,7 @@ export class HttpGitHub implements GitHub {
         },
       },
     );
-    return toCommit(answer.commit, [input.path]);
+    return fromGitCommit(answer.commit, [input.path]);
   }
 
   async listCommits(input: {

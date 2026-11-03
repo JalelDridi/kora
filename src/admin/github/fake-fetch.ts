@@ -120,9 +120,49 @@ export function fakeGitHubFetch(
       };
       files.set(path, text);
       commits.unshift(commit);
+      // GitHub's documented 200 answer: `commit` is a git commit object.
+      const sha = gitBlobSha(text);
+      const git = `${API}/git`;
       return json(200, {
-        content: { path, sha: gitBlobSha(text) },
-        commit: { ...commitJson(commit).commit, ...commitJson(commit) },
+        content: {
+          name: path.split("/").at(-1),
+          path,
+          sha,
+          size: Buffer.byteLength(text),
+          url: `${API}/contents/${path}`,
+          html_url: `https://github.com/JalelDridi/kora/blob/main/${path}`,
+          git_url: `${git}/blobs/${sha}`,
+          download_url: `https://raw.githubusercontent.com/JalelDridi/kora/main/${path}`,
+          type: "file",
+        },
+        commit: {
+          sha: commit.sha,
+          node_id: "C_fake",
+          url: `${git}/commits/${commit.sha}`,
+          html_url: `https://github.com/JalelDridi/kora/git/commit/${commit.sha}`,
+          author: { date: commit.date, name: "Jalel", email: "j@example.com" },
+          committer: {
+            date: commit.date,
+            name: "Jalel",
+            email: "j@example.com",
+          },
+          message: commit.message,
+          tree: { url: `${git}/trees/${sha1(text)}`, sha: sha1(text) },
+          parents: [
+            {
+              url: `${git}/commits/${commit.parent}`,
+              html_url: `https://github.com/JalelDridi/kora/commit/${commit.parent}`,
+              sha: commit.parent,
+            },
+          ],
+          verification: {
+            verified: false,
+            reason: "unsigned",
+            signature: null,
+            payload: null,
+            verified_at: null,
+          },
+        },
       });
     }
     const blob = /^git\/blobs\/([0-9a-f]{40})$/.exec(route);

@@ -29,6 +29,10 @@ for (const [name, make] of [
         message: "data(overrides): test",
       });
       expect(commit.files).toEqual(["data/overrides.json"]);
+      expect(commit.message).toBe("data(overrides): test");
+      expect(commit.parent).toMatch(/^[0-9a-f]{40}$/);
+      expect(commit.sha).toMatch(/^[0-9a-f]{40}$/);
+      expect(commit.url).toContain(commit.sha);
       expect((await gh.readFile("data/overrides.json")).text).toBe("{}\n");
       expect(
         (await gh.readFile("data/overrides.json", commit.parent!)).text,
@@ -41,6 +45,14 @@ for (const [name, make] of [
       expect((await gh.getCommit(commit.sha)).message).toBe(
         "data(overrides): test",
       );
+      const next = await gh.commitFile({
+        path: "data/overrides.json",
+        text: "[]\n",
+        sha: (await gh.readFile("data/overrides.json")).sha,
+        message: "data(overrides): second",
+      });
+      expect(next.parent).toBe(commit.sha);
+      expect(next.message).toBe("data(overrides): second");
     });
     it("refuses a commit on a stale sha with 409", async () => {
       const gh = make();
