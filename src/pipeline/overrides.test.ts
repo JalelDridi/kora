@@ -110,7 +110,7 @@ describe("validateOverrides", () => {
     const result = validateOverrides(
       {
         players: {
-          Q999: { exclude: { value: true, ...by } },
+          Q999: { caps: { value: 2, ...by } },
           Q1: { club: { value: "Q5", ...by } },
           Q2836275: { club: { value: null, ...by } },
         },
@@ -350,6 +350,68 @@ describe("include (T-AD-5)", () => {
     );
     expect(r.ok && r.warnings).toEqual([
       "players.Q9: not seen by the last build; the next build will decide",
+    ]);
+  });
+});
+
+describe("excluding a footballer never fetched (T4 fix B1)", () => {
+  const known = {
+    players: new Set(["Q1"]),
+    clubs: new Set<string>(),
+    seen: new Set(["Q1", "Q77"]),
+  };
+  const stamp = { by: "jalel", at: "2026-11-03" };
+  const warning = "players.Q999001: excluded, never fetched; nothing to apply";
+
+  it("an exclude for an id the build never fetched is a warning, in build and check mode", () => {
+    // Include Q999001, then exclude him: the exclusion replaces the include,
+    // so the next build does not fetch him at all.
+    const json = {
+      players: { Q999001: { exclude: { value: true, ...stamp } } },
+      clubTitles: {},
+    };
+    expect(validateOverrides(json, new Set(), known)).toEqual({
+      ok: true,
+      overrides: { players: {}, clubTitles: {} },
+      warnings: [warning],
+    });
+    expect(validateOverrides(json, new Set(), known, "check")).toEqual({
+      ok: true,
+      overrides: { players: {}, clubTitles: {} },
+      warnings: [warning],
+    });
+  });
+
+  it("any other override for an id never fetched is still refused by the build", () => {
+    for (const entry of [
+      { caps: { value: 3, ...stamp } },
+      { exclude: { value: false, ...stamp }, caps: { value: 3, ...stamp } },
+      { localStar: { value: true, ...stamp } },
+    ]) {
+      expect(
+        validateOverrides(
+          { players: { Q999001: entry }, clubTitles: {} },
+          new Set(),
+          known,
+        ),
+      ).toEqual({
+        ok: false,
+        errors: ["players.Q999001: not a footballer in the pool"],
+      });
+    }
+  });
+
+  it("an exclude for a footballer seen before keeps the stale warning", () => {
+    const r = validateOverrides(
+      {
+        players: { Q77: { exclude: { value: true, ...stamp } } },
+        clubTitles: {},
+      },
+      new Set(),
+      known,
+    );
+    expect(r.ok && r.warnings).toEqual([
+      "players.Q77: stale override: seen by the pipeline but not in the current pool; not applied",
     ]);
   });
 });

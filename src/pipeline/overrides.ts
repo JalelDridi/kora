@@ -90,7 +90,8 @@ export type OverridesResult =
  * What the overrides may name: the pool's footballers and clubs (Wikidata
  * ids), and `seen`, footballers the pipeline has met (the id registry and the
  * pool's left-out list). In build mode an override for one seen but not in
- * `players` is stale: a warning, not applied; an id in neither is an error.
+ * `players` is stale: a warning, not applied; an id in neither is an error,
+ * except an exclusion alone, which has nothing to apply (a warning).
  * Check mode: see OverridesMode.
  */
 export type KnownIds = {
@@ -198,6 +199,21 @@ export function validateOverrides(
       continue;
     }
     if (!known.players.has(qid)) {
+      // An exclusion of a footballer the pipeline never fetched (an add
+      // withdrawn by excluding him) has nothing to apply: harmless, so it
+      // must not stop the nightly.
+      if (
+        !known.seen.has(qid) &&
+        !known.leftOut?.has(qid) &&
+        Object.keys(entry).length === 1 &&
+        isRecord(entry.exclude) &&
+        entry.exclude.value === true
+      ) {
+        warnings.push(
+          `players.${qid}: excluded, never fetched; nothing to apply`,
+        );
+        continue;
+      }
       if (!checker && Object.hasOwn(entry, "include")) {
         // A deleted or merged item must not stop the nightly.
         warnings.push(
