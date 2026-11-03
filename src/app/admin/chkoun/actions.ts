@@ -1,11 +1,10 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-import { adminAccess } from "@/admin/access";
 import { CalendarActionError, changeDay } from "@/admin/calendar";
 import type { CalendarChange } from "@/admin/calendar";
+import { requireAdmin } from "@/admin/require-admin";
 import { getKv, kvEnv } from "@/chkoun/kv";
 import { puzzleKey } from "@/chkoun/puzzle.server";
 import { withPg } from "@/db/pg";
@@ -18,19 +17,13 @@ import { tunisToday } from "@/pipeline/calendar.ts";
 // redirect to the page: no client script, the CSP's form-action 'self'
 // holds. Refusals come back as a code, never as a footballer.
 
-async function requireAdmin(): Promise<void> {
-  const authorization = (await headers()).get("authorization");
-  if (adminAccess(authorization, process.env.ADMIN_PASSWORD) !== "allow")
-    throw new Error("Not found");
-}
-
 const field = (form: FormData, name: string): string => {
   const value = form.get(name);
   return typeof value === "string" ? value.trim() : "";
 };
 
+/** Called only after the action's own requireAdmin. */
 async function apply(change: CalendarChange): Promise<never> {
-  await requireAdmin();
   let error: string | null = null;
   try {
     await withPg(async (db) =>
@@ -56,6 +49,7 @@ async function apply(change: CalendarChange): Promise<never> {
 }
 
 export async function swapDay(form: FormData): Promise<void> {
+  await requireAdmin();
   await apply({
     action: "swap",
     day: field(form, "day"),
@@ -64,6 +58,7 @@ export async function swapDay(form: FormData): Promise<void> {
 }
 
 export async function pinDay(form: FormData): Promise<void> {
+  await requireAdmin();
   await apply({
     action: "pin",
     day: field(form, "day"),
@@ -73,5 +68,6 @@ export async function pinDay(form: FormData): Promise<void> {
 }
 
 export async function redrawDay(form: FormData): Promise<void> {
+  await requireAdmin();
   await apply({ action: "redraw", day: field(form, "day") });
 }
