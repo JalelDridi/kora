@@ -17,7 +17,7 @@ import {
 } from "@/admin/footballer-page";
 import type { EditorNames } from "@/admin/footballer-page";
 import { readOverrides } from "@/admin/edit/read-overrides.server";
-import { REPO } from "@/admin/github";
+import { GitHubError, REPO } from "@/admin/github";
 import type { CommitInfo } from "@/admin/github";
 import { loadPool } from "@/admin/load-pool";
 import { NavLink } from "@/admin/nav-link";
@@ -93,7 +93,11 @@ export default async function FootballerEditorPage({
   // typed or stale `?saved=` gets the link, no claim.
   const commit: CommitInfo | null =
     savedSha && overrides.github
-      ? await overrides.github.getCommit(savedSha).catch(() => null)
+      ? await overrides.github.getCommit(savedSha).catch((e: unknown) => {
+          // Only GitHub's own refusal is "no commit"; a bug still throws.
+          if (e instanceof GitHubError) return null;
+          throw e;
+        })
       : null;
   const savedDiff = commit ? diffFromMessage(commit.message) : [];
   const state = inOrOut({

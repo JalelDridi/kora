@@ -15,7 +15,7 @@ import type { DiffLine } from "@/admin/edit/overrides-patch";
 import { readFromMain } from "@/admin/edit/read-overrides.server";
 import { validateEdit } from "@/admin/edit/validate";
 import { formRecord, saveError } from "@/admin/footballer-page";
-import { REPO } from "@/admin/github";
+import { GitHubError, REPO } from "@/admin/github";
 import type { CommitInfo } from "@/admin/github";
 import { loadPool } from "@/admin/load-pool";
 import { NavLink } from "@/admin/nav-link";
@@ -131,7 +131,11 @@ export default async function CuratedPage({
   const error = saveError(one(query.error));
   const commit: CommitInfo | null =
     savedSha && read.github
-      ? await read.github.getCommit(savedSha).catch(() => null)
+      ? await read.github.getCommit(savedSha).catch((e: unknown) => {
+          // Only GitHub's own refusal is "no commit"; a bug still throws.
+          if (e instanceof GitHubError) return null;
+          throw e;
+        })
       : null;
 
   const editKey = one(query.edit);

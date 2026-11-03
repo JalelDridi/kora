@@ -204,7 +204,9 @@ export function githubCard(
       text:
         status === 401
           ? "Connected, but GitHub refused the token (401): it may have expired."
-          : `Connected, but GitHub did not answer (${status}).`,
+          : status === 0
+            ? "Connected, but GitHub could not be reached."
+            : `Connected, but GitHub did not answer (${status}).`,
       warn: true,
     };
   if (daysLeft === null)

@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 import { footballer } from "@/pipeline/__fixtures__/calendar-pool.ts";
 import type { Pool, PoolPlayer, Provenance } from "@/pipeline/types.ts";
 import { FakeGitHub, type FakeRun } from "./github/fake.ts";
+import { GitHubError } from "./github/types.ts";
 import {
   githubCard,
   homeSummary,
@@ -76,7 +77,11 @@ describe("the GitHub card", () => {
       warn: true,
     });
     expect(githubCard({ daysLeft: null, status: 0 })).toEqual({
-      text: "Connected, but GitHub did not answer (0).",
+      text: "Connected, but GitHub could not be reached.",
+      warn: true,
+    });
+    expect(githubCard({ daysLeft: null, status: 502 })).toEqual({
+      text: "Connected, but GitHub did not answer (502).",
       warn: true,
     });
   });
@@ -289,5 +294,25 @@ describe("the home summary without a database call", () => {
     expect(days).toHaveBeenCalledAfter(runs);
     expect(summary.rebuild).toEqual({ kind: "none" });
     expect(summary.github).toEqual(githubCard({ daysLeft: 12 }));
+  });
+
+  // Branch review, T9 M4: status 0 is a GitHub that was not reached.
+  it("says GitHub could not be reached when the runs' read never got there", async () => {
+    const fake = new FakeGitHub({ files: {} });
+    vi.spyOn(fake, "workflowRuns").mockRejectedValue(
+      new GitHubError(0, "workflowRuns"),
+    );
+    vi.spyOn(fake, "tokenDaysLeft").mockReturnValue(12);
+    const summary = await homeSummary({
+      db: { query: () => Promise.reject(new Error("no database")) },
+      today: "2026-11-03",
+      pool: pool([]),
+      github: fake,
+    });
+    expect(summary.rebuild).toEqual({ kind: "error", status: 0 });
+    expect(summary.github).toEqual({
+      text: "Connected, but GitHub could not be reached.",
+      warn: true,
+    });
   });
 });

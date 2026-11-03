@@ -54,7 +54,11 @@ function Rebuild({ rebuild }: { rebuild: LastRebuild | null }) {
     return <p>GitHub is not connected here: no run to show.</p>;
   if (rebuild.kind === "none") return <p>No nightly run yet.</p>;
   if (rebuild.kind === "error")
-    return <p>GitHub did not answer ({rebuild.status}).</p>;
+    return rebuild.status === 0 ? (
+      <p>GitHub could not be reached.</p>
+    ) : (
+      <p>GitHub did not answer ({rebuild.status}).</p>
+    );
   return (
     <dl className="answers">
       <div>
