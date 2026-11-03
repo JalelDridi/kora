@@ -603,3 +603,87 @@ ol.candidates li {
   font-variant-numeric: tabular-nums;
   color: var(--chalk-dim);
 }
+
+/* The curated files (/admin/settings/[file]): the rows of one file, one
+   line each from 40rem; on a phone, the row's heading with its other
+   values as a second line, and the actions beside it. */
+
+.settings {
+  max-inline-size: 60rem;
+}
+
+ul.settings-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+ul.settings-list li {
+  border-block-end: 1px solid var(--pitch-700);
+  padding-block: 0.5rem;
+}
+
+ul.settings-list a {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0 0.35rem;
+  align-items: center;
+  min-block-size: 44px;
+  font-weight: 700;
+}
+
+ul.settings-list p {
+  margin-block: 0;
+}
+
+table.rows th[scope="row"] {
+  font-weight: 400;
+  color: var(--chalk);
+  overflow-wrap: anywhere;
+}
+
+table.rows .sub {
+  display: none;
+}
+
+.row-actions {
+  white-space: nowrap;
+  text-align: end;
+}
+
+.row-actions a,
+ul.auto a,
+.answers dd a {
+  display: inline-flex;
+  align-items: center;
+  min-block-size: 44px;
+  padding-inline: 0.35rem;
+}
+
+ul.auto li {
+  overflow-wrap: anywhere;
+}
+
+ul.warnings li {
+  overflow-wrap: anywhere;
+}
+
+@media (width < 40rem) {
+  table.rows .more {
+    display: none;
+  }
+
+  table.rows .sub {
+    display: block;
+    color: var(--chalk-dim);
+    font-size: 0.9rem;
+  }
+}
+
+.notice ul {
+  margin-block: 0;
+}
+
+.notice li {
+  overflow-wrap: anywhere;
+}

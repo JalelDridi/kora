@@ -1,5 +1,6 @@
 import { isDeepStrictEqual } from "node:util";
 import { layoutOf, writeJson } from "./json-text.ts";
+import { commitMessage } from "./message.ts";
 import type { Applied, DiffLine } from "./overrides-patch.ts";
 import { EditRefused } from "./validate.ts";
 
@@ -266,4 +267,220 @@ export async function applyCurated(
     diff,
     changed,
   };
+}
+
+// The settings pages' forms (Task 6): one row, or one header field, per
+// commit (T-AD-4). A form, posted or in a preview's query, is read into a
+// change, applied to main's text and given its commit message.
+
+export const CURATED_IDS = Object.keys(CURATED) as CuratedId[];
+
+export const isCuratedId = (id: string): id is CuratedId =>
+  Object.hasOwn(CURATED, id);
+
+export type HeaderField = "season" | "note";
+
+/**
+ * What each page offers besides editing a row. The strength file lists every
+ * Ligue 1 club, nothing else, and the governorates are always the 24: their
+ * rows are only edited.
+ */
+export const CURATED_OFFERS: Record<
+  CuratedId,
+  { add: boolean; remove: boolean; header: HeaderField[] }
+> = {
+  "ligue1-strength": { add: false, remove: false, header: ["season", "note"] },
+  "club-short": { add: true, remove: true, header: ["note"] },
+  honours: { add: true, remove: true, header: [] },
+  "afcon-2004": { add: true, remove: true, header: [] },
+  "ligue1-clubs": { add: true, remove: true, header: ["season"] },
+  governorates: { add: false, remove: false, header: [] },
+};
+
+/** The fields of a row's form, in the order the page shows them. */
+export const ROW_FIELDS: Record<CuratedId, string[]> = {
+  "ligue1-strength": ["id", "strength"],
+  "club-short": ["id", "latin", "arabic"],
+  honours: HONOUR,
+  "afcon-2004": ["id"],
+  "ligue1-clubs": ["title"],
+  governorates: GOVERNORATE,
+};
+
+const WHOLE = new Set(["strength", "seasonStart", "seasonEnd"]);
+const NOTE_MAX = 500;
+
+export type CuratedChange =
+  | { kind: "row"; op: CuratedOp }
+  | { kind: "header"; field: HeaderField; value: string };
+
+type Form = Record<string, string | string[] | undefined>;
+
+const text = (form: Form, name: string) => {
+  const value = form[name];
+  return (Array.isArray(value) ? (value.at(-1) ?? "") : (value ?? "")).trim();
+};
+
+/**
+ * A settings form as one change: `op` (set, add, remove or header), `key`
+ * (the row a set or a remove names), the row's fields, or a header's
+ * `field` and `value`, and the commit's `note`. The values are only read
+ * here; the file's validator says whether they are right.
+ */
+export function readCuratedForm(
+  id: CuratedId,
+  form: Form,
+):
+  | { ok: true; change: CuratedChange; note: string }
+  | { ok: false; errors: string[] } {
+  const offers = CURATED_OFFERS[id];
+  const op = text(form, "op");
+  if (!["set", "add", "remove", "header"].includes(op))
+    return { ok: false, errors: ["op: set, add, remove or header"] };
+  if (op === "add" && !offers.add)
+    return { ok: false, errors: [`${id}: rows are edited, never added`] };
+  if (op === "remove" && !offers.remove)
+    return { ok: false, errors: [`${id}: rows are edited, never removed`] };
+  const errors: string[] = [];
+  const note = text(form, "note");
+  if (note === "") errors.push("note: required");
+  else if ([...note].length > NOTE_MAX)
+    errors.push(`note: at most ${NOTE_MAX} characters`);
+  let change: CuratedChange | undefined;
+  if (op === "header") {
+    const field = text(form, "field");
+    if (!(offers.header as string[]).includes(field))
+      return {
+        ok: false,
+        errors: [`${id}: no ${field === "" ? "header field" : field} to edit`],
+      };
+    change = {
+      kind: "header",
+      field: field as HeaderField,
+      value: text(form, "value"),
+    };
+  } else if (op === "remove") {
+    change = { kind: "row", op: { kind: "remove", key: text(form, "key") } };
+  } else {
+    const row: Row = {};
+    for (const name of ROW_FIELDS[id]) {
+      const value = text(form, name);
+      if (!WHOLE.has(name)) row[name] = value;
+      else if (/^\d+$/.test(value)) row[name] = Number(value);
+      else
+        errors.push(`${name}: ${value === "" ? "required" : "a whole number"}`);
+    }
+    const key = op === "add" ? CURATED[id].key(row) : text(form, "key");
+    change = { kind: "row", op: { kind: op as "set" | "add", key, row } };
+  }
+  if (errors.length > 0) return { ok: false, errors };
+  return { ok: true, change, note };
+}
+
+/** A header field of a curated file: the season, or the note (stamped). */
+async function applyHeader(
+  id: CuratedId,
+  text: string,
+  field: HeaderField,
+  value: string,
+  today: string,
+): Promise<Applied> {
+  const json = JSON.parse(text) as unknown;
+  if (!isRecord(json) || !(field in json))
+    throw new EditRefused([`${id}: has no ${field}`]);
+  const before = String(json[field]);
+  if (before === value) return { text, json, diff: [], changed: false };
+  let next: unknown;
+  if (field === "note") next = setFileNote(id, json, value, today);
+  else {
+    if (value === "") throw new EditRefused([`${field}: required`]);
+    next =
+      CURATED[id].stamp === "file"
+        ? { ...stampFile(json, today), [field]: value }
+        : { ...json, [field]: value };
+  }
+  return {
+    text: await writeJson(next, layoutOf(text)),
+    json: next,
+    diff: [{ path: field, before, after: value }],
+    changed: true,
+  };
+}
+
+/** A row in a commit subject. */
+function label(id: CuratedId, row: Row): string {
+  const file = CURATED[id];
+  if (id === "honours")
+    return `${String(row.competition)} ${String(row.seasonStart)}–${String(row.seasonEnd)} ${String(row.clubWikidataId)}`;
+  if (id === "afcon-2004" || id === "ligue1-clubs") return file.key(row);
+  return `${file.key(row)} ${file.show(row)}`;
+}
+
+function subject(id: CuratedId, change: CuratedChange, json: unknown): string {
+  if (change.kind === "header") return `${change.field}: ${change.value}`;
+  const { op } = change;
+  const file = CURATED[id];
+  const before = file.rows(json).find((r) => file.key(r) === op.key);
+  if (op.kind === "remove")
+    return `remove ${before ? label(id, before) : op.key}`;
+  const row = op.row!;
+  if (op.kind === "add") return `add ${label(id, row)}`;
+  if (id === "ligue1-strength" && before)
+    return `${op.key} ${file.show(before)} → ${file.show(row)}`;
+  if (id === "afcon-2004" || id === "ligue1-clubs")
+    return op.key === file.key(row) ? op.key : `${op.key} → ${file.key(row)}`;
+  return label(id, row);
+}
+
+export type CuratedEdit =
+  | { ok: true; applied: Applied & { message: string } }
+  | { ok: false; errors: string[] };
+
+/**
+ * A settings form on main's text: the new text, the diff and the commit
+ * message, or why not. The same function for the preview (a GET) and the
+ * save (the server action, on main's copy at that moment).
+ */
+export async function curatedEdit(input: {
+  id: CuratedId;
+  form: Form;
+  /** main's copy of the file. */
+  text: string;
+  /** The Tunis day. */
+  today: string;
+}): Promise<CuratedEdit> {
+  const { id } = input;
+  const read = readCuratedForm(id, input.form);
+  if (!read.ok) return read;
+  try {
+    const { change } = read;
+    const applied =
+      change.kind === "header"
+        ? await applyHeader(
+            id,
+            input.text,
+            change.field,
+            change.value,
+            input.today,
+          )
+        : await applyCurated(id, input.text, change.op, input.today);
+    return {
+      ok: true,
+      applied: {
+        ...applied,
+        message: commitMessage({
+          file: id,
+          subject: subject(id, change, JSON.parse(input.text)),
+          lines: applied.diff,
+          note: read.note,
+        }),
+      },
+    };
+  } catch (error) {
+    if (error instanceof EditRefused)
+      return { ok: false, errors: error.errors };
+    if (error instanceof SyntaxError)
+      return { ok: false, errors: [`${CURATED[id].path}: not JSON`] };
+    throw error;
+  }
 }

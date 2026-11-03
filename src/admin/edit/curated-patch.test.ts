@@ -9,7 +9,13 @@ import {
   validateStrength,
 } from "../../pipeline/check.ts";
 import type { Pool } from "../../pipeline/types.ts";
-import { applyCurated, CURATED, setFileNote } from "./curated-patch.ts";
+import {
+  applyCurated,
+  CURATED,
+  curatedEdit,
+  readCuratedForm,
+  setFileNote,
+} from "./curated-patch.ts";
 import type { CuratedId, Row } from "./curated-patch.ts";
 import { EditRefused } from "./validate.ts";
 
@@ -345,5 +351,194 @@ describe("every file", () => {
       today,
     );
     expect(same).toMatchObject({ changed: false, text, diff: [] });
+  });
+});
+
+describe("the settings pages' forms (Task 6)", () => {
+  const text = (id: CuratedId) => readFileSync(CURATED[id].path, "utf8");
+  const edit = (id: CuratedId, form: Record<string, string>) =>
+    curatedEdit({ id, form, text: text(id), today });
+
+  it("reads a row's fields, whole numbers as numbers, the strings trimmed", () => {
+    expect(
+      readCuratedForm("ligue1-strength", {
+        op: "set",
+        key: "club-africain",
+        id: "club-africain",
+        strength: " 79 ",
+        note: " FTF table ",
+      }),
+    ).toEqual({
+      ok: true,
+      note: "FTF table",
+      change: {
+        kind: "row",
+        op: {
+          kind: "set",
+          key: "club-africain",
+          row: { id: "club-africain", strength: 79 },
+        },
+      },
+    });
+    expect(
+      readCuratedForm("honours", {
+        op: "add",
+        competition: "tn_cup",
+        seasonStart: "2024",
+        seasonEnd: "2025",
+        clubWikidataId: "Q1",
+        note: "x",
+      }),
+    ).toMatchObject({
+      ok: true,
+      change: {
+        op: {
+          kind: "add",
+          key: "tn_cup|2024|2025",
+          row: {
+            competition: "tn_cup",
+            seasonStart: 2024,
+            seasonEnd: 2025,
+            clubWikidataId: "Q1",
+          },
+        },
+      },
+    });
+  });
+
+  it("refuses a missing note, a number that is not whole, and what a page does not offer", () => {
+    const strength = { op: "set", key: "club-africain", id: "club-africain" };
+    expect(
+      readCuratedForm("ligue1-strength", { ...strength, strength: "79" }),
+    ).toEqual({ ok: false, errors: ["note: required"] });
+    expect(
+      readCuratedForm("ligue1-strength", {
+        ...strength,
+        strength: "7.5",
+        note: "x",
+      }),
+    ).toEqual({ ok: false, errors: ["strength: a whole number"] });
+    expect(
+      readCuratedForm("governorates", {
+        op: "remove",
+        key: "tunis",
+        note: "x",
+      }),
+    ).toEqual({
+      ok: false,
+      errors: ["governorates: rows are edited, never removed"],
+    });
+    expect(
+      readCuratedForm("ligue1-strength", {
+        op: "add",
+        id: "x",
+        strength: "60",
+        note: "x",
+      }),
+    ).toEqual({
+      ok: false,
+      errors: ["ligue1-strength: rows are edited, never added"],
+    });
+    expect(
+      readCuratedForm("honours", {
+        op: "header",
+        field: "note",
+        value: "x",
+        note: "x",
+      }),
+    ).toEqual({ ok: false, errors: ["honours: no note to edit"] });
+    expect(readCuratedForm("honours", { op: "nope", note: "x" })).toEqual({
+      ok: false,
+      errors: ["op: set, add, remove or header"],
+    });
+  });
+
+  it("commits one row with the subjects the plan names", async () => {
+    const strength = await edit("ligue1-strength", {
+      op: "set",
+      key: "club-africain",
+      id: "club-africain",
+      strength: "79",
+      note: "FTF table",
+    });
+    expect(strength.ok && strength.applied.message.split("\n")[0]).toBe(
+      "data(ligue1-strength): club-africain 77 → 79",
+    );
+    const short = await edit("club-short", {
+      op: "set",
+      key: "es-zarzis",
+      id: "es-zarzis",
+      latin: "ESZ",
+      arabic: "زرزيس",
+      note: "Fans write ESZ",
+    });
+    expect(short.ok && short.applied.message.split("\n")[0]).toBe(
+      "data(club-short): es-zarzis ESZ / زرزيس",
+    );
+    expect(short.ok && short.applied.message).toContain("Fans write ESZ");
+    const removed = await edit("ligue1-clubs", {
+      op: "remove",
+      key: "AS Marsa",
+      note: "Relegated",
+    });
+    expect(removed.ok && removed.applied.message.split("\n")[0]).toBe(
+      "data(ligue1-clubs): remove AS Marsa",
+    );
+    const added = await edit("honours", {
+      op: "add",
+      competition: "tn_cup",
+      seasonStart: "2024",
+      seasonEnd: "2025",
+      clubWikidataId: "Q1",
+      note: "x",
+    });
+    expect(added.ok && added.applied.message.split("\n")[0]).toBe(
+      "data(honours): add tn_cup 2024–2025 Q1",
+    );
+  });
+
+  it("edits a header: the note stamps the file, the season of ligue1-clubs does not", async () => {
+    const note = await edit("club-short", {
+      op: "header",
+      field: "note",
+      value: "Jalel's labels",
+      note: "Taken over",
+    });
+    expect(note.ok).toBe(true);
+    if (!note.ok) return;
+    expect(note.applied.json).toMatchObject({
+      by: "jalel",
+      at: today,
+      note: "Jalel's labels",
+    });
+    expect(note.applied.diff).toEqual([
+      expect.objectContaining({ path: "note", after: "Jalel's labels" }),
+    ]);
+    expect(note.applied.message.split("\n")[0]).toBe(
+      "data(club-short): note: Jalel's labels",
+    );
+    const season = await edit("ligue1-clubs", {
+      op: "header",
+      field: "season",
+      value: "2027–28",
+      note: "New season",
+    });
+    expect(season.ok && season.applied.json).toEqual({
+      ...(committed("ligue1-clubs") as object),
+      season: "2027–28",
+    });
+    const same = await edit("ligue1-clubs", {
+      op: "header",
+      field: "season",
+      value: "2026–27",
+      note: "x",
+    });
+    expect(same.ok && same.applied.changed).toBe(false);
+  });
+
+  it("gives the patch's refusal as errors", async () => {
+    expect(
+      await edit("afcon-2004", { op: "remove", key: "Q1", note: "x" }),
+    ).toEqual({ ok: false, errors: ["Q1 is not there"] });
   });
 });

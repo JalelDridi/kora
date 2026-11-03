@@ -170,7 +170,7 @@ export type ClubShortFile = {
  * The longest word a six-column tile holds at 14 px with slack for other
  * renderers (fix round 2): 7 Latin letters, 8 Arabic ones (narrower).
  */
-const SHORT_WORD = { latin: 7, arabic: 8 } as const;
+export const SHORT_WORD = { latin: 7, arabic: 8 } as const;
 const NON_WESTERN_DIGIT = /[\u0660-\u0669\u06F0-\u06F9]/;
 
 /**

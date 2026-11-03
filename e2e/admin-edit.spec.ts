@@ -2,6 +2,11 @@ import AxeBuilder from "@axe-core/playwright";
 import { readFileSync } from "node:fs";
 import { expect, test } from "@playwright/test";
 import { E2E_ENV } from "../playwright.config";
+import {
+  clubsWithAutoShort,
+  fsSource,
+  inspectSource,
+} from "../src/pipeline/check";
 import type { Pool, PoolPlayer } from "../src/pipeline/types";
 import {
   fakeCommits,
@@ -565,4 +570,303 @@ test("the 30–0 view lists every Ligue 1 club with its candidates and ratings",
   await fits360(page);
   await candidate.getByRole("link").click();
   await expect(page.getByRole("heading", { level: 1 })).toHaveText(name);
+});
+
+// The six curated files (Task 6): /admin/settings/<file>, one row per
+// commit, refused by the file's own validator before anything is committed.
+
+const SETTINGS = [
+  "ligue1-strength",
+  "club-short",
+  "honours",
+  "afcon-2004",
+  "ligue1-clubs",
+  "governorates",
+] as const;
+
+/** The row of a settings table, by its key (the row's id). */
+const rowOf = (page: import("@playwright/test").Page, key: string) =>
+  page.locator(`tr[id="${key}"]`);
+
+/** data:check over the working tree with the fake's data files in place. */
+async function checkFake() {
+  const base = fsSource(process.cwd());
+  return inspectSource(
+    {
+      read: async (name) => {
+        try {
+          return fakeFile(`data/${name}`);
+        } catch {
+          return base.read(name);
+        }
+      },
+      publicFileExists: (p) => base.publicFileExists(p),
+    },
+    { photos: false },
+  );
+}
+
+test("club-short: edit a row, preview the diff, save one commit that passes data:check", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 360, height: 800 });
+  await page.goto("/admin/settings/club-short");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText(
+    "Short club labels",
+  );
+  // The clubs on an automatic label come first, each with its Add link.
+  const file = JSON.parse(fakeFile("data/curated/club-short.json")) as {
+    clubs: Record<string, unknown>;
+  };
+  const auto = clubsWithAutoShort(pool, file.clubs);
+  const autoList = page.getByRole("list", {
+    name: "Clubs on an automatic label",
+  });
+  await expect(autoList.getByRole("listitem")).toHaveCount(auto.length);
+  const firstAuto = auto[0].split(" ")[0];
+  await expect(
+    autoList.getByRole("link", { name: new RegExp(`^Add .*${firstAuto}`) }),
+  ).toHaveAttribute("href", `/admin/settings/club-short?add=1&id=${firstAuto}`);
+  expect(
+    await autoList.evaluate(
+      (list) =>
+        (list.compareDocumentPosition(
+          document.querySelector("table[aria-label=Rows]")!,
+        ) &
+          Node.DOCUMENT_POSITION_FOLLOWING) !==
+        0,
+    ),
+  ).toBe(true);
+  expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+  await fits360(page);
+
+  await rowOf(page, "es-zarzis").getByRole("link", { name: /^Edit/ }).click();
+  await expect(page.getByLabel("Arabic")).toHaveValue("جرجيس");
+  await expect(page.getByLabel("Arabic")).toHaveAttribute("dir", "rtl");
+  await expect(page.getByTestId("arabic-count")).toHaveText(
+    "1 word, 5 letters (at most 2 words of 8)",
+  );
+  await expect(page.getByTestId("latin-count")).toHaveText(
+    "1 word, 3 letters (at most 2 words of 7)",
+  );
+  await page.getByLabel("Arabic").fill("زرزيس");
+  await page.getByLabel("Why").fill("Fans write it so (test)");
+  await page.getByRole("button", { name: "Preview" }).click();
+  await expect(page.getByRole("table", { name: "Changes" })).toContainText(
+    "ESZ / جرجيس → ESZ / زرزيس",
+  );
+  await expect(page.getByTestId("checked")).toHaveText(
+    "data:check finds no error in this change.",
+  );
+  expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+  await fits360(page);
+  await page.getByRole("button", { name: "Save" }).click();
+  await expect(page.getByText(/^Saved as [0-9a-f]{7}/)).toBeVisible();
+  const commits = fakeCommits();
+  expect(commits).toHaveLength(1);
+  expect(commits[0].message.split("\n")[0]).toBe(
+    "data(club-short): es-zarzis ESZ / زرزيس",
+  );
+  const saved = JSON.parse(fakeFile("data/curated/club-short.json"));
+  expect(saved.clubs["es-zarzis"]).toEqual({ latin: "ESZ", arabic: "زرزيس" });
+  // His first edit takes the file over; the word DRAFT is his to remove.
+  expect(saved.by).toBe("jalel");
+  expect(saved.note).toContain("DRAFT");
+  expect((await checkFake()).errors).toEqual([]);
+  expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+});
+
+test("ligue1-strength: 91 is refused with the validator's message and no commit", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 360, height: 800 });
+  await page.goto("/admin/settings/ligue1-strength");
+  // The 30–0 view links each club to its row.
+  for (const club of pool.clubs.filter((c) => c.ligue1))
+    await expect(rowOf(page, club.id)).toContainText(club.nameLatin);
+  await expect(
+    page.getByRole("main").getByRole("link", { name: /^Remove/ }),
+  ).toHaveCount(0);
+  await expect(
+    page.getByRole("main").getByRole("link", { name: /^Add/ }),
+  ).toHaveCount(0);
+  await rowOf(page, "club-africain")
+    .getByRole("link", { name: /^Edit/ })
+    .click();
+  await expect(page.getByLabel("Strength")).toHaveValue("77");
+  await page.getByLabel("Strength").fill("91");
+  await page.getByLabel("Why").fill("Too strong (test)");
+  await page.getByRole("button", { name: "Preview" }).click();
+  await expect(page.getByRole("main").getByRole("alert")).toContainText(
+    "data/curated/ligue1-strength.json: club-africain: strength must be a whole number from 55 to 90, not 91",
+  );
+  await expect(page.getByRole("button", { name: "Save" })).toHaveCount(0);
+  expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+  await fits360(page);
+  expect(fakeCommits()).toEqual([]);
+});
+
+test("honours: add an edition, then remove it", async ({ page }) => {
+  const club = pool.clubs.find((c) => c.id === "esperance-sportive-de-tunis")!;
+  await page.setViewportSize({ width: 360, height: 800 });
+  await page.goto("/admin/settings/honours");
+  await page.getByRole("link", { name: "Add a row" }).click();
+  await page.getByLabel("Competition").selectOption("tn_cup");
+  await page.getByLabel("Season start").fill("2024");
+  await page.getByLabel("Season end").fill("2025");
+  await page.getByLabel("Club").selectOption(club.wikidataId);
+  await page.getByLabel("Why").fill("FTF records (test)");
+  await page.getByRole("button", { name: "Preview" }).click();
+  await expect(page.getByRole("table", { name: "Changes" })).toContainText(
+    `none → ${club.wikidataId}`,
+  );
+  await page.getByRole("button", { name: "Save" }).click();
+  await expect(page.getByText(/^Saved as [0-9a-f]{7}/)).toBeVisible();
+  expect(JSON.parse(fakeFile("data/curated/honours.json"))).toEqual([
+    {
+      competition: "tn_cup",
+      seasonStart: 2024,
+      seasonEnd: 2025,
+      clubWikidataId: club.wikidataId,
+      by: "jalel",
+      at: expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/),
+    },
+  ]);
+  expect(fakeCommits()[0].message.split("\n")[0]).toBe(
+    `data(honours): add tn_cup 2024–2025 ${club.wikidataId}`,
+  );
+  const row = rowOf(page, "tn_cup|2024|2025");
+  await expect(row).toContainText(club.nameLatin);
+  // The title streams in after the save's redirect.
+  await expect(page).toHaveTitle(/^Honours/);
+  expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+  await fits360(page);
+  await row.getByRole("link", { name: /^Remove/ }).click();
+  await page.getByLabel("Why").fill("Wrong year (test)");
+  await page.getByRole("button", { name: "Preview" }).click();
+  await expect(page.getByRole("table", { name: "Changes" })).toContainText(
+    `${club.wikidataId} → none`,
+  );
+  await page.getByRole("button", { name: "Save" }).click();
+  await expect(page.getByText(/^Saved as [0-9a-f]{7}/)).toBeVisible();
+  expect(JSON.parse(fakeFile("data/curated/honours.json"))).toEqual([]);
+  expect(fakeCommits()).toHaveLength(2);
+  await expect(row).toHaveCount(0);
+});
+
+test("governorates: no Remove button; editing a name commits", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 360, height: 800 });
+  await page.goto("/admin/settings/governorates");
+  await expect(page.locator("table[aria-label=Rows] tbody tr")).toHaveCount(24);
+  await expect(
+    page.getByRole("main").getByRole("link", { name: /^Remove/ }),
+  ).toHaveCount(0);
+  await expect(
+    page.getByRole("main").getByRole("link", { name: /^Add/ }),
+  ).toHaveCount(0);
+  await rowOf(page, "manouba").getByRole("link", { name: /^Edit/ }).click();
+  await expect(page.getByLabel("Region")).toHaveValue("grand_tunis");
+  await page.getByLabel("French name").fill("Manouba");
+  await page.getByLabel("Why").fill("Shorter form (test)");
+  await page.getByRole("button", { name: "Preview" }).click();
+  await page.getByRole("button", { name: "Save" }).click();
+  await expect(page.getByText(/^Saved as [0-9a-f]{7}/)).toBeVisible();
+  const rows = JSON.parse(fakeFile("data/curated/governorates.json")) as {
+    id: string;
+    nameFrench: string;
+  }[];
+  expect(rows).toHaveLength(24);
+  expect(rows.find((r) => r.id === "manouba")!.nameFrench).toBe("Manouba");
+  expect(fakeCommits()).toHaveLength(1);
+});
+
+test("an unknown settings page is 404, and the list names the six", async ({
+  page,
+}) => {
+  expect((await page.goto("/admin/settings/pool"))!.status()).toBe(404);
+  await page.setViewportSize({ width: 360, height: 800 });
+  await page.goto("/admin/settings");
+  for (const id of SETTINGS)
+    await expect(
+      page.getByRole("link", { name: new RegExp(`${id}\\.json`) }),
+    ).toHaveAttribute("href", `/admin/settings/${id}`);
+  expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+  await fits360(page);
+});
+
+test("every page refuses an invalid file before any commit", async ({
+  page,
+}) => {
+  const refused: [string, string, string][] = [
+    [
+      "ligue1-strength",
+      "op=set&key=club-africain&id=blois-football-41&strength=70",
+      "blois-football-41 is not a Ligue 1 club",
+    ],
+    ["afcon-2004", "op=add&id=X12", "X12 is not a Wikidata id"],
+    [
+      "club-short",
+      "op=set&key=es-zarzis&id=es-zarzis&latin=ZARZISSS&arabic=ESZ",
+      "es-zarzis latin is longer than 7",
+    ],
+    [
+      "governorates",
+      "op=set&key=tunis&id=tunis&nameLatin=Tunis&nameArabic=&nameFrench=Tunis&region=grand_tunis",
+      "governorate tunis: a name is missing",
+    ],
+    ["governorates", "op=remove&key=tunis", "rows are edited, never removed"],
+  ];
+  for (const [id, query, message] of refused) {
+    await page.goto(`/admin/settings/${id}?preview=1&${query}&note=x`);
+    await expect(page.getByRole("main").getByRole("alert")).toContainText(
+      message,
+    );
+    await expect(page.getByRole("button", { name: "Save" })).toHaveCount(0);
+  }
+  expect(fakeCommits()).toEqual([]);
+});
+
+test("the settings save action refuses a request without the password", async ({
+  request,
+}) => {
+  const response = await request.post("/admin/settings/ligue1-strength", {
+    headers: { Authorization: "", "Next-Action": "0".repeat(42) },
+    multipart: {
+      file: "ligue1-strength",
+      op: "set",
+      key: "club-africain",
+      id: "club-africain",
+      strength: "60",
+      note: "x",
+    },
+  });
+  expect(response.status()).toBe(401);
+  expect(fakeCommits()).toEqual([]);
+});
+
+test("each settings page and its forms are axe clean at 360 px", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 360, height: 800 });
+  for (const id of SETTINGS) {
+    await page.goto(`/admin/settings/${id}`);
+    await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+    expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+    await fits360(page);
+    const edit = page.getByRole("link", { name: /^Edit/ }).first();
+    if ((await edit.count()) > 0) {
+      await edit.click();
+      await expect(page.getByRole("button", { name: "Preview" })).toBeVisible();
+      expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+      await fits360(page);
+    }
+    await page.goto(`/admin/settings/${id}?add=1`);
+    const add = page.getByRole("button", { name: "Preview" });
+    if ((await add.count()) > 0) {
+      expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+      await fits360(page);
+    }
+  }
 });
