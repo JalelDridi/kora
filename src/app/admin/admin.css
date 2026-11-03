@@ -733,3 +733,50 @@ p.run {
   align-items: center;
   min-block-size: 44px;
 }
+
+/* The changes log (/admin/changes): one commit a list item. */
+
+.changes {
+  max-inline-size: 60rem;
+}
+
+ol.log {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+ol.log li {
+  border-block-end: 1px solid var(--pitch-700);
+  padding-block: 0.5rem;
+}
+
+ol.log p,
+.changes p.subject {
+  margin-block: 0.15rem;
+}
+
+.changes p.subject {
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.changes .here {
+  color: var(--mint);
+}
+
+ol.log .row-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0 1rem;
+  text-align: start;
+  white-space: normal;
+}
+
+ol.log .row-actions a,
+.changes .notice li a {
+  display: inline-flex;
+  align-items: center;
+  min-block-size: 44px;
+}

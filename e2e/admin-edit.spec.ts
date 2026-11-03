@@ -9,12 +9,14 @@ import {
 } from "../src/pipeline/check";
 import type { Pool, PoolPlayer } from "../src/pipeline/types";
 import {
+  fakeCommit,
   fakeCommits,
   fakeFile,
   IN_POOL,
   OUTSIDE,
   resetFakes,
   setOverride,
+  updateFakes,
 } from "./fixtures/admin-fakes";
 
 // The footballer editor (/admin/footballers/[qid]) against the GitHub fake:
@@ -995,4 +997,199 @@ test("each settings page and its forms are axe clean at 360 px", async ({
       await fits360(page);
     }
   }
+});
+
+// The changes log and undo (Task 8).
+
+const CHANGES_SCREENS =
+  ".superpowers/sdd/2026-11-03-admin-dashboard/screens/task-8";
+async function shootChanges(
+  page: import("@playwright/test").Page,
+  state: string,
+) {
+  for (const width of [360, 1280]) {
+    await page.setViewportSize({ width, height: 800 });
+    await page.screenshot({
+      path: `${CHANGES_SCREENS}/changes-${width}${state ? `-${state}` : ""}.png`,
+      fullPage: true,
+    });
+  }
+  await page.setViewportSize({ width: 360, height: 800 });
+}
+/** The log's entry for a commit subject. */
+const logEntry = (page: import("@playwright/test").Page, subject: string) =>
+  page
+    .getByRole("list", { name: "Changes, newest first" })
+    .getByRole("listitem")
+    .filter({ hasText: subject });
+/** someone's overrides with caps set to `caps` (by jalel, today). */
+function withCaps(caps: number): string {
+  const json = JSON.parse(fakeFile("data/overrides.json")) as {
+    players: Record<string, Record<string, unknown>>;
+  };
+  json.players[someone.wikidataId] = {
+    ...json.players[someone.wikidataId],
+    caps: { value: caps, by: "jalel", at: "2026-11-03", note: "test" },
+  };
+  return `${JSON.stringify(json, null, 2)}\n`;
+}
+
+test("the log lists a dashboard edit; Undo previews and commits a revert that restores the file", async ({
+  page,
+}) => {
+  const seed = fakeFile("data/overrides.json");
+  await page.setViewportSize({ width: 360, height: 800 });
+  await page.goto(`/admin/footballers/${someone.wikidataId}`);
+  await page.getByLabel("Caps", { exact: true }).fill(String(someone.caps + 1));
+  await page.getByLabel("Note").fill("FTF page, 3 November");
+  await page.getByRole("button", { name: "Preview" }).click();
+  await page.getByRole("button", { name: "Save" }).click();
+  await expect(page.getByText(/^Saved as [0-9a-f]{7}/)).toBeVisible();
+  const [edit] = fakeCommits();
+  const subject = edit.message.split("\n")[0];
+
+  await page.goto("/admin/changes");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Changes");
+  const entry = logEntry(page, subject);
+  await expect(entry).toHaveCount(1);
+  await expect(entry).toContainText("edited here");
+  await expect(entry).toContainText("overrides");
+  await expect(
+    entry.getByRole("link", { name: `${edit.sha.slice(0, 7)} on GitHub` }),
+  ).toHaveAttribute("href", edit.url);
+  // The date in Tunis: the fake stamps the commit now.
+  await expect(entry.locator("time")).toHaveText(
+    new Intl.DateTimeFormat("en-GB", {
+      timeZone: "Africa/Tunis",
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    }).format(new Date(edit.date)),
+  );
+  expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+  await fits360(page);
+  await shootChanges(page, "");
+
+  await entry.getByRole("link", { name: /^Undo/ }).click();
+  await expect(page).toHaveURL(`/admin/changes?undo=${edit.sha}`);
+  const diff = page.getByRole("table", { name: "What goes back" });
+  await expect(diff).toContainText(
+    `players.${someone.wikidataId}.caps${someone.caps + 1} → `,
+  );
+  await expect(page.getByTestId("checked")).toBeVisible();
+  await expect(page.locator("pre.message")).toContainText(
+    `revert(data): ${subject}`.slice(0, 60),
+  );
+  await expect(page.locator("pre.message")).toContainText(
+    `Reverts: ${edit.sha}`,
+  );
+  expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+  await fits360(page);
+  await shootChanges(page, "undo-preview");
+
+  await page.getByRole("button", { name: "Save" }).click();
+  await expect(
+    page.getByText(/^Undone as [0-9a-f]{7} on main\./),
+  ).toBeVisible();
+  expect(fakeFile("data/overrides.json")).toBe(seed);
+  const commits = fakeCommits();
+  expect(commits).toHaveLength(2);
+  expect(commits[0].message).toMatch(/^revert\(data\): /);
+  expect(commits[0].message).toContain(`Reverts: ${edit.sha}`);
+  expect(commits[0].message).toContain("Admin-Edit: overrides");
+  expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+  await fits360(page);
+  await shootChanges(page, "undone");
+});
+
+test("an entry changed twice cannot undo the first change", async ({
+  page,
+}) => {
+  const first = await fakeCommit(
+    "data/overrides.json",
+    withCaps(someone.caps + 1),
+    `data(overrides): ${someone.wikidataId} caps ${someone.caps + 1}\n\nAdmin-Edit: overrides`,
+  );
+  const second = await fakeCommit(
+    "data/overrides.json",
+    withCaps(someone.caps + 2),
+    `data(overrides): ${someone.wikidataId} caps ${someone.caps + 2}\n\nAdmin-Edit: overrides`,
+  );
+  await page.setViewportSize({ width: 360, height: 800 });
+  await page.goto("/admin/changes");
+  const older = logEntry(page, first.message.split("\n")[0]);
+  await older.getByRole("link", { name: /^Undo/ }).click();
+  const alert = page.getByRole("main").getByRole("alert");
+  await expect(alert).toContainText(
+    `players.${someone.wikidataId}.caps changed since; edit it instead`,
+  );
+  await expect(alert.getByRole("link", { name: "Edit" })).toHaveAttribute(
+    "href",
+    `/admin/footballers/${someone.wikidataId}`,
+  );
+  await expect(page.getByRole("button", { name: "Save" })).toHaveCount(0);
+  expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+  await fits360(page);
+  await shootChanges(page, "conflict");
+  // The newer change is still the one to undo.
+  await page.goto(`/admin/changes?undo=${second.sha}`);
+  await expect(page.getByRole("button", { name: "Save" })).toBeVisible();
+  expect(fakeCommits()).toHaveLength(2);
+});
+
+test("a commit that touched several files is a hand commit: no Undo", async ({
+  page,
+}) => {
+  const hand = await fakeCommit(
+    "data/overrides.json",
+    withCaps(someone.caps + 1),
+    "chore(data): a fix by hand",
+  );
+  updateFakes((state) => {
+    state.commits[0].files.push("data/curated/honours.json");
+    state.commits[0].before["data/curated/honours.json"] =
+      state.files["data/curated/honours.json"];
+  });
+  await page.goto("/admin/changes");
+  const entry = logEntry(page, "chore(data): a fix by hand");
+  await expect(entry).toContainText(
+    "No undo: made by hand; revert it on GitHub",
+  );
+  await expect(entry).not.toContainText("edited here");
+  await expect(entry.getByRole("link", { name: /^Undo/ })).toHaveCount(0);
+  expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+  await shootChanges(page, "hand-commit");
+  // A crafted preview says the same, with no Save.
+  await page.goto(`/admin/changes?undo=${hand.sha}`);
+  await expect(page.getByRole("main").getByRole("alert")).toContainText(
+    "made by hand; revert it on GitHub",
+  );
+  await expect(page.getByRole("button", { name: "Save" })).toHaveCount(0);
+});
+
+test("with no change yet the log says so", async ({ page }) => {
+  await page.setViewportSize({ width: 360, height: 800 });
+  await page.goto("/admin/changes");
+  await expect(page.getByText("No change yet.")).toBeVisible();
+  expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+  await fits360(page);
+  await shootChanges(page, "empty");
+});
+
+test("the undo action refuses a request without the password", async ({
+  request,
+}) => {
+  const edit = await fakeCommit(
+    "data/overrides.json",
+    withCaps(someone.caps + 1),
+    "data(overrides): x\n\nAdmin-Edit: overrides",
+  );
+  const response = await request.post("/admin/changes", {
+    headers: { Authorization: "", "Next-Action": "0".repeat(42) },
+    multipart: { sha: edit.sha },
+  });
+  expect(response.status()).toBe(401);
+  expect(fakeCommits()).toHaveLength(1);
 });

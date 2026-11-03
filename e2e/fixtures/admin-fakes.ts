@@ -1,6 +1,7 @@
 import { mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { E2E_ENV } from "../../playwright.config";
+import { FakeGitHub } from "../../src/admin/github/fake.ts";
 import type { FakeCommit, FakeState } from "../../src/admin/github/fake.ts";
 import type { FakeSearch } from "../../src/admin/wikidata-search.ts";
 
@@ -117,4 +118,16 @@ export function updateFakes(change: (state: FakeState) => void): void {
   const current = state();
   change(current);
   writeFileSync(FILE, JSON.stringify(current, null, 2));
+}
+
+/** One commit on the fake's main, as the dashboard (or a hand) would make it. */
+export async function fakeCommit(
+  file: string,
+  text: string,
+  message: string,
+): Promise<FakeCommit> {
+  const github = new FakeGitHub({ files: {}, file: FILE });
+  const { sha } = await github.readFile(file);
+  const made = await github.commitFile({ path: file, text, sha, message });
+  return github.state.commits.find((c) => c.sha === made.sha)!;
 }
