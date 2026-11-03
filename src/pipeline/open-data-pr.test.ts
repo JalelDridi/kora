@@ -28,10 +28,11 @@ const git = (cwd: string, ...args: string[]) =>
     { cwd, encoding: "utf8" },
   );
 
-function dryRun(cwd: string) {
+function dryRun(cwd: string, env: Record<string, string> = {}) {
   const r = spawnSync("bash", [SCRIPT, "--dry-run"], {
     cwd,
     encoding: "utf8",
+    env: { ...process.env, MERGE_WHEN_GREEN: "", ...env },
   });
   return { status: r.status, out: r.stdout.trim(), err: r.stderr };
 }
@@ -159,7 +160,7 @@ describe("open-data-pr.sh: is there anything to propose", () => {
 
     const r = dryRun(dir);
     expect(r.status).toBe(0);
-    expect(r.out).toMatch(
+    expect(r.out.split("\n")[0]).toMatch(
       /^dry run: would commit data\/pool\.json data\/ids\.json data\/report\.md public\/photos to data\/nightly as "data: nightly pool \d{4}-\d{2}-\d{2}" with a \d+-byte description$/,
     );
     expect(git(dir, "rev-parse", "HEAD")).toBe(head);
@@ -181,8 +182,104 @@ describe("open-data-pr.sh: is there anything to propose", () => {
   });
 });
 
+// The admin dashboard's Rebuild now (Task 7): a dispatch with
+// merge_when_green turns GitHub auto-merge on for the pull request; any
+// other night turns it off, so a scheduled night never inherits it.
+describe("open-data-pr.sh: auto-merge", () => {
+  async function changed() {
+    const dir = await repo();
+    await writeFile(path.join(dir, "data", "pool.json"), "pool.json 2\n");
+    return dir;
+  }
+
+  it("the dry run says it would turn auto-merge on with MERGE_WHEN_GREEN=1", async () => {
+    const r = dryRun(await changed(), { MERGE_WHEN_GREEN: "1" });
+    expect(r.status).toBe(0);
+    expect(r.out.split("\n")[1]).toBe(
+      "dry run: would enable auto-merge (squash)",
+    );
+  });
+
+  it("the dry run says it would turn auto-merge off without it", async () => {
+    const r = dryRun(await changed());
+    expect(r.out.split("\n")[1]).toBe("dry run: would turn auto-merge off");
+  });
+
+  it("says nothing of auto-merge when there is nothing to propose", async () => {
+    const r = dryRun(await repo(), { MERGE_WHEN_GREEN: "1" });
+    expect(r.out).not.toMatch(/auto-merge/);
+  });
+
+  // The real run against a fake gh and a local bare origin: the calls, in
+  // order, after the pull request is opened and CI is dispatched.
+  async function realRun(env: Record<string, string>) {
+    const dir = await changed();
+    const origin = await tempDir();
+    git(origin, "init", "--quiet", "--bare");
+    git(dir, "remote", "add", "origin", origin);
+    const bin = await tempDir();
+    const log = path.join(bin, "gh.log");
+    await writeFile(
+      path.join(bin, "gh"),
+      ["#!/usr/bin/env bash", `echo "$*" >> "${log}"`, ""].join("\n"),
+      { mode: 0o755 },
+    );
+    const r = spawnSync("bash", [SCRIPT], {
+      cwd: dir,
+      encoding: "utf8",
+      env: {
+        ...process.env,
+        MERGE_WHEN_GREEN: "",
+        ...env,
+        GIT_CONFIG_GLOBAL: "/dev/null",
+        PATH: `${bin}${path.delimiter}${process.env.PATH}`,
+      },
+    });
+    const calls = (await readFile(log, "utf8")).trim().split("\n");
+    return { status: r.status, err: r.stderr, calls };
+  }
+
+  it("turns auto-merge on, squash, after CI is dispatched, with MERGE_WHEN_GREEN=1", async () => {
+    const r = await realRun({ MERGE_WHEN_GREEN: "1" });
+    expect(r.status, r.err).toBe(0);
+    expect(r.calls.slice(-2)).toEqual([
+      "workflow run ci.yml --ref data/nightly",
+      "pr merge data/nightly --auto --squash",
+    ]);
+  });
+
+  it("turns auto-merge off on any other night", async () => {
+    const r = await realRun({});
+    expect(r.status, r.err).toBe(0);
+    expect(r.calls.slice(-2)).toEqual([
+      "workflow run ci.yml --ref data/nightly",
+      "pr merge data/nightly --disable-auto",
+    ]);
+  });
+
+  it("the workflow declares merge_when_green and hands it to the propose job only", async () => {
+    const yml = await readFile(
+      path.resolve(".github", "workflows", "nightly-data.yml"),
+      "utf8",
+    );
+    expect(yml).toMatch(
+      /merge_when_green:\n\s+description: "Merge the pull request by itself once CI passes \(the admin dashboard's Rebuild now\)"\n\s+type: boolean\n\s+default: false/,
+    );
+    const propose = yml.slice(yml.indexOf("\n  propose:"));
+    expect(propose).toContain(
+      "MERGE_WHEN_GREEN: ${{ inputs.merge_when_green && '1' || '' }}",
+    );
+    expect(yml.slice(0, yml.indexOf("\n  propose:"))).not.toContain(
+      "MERGE_WHEN_GREEN",
+    );
+  });
+});
+
 describe("open-data-pr.sh: the pull request description", () => {
-  async function body(report: string): Promise<string> {
+  async function body(
+    report: string,
+    env: Record<string, string> = {},
+  ): Promise<string> {
     const dir = await tempDir();
     const input = path.join(dir, "report.md");
     const output = path.join(dir, "body.md");
@@ -191,7 +288,11 @@ describe("open-data-pr.sh: the pull request description", () => {
     execFileSync(
       "bash",
       ["-c", 'source "$1"; pr_body "$2" "$3"', "bash", SCRIPT, input, output],
-      { cwd: dir, encoding: "utf8" },
+      {
+        cwd: dir,
+        encoding: "utf8",
+        env: { ...process.env, MERGE_WHEN_GREEN: "", ...env },
+      },
     );
     const bytes = await readFile(output);
     // Throws on a character cut in half.
@@ -203,6 +304,12 @@ describe("open-data-pr.sh: the pull request description", () => {
     expect(text.startsWith("# Nightly pool\n\nAll good.\n")).toBe(true);
     expect(text).toMatch(/never merges by itself/);
     expect(text).not.toMatch(/longer than a pull request/);
+  });
+
+  it("says the pull request merges itself once CI passes on a dashboard rebuild", async () => {
+    const text = await body("# Nightly pool\n", { MERGE_WHEN_GREEN: "1" });
+    expect(text).not.toMatch(/never merges by itself/);
+    expect(text).toMatch(/merges by itself once CI passes/);
   });
 
   it("stays under GitHub's limit, cut at a line, never inside an Arabic letter", async () => {

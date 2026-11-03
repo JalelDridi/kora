@@ -1,8 +1,11 @@
 #!/usr/bin/env bash
-# Opens or updates the one nightly data pull request; it never merges.
-# Run by the "propose" job of .github/workflows/nightly-data.yml, at the
-# repository root, after the build job's data/pool.json, data/ids.json and
-# data/report.md were copied over main's. Needs GH_TOKEN.
+# Opens or updates the one nightly data pull request; it never merges it
+# itself. Run by the "propose" job of .github/workflows/nightly-data.yml, at
+# the repository root, after the build job's data/pool.json, data/ids.json
+# and data/report.md were copied over main's. Needs GH_TOKEN.
+# MERGE_WHEN_GREEN=1 (the admin dashboard's Rebuild now) turns GitHub
+# auto-merge on for the pull request, so GitHub merges it once CI passes;
+# any other night turns it off, so a scheduled night waits for review.
 #   bash scripts/open-data-pr.sh            commit, push, open or update the pull request
 #   bash scripts/open-data-pr.sh --dry-run  say what it would do; no commit, no push, no gh
 # Sourced (`source scripts/open-data-pr.sh`), it only defines the functions.
@@ -15,7 +18,13 @@ readonly files=(data/pool.json data/ids.json data/report.md public/photos)
 # GitHub refuses a description over 65,536 characters; bytes are never fewer.
 readonly body_limit=65000
 readonly truncated_note=$'\n\n_The report is longer than a pull request description allows; the rest is in data/report.md on this branch._'
-readonly footer=$'\n\n---\nOpened by the nightly data job; it never merges by itself. How to review it: data/README.md. Corrections go in data/overrides.json on main, never on this branch, which is rebuilt every night.\n'
+readonly merge_when_green="${MERGE_WHEN_GREEN:-}"
+if [ "$merge_when_green" = 1 ]; then
+  readonly opened_by="Opened by Rebuild now on the admin dashboard; it merges by itself once CI passes."
+else
+  readonly opened_by="Opened by the nightly data job; it never merges by itself."
+fi
+readonly footer=$'\n\n---\n'"${opened_by}"$' How to review it: data/README.md. Corrections go in data/overrides.json on main, never on this branch, which is rebuilt every night.\n'
 
 # The report changes every night (it carries the date); the pool, the ids
 # and the photos change only when the data does.
@@ -77,6 +86,11 @@ main() {
   pr_body data/report.md "$body"
   if [ "$dry_run" = true ]; then
     echo "dry run: would commit ${files[*]} to ${branch} as \"${title}\" with a $(($(wc -c <"$body")))-byte description"
+    if [ "$merge_when_green" = 1 ]; then
+      echo "dry run: would enable auto-merge (squash)"
+    else
+      echo "dry run: would turn auto-merge off"
+    fi
     return 0
   fi
 
@@ -101,7 +115,17 @@ main() {
   # A pull request opened with the workflow's token starts no workflow; a
   # dispatch does, and its checks appear on the pull request's commit.
   gh workflow run ci.yml --ref "$branch"
-  echo "pull request ready: ${branch}"
+  if [ "$merge_when_green" = 1 ]; then
+    # GitHub merges it once CI passes. Refused when the repository's
+    # "Allow auto-merge" setting is off: the job fails and says so.
+    gh pr merge "$branch" --auto --squash
+    echo "pull request ready: ${branch}, auto-merge on"
+  else
+    # A night never inherits an earlier rebuild's auto-merge; off already
+    # is fine.
+    gh pr merge "$branch" --disable-auto || true
+    echo "pull request ready: ${branch}"
+  fi
 }
 
 # `return` succeeds only in a sourced file. Comparing BASH_SOURCE with $0
