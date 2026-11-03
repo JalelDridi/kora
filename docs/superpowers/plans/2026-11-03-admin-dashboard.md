@@ -39,7 +39,7 @@ Carried from earlier rounds:
 - Lighthouse is not required on admin pages (`lighthouserc.json` is not edited; its five URLs are public). Axe is: every new admin page has an axe assertion.
 - **Phones:** every admin page works at 360 px (no sideways scroll except inside a table's own scroll box, tap targets ≥ 44 px, inputs ≥ 16 px so iOS does not zoom).
 - **Screenshots:** every task that changes something visible leaves PNGs under `.superpowers/sdd/2026-11-03-admin-dashboard/screens/task-N/` named `<page>-<width>-<state>.png` (360 and 1280), listed in the task report.
-- **Shorthands:** **FAST** = `pnpm format && bash check-fast.sh` (expect `fast checks passed`). **COMMIT "msg" files** = FAST, then `git add <files> && git commit -m "msg" -m "Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>"` (plus the session line the system reminder gives). **E2E spec** = `NEXT_PUBLIC_POSTHOG_KEY= CIRCLE_NODE_TOTAL=2 pnpm build && pnpm test:e2e <spec>`. Pull request description ends with `🤖 Generated with [Claude Code](https://claude.com/claude-code)`.
+- **Shorthands:** **FAST** = `pnpm format && bash check-fast.sh` (expect `fast checks passed`). **COMMIT "msg" files** = FAST, then `git add <files> && git commit -m "msg" -m "Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>"` (plus the session line the system reminder gives). **E2E spec** = `NEXT_PUBLIC_POSTHOG_KEY= CIRCLE_NODE_TOTAL=2 pnpm build && pnpm test:e2e <spec>`. Pull request description ends with `🤖 Generated with [Claude Code](https://claude.com/claude-code)`.
 - **Dashboard commits** are Jalel's (his token): no co-author line, conventional subject `data(<file>): …`, an `Admin-Edit:` trailer (T-AD-3).
 
 ## File structure
