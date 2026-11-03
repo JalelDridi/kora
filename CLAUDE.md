@@ -31,7 +31,7 @@ A hub of Tunisian football games in Derja. Public portfolio project with real us
 - **Vocabulary:** a player is a footballer; the person playing is a visitor.
 - **No secrets in the repo.** `.env.example` documents variables; real keys live in `.env.local` and Vercel, and the hosted database values only in Vercel. Never print them.
 - **Free tiers only.** No ads, no prizes (Vercel Hobby terms).
-- Small conventional commits, one concern each. Tests accompany behaviour; database rules are tested against real Postgres, never mocks.
+- Small conventional commits, one concern each, ending with the single trailer line `Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>` (Jalel's rule for every commit made from a Claude session, whatever model wrote it; no other trailer). Tests accompany behaviour; database rules are tested against real Postgres, never mocks.
 - Cut features before cutting tests or docs. If something goes wrong mid-task, stop and re-plan.
 
 <!-- BEGIN:nextjs-agent-rules -->
