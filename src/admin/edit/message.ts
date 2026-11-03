@@ -40,3 +40,16 @@ export function commitMessage(input: {
   );
   return parts.join("\n\n");
 }
+
+/** The change lines of a dashboard commit's message, read back (the saved page). */
+export function diffFromMessage(message: string): DiffLine[] {
+  // The lines are the message's second paragraph, as commitMessage writes it.
+  const block = message.split("\n\n")[1] ?? "";
+  const out: DiffLine[] = [];
+  for (const line of block.split("\n")) {
+    const match = /^- (\S+): (.*?) → (.*)$/.exec(line);
+    if (!match) return [];
+    out.push({ path: match[1], before: match[2], after: match[3] });
+  }
+  return out;
+}

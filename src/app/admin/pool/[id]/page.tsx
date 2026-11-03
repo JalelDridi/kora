@@ -51,6 +51,11 @@ export default async function FootballerPage({
         <NavLink href="/admin/pool">All footballers</NavLink>
       </p>
       <h1>{player.nameLatin}</h1>
+      <p>
+        <NavLink href={`/admin/footballers/${player.wikidataId}`}>
+          Edit overrides
+        </NavLink>
+      </p>
       {player.nameArabic && (
         <p>
           <bdi lang="ar" dir="rtl">

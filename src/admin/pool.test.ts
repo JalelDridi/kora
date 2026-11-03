@@ -4,8 +4,12 @@ import {
   articleLinks,
   confidenceLabel,
   fieldValue,
+  diffAgainstToday,
+  dropUnchanged,
   flagKinds,
   fold,
+  formValue,
+  overrideRows,
   matches,
   paginate,
   parseFilters,
@@ -249,6 +253,134 @@ describe("summarize", () => {
     expect(flagKinds(pool)).toEqual([
       ["photo-small", 2],
       ["caps-maybe-stale", 1],
+    ]);
+  });
+});
+
+describe("overrideRows", () => {
+  const names = {
+    club: (id: string) => (id === "Q290540" ? "Étoile du Sahel" : undefined),
+    clubQid: (slug: string) =>
+      slug === "etoile-du-sahel" ? "Q290540" : undefined,
+    governorate: (id: string) => (id === "sfax" ? "Sfax" : undefined),
+  };
+  const stamp = { by: "jalel", at: "2026-10-07", note: "squad lists" };
+
+  it("gives each of the fourteen fields today's value, its source and the override in force", () => {
+    const rows = overrideRows(
+      player({ clubId: "etoile-du-sahel" }),
+      { club: { value: "Q290540", ...stamp } },
+      names,
+    );
+    expect(rows.map((r) => r.field)).toEqual([
+      "club",
+      "position",
+      "positionDetail",
+      "caps",
+      "goals",
+      "capsAsOf",
+      "birthDate",
+      "governorate",
+      "birthCountry",
+      "nameArabic",
+      "aliases",
+      "pools",
+      "exclude",
+      "localStar",
+    ]);
+    const by = Object.fromEntries(rows.map((r) => [r.field, r]));
+    expect(by.club).toMatchObject({
+      label: "Club",
+      today: "Q290540",
+      todayText: "Étoile du Sahel",
+      override: { value: "Q290540", text: "Étoile du Sahel", ...stamp },
+    });
+    expect(by.caps).toMatchObject({
+      label: "Caps",
+      today: 90,
+      todayText: "90",
+      provenance: { confidence: "high", source: "enwiki" },
+      override: null,
+    });
+    expect(by.capsAsOf.provenance).toEqual(by.caps.provenance);
+    expect(by.governorate.todayText).toBe("Sfax");
+    expect(by.positionDetail).toMatchObject({ today: null, todayText: "none" });
+    expect(by.pools).toMatchObject({
+      today: { active: true, legend: false },
+      todayText: "active",
+    });
+    expect(by.exclude).toMatchObject({ today: false, todayText: "no" });
+    expect(by.localStar).toMatchObject({ today: false, todayText: "no" });
+  });
+
+  it("knows no value today for a footballer outside the pool", () => {
+    const rows = overrideRows(
+      null,
+      { exclude: { value: true, ...stamp } },
+      names,
+    );
+    expect(rows.every((r) => r.today === undefined)).toBe(true);
+    expect(rows[0].todayText).toBe("not in the pool");
+    expect(rows.find((r) => r.field === "exclude")?.override?.text).toBe("yes");
+  });
+
+  it("writes each value as the form holds it", () => {
+    expect(formValue("caps", 90)).toBe("90");
+    expect(formValue("club", null)).toBe("none");
+    expect(formValue("governorate", null)).toBe("none");
+    expect(formValue("positionDetail", null)).toBe("");
+    expect(formValue("aliases", ["A", "B"])).toBe("A\nB");
+    expect(formValue("caps", undefined)).toBe("");
+  });
+
+  it("drops a value left at today's when no override is in force, and keeps the rest", () => {
+    const rows = overrideRows(
+      player({ clubId: "etoile-du-sahel" }),
+      { club: { value: "Q290540", ...stamp } },
+      names,
+    );
+    expect(
+      dropUnchanged(
+        [
+          { field: "club", to: "Q290540" },
+          { field: "caps", to: 90 },
+          { field: "goals", to: 4 },
+          { field: "pools", to: { active: true, legend: false } },
+          { field: "aliases", to: [] },
+          { field: "governorate", remove: true },
+        ],
+        rows,
+      ),
+    ).toEqual([
+      { field: "club", to: "Q290540" },
+      { field: "goals", to: 4 },
+      { field: "governorate", remove: true },
+    ]);
+    expect(
+      dropUnchanged(
+        [{ field: "caps", to: 90 }],
+        overrideRows(null, undefined, names),
+      ),
+    ).toEqual([{ field: "caps", to: 90 }]);
+  });
+
+  it("shows today's value as the before of a field with no override", () => {
+    const rows = overrideRows(
+      player({ clubId: "etoile-du-sahel" }),
+      { club: { value: null, ...stamp } },
+      names,
+    );
+    expect(
+      diffAgainstToday(
+        [
+          { path: "players.Q1.caps", before: "none", after: "91" },
+          { path: "players.Q1.club", before: "none", after: "Q2" },
+        ],
+        rows,
+      ),
+    ).toEqual([
+      { path: "players.Q1.caps", before: "90", after: "91" },
+      { path: "players.Q1.club", before: "none", after: "Q2" },
     ]);
   });
 });

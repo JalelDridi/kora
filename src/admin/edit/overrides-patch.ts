@@ -154,7 +154,11 @@ export function parseOverrideForm(form: Record<string, string | string[]>): {
   };
   const errors: string[] = [];
   const qid = get("qid");
-  if (!QID.test(qid)) errors.push("qid: a Wikidata id (Q and digits)");
+  // As data:check words a refused value, then what the field expects.
+  const invalid = (field: string, raw: string, what: string) =>
+    `${field}: invalid value ${JSON.stringify(raw)}, expected ${what}`;
+  if (!QID.test(qid))
+    errors.push(invalid("qid", qid, "a Wikidata id (Q and digits)"));
   const changes: FieldChange[] = [];
   for (const field of FIELDS) {
     if (get(`remove.${field}`) === "on") {
@@ -163,7 +167,7 @@ export function parseOverrideForm(form: Record<string, string | string[]>): {
     }
     const raw = get(field);
     const set = (to: unknown) => changes.push({ field, to });
-    const refuse = (what: string) => errors.push(`${field}: ${what}`);
+    const refuse = (what: string) => errors.push(invalid(field, raw, what));
     switch (field) {
       case "pools":
         if (get("pools.active") !== "" || get("pools.legend") !== "")

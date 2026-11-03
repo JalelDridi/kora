@@ -1,5 +1,5 @@
 import { expect, it } from "vitest";
-import { commitMessage } from "./message.ts";
+import { commitMessage, diffFromMessage } from "./message.ts";
 
 it("lists each change, the note, then the trailer", () => {
   expect(
@@ -43,4 +43,22 @@ it("an undo names the commit it reverts, without a note", () => {
     "revert(data): data(overrides): Q2409513 Youssef Msakni: caps 102",
   );
   expect(m).toMatch(/→ none\n\nAdmin-Edit: overrides\nReverts: abc1234$/);
+});
+
+it("reads the change lines back from a dashboard commit's message", () => {
+  const lines = [
+    { path: "players.Q1.caps", before: "0", after: "1" },
+    { path: "players.Q1.club", before: "none", after: "Q2 (Club Africain)" },
+  ];
+  expect(
+    diffFromMessage(
+      commitMessage({
+        file: "overrides",
+        subject: "Q1: caps",
+        lines,
+        note: "- a note: x → y",
+      }),
+    ),
+  ).toEqual(lines);
+  expect(diffFromMessage("fix: something\n\nbody")).toEqual([]);
 });

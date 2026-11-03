@@ -235,3 +235,149 @@ td.warn {
   clip-path: inset(50%);
   white-space: nowrap;
 }
+
+/* The footballer editor (/admin/footballers/[qid]): one column of rows,
+   label and today's value on one line, the input full width below; every
+   target at least 44 px, every input at 16 px so a phone does not zoom. */
+
+.editor {
+  max-inline-size: 48rem;
+}
+
+.fields {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  min-inline-size: 0;
+}
+
+.field {
+  border: 0;
+  border-block-end: 1px solid var(--pitch-700);
+  margin: 0;
+  padding: 0.75rem 0;
+  min-inline-size: 0;
+}
+
+.field legend {
+  float: inline-start;
+  inline-size: 100%;
+  padding: 0;
+  margin-block-end: 0.35rem;
+}
+
+.field legend + * {
+  clear: both;
+}
+
+.field .head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.25rem 0.75rem;
+  margin-block-end: 0.35rem;
+}
+
+.field label,
+.field legend {
+  font-weight: 600;
+}
+
+.field .dim {
+  font-weight: 400;
+  overflow-wrap: anywhere;
+}
+
+.field p {
+  margin-block: 0.25rem;
+}
+
+.editor input[type="text"],
+.editor input[type="number"],
+.editor input[type="date"],
+.editor select,
+.editor textarea {
+  box-sizing: border-box;
+  display: block;
+  inline-size: 100%;
+  min-block-size: 44px;
+  font-size: 16px;
+}
+
+.editor select,
+.editor textarea {
+  background: var(--pitch-900);
+  border: 1px solid var(--chalk-dim);
+  border-radius: 4px;
+  color: var(--chalk);
+  font-family: inherit;
+  padding: 0.3rem 0.5rem;
+}
+
+.editor fieldset:disabled {
+  opacity: 0.8;
+}
+
+.check {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-block-size: 44px;
+  padding-inline-end: 1rem;
+}
+
+.check input {
+  inline-size: 1.25rem;
+  block-size: 1.25rem;
+  margin: 0;
+}
+
+.checks {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.override {
+  background: var(--pitch-900);
+  border-inline-start: 3px solid var(--mint);
+  padding: 0.25rem 0.6rem;
+  margin-block: 0.35rem;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem;
+  margin-block-start: 1rem;
+}
+
+.actions button {
+  min-block-size: 44px;
+  min-inline-size: 8rem;
+  font-size: 16px;
+  font-weight: 700;
+  background: var(--high);
+  border-color: var(--mint);
+}
+
+.actions a {
+  display: inline-flex;
+  align-items: center;
+  min-block-size: 44px;
+}
+
+table.diff td,
+table.diff th[scope="row"] {
+  overflow-wrap: anywhere;
+}
+
+pre.message {
+  background: var(--pitch-900);
+  border: 1px solid var(--pitch-700);
+  border-radius: 4px;
+  padding: 0.5rem;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}

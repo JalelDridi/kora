@@ -142,6 +142,46 @@ describe("an override patch", () => {
       },
     ]);
   });
+  it("keeps an unchanged field's stamp beside a real change in the same patch", async () => {
+    const before = JSON.parse(text).players.Q2409513.governorate;
+    const out = await applyOverridePatch(
+      text,
+      {
+        qid: "Q2409513",
+        changes: [
+          { field: "governorate", to: before.value },
+          { field: "caps", to: 102 },
+        ],
+        note: "FTF page",
+      },
+      today,
+    );
+    const entry = (
+      out.json as { players: Record<string, Record<string, unknown>> }
+    ).players.Q2409513;
+    expect(entry.governorate).toEqual(before);
+    expect(entry.caps).toMatchObject({ value: 102, at: today });
+    expect(out.diff.map((d) => d.path)).toEqual(["players.Q2409513.caps"]);
+  });
+  it("leaves clubTitles byte for byte", async () => {
+    const titles = `"clubTitles": {
+    "en:Espérance Sportive de Tunis": "Q331086",
+    "fr:Club africain (football)": "Q1032374"
+  }`;
+    const withTitles = text.replace('"clubTitles": {}', titles);
+    const out = await applyOverridePatch(
+      withTitles,
+      {
+        qid: "Q2409513",
+        changes: [{ field: "caps", to: 102 }],
+        note: "FTF page",
+      },
+      today,
+    );
+    expect(out.text.slice(out.text.indexOf('"clubTitles"'))).toBe(
+      withTitles.slice(withTitles.indexOf('"clubTitles"')),
+    );
+  });
   it("reads the form: none, aliases per line, pools, and refuses a bad caps", () => {
     expect(
       parseOverrideForm({
@@ -158,7 +198,7 @@ describe("an override patch", () => {
     ]);
     expect(
       parseOverrideForm({ qid: "Q1", caps: "-3", note: "" }).errors,
-    ).toEqual(["caps: a whole number, 0 or more"]);
+    ).toEqual(['caps: invalid value "-3", expected a whole number, 0 or more']);
   });
   it("reads the form: remove boxes, numbers, dates, checkboxes, the note", () => {
     const { patch, errors } = parseOverrideForm({
@@ -195,12 +235,12 @@ describe("an override patch", () => {
         birthCountry: "TUN",
       }).errors,
     ).toEqual([
-      "qid: a Wikidata id (Q and digits)",
-      "club: a club's Wikidata id, or none",
-      "position: goalkeeper, defender, midfielder or forward",
-      "birthDate: a date, YYYY-MM-DD",
-      "birthCountry: two letters",
-      "nameArabic: in Arabic letters",
+      'qid: invalid value "Messi", expected a Wikidata id (Q and digits)',
+      'club: invalid value "Club Africain", expected a club\'s Wikidata id, or none',
+      'position: invalid value "striker", expected goalkeeper, defender, midfielder or forward',
+      'birthDate: invalid value "1 May 1990", expected a date, YYYY-MM-DD',
+      'birthCountry: invalid value "TUN", expected two letters',
+      'nameArabic: invalid value "Msakni", expected in Arabic letters',
     ]);
   });
   it("writes a short conventional subject with a trailer", () => {
