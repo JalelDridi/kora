@@ -415,3 +415,26 @@ describe("excluding a footballer never fetched (T4 fix B1)", () => {
     ]);
   });
 });
+
+describe("Wikidata ids never start with 0 (branch review FR-1)", () => {
+  const known = {
+    players: new Set(["Q1"]),
+    clubs: new Set<string>(),
+    seen: new Set(["Q1"]),
+  };
+  const stamp = { by: "jalel", at: "2026-11-03", note: "n" };
+
+  it("players.Q01 is refused up front, so the nightly's query never sees it", () => {
+    const json = {
+      players: { Q01: { include: { value: true, ...stamp } } },
+      clubTitles: {},
+    };
+    const result = validateOverrides(json, new Set(), known);
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.errors).toContain(
+        "players.Q01: not a Wikidata id with an object",
+      );
+    }
+  });
+});

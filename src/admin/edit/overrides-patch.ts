@@ -115,7 +115,7 @@ export async function applyOverridePatch(
   };
 }
 
-const QID = /^Q\d+$/;
+const QID = /^Q[1-9]\d*$/;
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 
 /**

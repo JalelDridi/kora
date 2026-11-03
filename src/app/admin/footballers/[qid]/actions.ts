@@ -26,7 +26,7 @@ export async function saveFootballer(form: FormData): Promise<void> {
   await requireAdmin();
   const fields = formRecord(form);
   const qid = typeof fields.qid === "string" ? fields.qid.trim() : "";
-  if (!/^Q\d+$/.test(qid)) redirect("/admin/pool");
+  if (!/^Q[1-9]\d*$/.test(qid)) redirect("/admin/pool");
   const pool = await loadPool();
   const player = pool.players.find((p) => p.wikidataId === qid) ?? null;
   const dropped = pool.dropped.find((d) => d.wikidataId === qid);

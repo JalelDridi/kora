@@ -13,7 +13,7 @@ import { validateWitness } from "./witness/verdicts.ts";
 
 // Every file in data/ that people edit or the job writes, checked in CI.
 
-const QID = /^Q\d+$/;
+const QID = /^Q[1-9]\d*$/;
 const isRecord = (v: unknown): v is Record<string, unknown> =>
   typeof v === "object" && v !== null && !Array.isArray(v);
 

@@ -43,7 +43,7 @@ export type Overrides = {
   clubTitles: Record<string, string>;
 };
 
-const QID = /^Q\d+$/;
+const QID = /^Q[1-9]\d*$/;
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 
 type Check = (value: unknown, governorates: Set<string>) => boolean;
