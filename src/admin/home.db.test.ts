@@ -13,7 +13,7 @@ import {
 } from "@/pipeline/__fixtures__/calendar-pool.ts";
 import { topUpCalendar, tunisToday } from "@/pipeline/calendar.ts";
 import type { Pool, PoolPlayer } from "@/pipeline/types.ts";
-import { loadAdminCalendar } from "./calendar";
+import { changeDay, loadAdminCalendar } from "./calendar";
 import { answersAround, githubCard, homeSummary } from "./home";
 
 // Today's and tomorrow's Chkoun? answers, as the admin's game view shows
@@ -66,6 +66,40 @@ describe("answersAround", () => {
     });
     expect(around.today?.nameLatin).toBe(around.today?.playerId);
     expect(around.tomorrow?.playerId).not.toBe(around.today?.playerId);
+  });
+
+  // Branch review, T5 M-c: the home warns as the calendar does. The day
+  // after "today" is day 6, not frozen, so the same day can be pinned.
+  it("warns when tomorrow's footballer is no longer eligible, and not once he is pinned", async () => {
+    const shifted = addDays(today, 5);
+    const tomorrow = addDays(today, 6);
+    const playerId = String(
+      (await answersAround(sql, shifted)).tomorrow?.playerId,
+    );
+    await client.query("UPDATE players SET fame_tier = 'D' WHERE id = $1", [
+      playerId,
+    ]);
+    const warned = await answersAround(sql, shifted);
+    expect(warned.tomorrow).toMatchObject({
+      day: tomorrow,
+      playerId,
+      source: "generator",
+      warnings: ["no longer eligible"],
+    });
+    const calendar = await loadAdminCalendar(sql, today);
+    expect(calendar.days.find((d) => d.day === tomorrow)?.warnings).toEqual([
+      "no longer eligible",
+    ]);
+    await changeDay(
+      sql,
+      { action: "pin", day: tomorrow, playerId },
+      { today, seed },
+    );
+    expect((await answersAround(sql, shifted)).tomorrow).toMatchObject({
+      playerId,
+      source: "pin",
+      warnings: [],
+    });
   });
 
   it("gives null for a day with no answer", async () => {
