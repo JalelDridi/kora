@@ -1,6 +1,20 @@
 import { describe, expect, it, vi } from "vitest";
 import { FakeGitHub, type FakeRun, type FakeState } from "./github/fake.ts";
+import { activeRefusal } from "../pipeline/report.ts";
+import type { Pool } from "../pipeline/types.ts";
 import { findRun, readRebuild, refusalLines, rebuildState } from "./rebuild.ts";
+
+// The active guard's real sentence (src/pipeline/report.ts), as cli.ts logs
+// it: 230 active footballers falling to 216 (Task 7 review, m3).
+const actives = (n: number) =>
+  ({
+    players: Array.from({ length: n }, (_, i) => ({
+      id: `p${i}`,
+      clubId: "c",
+      pools: { active: true, legend: false },
+    })),
+  }) as unknown as Pool;
+const REFUSAL = `data:build refused: ${activeRefusal(actives(230), actives(216))}`;
 
 const run = (o: object) => ({
   id: 7,
@@ -40,14 +54,15 @@ describe("the rebuild stage", () => {
       runs: [run({ conclusion: "failure" })],
       jobs: [job("build", "failure")],
       log: [
-        "2026-11-03T10:03:00.1Z data:build refused: the night loses 14 of 230 active footballers (6.1%), over 5%",
+        `2026-11-03T10:03:00.1Z ${REFUSAL}`,
         "2026-11-03T10:03:00.2Z ##[error]Process completed with exit code 1.",
       ],
     });
     expect(s).toMatchObject({ stage: "refused", refresh: false });
-    expect(s.refusal).toEqual([
-      "data:build refused: the night loses 14 of 230 active footballers (6.1%), over 5%",
-    ]);
+    expect(s.refusal).toEqual([REFUSAL]);
+    expect(REFUSAL).toBe(
+      "data:build refused: the active pool would fall from 230 to 216 footballers (6.1%, over the 5% limit); refusing (a source probably changed). To accept it, rebuild with KORA_ALLOW_POOL_DROP=1",
+    );
   });
   it("no pull request after a green run is no change", () =>
     expect(
@@ -356,7 +371,7 @@ describe("reading the rebuild from GitHub", () => {
           url: "j",
         },
       ];
-      s.logs["1"] = "2026-11-03T10:03:00.1Z data:build refused: too few\n";
+      s.logs["1"] = `2026-11-03T10:03:00.1Z ${REFUSAL}\n`;
       s.pull = {
         number: 42,
         state: "open",
@@ -371,7 +386,7 @@ describe("reading the rebuild from GitHub", () => {
     const view = await readRebuild(fake, since);
     expect(view.state).toMatchObject({
       stage: "refused",
-      refusal: ["data:build refused: too few"],
+      refusal: [REFUSAL],
     });
     expect(view.jobs.map((j) => j.name)).toEqual(["build", "propose"]);
     expect(pull).not.toHaveBeenCalled();

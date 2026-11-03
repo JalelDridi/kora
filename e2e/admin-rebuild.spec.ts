@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 import { expect, test, type Page } from "@playwright/test";
 import { E2E_ENV } from "../playwright.config";
 import type { FakeRun } from "../src/admin/github/fake.ts";
+import { activeRefusal } from "../src/pipeline/report.ts";
 import type { Pool } from "../src/pipeline/types";
 import { fakeCommits, resetFakes, updateFakes } from "./fixtures/admin-fakes";
 
@@ -17,8 +18,17 @@ const basic = `Basic ${Buffer.from(`jalel:${E2E_ENV.ADMIN_PASSWORD}`).toString("
 test.use({ extraHTTPHeaders: { Authorization: basic } });
 test.beforeEach(() => resetFakes());
 
-const REFUSAL =
-  "data:build refused: the night loses 14 of 230 active footballers (6.1%), over 5%";
+// The active guard's real sentence, as data:build logs it (Task 7 review,
+// m3): 230 active footballers falling to 216.
+const actives = (n: number) =>
+  ({
+    players: Array.from({ length: n }, (_, i) => ({
+      id: `p${i}`,
+      clubId: "c",
+      pools: { active: true, legend: false },
+    })),
+  }) as unknown as Pool;
+const REFUSAL = `data:build refused: ${activeRefusal(actives(230), actives(216))}`;
 const HEAD = "b".repeat(40);
 const refresh = (page: Page) => page.locator('meta[http-equiv="refresh"]');
 const stage = (page: Page) => page.getByTestId("stage");
@@ -166,6 +176,7 @@ test("Rebuild now dispatches the nightly, then shows the run, a refusal, the pul
   await page.reload();
   await expect(stage(page)).toHaveText(/^Checking/);
   await expect(refresh(page)).toHaveAttribute("content", "15");
+  await axeClean(page, true);
   await shoot(page, "checking");
 
   updateFakes((s) => {
@@ -310,6 +321,21 @@ test("a second Rebuild now while a nightly runs is refused, and the button says 
   ).toContainText("scheduled");
   await axeClean(page);
   await shoot(page, "running");
+});
+
+// Task 7 review, I1: the server action checks the password itself.
+test("the rebuild action refuses a request without the password", async ({
+  request,
+}) => {
+  const response = await request.post("/admin/rebuild", {
+    headers: { Authorization: "", "Next-Action": "0".repeat(42) },
+    multipart: {},
+  });
+  expect(response.status()).toBe(401);
+  const fake = JSON.parse(readFileSync(E2E_ENV.KORA_ADMIN_FAKES, "utf8")) as {
+    runs: FakeRun[];
+  };
+  expect(fake.runs).toEqual([]);
 });
 
 // Task 3 review, M2: the saved view's way to the rebuild is a 44 px target.
