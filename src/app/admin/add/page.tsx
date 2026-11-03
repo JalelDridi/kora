@@ -24,8 +24,7 @@ export const metadata: Metadata = { title: "Add a footballer" };
 const one = (value: string | string[] | undefined) =>
   typeof value === "string" ? value : undefined;
 
-type Searched =
-  { ok: true; hits: SearchHit[] } | { ok: false; error: string } | null;
+type Searched = { ok: true; hits: SearchHit[] } | { ok: false } | null;
 
 export default async function AddFootballerPage({
   searchParams,
@@ -56,8 +55,9 @@ export default async function AddFootballerPage({
           registry,
         }),
       };
-    } catch (e) {
-      searched = { ok: false, error: e instanceof Error ? e.message : "error" };
+    } catch {
+      // Wikidata's own words stay out of the page (Task 4 review, M-f).
+      searched = { ok: false };
     }
   }
   const dropped = new Map(pool.dropped.map((d) => [d.wikidataId, d]));
@@ -97,8 +97,7 @@ export default async function AddFootballerPage({
       </form>
       {searched && !searched.ok ? (
         <p className="notice notice-error">
-          Wikidata could not be searched ({searched.error}). Try again in a
-          minute.
+          Wikidata could not be searched. Try again in a minute.
         </p>
       ) : null}
       {searched?.ok ? (

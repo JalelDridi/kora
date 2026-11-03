@@ -15,7 +15,7 @@ const BASE = `{ ?p wdt:P106 wd:Q937857 ; wdt:P27 wd:Q948 . }
  */
 function base(include: readonly string[]): string {
   for (const q of include)
-    if (!/^Q\d+$/.test(q)) throw new Error(`not a Wikidata id: ${q}`);
+    if (!/^Q[1-9]\d*$/.test(q)) throw new Error(`not a Wikidata id: ${q}`);
   if (include.length === 0) return BASE;
   const ids = [...new Set(include)]
     .sort((a, b) => Number(a.slice(1)) - Number(b.slice(1)))

@@ -157,6 +157,8 @@ export async function searchFootballers(
 export type FakeSearch = {
   results?: Record<string, Found[]>;
   entities?: Record<string, Entity>;
+  /** Every request answers this Wikidata error code (a test of the notice). */
+  down?: string;
 };
 
 export function fakeWikidataFetch(state: () => FakeSearch): typeof fetch {
@@ -164,6 +166,7 @@ export function fakeWikidataFetch(state: () => FakeSearch): typeof fetch {
     const url = new URL(String(input));
     const params = url.searchParams;
     const search = state();
+    if (search.down) return Response.json({ error: { code: search.down } });
     if (params.get("action") === "wbsearchentities")
       return Response.json({
         search: search.results?.[params.get("search") ?? ""] ?? [],

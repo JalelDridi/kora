@@ -84,5 +84,8 @@ describe("queries", () => {
     expect(aliasesQuery([])).toBe(ALIASES_QUERY);
     expect(membershipsQuery([])).toBe(MEMBERSHIPS_QUERY);
     expect(() => playersQuery(["Q1 } ?x"])).toThrow();
+    // T4 M-c: a leading zero names no item and would not sort as one.
+    expect(() => playersQuery(["Q01"])).toThrow("not a Wikidata id: Q01");
+    expect(() => playersQuery(["Q0"])).toThrow();
   });
 });

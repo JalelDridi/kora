@@ -396,9 +396,12 @@ describe("what the pool pages load", () => {
       [...readFileSync(file, "utf8").matchAll(/from "([^"]+)"/g)].map(
         (m) => m[1],
       );
-    expect(imports("src/admin/pool.ts")).not.toContain(
-      "@/admin/edit/overrides-patch.ts",
-    );
+    // Any specifier: with or without the extension, relative or aliased.
+    expect(
+      imports("src/admin/pool.ts").some((m) =>
+        /overrides-patch|json-text|prettier/.test(m!),
+      ),
+    ).toBe(false);
     expect(imports("src/admin/pool.ts")).toContain("@/admin/edit/fields.ts");
     expect(
       imports("src/admin/edit/fields.ts").every((m) =>

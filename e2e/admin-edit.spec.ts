@@ -198,6 +198,46 @@ test("search, add with a note, land on his editor with the include in the diff",
   ).toHaveCount(0);
 });
 
+// Task 4 review, M-e: an exclusion on main is never lifted by Add, even
+// from a page loaded before it was made.
+test("Add refuses a footballer excluded on main since the search", async ({
+  page,
+}) => {
+  await page.goto("/admin/add?q=Msakni");
+  const outside = card(page, OUTSIDE.label);
+  await outside.getByLabel("Note").fill("Called up (test)");
+  const exclude = {
+    exclude: {
+      value: true,
+      by: "jalel",
+      at: "2026-11-03",
+      note: "Not Tunisian (test)",
+    },
+  };
+  setOverride(OUTSIDE.qid, exclude);
+  await outside.getByRole("button", { name: /^Add to the pool/ }).click();
+  await expect(page).toHaveURL(/\/admin\/add\?q=Msakni&error=refused$/);
+  await expect(page.getByRole("main").getByRole("alert")).toContainText(
+    "main's copy refuses this change now",
+  );
+  expect(fakeCommits()).toEqual([]);
+  expect(overridesOf(OUTSIDE.qid)).toEqual(exclude);
+});
+
+// Task 4 review, M-f: Wikidata's own words stay out of the page.
+test("a Wikidata failure shows a plain notice", async ({ page }) => {
+  updateFakes((state) => {
+    state.search = { ...state.search, down: "maxlag" };
+  });
+  await page.goto("/admin/add?q=Msakni");
+  await expect(
+    page.getByText("Wikidata could not be searched. Try again in a minute.", {
+      exact: true,
+    }),
+  ).toBeVisible();
+  await expect(page.getByRole("main")).not.toContainText("maxlag");
+});
+
 test("a footballer already in the pool links to his editor instead of Add", async ({
   page,
 }) => {
