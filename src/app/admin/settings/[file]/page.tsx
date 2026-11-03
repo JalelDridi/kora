@@ -1009,6 +1009,7 @@ async function Preview({
         {ready && canSave ? (
           <form action={saveCurated}>
             <input type="hidden" name="file" value={id} />
+            <KeepQ q={q} />
             {Object.entries(sent).flatMap(([key, value]) =>
               (Array.isArray(value) ? value : [value]).map((v, i) => (
                 <input key={`${key}-${i}`} type="hidden" name={key} value={v} />
