@@ -174,7 +174,8 @@ export class FakeGitHub implements GitHub {
 
   async getCommit(sha: string): Promise<CommitInfo> {
     const commit = this.state.commits.find((c) => c.sha === sha);
-    if (!commit) throw new GitHubError(404, "getCommit");
+    // As GitHub: "No commit found for SHA" is 422.
+    if (!commit) throw new GitHubError(422, "getCommit");
     return info(commit);
   }
 

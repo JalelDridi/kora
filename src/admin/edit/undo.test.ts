@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { FakeGitHub } from "../github/fake.ts";
+import { GitHubError } from "../github/types.ts";
 import { editedHere, LOGGED, planUndo, undoFileOf, undoPatch } from "./undo.ts";
 
 const file = (players: object) =>
@@ -274,6 +275,32 @@ describe("planUndo, on the GitHub fake", () => {
       ok: false,
       commit: null,
       errors: ["no such commit on GitHub"],
+    });
+  });
+  it("an unknown commit answered 404 is the same", async () => {
+    const github = fake();
+    github.getCommit = () => Promise.reject(new GitHubError(404, "getCommit"));
+    expect(await planUndo(github, "f".repeat(40))).toEqual({
+      ok: false,
+      commit: null,
+      errors: ["no such commit on GitHub"],
+    });
+  });
+  it("a commit that is not on main (another branch) is refused", async () => {
+    const github = fake();
+    const edit = await commit(
+      github,
+      file({ Q1: { caps: o(11) } }),
+      "data(overrides): Q1 caps 11\n\nAdmin-Edit: overrides",
+    );
+    // getCommit finds it, main's history of the file does not list it.
+    github.listCommits = () => Promise.resolve([]);
+    expect(await planUndo(github, edit.sha)).toMatchObject({
+      ok: false,
+      commit: { sha: edit.sha },
+      errors: [
+        "not among main's last 100 changes to this file; revert it on GitHub",
+      ],
     });
   });
   it("the log lists the overrides and the six curated files", () => {

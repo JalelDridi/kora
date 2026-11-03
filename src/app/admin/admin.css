@@ -775,7 +775,9 @@ ol.log .row-actions {
 }
 
 ol.log .row-actions a,
-.changes .notice li a {
+.changes .notice li a,
+.changes p.back a,
+.changes p.sha a {
   display: inline-flex;
   align-items: center;
   min-block-size: 44px;

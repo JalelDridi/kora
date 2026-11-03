@@ -98,7 +98,7 @@ export default async function ChangesPage({
       {undoSha && github ? (
         <>
           <Preview sha={undoSha} github={github} />
-          <p>
+          <p className="back">
             <NavLink href="/admin/changes">All changes</NavLink>
           </p>
         </>
@@ -212,7 +212,7 @@ async function Preview({ sha, github }: { sha: string; github: GitHub }) {
       {commit ? (
         <>
           <p className="subject">{subjectOf(commit.message)}</p>
-          <p className="dim">
+          <p className="dim sha">
             <time dateTime={commit.date}>
               {when.format(new Date(commit.date))}
             </time>
@@ -274,7 +274,10 @@ async function Preview({ sha, github }: { sha: string; github: GitHub }) {
 
 /** After an undo's redirect. */
 async function Undone({ sha, github }: { sha: string; github: GitHub }) {
-  const commit = await github.getCommit(sha).catch(() => null);
+  const commit = await github.getCommit(sha).catch((e: unknown) => {
+    if (!(e instanceof GitHubError)) throw e;
+    return null;
+  });
   const diff = commit ? diffFromMessage(commit.message) : [];
   return (
     <section aria-labelledby="undone" className="notice">

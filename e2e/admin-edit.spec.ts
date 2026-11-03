@@ -1169,6 +1169,70 @@ test("a commit that touched several files is a hand commit: no Undo", async ({
   await expect(page.getByRole("button", { name: "Save" })).toHaveCount(0);
 });
 
+// Save plans the undo again on main's copy and on the commit as GitHub has
+// it then, never on what the preview saw.
+test("a preview gone stale is refused at Save: the entry changed since", async ({
+  page,
+}) => {
+  const edit = await fakeCommit(
+    "data/overrides.json",
+    withCaps(someone.caps + 1),
+    `data(overrides): ${someone.wikidataId} caps ${someone.caps + 1}\n\nAdmin-Edit: overrides`,
+  );
+  await page.goto(`/admin/changes?undo=${edit.sha}`);
+  await expect(page.getByTestId("checked")).toBeVisible();
+  // Main moves on after the preview: caps changed again, by a commit (the
+  // fake reads a commit's own text from the commits after it).
+  const changed = withCaps(someone.caps + 2);
+  await fakeCommit(
+    "data/overrides.json",
+    changed,
+    `data(overrides): ${someone.wikidataId} caps ${someone.caps + 2}\n\nAdmin-Edit: overrides`,
+  );
+  await page.getByRole("button", { name: "Save" }).click();
+  await expect(page).toHaveURL(`/admin/changes?undo=${edit.sha}&error=refused`);
+  await expect(
+    page
+      .getByRole("main")
+      .getByRole("alert")
+      .filter({ hasText: "Not undone:" }),
+  ).toContainText(
+    `players.${someone.wikidataId}.caps changed since; edit it instead`,
+  );
+  await expect(page.getByRole("button", { name: "Save" })).toHaveCount(0);
+  expect(fakeCommits()).toHaveLength(2);
+  expect(fakeFile("data/overrides.json")).toBe(changed);
+});
+
+test("a preview gone stale is refused at Save: the commit now touches several files", async ({
+  page,
+}) => {
+  const edit = await fakeCommit(
+    "data/overrides.json",
+    withCaps(someone.caps + 1),
+    `data(overrides): ${someone.wikidataId} caps ${someone.caps + 1}\n\nAdmin-Edit: overrides`,
+  );
+  await page.goto(`/admin/changes?undo=${edit.sha}`);
+  await expect(page.getByTestId("checked")).toBeVisible();
+  const text = fakeFile("data/overrides.json");
+  updateFakes((state) => {
+    state.commits[0].files.push("data/curated/honours.json");
+    state.commits[0].before["data/curated/honours.json"] =
+      state.files["data/curated/honours.json"];
+  });
+  await page.getByRole("button", { name: "Save" }).click();
+  await expect(page).toHaveURL(`/admin/changes?undo=${edit.sha}&error=refused`);
+  await expect(
+    page
+      .getByRole("main")
+      .getByRole("alert")
+      .filter({ hasText: "Not undone:" }),
+  ).toContainText("made by hand; revert it on GitHub");
+  await expect(page.getByRole("button", { name: "Save" })).toHaveCount(0);
+  expect(fakeCommits()).toHaveLength(1);
+  expect(fakeFile("data/overrides.json")).toBe(text);
+});
+
 test("with no change yet the log says so", async ({ page }) => {
   await page.setViewportSize({ width: 360, height: 800 });
   await page.goto("/admin/changes");

@@ -316,6 +316,10 @@ export function noUndo(commit: CommitInfo): string | null {
   return null;
 }
 
+/** How far back main's history of a file is searched for the commit. */
+const ON_MAIN = 100;
+const NOT_ON_MAIN = `not among main's last ${ON_MAIN} changes to this file; revert it on GitHub`;
+
 export type UndoPlan =
   | {
       ok: true;
@@ -343,7 +347,12 @@ export async function planUndo(
   try {
     commit = await github.getCommit(sha);
   } catch (error) {
-    if (error instanceof GitHubError && error.status === 404)
+    // GitHub answers 422 ("No commit found for SHA") for a well-formed sha
+    // it does not know, 404 for some others.
+    if (
+      error instanceof GitHubError &&
+      (error.status === 404 || error.status === 422)
+    )
       return { ok: false, commit: null, errors: ["no such commit on GitHub"] };
     throw error;
   }
@@ -351,6 +360,12 @@ export async function planUndo(
   if (refused) return { ok: false, commit, errors: [refused] };
   const path = commit.files[0];
   const file = undoFileOf(path)!;
+  // getCommit finds a commit on any branch; only main's are undone here.
+  // main's history of the file, as far back as one page goes (the log
+  // offers fewer, so every Undo it shows passes).
+  const onMain = await github.listCommits({ paths: [path], perPage: ON_MAIN });
+  if (!onMain.some((c) => c.sha === commit.sha))
+    return { ok: false, commit, errors: [NOT_ON_MAIN] };
   let before: string;
   try {
     before = (await github.readFile(path, commit.parent!)).text;
