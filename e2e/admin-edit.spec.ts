@@ -247,6 +247,39 @@ test("exclude previews every override that goes, saves, and Include again remove
   );
   // He is not added by search: nothing says the include goes.
   await expect(page.getByTestId("include-goes")).toHaveCount(0);
+  // Task 4 review, I2: the page leads with the exclusion; his values wait,
+  // read only, in a closed disclosure.
+  const values = page.locator("details", {
+    has: page.getByText("His values (editing is off while he is excluded)"),
+  });
+  await expect(values).toHaveCount(1);
+  await expect(values).not.toHaveAttribute("open");
+  await expect(page.getByLabel("Caps", { exact: true })).toBeHidden();
+  await expect(page.getByRole("button", { name: "Preview" })).toHaveCount(0);
+  expect(
+    await page
+      .getByTestId("excluded")
+      .evaluate(
+        (notice) =>
+          (notice.compareDocumentPosition(document.querySelector("details")!) &
+            Node.DOCUMENT_POSITION_FOLLOWING) !==
+          0,
+      ),
+  ).toBe(true);
+  // Right under the heading: nothing but his id between them.
+  expect(
+    await page.evaluate(
+      () =>
+        document
+          .querySelector("h1")!
+          .nextElementSibling!.nextElementSibling!.querySelector(
+            "[data-testid=excluded]",
+          ) !== null,
+    ),
+  ).toBe(true);
+  await values.locator("summary").click();
+  await expect(page.getByLabel("Caps", { exact: true })).toBeVisible();
+  await expect(page.getByLabel("Caps", { exact: true })).toBeDisabled();
   expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
   await page.getByLabel("Why include him again").fill("Excluded by mistake");
   await page.getByRole("button", { name: "Include again" }).click();

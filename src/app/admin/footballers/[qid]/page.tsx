@@ -114,6 +114,16 @@ export default async function FootballerEditorPage({
         )
       : undefined;
   const name = player?.nameLatin ?? dropped?.name ?? added ?? qid;
+  const excluded = state.state === "excluded";
+  const inOrOutSection = (
+    <InOrOut
+      qid={qid}
+      entry={entry}
+      state={state}
+      name={added}
+      disabled={!canSave}
+    />
+  );
 
   return (
     <main className="editor">
@@ -135,6 +145,8 @@ export default async function FootballerEditorPage({
             ? `: left out of the pool (${dropped.reason})`
             : ": not in the pool"}
       </p>
+      {/* Task 4 review, I2: while he is excluded, the page leads with it. */}
+      {excluded ? inOrOutSection : null}
       {overrides.notice ? <p className="notice">{overrides.notice}</p> : null}
       {problems.length > 0 ? (
         <p className="notice">
@@ -167,6 +179,17 @@ export default async function FootballerEditorPage({
           back={exclusion ? `/admin/footballers/${qid}` : null}
           includeGoes={exclusion && state.includeGoes}
         />
+      ) : excluded ? (
+        <details className="values">
+          <summary>His values (editing is off while he is excluded)</summary>
+          <EditForm
+            qid={qid}
+            rows={rows.filter((row) => !STATE_FIELDS.includes(row.field))}
+            names={names}
+            sent={null}
+            disabled
+          />
+        </details>
       ) : (
         <>
           <EditForm
@@ -176,13 +199,7 @@ export default async function FootballerEditorPage({
             sent={returned ? sent : null}
             disabled={!canSave}
           />
-          <InOrOut
-            qid={qid}
-            entry={entry}
-            state={state}
-            name={added}
-            disabled={!canSave}
-          />
+          {inOrOutSection}
         </>
       )}
     </main>
@@ -279,7 +296,7 @@ function InOrOut({
     `${o.at}${o.note ? ` (${o.note})` : ""}`;
   if (state.state === "excluded" && entry?.exclude)
     return (
-      <section aria-labelledby="in-or-out" className="field">
+      <section aria-labelledby="in-or-out" className="notice">
         <h2 id="in-or-out">Excluded</h2>
         <p data-testid="excluded">Excluded since {since(entry.exclude)}</p>
         {state.includeGoes ? (

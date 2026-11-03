@@ -346,6 +346,20 @@ td.warn {
   margin-block: 0.35rem;
 }
 
+/* His values while he is excluded (Task 4 review, I2): read only, closed
+   until asked for; the summary is a 44 px target. */
+.values {
+  margin-block-start: 1rem;
+}
+
+.values > summary {
+  box-sizing: border-box;
+  min-block-size: 44px;
+  padding-block: 0.6rem;
+  cursor: pointer;
+  font-weight: 700;
+}
+
 .actions {
   display: flex;
   flex-wrap: wrap;
