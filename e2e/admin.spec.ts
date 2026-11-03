@@ -183,6 +183,16 @@ test("a footballer's page shows where each field came from", async ({
     "noreferrer",
   );
 
+  // Branch review, T9 M1: at 360 px both tables scroll inside a region a
+  // keyboard can reach, and the page is axe clean.
+  await page.setViewportSize({ width: 360, height: 800 });
+  for (const name of ["Provenance", "Career"])
+    await expect(page.getByRole("region", { name })).toHaveAttribute(
+      "tabindex",
+      "0",
+    );
+  expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+
   expect(skipped, "a footballer in the pool with a skipped row").toBeDefined();
   await page.goto(`/admin/pool/${skippedPlayer!.id}`);
   await expect(page.getByRole("list", { name: "Skipped rows" })).toContainText(

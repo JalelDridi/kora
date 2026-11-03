@@ -354,6 +354,16 @@ td.warn {
   padding: 0.4rem 0.6rem;
 }
 
+/* Two notices in a row, and a notice opening on its heading, keep apart
+   (Task 4 review, M-j). */
+.notice + .notice {
+  margin-block-start: 0.75rem;
+}
+
+.notice > h2:first-child {
+  margin-block-start: 0.25rem;
+}
+
 .notice-error {
   background: var(--low);
 }

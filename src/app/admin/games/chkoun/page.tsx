@@ -287,7 +287,7 @@ export default async function ChkounViewPage({
           className="scroll"
           tabIndex={0}
           role="region"
-          aria-label="Footballers, scrolls sideways"
+          aria-label="Footballers"
         >
           <table aria-labelledby="footballers" className="game">
             <thead>
