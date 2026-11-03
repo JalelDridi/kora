@@ -86,6 +86,10 @@ Sources: Wikidata SPARQL (1,090 Tunisian footballers; 366 current-era with clubs
 
 Ratings for 30–0: a documented formula over caps, goals per match, honours (league, cup, CAF, AFCON), era and position, scaled 60–99; shown on the card with its inputs.
 
+### The admin dashboard (P60, 3 November 2026)
+
+`/admin`, behind the admin password, English only and never indexed, lets Jalel edit the data from his phone at 360 px with no client script: the footballer editor (every override field, exclude, local star), add a footballer found on Wikidata (an `include` override the nightly fetches), the six curated files row by row, what Chkoun? and 30–0 make of the pool, the Chkoun? calendar, a changes log with undo, and Rebuild now. Every save is one commit on `main` through GitHub with his fine-grained token (`KORA_GITHUB_TOKEN`, Vercel Production only), checked by `data:check`'s rules before it is made; Rebuild now runs the nightly workflow, whose pull request merges itself once CI passes when `main` requires CI's check. The games change only after that merge and deploy. Public code never imports admin code (an ESLint rule). How it works and the settings steps: `data/README.md`, "Editing from the dashboard"; the readings: `docs/decisions.md`, T-AD-1 to T-AD-10.
+
 ## 9. Product and interface
 
 - Hub, copied from 82-0: hero with the simulator call to action, "Today's puzzles" strip, grid of mode cards with badges (Daily, Endless, Simulator, Predict, Duel), "Today's top sides", leaderboards, archive. Dark pitch green, shirt red accent, big type; Inter for Latin, IBM Plex Sans Arabic for Arabic script, both RTL and LTR layouts.

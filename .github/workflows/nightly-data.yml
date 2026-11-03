@@ -1,7 +1,10 @@
 name: Nightly data
 
 # Rebuilds the pool from the sources and proposes it as one pull request.
-# Nothing merges without review; how to review: data/README.md.
+# A scheduled night waits for review (how to review: data/README.md); a
+# dispatch with merge_when_green (the admin dashboard's Rebuild now) lets
+# GitHub merge the pull request once CI passes. The guards are the same:
+# a refused build fails the build job and proposes nothing.
 
 on:
   schedule:
@@ -11,6 +14,10 @@ on:
     inputs:
       allow_pool_drop:
         description: "Let through a night that loses over 5% of the actives or over 10 clubs (P59)"
+        type: boolean
+        default: false
+      merge_when_green:
+        description: "Merge the pull request by itself once CI passes (the admin dashboard's Rebuild now)"
         type: boolean
         default: false
 
@@ -101,4 +108,6 @@ jobs:
       - name: Open or update the pull request
         env:
           GH_TOKEN: ${{ github.token }}
+          # Auto-merge on for a dashboard rebuild, off on any other night.
+          MERGE_WHEN_GREEN: ${{ inputs.merge_when_green && '1' || '' }}
         run: bash scripts/open-data-pr.sh

@@ -2,7 +2,12 @@
 // from the query string, the summary, and the words for sources and levels.
 // Imports only types and pure helpers from the pipeline (decision P16 page).
 
+import { isDeepStrictEqual } from "node:util";
+// The field names only: overrides-patch.ts would load Prettier with them.
+import { FIELDS } from "@/admin/edit/fields.ts";
+import type { DiffLine, FieldChange } from "@/admin/edit/fields.ts";
 import { CROSS_CHECKED, SINGLE_SOURCE } from "@/pipeline/confidence.ts";
+import type { PlayerOverride } from "@/pipeline/overrides.ts";
 import { SKIP_KINDS, sourceNames } from "@/pipeline/report.ts";
 import { confidences, droppedReasons } from "@/pipeline/types.ts";
 import type {
@@ -303,4 +308,188 @@ export function articleLinks(
     href: `https://www.wikidata.org/wiki/${encodeURIComponent(player.wikidataId)}`,
   });
   return links;
+}
+
+// The footballer editor (/admin/footballers/[qid]): one row per override
+// field, with today's value in the deployed pool, where it came from, and
+// the override in force on main.
+
+export type OverrideField = (typeof FIELDS)[number];
+
+export const OVERRIDE_LABEL: Record<OverrideField, string> = {
+  club: "Club",
+  position: "Position",
+  positionDetail: "Detailed position",
+  caps: "Caps",
+  goals: "Goals",
+  capsAsOf: "Caps as of",
+  birthDate: "Birth date",
+  governorate: "Governorate",
+  birthCountry: "Birth country",
+  nameArabic: "Arabic name",
+  aliases: "Aliases",
+  pools: "Pools",
+  exclude: "Exclude",
+  include: "Include",
+  localStar: "Local star",
+};
+
+/** The provenance entry that rates each field's value; none for the editor's own. */
+const PROVENANCE_OF: Record<OverrideField, ProvenancedField | null> = {
+  club: "clubId",
+  position: "position",
+  positionDetail: "positionDetail",
+  caps: "caps",
+  goals: "goals",
+  capsAsOf: "caps",
+  birthDate: "birthDate",
+  governorate: "governorate",
+  birthCountry: "birthPlace",
+  nameArabic: "nameArabic",
+  aliases: null,
+  pools: "pools",
+  exclude: null,
+  include: null,
+  localStar: null,
+};
+
+export type Names = {
+  /** A club's name by its Wikidata id (overrides name clubs by Wikidata id). */
+  club: (id: string) => string | undefined;
+  /** A club's Wikidata id by the pool's slug (a footballer's clubId). */
+  clubQid: (slug: string) => string | undefined;
+  governorate: (id: string) => string | undefined;
+};
+
+export type OverrideRow = {
+  field: OverrideField;
+  label: string;
+  /** Today's value as the form and the patch hold it; undefined when he is not in the pool. */
+  today: unknown;
+  todayText: string;
+  provenance: Provenance | undefined;
+  override: {
+    value: unknown;
+    text: string;
+    by: string;
+    at: string;
+    note?: string;
+  } | null;
+};
+
+function todayOf(
+  player: PoolPlayer,
+  field: OverrideField,
+  names: Names,
+): unknown {
+  switch (field) {
+    case "club":
+      return player.clubId === null
+        ? null
+        : (names.clubQid(player.clubId) ?? player.clubId);
+    case "pools":
+      return { active: player.pools.active, legend: player.pools.legend };
+    case "exclude":
+    case "include":
+      return false;
+    case "localStar":
+      return player.fame?.localStar ?? false;
+    default:
+      return player[field];
+  }
+}
+
+/** A value as the editor prints it: names for clubs and governorates. */
+export function overrideText(
+  field: OverrideField,
+  value: unknown,
+  names: Names,
+): string {
+  if (value === null || value === undefined) return "none";
+  if (field === "club" && typeof value === "string")
+    return names.club(value) ?? value;
+  if (field === "governorate" && typeof value === "string")
+    return names.governorate(value) ?? value;
+  if (typeof value === "boolean") return value ? "yes" : "no";
+  if (Array.isArray(value))
+    return value.length === 0 ? "none" : value.map(String).join(", ");
+  if (field === "pools" && typeof value === "object") {
+    const pools = value as { active?: boolean; legend?: boolean };
+    return (
+      [pools.active && "active", pools.legend && "legend"]
+        .filter(Boolean)
+        .join(" and ") || "none"
+    );
+  }
+  return String(value);
+}
+
+/** Per field: today's value, its source and confidence, the override in force (null: none). */
+export function overrideRows(
+  player: PoolPlayer | null,
+  entry: PlayerOverride | undefined,
+  names: Names,
+): OverrideRow[] {
+  return FIELDS.map((field) => {
+    const today = player ? todayOf(player, field, names) : undefined;
+    const source = PROVENANCE_OF[field];
+    const override = entry?.[field];
+    return {
+      field,
+      label: OVERRIDE_LABEL[field],
+      today,
+      todayText: player ? overrideText(field, today, names) : "not in the pool",
+      provenance: player && source ? player.provenance[source] : undefined,
+      override: override
+        ? {
+            value: override.value,
+            text: overrideText(field, override.value, names),
+            by: override.by,
+            at: override.at,
+            ...(override.note === undefined ? {} : { note: override.note }),
+          }
+        : null,
+    };
+  });
+}
+
+/** A value as the form's input holds it ("none" picks the select's none). */
+export function formValue(field: OverrideField, value: unknown): string {
+  if (value === undefined) return "";
+  if (value === null)
+    return field === "club" || field === "governorate" ? "none" : "";
+  if (Array.isArray(value)) return value.map(String).join("\n");
+  return String(value);
+}
+
+/**
+ * An input left at today's value, with no override in force, writes
+ * nothing: the form sends every field, pre-filled, and only a real
+ * difference becomes an override.
+ */
+export function dropUnchanged(
+  changes: FieldChange[],
+  rows: OverrideRow[],
+): FieldChange[] {
+  const by = new Map(rows.map((row) => [row.field as string, row]));
+  return changes.filter((change) => {
+    if ("remove" in change) return true;
+    const row = by.get(change.field);
+    if (!row || row.override || row.today === undefined) return true;
+    return !isDeepStrictEqual(change.to, row.today);
+  });
+}
+
+/** The diff's "before" of a field with no override is today's value, not "none". */
+export function diffAgainstToday(
+  diff: DiffLine[],
+  rows: OverrideRow[],
+): DiffLine[] {
+  const by = new Map(rows.map((row) => [row.field as string, row]));
+  return diff.map((line) => {
+    const row = by.get(line.path.split(".").at(-1) ?? "");
+    return row && !row.override && row.today !== undefined
+      ? { ...line, before: row.todayText }
+      : line;
+  });
 }

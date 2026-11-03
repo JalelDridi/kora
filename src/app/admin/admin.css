@@ -19,7 +19,7 @@ html {
   background: var(--pitch-950);
   color: var(--chalk);
   font:
-    15px/1.45 system-ui,
+    16px/1.45 system-ui,
     sans-serif;
 }
 
@@ -93,7 +93,11 @@ a[aria-current] {
 }
 
 .scroll {
+  /* The containing block of the visually hidden text inside a table, so
+     it scrolls with the table instead of widening the page. */
+  position: relative;
   overflow-x: auto;
+  max-inline-size: 100%;
 }
 
 table {
@@ -179,20 +183,147 @@ button {
   margin-block-start: 1rem;
 }
 
+/* The page links of a long list: 44 px targets on a phone. */
+.pages a {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  min-block-size: 44px;
+}
+
 ul.plain {
   padding-inline-start: 1.25rem;
 }
 
-/* The Chkoun? calendar (/admin/chkoun). */
+/* The admin nav (Task 9): on a phone one row that scrolls sideways
+   inside itself, never the page; from 40rem a wrapping row. Each link a
+   44 px target; the current place underlined and bold. */
 
 nav.admin {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
   max-inline-size: 72rem;
   margin-inline: auto;
-  margin-block-end: 1rem;
+  margin-block: -0.75rem 1rem;
+  border-block-end: 1px solid var(--pitch-700);
 }
+
+nav.admin ul {
+  display: flex;
+  gap: 0.25rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+}
+
+nav.admin a {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  min-block-size: 44px;
+  padding-inline: 0.6rem;
+  white-space: nowrap;
+}
+
+nav.admin a[aria-current] {
+  border-block-end: 3px solid var(--mint);
+}
+
+@media (width >= 40rem) {
+  nav.admin ul {
+    flex-wrap: wrap;
+    overflow-x: visible;
+  }
+}
+
+/* Every form control a 44 px target at 16 px, so a phone does not zoom;
+   a checkbox keeps its own size inside its 44 px label. */
+input:not([type="checkbox"], [type="radio"], [type="hidden"]),
+button,
+select,
+textarea {
+  box-sizing: border-box;
+  min-block-size: 44px;
+  font-size: 16px;
+}
+
+/* The dashboard home (/admin): one card a column on a phone, two from
+   40rem (640 px). */
+
+.cards {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1rem;
+}
+
+@media (width >= 40rem) {
+  .cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.cards > section {
+  background: var(--pitch-900);
+  border: 1px solid var(--pitch-700);
+  border-radius: 6px;
+  padding-block: 0.25rem 0.5rem;
+  padding-inline: 0.9rem;
+  min-inline-size: 0;
+}
+
+.cards h2 {
+  margin-block: 0.6rem 0.5rem;
+}
+
+.cards .facts div {
+  background: var(--pitch-950);
+}
+
+.cards p,
+.cards dd {
+  overflow-wrap: anywhere;
+}
+
+.cards .more a,
+.cards dd a,
+ul.review a,
+ul.quick-links a {
+  display: inline-flex;
+  align-items: center;
+  min-block-size: 44px;
+}
+
+ul.review,
+ul.quick-links {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+ul.quick-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 1.25rem;
+}
+
+form.find {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+form.find label {
+  flex-basis: 100%;
+  font-weight: 600;
+}
+
+form.find input {
+  flex: 1 1 10rem;
+  min-inline-size: 0;
+}
+
+/* The Chkoun? calendar (/admin/chkoun). */
 
 tr.frozen {
   color: var(--chalk-dim);
@@ -223,6 +354,16 @@ td.warn {
   padding: 0.4rem 0.6rem;
 }
 
+/* Two notices in a row, and a notice opening on its heading, keep apart
+   (Task 4 review, M-j). */
+.notice + .notice {
+  margin-block-start: 0.75rem;
+}
+
+.notice > h2:first-child {
+  margin-block-start: 0.25rem;
+}
+
 .notice-error {
   background: var(--low);
 }
@@ -234,4 +375,547 @@ td.warn {
   overflow: hidden;
   clip-path: inset(50%);
   white-space: nowrap;
+}
+
+/* The footballer editor (/admin/footballers/[qid]): one column of rows,
+   label and today's value on one line, the input full width below; every
+   target at least 44 px, every input at 16 px so a phone does not zoom. */
+
+.editor {
+  max-inline-size: 48rem;
+}
+
+.fields {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  min-inline-size: 0;
+}
+
+.field {
+  border: 0;
+  border-block-end: 1px solid var(--pitch-700);
+  margin: 0;
+  padding: 0.75rem 0;
+  min-inline-size: 0;
+}
+
+.field legend {
+  float: inline-start;
+  inline-size: 100%;
+  padding: 0;
+  margin-block-end: 0.35rem;
+}
+
+.field legend + * {
+  clear: both;
+}
+
+.field .head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.25rem 0.75rem;
+  margin-block-end: 0.35rem;
+}
+
+.field label,
+.field legend {
+  font-weight: 600;
+}
+
+.field .dim {
+  font-weight: 400;
+  overflow-wrap: anywhere;
+}
+
+.field p {
+  margin-block: 0.25rem;
+}
+
+.editor input[type="text"],
+.editor input[type="search"],
+.editor input[type="number"],
+.editor input[type="date"],
+.editor select,
+.editor textarea {
+  box-sizing: border-box;
+  display: block;
+  inline-size: 100%;
+  min-block-size: 44px;
+  font-size: 16px;
+}
+
+.editor select,
+.editor textarea {
+  background: var(--pitch-900);
+  border: 1px solid var(--chalk-dim);
+  border-radius: 4px;
+  color: var(--chalk);
+  font-family: inherit;
+  padding: 0.3rem 0.5rem;
+}
+
+.editor fieldset:disabled {
+  opacity: 0.8;
+}
+
+.check {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-block-size: 44px;
+  padding-inline-end: 1rem;
+}
+
+.check input {
+  inline-size: 1.25rem;
+  block-size: 1.25rem;
+  margin: 0;
+}
+
+.checks {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.override {
+  background: var(--pitch-900);
+  border-inline-start: 3px solid var(--mint);
+  padding: 0.25rem 0.6rem;
+  margin-block: 0.35rem;
+}
+
+/* His values while he is excluded (Task 4 review, I2): read only, closed
+   until asked for; the summary is a 44 px target. */
+.values {
+  margin-block-start: 1rem;
+}
+
+.values > summary {
+  box-sizing: border-box;
+  min-block-size: 44px;
+  padding-block: 0.6rem;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem;
+  margin-block-start: 1rem;
+}
+
+.actions button {
+  min-block-size: 44px;
+  min-inline-size: 8rem;
+  font-size: 16px;
+  font-weight: 700;
+  background: var(--high);
+  border-color: var(--mint);
+}
+
+.actions a {
+  display: inline-flex;
+  align-items: center;
+  min-block-size: 44px;
+}
+
+table.diff td,
+table.diff th[scope="row"] {
+  overflow-wrap: anywhere;
+}
+
+pre.message {
+  background: var(--pitch-900);
+  border: 1px solid var(--pitch-700);
+  border-radius: 4px;
+  padding: 0.5rem;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+/* The add page (/admin/add): one card per Wikidata match. */
+
+ul.hits {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.hit {
+  background: var(--pitch-900);
+  border: 1px solid var(--pitch-700);
+  border-radius: 6px;
+  padding: 0.6rem 0.75rem;
+  margin-block-end: 0.75rem;
+}
+
+.hit h3 {
+  font-size: 1.1rem;
+  margin-block: 0 0.25rem;
+}
+
+.hit p {
+  margin-block: 0.25rem;
+}
+
+.hit-facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(8rem, 1fr));
+  gap: 0.25rem 0.75rem;
+  margin-block: 0.5rem;
+}
+
+.hit-facts dt {
+  color: var(--chalk-dim);
+  font-size: 0.85rem;
+}
+
+.hit-facts dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.hit label {
+  font-weight: 600;
+}
+
+/* What each game makes of the pool (/admin/games/chkoun, /admin/games/season). */
+
+dl.answers {
+  margin: 0;
+}
+
+.answers > div {
+  margin-block-end: 0.5rem;
+}
+
+.answers dt {
+  color: var(--chalk-dim);
+  font-size: 0.85rem;
+}
+
+.answers dd {
+  margin: 0;
+}
+
+table.game {
+  min-inline-size: 40rem;
+}
+
+table.game th[scope="row"] {
+  font-weight: 400;
+}
+
+tr.quick-row td {
+  padding-block-start: 0;
+}
+
+table.game .sub,
+.phone-only {
+  display: none;
+}
+
+/* A phone: one column, two lines per footballer (his name, then the other
+   columns as one line), so nothing scrolls sideways. */
+@media (width < 40rem) {
+  table.game {
+    min-inline-size: 0;
+  }
+
+  table.game :is(th, td):not(:first-child) {
+    display: none;
+  }
+
+  table.game .sub {
+    display: block;
+    color: var(--chalk-dim);
+    font-size: 0.9rem;
+  }
+
+  .phone-only {
+    display: block;
+  }
+}
+
+form.quick {
+  position: sticky;
+  inset-inline-start: 0;
+  inline-size: max-content;
+  max-inline-size: calc(100vw - 3rem);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem 0.5rem;
+  min-inline-size: 15rem;
+  margin-block-start: 0.25rem;
+}
+
+form.quick input[type="text"] {
+  box-sizing: border-box;
+  min-block-size: 44px;
+  font-size: 16px;
+  inline-size: 9rem;
+}
+
+form.quick button {
+  min-block-size: 44px;
+  font-size: 16px;
+}
+
+details.club {
+  border-block-end: 1px solid var(--pitch-700);
+}
+
+details.club > summary {
+  box-sizing: border-box;
+  min-block-size: 44px;
+  padding-block: 0.6rem;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+details.club > summary .dim {
+  font-weight: 400;
+}
+
+details.club p {
+  margin-block: 0 0.5rem;
+}
+
+table.season th[scope="row"] {
+  inline-size: 4rem;
+}
+
+/* A decade's counts per line ("GK 3 · DEF 6 · MID 9 · FWD 4"), each line
+   that has anyone a closed <details>; an open one takes the whole width. */
+.lines {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0 0.5rem;
+}
+
+.lines .sep {
+  color: var(--chalk-dim);
+}
+
+.line-empty {
+  color: var(--chalk-dim);
+}
+
+details.line > summary {
+  box-sizing: border-box;
+  min-block-size: 44px;
+  padding-block: 0.6rem;
+  cursor: pointer;
+  font-variant-numeric: tabular-nums;
+}
+
+details.line[open] {
+  flex-basis: 100%;
+}
+
+details.line[open] > summary {
+  font-weight: 700;
+}
+
+ol.candidates {
+  list-style: none;
+  margin: 0.25rem 0 0;
+  padding: 0;
+}
+
+ol.candidates li {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.rating {
+  font-variant-numeric: tabular-nums;
+  color: var(--chalk-dim);
+}
+
+/* The curated files (/admin/settings/[file]): the rows of one file, one
+   line each from 40rem; on a phone, the row's heading with its other
+   values as a second line, and the actions beside it. */
+
+.settings {
+  max-inline-size: 60rem;
+}
+
+ul.settings-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+ul.settings-list li {
+  border-block-end: 1px solid var(--pitch-700);
+  padding-block: 0.5rem;
+}
+
+ul.settings-list a {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0 0.35rem;
+  align-items: center;
+  min-block-size: 44px;
+  font-weight: 700;
+}
+
+ul.settings-list p {
+  margin-block: 0;
+}
+
+table.rows th[scope="row"] {
+  font-weight: 400;
+  color: var(--chalk);
+  overflow-wrap: anywhere;
+}
+
+table.rows .sub {
+  display: none;
+}
+
+.row-actions {
+  white-space: nowrap;
+  text-align: end;
+}
+
+.row-actions a,
+ul.auto a,
+.answers dd a {
+  display: inline-flex;
+  align-items: center;
+  min-block-size: 44px;
+  padding-inline: 0.35rem;
+}
+
+ul.auto li {
+  overflow-wrap: anywhere;
+}
+
+ul.warnings li {
+  overflow-wrap: anywhere;
+}
+
+@media (width < 40rem) {
+  table.rows .more {
+    display: none;
+  }
+
+  table.rows .sub {
+    display: block;
+    color: var(--chalk-dim);
+    font-size: 0.9rem;
+  }
+}
+
+.notice ul {
+  margin-block: 0;
+}
+
+.notice li {
+  overflow-wrap: anywhere;
+}
+
+/* Rebuild now (/admin/rebuild). */
+
+.rebuild td {
+  vertical-align: middle;
+}
+
+.rebuild .actions button:disabled {
+  background: var(--pitch-900);
+  border-color: var(--pitch-700);
+  color: var(--chalk-dim);
+  cursor: not-allowed;
+}
+
+.rebuild .actions p {
+  margin: 0;
+}
+
+.refusal pre {
+  margin-block: 0.25rem;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-size: 0.9rem;
+}
+
+.refusal p {
+  margin-block: 0.25rem;
+}
+
+ul.jobs,
+ul.pull {
+  padding-inline-start: 1.25rem;
+}
+
+ul.jobs,
+ul.pull,
+p.run {
+  margin-block: 0.5rem;
+}
+
+/* Every link on the page a 44 px target, in a list or a table cell too. */
+.rebuild :is(ul.jobs, ul.pull, p.run, td) a {
+  display: inline-flex;
+  align-items: center;
+  min-block-size: 44px;
+}
+
+/* The changes log (/admin/changes): one commit a list item. */
+
+.changes {
+  max-inline-size: 60rem;
+}
+
+ol.log {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+ol.log li {
+  border-block-end: 1px solid var(--pitch-700);
+  padding-block: 0.5rem;
+}
+
+ol.log p,
+.changes p.subject {
+  margin-block: 0.15rem;
+}
+
+.changes p.subject {
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.changes .here {
+  color: var(--mint);
+}
+
+ol.log .row-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0 1rem;
+  text-align: start;
+  white-space: normal;
+}
+
+ol.log .row-actions a,
+.changes .notice li a,
+.changes p.back a,
+.changes p.sha a {
+  display: inline-flex;
+  align-items: center;
+  min-block-size: 44px;
 }

@@ -1,8 +1,12 @@
 import { describe, expect, it } from "vitest";
 import {
   ALIASES_QUERY,
+  aliasesQuery,
   clubsQuery,
+  MEMBERSHIPS_QUERY,
+  membershipsQuery,
   PLAYERS_QUERY,
+  playersQuery,
   sparqlRequest,
 } from "./queries.ts";
 
@@ -67,5 +71,21 @@ describe("queries", () => {
       "application/sparql-results+json",
     );
     expect(init.body).toBe("query=SELECT+1");
+  });
+
+  it("an include list joins the selection of all three footballer queries, sorted", () => {
+    for (const q of [
+      playersQuery(["Q20", "Q3"]),
+      aliasesQuery(["Q20", "Q3"]),
+      membershipsQuery(["Q20", "Q3"]),
+    ])
+      expect(q).toContain("UNION { VALUES ?p { wd:Q3 wd:Q20 } }");
+    expect(playersQuery([])).toBe(PLAYERS_QUERY);
+    expect(aliasesQuery([])).toBe(ALIASES_QUERY);
+    expect(membershipsQuery([])).toBe(MEMBERSHIPS_QUERY);
+    expect(() => playersQuery(["Q1 } ?x"])).toThrow();
+    // T4 M-c: a leading zero names no item and would not sort as one.
+    expect(() => playersQuery(["Q01"])).toThrow("not a Wikidata id: Q01");
+    expect(() => playersQuery(["Q0"])).toThrow();
   });
 });

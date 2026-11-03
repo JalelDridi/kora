@@ -51,6 +51,11 @@ export default async function FootballerPage({
         <NavLink href="/admin/pool">All footballers</NavLink>
       </p>
       <h1>{player.nameLatin}</h1>
+      <p>
+        <NavLink href={`/admin/footballers/${player.wikidataId}`}>
+          Edit overrides
+        </NavLink>
+      </p>
       {player.nameArabic && (
         <p>
           <bdi lang="ar" dir="rtl">
@@ -87,7 +92,12 @@ export default async function FootballerPage({
         ))}
       </ul>
 
-      <div className="scroll">
+      <div
+        className="scroll"
+        tabIndex={0}
+        role="region"
+        aria-label="Provenance"
+      >
         <table>
           <caption>Provenance</caption>
           <thead>
@@ -163,7 +173,7 @@ export default async function FootballerPage({
         </ul>
       )}
 
-      <div className="scroll">
+      <div className="scroll" tabIndex={0} role="region" aria-label="Career">
         <table>
           <caption>Career ({player.history.length} spells)</caption>
           <thead>

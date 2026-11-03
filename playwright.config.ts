@@ -22,6 +22,9 @@ export const E2E_ENV: Record<string, string> = {
   ADMIN_PASSWORD: "e2e-only-admin-password",
   // A test value: it signs this server's Chkoun? tokens and nothing else.
   CHKOUN_SEED: "e2e-only-chkoun-seed",
+  // The admin dashboard's GitHub, faked in this JSON file (never a token):
+  // e2e/fixtures/admin-fakes.ts seeds it and reads it back.
+  KORA_ADMIN_FAKES: ".e2e/admin-fakes.json",
 };
 assertLocalDatabase(E2E_ENV.DATABASE_URL);
 assertLocalDatabase(E2E_ENV.DATABASE_URL_UNPOOLED);

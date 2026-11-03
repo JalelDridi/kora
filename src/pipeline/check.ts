@@ -13,7 +13,7 @@ import { validateWitness } from "./witness/verdicts.ts";
 
 // Every file in data/ that people edit or the job writes, checked in CI.
 
-const QID = /^Q\d+$/;
+const QID = /^Q[1-9]\d*$/;
 const isRecord = (v: unknown): v is Record<string, unknown> =>
   typeof v === "object" && v !== null && !Array.isArray(v);
 
@@ -170,7 +170,7 @@ export type ClubShortFile = {
  * The longest word a six-column tile holds at 14 px with slack for other
  * renderers (fix round 2): 7 Latin letters, 8 Arabic ones (narrower).
  */
-const SHORT_WORD = { latin: 7, arabic: 8 } as const;
+export const SHORT_WORD = { latin: 7, arabic: 8 } as const;
 const NON_WESTERN_DIGIT = /[\u0660-\u0669\u06F0-\u06F9]/;
 
 /**
@@ -264,6 +264,138 @@ export function clubsWithAutoShort(
   return listed.sort();
 }
 
+/** data/curated/governorates.json: the 24, each with a good id, a known region and three names. */
+export function validateGovernorates(json: unknown): string[] {
+  const file = "governorates.json";
+  if (!Array.isArray(json) || json.length !== 24)
+    return [`${file}: must list the 24 governorates`];
+  const errors: string[] = [];
+  const ids = new Set<string>();
+  for (const row of json) {
+    const at = `${file}: governorate ${isRecord(row) ? String(row.id) : JSON.stringify(row)}`;
+    if (!isRecord(row)) {
+      errors.push(`${at}: not an object`);
+      continue;
+    }
+    if (
+      typeof row.id !== "string" ||
+      !/^[a-z]+(?:-[a-z]+)*$/.test(row.id) ||
+      ids.has(row.id)
+    )
+      errors.push(`${at}: bad or duplicate id`);
+    if (typeof row.id === "string") ids.add(row.id);
+    if (!(regions as readonly unknown[]).includes(row.region))
+      errors.push(`${at}: unknown region ${String(row.region)}`);
+    if (!row.nameLatin || !row.nameArabic || !row.nameFrench)
+      errors.push(`${at}: a name is missing`);
+  }
+  return errors;
+}
+
+/** The ids the overrides may name: none unless the file lists 24 rows. */
+function governorateIds(json: unknown): Set<string> {
+  if (!Array.isArray(json) || json.length !== 24) return new Set();
+  return new Set(
+    json
+      .filter(isRecord)
+      .map((row) => row.id)
+      .filter((id): id is string => typeof id === "string"),
+  );
+}
+
+/** data/curated/ligue1-clubs.json: { season, clubs: [up to 20 English titles] }. */
+export function validateLigue1Clubs(json: unknown): string[] {
+  return !isRecord(json) ||
+    typeof json.season !== "string" ||
+    !Array.isArray(json.clubs) ||
+    json.clubs.length > 20 ||
+    !json.clubs.every((c) => typeof c === "string" && c !== "")
+    ? [
+        "ligue1-clubs.json: must be { season, clubs: [up to 20 English titles] }",
+      ]
+    : [];
+}
+
+/**
+ * data/curated/honours.json: a list of editions won. An edition ends the year
+ * it starts or the next one, and has one winner, as the database checks.
+ */
+export function validateHonours(json: unknown): string[] {
+  const file = "honours.json";
+  if (!Array.isArray(json)) return [`${file}: must be a list`];
+  const errors: string[] = [];
+  const editions = new Set<string>();
+  for (const h of json as unknown[]) {
+    const ok =
+      isRecord(h) &&
+      (competitions as readonly unknown[]).includes(h.competition) &&
+      Number.isInteger(h.seasonStart) &&
+      Number.isInteger(h.seasonEnd) &&
+      (h.seasonEnd === h.seasonStart ||
+        h.seasonEnd === (h.seasonStart as number) + 1) &&
+      typeof h.clubWikidataId === "string" &&
+      QID.test(h.clubWikidataId) &&
+      typeof h.by === "string" &&
+      h.by !== "" &&
+      typeof h.at === "string" &&
+      /^\d{4}-\d{2}-\d{2}$/.test(h.at);
+    if (!ok) {
+      errors.push(`${file}: invalid entry ${JSON.stringify(h)}`);
+      continue;
+    }
+    const key = `${String(h.competition)}|${String(h.seasonStart)}|${String(h.seasonEnd)}`;
+    if (editions.has(key))
+      errors.push(
+        `${file}: edition ${String(h.competition)} ${String(h.seasonStart)}–${String(h.seasonEnd)} twice`,
+      );
+    editions.add(key);
+  }
+  return errors;
+}
+
+/**
+ * Where data:check reads the data files: `read` gives a file of data/ by its
+ * name there ("curated/honours.json"), undefined when it does not exist;
+ * `publicFileExists` says whether a path under public/ ("/photos/x.jpg") is
+ * a file. The CLI reads the folder (fsSource); the admin dashboard reads the
+ * deployment's files with one of them replaced by an edit.
+ */
+export type DataSource = {
+  read(name: string): Promise<string | undefined>;
+  publicFileExists(p: string): Promise<boolean>;
+};
+
+/** The data/ and public/ folders under `root`. */
+export function fsSource(root: string): DataSource {
+  return {
+    async read(name) {
+      try {
+        return await readFile(path.join(root, "data", name), "utf8");
+      } catch (error) {
+        if ((error as { code?: string }).code === "ENOENT") return undefined;
+        throw error;
+      }
+    },
+    async publicFileExists(p) {
+      try {
+        await access(path.join(root, "public", ...p.split("/")));
+        return true;
+      } catch {
+        return false;
+      }
+    },
+  };
+}
+
+export type InspectOptions = {
+  /** P59: the previous night's pool, for the active guard. */
+  against?: string;
+  /** P59: KORA_ALLOW_POOL_DROP=1: the active guard warns instead. */
+  allowPoolDrop?: boolean;
+  /** Whether each photo path names a file in public/ (default true; the dashboard has no photos). */
+  photos?: boolean;
+};
+
 /** The errors of checkData. */
 export async function checkData(root: string): Promise<string[]> {
   return (await inspectData(root)).errors;
@@ -272,51 +404,32 @@ export async function checkData(root: string): Promise<string[]> {
 /** Errors fail data:check; warnings (overrides the next build will decide) are printed and pass. */
 export async function inspectData(
   root: string,
-  options: {
-    /** P59: the previous night's pool, for the active guard. */
-    against?: string;
-    /** P59: KORA_ALLOW_POOL_DROP=1: the active guard warns instead. */
-    allowPoolDrop?: boolean;
-  } = {},
+  options: InspectOptions = {},
+): Promise<{ errors: string[]; warnings: string[] }> {
+  return inspectSource(fsSource(root), options);
+}
+
+/** inspectData over any source of the data files. */
+export async function inspectSource(
+  source: DataSource,
+  options: InspectOptions = {},
 ): Promise<{ errors: string[]; warnings: string[] }> {
   const warnings: string[] = [];
   const errors: string[] = [];
   const read = async (name: string): Promise<unknown> => {
     try {
-      return JSON.parse(await readFile(path.join(root, "data", name), "utf8"));
+      const text = await source.read(name);
+      return text === undefined ? undefined : JSON.parse(text);
     } catch (error) {
-      if ((error as { code?: string }).code !== "ENOENT")
-        errors.push(`data/${name}: ${(error as Error).message}`);
+      errors.push(`data/${name}: ${(error as Error).message}`);
       return undefined;
     }
   };
+  const curated = (lines: string[]) => lines.map((e) => `data/curated/${e}`);
 
   const governorates = await read("curated/governorates.json");
-  const ids = new Set<string>();
-  if (!Array.isArray(governorates) || governorates.length !== 24) {
-    errors.push(
-      "data/curated/governorates.json: must list the 24 governorates",
-    );
-  } else {
-    for (const row of governorates) {
-      const at = `data/curated/governorates.json: governorate ${isRecord(row) ? String(row.id) : JSON.stringify(row)}`;
-      if (!isRecord(row)) {
-        errors.push(`${at}: not an object`);
-        continue;
-      }
-      if (
-        typeof row.id !== "string" ||
-        !/^[a-z]+(?:-[a-z]+)*$/.test(row.id) ||
-        ids.has(row.id)
-      )
-        errors.push(`${at}: bad or duplicate id`);
-      if (typeof row.id === "string") ids.add(row.id);
-      if (!(regions as readonly unknown[]).includes(row.region))
-        errors.push(`${at}: unknown region ${String(row.region)}`);
-      if (!row.nameLatin || !row.nameArabic || !row.nameFrench)
-        errors.push(`${at}: a name is missing`);
-    }
-  }
+  errors.push(...curated(validateGovernorates(governorates)));
+  const ids = governorateIds(governorates);
 
   const pool = await read("pool.json");
   if (options.against !== undefined && usablePool(pool)) {
@@ -350,55 +463,11 @@ export async function inspectData(
     warnings.push(...checked.warnings.map((w) => `data/overrides.json: ${w}`));
 
   const ligue1 = await read("curated/ligue1-clubs.json");
-  if (
-    ligue1 !== undefined &&
-    (!isRecord(ligue1) ||
-      typeof ligue1.season !== "string" ||
-      !Array.isArray(ligue1.clubs) ||
-      ligue1.clubs.length > 20 ||
-      !ligue1.clubs.every((c) => typeof c === "string" && c !== ""))
-  ) {
-    errors.push(
-      "data/curated/ligue1-clubs.json: must be { season, clubs: [up to 20 English titles] }",
-    );
-  }
+  if (ligue1 !== undefined)
+    errors.push(...curated(validateLigue1Clubs(ligue1)));
 
   const honours = await read("curated/honours.json");
-  if (honours !== undefined) {
-    if (!Array.isArray(honours)) {
-      errors.push("data/curated/honours.json: must be a list");
-    } else {
-      // An edition ends the year it starts or the next one, as the database checks.
-      const editions = new Set<string>();
-      for (const h of honours) {
-        const ok =
-          isRecord(h) &&
-          (competitions as readonly unknown[]).includes(h.competition) &&
-          Number.isInteger(h.seasonStart) &&
-          Number.isInteger(h.seasonEnd) &&
-          (h.seasonEnd === h.seasonStart ||
-            h.seasonEnd === (h.seasonStart as number) + 1) &&
-          typeof h.clubWikidataId === "string" &&
-          QID.test(h.clubWikidataId) &&
-          typeof h.by === "string" &&
-          h.by !== "" &&
-          typeof h.at === "string" &&
-          /^\d{4}-\d{2}-\d{2}$/.test(h.at);
-        if (!ok) {
-          errors.push(
-            `data/curated/honours.json: invalid entry ${JSON.stringify(h)}`,
-          );
-          continue;
-        }
-        const key = `${String(h.competition)}|${String(h.seasonStart)}|${String(h.seasonEnd)}`;
-        if (editions.has(key))
-          errors.push(
-            `data/curated/honours.json: edition ${String(h.competition)} ${String(h.seasonStart)}–${String(h.seasonEnd)} twice`,
-          );
-        editions.add(key);
-      }
-    }
-  }
+  if (honours !== undefined) errors.push(...curated(validateHonours(honours)));
 
   // 30–0 (Sprint 3). The strength file is required once there is a pool to
   // read the Ligue 1 clubs from; the AFCON 2004 file is checked when present.
@@ -490,18 +559,15 @@ export async function inspectData(
 
   // A photo path must name a file in public/ (review 1, L6): a pool
   // committed without its photos would show a broken image with a credit.
-  if (usablePool(pool))
+  if (usablePool(pool) && options.photos !== false)
     for (const p of pool.players) {
       const photoPath = isRecord(p) && isRecord(p.photo) ? p.photo.path : null;
       if (typeof photoPath !== "string" || !photoPath.startsWith("/photos/"))
         continue;
-      try {
-        await access(path.join(root, "public", ...photoPath.split("/")));
-      } catch {
+      if (!(await source.publicFileExists(photoPath)))
         errors.push(
           `data/pool.json: ${String(p.id)}: photo ${photoPath} is not in public/`,
         );
-      }
     }
 
   // P48 (B6): the private witness's verdicts. A footballer the pool no longer

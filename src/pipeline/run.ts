@@ -90,11 +90,11 @@ import {
   parsePlayers,
 } from "./wikidata/parse.ts";
 import {
-  ALIASES_QUERY,
+  aliasesQuery,
   clubsQuery,
   HONOURS_QUERY,
-  MEMBERSHIPS_QUERY,
-  PLAYERS_QUERY,
+  membershipsQuery,
+  playersQuery,
   sparqlRequest,
 } from "./wikidata/queries.ts";
 
@@ -608,6 +608,12 @@ async function build(deps: RunDeps): Promise<RunResult> {
     knownIds(null, overridesJson),
   );
   if (!shape.ok) return refuseOverrides(shape.errors);
+  // T-AD-5: the ids Jalel included, fetched with the Tunisian footballers.
+  // The cache keeps the answers as sent: an offline build with a newer list
+  // simply lacks the man (validateOverrides warns below).
+  const include = Object.entries(shape.overrides.players)
+    .filter(([, o]) => o.include?.value === true)
+    .map(([q]) => q);
   // P48: the private witness's verdicts, committed by Jalel; read with no
   // request, and a broken file refuses like the overrides.
   const witnessJson = await readJson<unknown>(path.join(data, "witness.json"));
@@ -647,9 +653,9 @@ async function build(deps: RunDeps): Promise<RunResult> {
   const wikidata = await source<WikidataRaw, Wikidata>(
     "wikidata",
     async () => ({
-      players: await sparql("players", PLAYERS_QUERY),
-      aliases: await sparql("aliases", ALIASES_QUERY),
-      memberships: await sparql("memberships", MEMBERSHIPS_QUERY),
+      players: await sparql("players", playersQuery(include)),
+      aliases: await sparql("aliases", aliasesQuery(include)),
+      memberships: await sparql("memberships", membershipsQuery(include)),
       honours: await sparql("honours", HONOURS_QUERY),
     }),
     (raw) => {
@@ -908,6 +914,7 @@ async function build(deps: RunDeps): Promise<RunResult> {
     ]),
   });
   if (!checked.ok) return refuseOverrides(checked.errors);
+  for (const w of checked.warnings) deps.log(`data/overrides.json: ${w}`);
 
   // Commons: each file's page object (imageinfo with its metadata) as sent.
   const photos = await source<unknown[], Photo[]>(

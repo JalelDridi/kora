@@ -524,6 +524,79 @@ describe("run", () => {
     expect((await readPool(root)).players[0].clubId).toBe("cs-sfaxien");
   });
 
+  // T-AD-5: an include override brings in a footballer the Tunisia selection
+  // does not return; the fake answers his rows only when the query names him.
+  it("an included footballer outside the Tunisia selection is fetched and joins the pool", async () => {
+    const by = { by: "jalel", at: "2026-11-03", note: "plays for Tunisia" };
+    const root = await setup({
+      players: { Q999001: { include: { value: true, ...by } } },
+      clubTitles: {},
+    });
+    const calls: Calls = { urls: [], queries: [] };
+    const base = wdqs(calls);
+    const client: PoliteClient = {
+      async getJson(url, init) {
+        const query =
+          new URLSearchParams(String(init?.body)).get("query") ?? "";
+        const answer = (await base.getJson(url, init)) as {
+          results: { bindings: object[] };
+        };
+        if (!query.includes("wd:Q999001") || query.includes("GROUP BY ?club"))
+          return answer;
+        if (query.includes("pq:P580"))
+          return result(...answer.results.bindings, {
+            p: uri("Q999001"),
+            team: uri("Q2001"),
+            start: lit("2024-07-01T00:00:00Z"),
+          });
+        if (query.includes("skos:altLabel")) return answer;
+        if (query.includes("GROUP BY ?p"))
+          return result(...answer.results.bindings, {
+            p: uri("Q999001"),
+            enLabel: lit("Included Footballer"),
+            birth: lit("2001-02-03T00:00:00Z"),
+            positions: lit("forward"),
+          });
+        return answer;
+      },
+      getText: async () => "",
+    };
+    expect(await run(deps(root, { wdqs: client }))).toMatchObject({
+      ok: true,
+    });
+    for (const marker of ["skos:altLabel", "pq:P580", "MIN(?dob)"])
+      expect(calls.queries.find((q) => q.includes(marker))).toContain(
+        "UNION { VALUES ?p { wd:Q999001 } }",
+      );
+    const him = (await readPool(root)).players.find(
+      (p) => p.wikidataId === "Q999001",
+    );
+    expect(him).toMatchObject({
+      id: "included-footballer",
+      clubId: "club-africain",
+      pools: { active: true, legend: false },
+    });
+  });
+
+  it("an included id Wikidata does not return leaves the build going, with the warning in the log", async () => {
+    const by = { by: "jalel", at: "2026-11-03" };
+    const root = await setup({
+      players: { Q999002: { include: { value: true, ...by } } },
+      clubTitles: {},
+    });
+    const lines: string[] = [];
+    expect(await run(deps(root, { log: (l) => lines.push(l) }))).toMatchObject({
+      ok: true,
+    });
+    const warning =
+      "players.Q999002: included, but Wikidata returned no footballer for this id; not applied";
+    expect(lines).toContain(`data/overrides.json: ${warning}`);
+    expect(await readFile(file(root, "report.md"), "utf8")).toContain(warning);
+    expect((await readPool(root)).players.map((p) => p.wikidataId)).toEqual([
+      "Q1001",
+    ]);
+  });
+
   it("stops the build on an override naming a club Wikidata does not know", async () => {
     const root = await setup({
       players: {

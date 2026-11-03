@@ -30,6 +30,11 @@ export type PlayerOverride = {
   exclude?: OverrideValue<boolean>;
   /** D-S2-4: known at home beyond his page views; +0.5 to his fame. */
   localStar?: OverrideValue<boolean>;
+  /**
+   * T-AD-5: fetch this id with the Tunisian footballers even when Wikidata
+   * does not list him as one (run.ts adds it to the three queries).
+   */
+  include?: OverrideValue<true>;
 };
 
 export type Overrides = {
@@ -38,7 +43,7 @@ export type Overrides = {
   clubTitles: Record<string, string>;
 };
 
-const QID = /^Q\d+$/;
+const QID = /^Q[1-9]\d*$/;
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 
 type Check = (value: unknown, governorates: Set<string>) => boolean;
@@ -66,6 +71,7 @@ const CHECKS: Record<keyof PlayerOverride, Check> = {
     typeof v.legend === "boolean",
   exclude: (v) => typeof v === "boolean",
   localStar: (v) => typeof v === "boolean",
+  include: (v) => v === true,
 };
 
 function isRecord(v: unknown): v is Record<string, unknown> {
@@ -84,7 +90,8 @@ export type OverridesResult =
  * What the overrides may name: the pool's footballers and clubs (Wikidata
  * ids), and `seen`, footballers the pipeline has met (the id registry and the
  * pool's left-out list). In build mode an override for one seen but not in
- * `players` is stale: a warning, not applied; an id in neither is an error.
+ * `players` is stale: a warning, not applied; an id in neither is an error,
+ * except an exclusion alone, which has nothing to apply (a warning).
  * Check mode: see OverridesMode.
  */
 export type KnownIds = {
@@ -178,6 +185,10 @@ export function validateOverrides(
       }
     }
     if (errors.length > before) continue;
+    if (Object.hasOwn(entry, "include") && Object.hasOwn(entry, "exclude")) {
+      errors.push(`players.${qid}: included and excluded at once`);
+      continue;
+    }
     // Exclusion would silently win over the rest: say so instead.
     if (
       isRecord(entry.exclude) &&
@@ -188,6 +199,28 @@ export function validateOverrides(
       continue;
     }
     if (!known.players.has(qid)) {
+      // An exclusion of a footballer the pipeline never fetched (an add
+      // withdrawn by excluding him) has nothing to apply: harmless, so it
+      // must not stop the nightly.
+      if (
+        !known.seen.has(qid) &&
+        !known.leftOut?.has(qid) &&
+        Object.keys(entry).length === 1 &&
+        isRecord(entry.exclude) &&
+        entry.exclude.value === true
+      ) {
+        warnings.push(
+          `players.${qid}: excluded, never fetched; nothing to apply`,
+        );
+        continue;
+      }
+      if (!checker && Object.hasOwn(entry, "include")) {
+        // A deleted or merged item must not stop the nightly.
+        warnings.push(
+          `players.${qid}: included, but Wikidata returned no footballer for this id; not applied`,
+        );
+        continue;
+      }
       if (checker) {
         // The build decides who exists; the checker only says what it saw.
         const reason = known.leftOut?.get(qid);

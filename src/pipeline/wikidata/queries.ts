@@ -7,7 +7,27 @@ export const SPARQL_ENDPOINT = "https://query.wikidata.org/sparql";
 const BASE = `{ ?p wdt:P106 wd:Q937857 ; wdt:P27 wd:Q948 . }
   UNION { ?p wdt:P106 wd:Q937857 ; wdt:P1532 wd:Q948 . }`;
 
-export const PLAYERS_QUERY = `SELECT ?p (SAMPLE(?en) AS ?enLabel) (SAMPLE(?fr) AS ?frLabel) (SAMPLE(?ar) AS ?arLabel)
+/**
+ * T-AD-5: the selection plus the ids an `include` override names, which
+ * Wikidata does not list as Tunisian footballers. Each id is checked again
+ * (it goes into the query text) and the list sorted by number, so the query,
+ * and so the cache, do not change with the order of overrides.json.
+ */
+function base(include: readonly string[]): string {
+  for (const q of include)
+    if (!/^Q[1-9]\d*$/.test(q)) throw new Error(`not a Wikidata id: ${q}`);
+  if (include.length === 0) return BASE;
+  const ids = [...new Set(include)]
+    .sort((a, b) => Number(a.slice(1)) - Number(b.slice(1)))
+    .map((q) => `wd:${q}`)
+    .join(" ");
+  return `${BASE}
+  UNION { VALUES ?p { ${ids} } }`;
+}
+
+export const playersQuery = (
+  include: readonly string[],
+) => `SELECT ?p (SAMPLE(?en) AS ?enLabel) (SAMPLE(?fr) AS ?frLabel) (SAMPLE(?ar) AS ?arLabel)
   (SAMPLE(?sex) AS ?gender) (MIN(?dob) AS ?birth)
   (GROUP_CONCAT(DISTINCT CONCAT(STRAFTER(STR(?pos), "entity/"), "=", ?posLabel); separator="|") AS ?positions)
   (SAMPLE(?pob) AS ?birthPlace) (SAMPLE(?pobName) AS ?birthPlaceName) (SAMPLE(COALESCE(?selfIso, ?countryIso)) AS ?birthCountry)
@@ -15,7 +35,7 @@ export const PLAYERS_QUERY = `SELECT ?p (SAMPLE(?en) AS ?enLabel) (SAMPLE(?fr) A
   (SAMPLE(?img) AS ?image)
   (SAMPLE(?enTitle) AS ?enwiki) (SAMPLE(?frTitle) AS ?frwiki) (SAMPLE(?arTitle) AS ?arwiki)
 WHERE {
-  ${BASE}
+  ${base(include)}
   OPTIONAL { ?p rdfs:label ?en FILTER(LANG(?en) = "en") }
   OPTIONAL { ?p rdfs:label ?fr FILTER(LANG(?fr) = "fr") }
   OPTIONAL { ?p rdfs:label ?ar FILTER(LANG(?ar) = "ar") }
@@ -35,18 +55,26 @@ WHERE {
 }
 GROUP BY ?p`;
 
+export const PLAYERS_QUERY = playersQuery([]);
+
 // Name-search recommendation 7 (D-S2-12): the en, fr and ar aliases, and the
 // Tunisian and Moroccan Arabic labels. Never the Egyptian or Persian-script
 // labels: they re-spell the Latin name (research: sprint-2-name-search §1).
-export const ALIASES_QUERY = `SELECT ?p (GROUP_CONCAT(DISTINCT ?alt; separator="|") AS ?aliases) WHERE {
-  ${BASE}
+export const aliasesQuery = (
+  include: readonly string[],
+) => `SELECT ?p (GROUP_CONCAT(DISTINCT ?alt; separator="|") AS ?aliases) WHERE {
+  ${base(include)}
   { ?p skos:altLabel ?alt FILTER(LANG(?alt) IN ("en", "fr", "ar")) }
   UNION { ?p rdfs:label ?alt FILTER(LANG(?alt) IN ("aeb", "aeb-arab", "ary")) }
 }
 GROUP BY ?p`;
 
-export const MEMBERSHIPS_QUERY = `SELECT ?p ?team ?start ?end ?apps ?goals ?isNational ?teamEn WHERE {
-  ${BASE}
+export const ALIASES_QUERY = aliasesQuery([]);
+
+export const membershipsQuery = (
+  include: readonly string[],
+) => `SELECT ?p ?team ?start ?end ?apps ?goals ?isNational ?teamEn WHERE {
+  ${base(include)}
   ?p p:P54 ?st . ?st ps:P54 ?team .
   OPTIONAL { ?st pq:P580 ?start }
   OPTIONAL { ?st pq:P582 ?end }
@@ -55,6 +83,8 @@ export const MEMBERSHIPS_QUERY = `SELECT ?p ?team ?start ?end ?apps ?goals ?isNa
   OPTIONAL { ?team wdt:P31/wdt:P279* wd:Q6979593 . BIND(1 AS ?isNational) }
   OPTIONAL { ?team rdfs:label ?teamEn FILTER(LANG(?teamEn) = "en") }
 }`;
+
+export const MEMBERSHIPS_QUERY = membershipsQuery([]);
 
 // An edition is a start year and an end year (P580, P582): the CAF Champions
 // League had both a "2018" and a "2018–19" edition. The label is optional so

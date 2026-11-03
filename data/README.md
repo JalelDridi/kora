@@ -18,7 +18,7 @@ Nothing here reaches the database until a pull request is merged: the deploy tha
 
 ## The nightly pull request
 
-Every night at 01:17 UTC (02:17 in Tunis) the `Nightly data` workflow (`.github/workflows/nightly-data.yml`) runs `pnpm data:build` online, then `pnpm data:check --against` main's pool (the active guard, below). If the build refuses or a check fails, the run fails in the Actions tab and no pull request is opened. Otherwise, when `pool.json`, `ids.json` or the copied photos changed, it commits `pool.json`, `ids.json`, `report.md` and `public/photos/` to the branch `data/nightly` as `github-actions[bot]`, force-pushes it, and opens or updates one pull request into `main`, whose description is `report.md`. It never merges by itself. When nothing changed it does nothing (`report.md` alone changes every night: it carries the date). It can also be started by hand: Actions → Nightly data → Run workflow, on `main`.
+Every night at 01:17 UTC (02:17 in Tunis) the `Nightly data` workflow (`.github/workflows/nightly-data.yml`) runs `pnpm data:build` online, then `pnpm data:check --against` main's pool (the active guard, below). If the build refuses or a check fails, the run fails in the Actions tab and no pull request is opened. Otherwise, when `pool.json`, `ids.json` or the copied photos changed, it commits `pool.json`, `ids.json`, `report.md` and `public/photos/` to the branch `data/nightly` as `github-actions[bot]`, force-pushes it, and opens or updates one pull request into `main`, whose description is `report.md`. A scheduled night never merges by itself (a dashboard rebuild can: below). When nothing changed it does nothing (`report.md` alone changes every night: it carries the date). It can also be started by hand: Actions → Nightly data → Run workflow, on `main`.
 
 ### The guards
 
@@ -27,7 +27,19 @@ The build refuses a pool that has a tenth fewer footballers than the previous on
 ### Once, in the repository settings (Jalel)
 
 - Settings → Actions → General → Workflow permissions: tick **Allow GitHub Actions to create and approve pull requests**. Without it the job cannot open the pull request. The workflow asks for its own permissions per job, so the default token setting can stay read-only.
-- Settings → Branches: protect `main` (pull request required, CI's `check` required). The job that pushes may write to the repository; the protection is what keeps it off `main`.
+- Settings → General → Pull Requests: tick **Allow auto-merge**.
+- The ruleset on `main` below (Auto-merge).
+
+### Auto-merge
+
+GitHub's auto-merge waits for **required** checks only: with none on `main`, it would merge the pull request at once, before CI has run. So the propose job arms auto-merge on a dashboard rebuild only when a ruleset or the branch protection on `main` requires the status check `check`; otherwise it leaves auto-merge off and its log says `main has no required check: auto-merge left off`, and `/admin/rebuild` says the pull request does not merge by itself. Once, in the settings (Jalel):
+
+1. Settings → Rules → Rulesets → **New ruleset** → **New branch ruleset**. Target: the branch `main` (Add target → Include by pattern → `main`). Enforcement: Active.
+2. Tick **Require status checks to pass**, add the check `check`, with the source GitHub Actions.
+3. Bypass list: add **Repository admin**, set to **Always allow**, so the dashboard's direct commits to `main` (Jalel's token) still land.
+4. Settings → General → Pull Requests: tick **Allow auto-merge**.
+
+A pull request merged by GitHub through auto-merge armed with the workflow's token (`GITHUB_TOKEN`) starts no `ci.yml` run on `main`; the Vercel deploy still runs.
 
 ### Reviewing it
 
@@ -36,6 +48,39 @@ The build refuses a pool that has a tenth fewer footballers than the previous on
 3. **The preview.** Vercel builds the branch, and that build syncs the pool into the Preview database; `/admin/pool` on the preview shows the footballers with their confidence.
 4. **A wrong value** is fixed with an override in `data/overrides.json` (or a curated file) in a small pull request on `main`, never by editing `data/nightly`: the next run rebuilds the branch from `main` and drops any edit made there. After that merge, run the workflow by hand to refresh the pull request.
 5. **Merge** with a squash merge. The Production deploy that follows syncs the pool into the Production database. To skip a night, close the pull request; the next run that finds a change opens a new one.
+
+**From the dashboard.** `/admin/rebuild` → Rebuild now runs this workflow on `main` with `merge_when_green`: the pull request merges itself once CI passes, when `main` requires CI's `check` (Auto-merge, above); a refused night shows the guard's words there. The scheduled night still waits for review.
+
+## Editing from the dashboard
+
+`/admin` (behind the admin password, English only, never indexed) edits the data from a phone. Every save is one commit on `main`, made with Jalel's token (`KORA_GITHUB_TOKEN`), and nothing is written anywhere else. Before the commit, the dashboard reads `main`'s copy of the file, applies the change, writes it back in the file's own layout and Prettier's, and runs `data:check`'s rules (`inspectSource`) over the deployment's data with that file replaced: a value the validators refuse is shown with their message, and nothing is committed. If `main` moved between the read and the commit, it reads once more.
+
+| Page                                            | Writes                                                                                                                                    | Commit                                   |
+| ----------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------- |
+| `/admin/footballers/<Wikidata id>` (the editor) | his entry in `data/overrides.json`: any override field, exclude, local star; each value `by: "jalel"`, `at` today in Tunis, with the note | `data(overrides): <id> <name>: <fields>` |
+| `/admin/add` (search Wikidata)                  | `include: true` for a footballer the Tunisia selection misses (below)                                                                     | `data(overrides): <id> <name>: include`  |
+| `/admin/games/chkoun`, `/admin/games/season`    | nothing: what each game makes of the pool, with links to the editor; the Chkoun? view's local-star form opens the editor's preview        |                                          |
+| `/admin/settings/<file>`                        | one row of a curated file (`data/curated/<file>.json`); the file's `by` becomes `jalel` on his first edit                                 | `data(<file>): <row> …`                  |
+| `/admin/changes`                                | Undo: a new commit putting back what a dashboard commit changed                                                                           | `revert(data): …` with `Reverts: <sha>`  |
+| `/admin/rebuild`                                | nothing on `main`: Rebuild now runs the nightly workflow (above)                                                                          |                                          |
+| `/admin/chkoun` (the calendar)                  | the database, not the repository                                                                                                          |                                          |
+
+Each commit's body has one line per change, then the note, then the trailer `Admin-Edit: <file>`; the changes log shows only commits with that trailer as "edited here", and only those can be undone.
+
+**The games change only after a rebuild.** A commit changes the files the nightly reads, not the pool: the games see it once a rebuild's pull request is merged and the Production deploy that follows has run (Rebuild now, or the next night).
+
+**Undo** works per entry: each value the commit changed goes back to its earlier value, when nothing has changed it since; otherwise the undo is refused and names the entries to edit instead. A commit made by hand (several files, no trailer) is reverted on GitHub, not here.
+
+**Include.** `include: true` adds the footballer's Wikidata id to the three footballer queries, so the nightly fetches him although he has no Tunisia citizenship or team on Wikidata; the rest of the build treats him as any other, so he joins the pool only if his data qualifies him. `include` beside `exclude` is an error. An id Wikidata does not return is a warning in the build, never a refusal. An add not built yet is withdrawn from his editor (the include goes), not excluded.
+
+Without a token (Preview deployments, local runs) every page reads and every save, undo and Rebuild now button says edits are off here. The browser tests use a file-backed fake instead (`KORA_ADMIN_FAKES`), which refuses to run on Vercel.
+
+### Once, in the settings (Jalel)
+
+1. GitHub → Settings → Developer settings → Fine-grained tokens → **Generate new token**. Repository access: only `JalelDridi/kora`. Permissions: Contents read and write, Actions read and write, Pull requests read and write; Metadata, Checks and Commit statuses read. Expiry: one year (the dashboard home says when it runs out).
+2. Vercel → the project → Settings → Environment Variables → `KORA_GITHUB_TOKEN`, the token as its value, **Production only**, Sensitive. Redeploy Production so it takes effect.
+3. GitHub → the repository → Settings → General → Pull Requests: tick **Allow auto-merge**.
+4. The ruleset on `main` (Auto-merge, above) must let Jalel's own pushes through: Repository admin on its bypass list, Always allow. A ruleset without that bypass refuses every save.
 
 ## The cache and offline builds
 
@@ -73,7 +118,7 @@ Keyed by the footballer's Wikidata id. Every value says who decided and when:
       "clubTitles": { "en:Esperance de Tunis": "Q44897" }
     }
 
-Fields: `club` (a club's Wikidata id, or `null` for none), `position`, `positionDetail`, `caps`, `goals`, `capsAsOf`, `birthDate` (`YYYY-MM-DD`, decision P37), `governorate`, `birthCountry`, `nameArabic`, `aliases`, `pools` (`{ "active": true, "legend": false }`), `exclude`, `localStar` (`true` adds 0.5 to his fame, D-S2-4: a footballer known at home beyond his page views; the report's "one field away" list helps choose). `clubTitles` pins a Wikipedia link title to a club. Edit overrides on `main`, never on the `data/nightly` branch, which is rebuilt every night.
+Fields: `club` (a club's Wikidata id, or `null` for none), `position`, `positionDetail`, `caps`, `goals`, `capsAsOf`, `birthDate` (`YYYY-MM-DD`, decision P37), `governorate`, `birthCountry`, `nameArabic`, `aliases`, `pools` (`{ "active": true, "legend": false }`), `exclude`, `localStar` (`true` adds 0.5 to his fame, D-S2-4: a footballer known at home beyond his page views; the report's "one field away" list helps choose), `include` (`true`): fetch this Wikidata id with the Tunisian footballers even when Wikidata does not list him as one; he then joins whichever pool his data fits, or is left out with the reason, like anyone (T-AD-5). `include` beside `exclude` is refused; an included id Wikidata returns nothing for (a deleted or merged item) is a warning in the report, never a refusal; so is an `exclude` alone for an id the pipeline never fetched (an add withdrawn by excluding him: nothing to apply). `clubTitles` pins a Wikipedia link title to a club. Edit overrides on `main`, never on the `data/nightly` branch, which is rebuilt every night.
 
 ## Confidence
 
