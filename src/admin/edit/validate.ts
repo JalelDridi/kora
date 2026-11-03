@@ -6,9 +6,13 @@ import type { DataSource } from "../../pipeline/check.ts";
 
 /** A change the patch itself refuses (no such row, a value with no note): the reasons, for the page. */
 export class EditRefused extends Error {
-  constructor(readonly errors: string[]) {
+  // A declared field: Node's type stripping cannot run parameter properties.
+  readonly errors: string[];
+
+  constructor(errors: string[]) {
     super(errors.join("; "));
     this.name = "EditRefused";
+    this.errors = errors;
   }
 }
 

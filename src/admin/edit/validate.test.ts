@@ -1,3 +1,4 @@
+import { execFileSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { fsSource, inspectSource } from "../../pipeline/check.ts";
@@ -122,4 +123,25 @@ describe("overlay", () => {
     );
     expect(await source.read("nowhere.json")).toBeUndefined();
   });
+});
+
+// Branch review, T2 M5: data:check runs under Node's type stripping, which
+// refuses parameter properties; the two error classes must load there.
+describe("the error classes under Node's type stripping", () => {
+  it.each(["src/admin/edit/validate.ts", "src/admin/github/types.ts"])(
+    "%s loads in plain node",
+    (file) => {
+      const out = execFileSync(
+        process.execPath,
+        [
+          "--no-warnings",
+          "--input-type=module",
+          "-e",
+          `await import(${JSON.stringify(`${process.cwd()}/${file}`)}); console.log("loaded")`,
+        ],
+        { encoding: "utf8" },
+      );
+      expect(out.trim()).toBe("loaded");
+    },
+  );
 });

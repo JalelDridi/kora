@@ -44,15 +44,20 @@ export type PullInfo = {
  * the URL, a header or the response body, so it can be shown and logged.
  */
 export class GitHubError extends Error {
-  constructor(
-    readonly status: number,
-    readonly what: string,
-    readonly requestId: string | null = null,
-  ) {
+  // Declared fields, not parameter properties: Node's type stripping, which
+  // runs data:check, cannot run those.
+  readonly status: number;
+  readonly what: string;
+  readonly requestId: string | null;
+
+  constructor(status: number, what: string, requestId: string | null = null) {
     super(
       `GitHub ${what}: ${status}${requestId ? ` (request ${requestId})` : ""}`,
     );
     this.name = "GitHubError";
+    this.status = status;
+    this.what = what;
+    this.requestId = requestId;
   }
 }
 
