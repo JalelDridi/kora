@@ -1259,3 +1259,198 @@ test("the undo action refuses a request without the password", async ({
   expect(response.status()).toBe(401);
   expect(fakeCommits()).toHaveLength(1);
 });
+
+// The whole round in one story (Task 10), at 360 px from /admin: add a
+// footballer found on Wikidata, change a known footballer's club, mark
+// another a local star from the Chkoun? view, change a club's strength,
+// Rebuild now (the spec plays GitHub until the pull request is merged),
+// read the four commits in the changes log, undo the club edit. After each
+// commit the fake's data files pass data:check with no error.
+
+const nav = (page: import("@playwright/test").Page, name: string) =>
+  page
+    .getByRole("navigation", { name: "Admin pages" })
+    .getByRole("link", { name, exact: true })
+    .click();
+
+test("the story: add, edit a club, a local star, a strength, rebuild, the log, undo", async ({
+  page,
+}) => {
+  test.slow();
+  const seed = JSON.parse(fakeFile("data/overrides.json")) as {
+    players: Record<string, unknown>;
+  };
+  const clubAfricain = pool.clubs.find((c) => c.id === "club-africain")!;
+  const mover = pool.players.find(
+    (p) =>
+      p.pools.active &&
+      p.clubId &&
+      p.clubId !== clubAfricain.id &&
+      seed.players[p.wikidataId] === undefined,
+  )!;
+  const noErrors = async () => expect((await checkFake()).errors).toEqual([]);
+
+  await page.setViewportSize({ width: 360, height: 800 });
+  await page.goto("/admin");
+  await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+
+  // 1. Search Wikidata and add a footballer outside the selection.
+  await nav(page, "Add");
+  await expect(page).toHaveURL("/admin/add");
+  await page.getByLabel("Name on Wikidata").fill("Msakni");
+  await page.getByRole("button", { name: "Search" }).click();
+  const outside = card(page, OUTSIDE.label);
+  await outside.getByLabel("Note").fill("Called up by Tunisia (story)");
+  await outside.getByRole("button", { name: /^Add to the pool/ }).click();
+  await expect(page.getByText(/^Saved as [0-9a-f]{7}/)).toBeVisible();
+  expect(overridesOf(OUTSIDE.qid).include.value).toBe(true);
+  expect(fakeCommits()).toHaveLength(1);
+  await noErrors();
+
+  // 2. A known footballer's club, from his pool page to his editor.
+  await nav(page, "Pool");
+  await page.goto(`/admin/pool/${mover.id}`);
+  await page.getByRole("link", { name: "Edit overrides" }).click();
+  await expect(page).toHaveURL(`/admin/footballers/${mover.wikidataId}`);
+  await page
+    .getByLabel("Club", { exact: true })
+    .selectOption(clubAfricain.wikidataId);
+  await page.getByLabel("Note").fill("Signed in the winter window (story)");
+  await page.getByRole("button", { name: "Preview" }).click();
+  await expect(page.getByRole("table", { name: "Changes" })).toContainText(
+    `players.${mover.wikidataId}.club`,
+  );
+  await page.getByRole("button", { name: "Save" }).click();
+  await expect(page.getByText(/^Saved as [0-9a-f]{7}/)).toBeVisible();
+  expect(overridesOf(mover.wikidataId).club).toMatchObject({
+    value: clubAfricain.wikidataId,
+    by: "jalel",
+  });
+  const clubEdit = fakeCommits()[0];
+  expect(fakeCommits()).toHaveLength(2);
+  await noErrors();
+
+  // 3. A local star from the Chkoun? view: answer-ready, fame short.
+  await nav(page, "Games");
+  await expect(page).toHaveURL("/admin/games/chkoun");
+  await page.goto("/admin/games/chkoun?show=fame-short");
+  const star = pool.players.find(
+    (p) =>
+      p.pools.active &&
+      shortOf(p).length === 0 &&
+      p.fame?.tier === "D" &&
+      !p.fame.localStar &&
+      p.wikidataId !== mover.wikidataId,
+  )!;
+  const row = page.getByRole("row").filter({
+    has: page.getByRole("checkbox", { name: `Local star (${star.nameLatin})` }),
+  });
+  await row.getByRole("checkbox", { name: /Local star/ }).check();
+  await row.getByRole("textbox").fill("Known at home (story)");
+  await row.getByRole("button", { name: /Preview/ }).click();
+  await expect(page.getByRole("table", { name: "Changes" })).toContainText(
+    "localStar",
+  );
+  await page.getByRole("button", { name: "Save" }).click();
+  await expect(page.getByText(/^Saved as [0-9a-f]{7}/)).toBeVisible();
+  expect(overridesOf(star.wikidataId).localStar).toMatchObject({
+    value: true,
+    by: "jalel",
+  });
+  expect(fakeCommits()).toHaveLength(3);
+  await noErrors();
+
+  // 4. A club's strength, one row of a curated file.
+  await nav(page, "Settings");
+  await page
+    .getByRole("main")
+    .locator('a[href="/admin/settings/ligue1-strength"]')
+    .first()
+    .click();
+  await rowOf(page, "club-africain")
+    .getByRole("link", { name: /^Edit/ })
+    .click();
+  await page.getByLabel("Strength").fill("78");
+  await page.getByLabel("Why").fill("A strong autumn (story)");
+  await page.getByRole("button", { name: "Preview" }).click();
+  await expect(page.getByTestId("checked")).toBeVisible();
+  await page.getByRole("button", { name: "Save" }).click();
+  await expect(page.getByText(/^Saved as [0-9a-f]{7}/)).toBeVisible();
+  expect(fakeCommits()).toHaveLength(4);
+  expect(fakeCommits()[0].message.split("\n")[0]).toMatch(
+    /^data\(ligue1-strength\): club-africain/,
+  );
+  await noErrors();
+
+  // 5. Rebuild now; GitHub (the spec) runs it green, CI passes, it merges.
+  await nav(page, "Rebuild");
+  await page.getByRole("button", { name: "Rebuild now" }).click();
+  await expect(page).toHaveURL(/\/admin\/rebuild\?since=/);
+  await expect(page.getByTestId("stage")).toHaveText(/^Queued/);
+  const head = "c".repeat(40);
+  updateFakes((s) => {
+    const run = s.runs[0]!;
+    run.status = "completed";
+    run.conclusion = "success";
+    s.jobs[String(run.id)] = ["build", "propose"].map((name, i) => ({
+      id: 201 + i,
+      name,
+      status: "completed",
+      conclusion: "success",
+      url: `https://github.com/JalelDridi/kora/actions/runs/${run.id}/job/${201 + i}`,
+    }));
+    s.pull = {
+      number: 44,
+      state: "closed",
+      merged: true,
+      autoMerge: true,
+      headSha: head,
+      url: "https://github.com/JalelDridi/kora/pull/44",
+      title: "data: nightly pool 2026-11-03",
+    };
+    s.runs.unshift({
+      id: 901,
+      workflow: "ci.yml",
+      inputs: {},
+      status: "completed",
+      conclusion: "success",
+      event: "workflow_dispatch",
+      createdAt: new Date().toISOString(),
+      url: "https://github.com/JalelDridi/kora/actions/runs/901",
+      headSha: head,
+    });
+  });
+  await page.reload();
+  await expect(page.getByTestId("stage")).toHaveText(/^Merged/);
+  // A rebuild commits nothing to main itself.
+  expect(fakeCommits()).toHaveLength(4);
+
+  // 6. The changes log lists the four dashboard commits.
+  await nav(page, "Changes");
+  const log = page
+    .getByRole("list", { name: "Changes, newest first" })
+    .getByRole("listitem");
+  await expect(log).toHaveCount(4);
+  await expect(log.filter({ hasText: "edited here" })).toHaveCount(4);
+
+  // 7. Undo the club edit: his entry goes back, the others stay.
+  const entry = logEntry(page, clubEdit.message.split("\n")[0]);
+  await entry.getByRole("link", { name: /^Undo/ }).click();
+  await expect(
+    page.getByRole("table", { name: "What goes back" }),
+  ).toContainText(`players.${mover.wikidataId}.club`);
+  await page.getByRole("button", { name: "Save" }).click();
+  await expect(
+    page.getByText(/^Undone as [0-9a-f]{7} on main\./),
+  ).toBeVisible();
+  const commits = fakeCommits();
+  expect(commits).toHaveLength(5);
+  expect(commits[0].message).toContain(`Reverts: ${clubEdit.sha}`);
+  expect(overridesOf(mover.wikidataId)).toBeUndefined();
+  expect(overridesOf(star.wikidataId).localStar.value).toBe(true);
+  expect(overridesOf(OUTSIDE.qid).include.value).toBe(true);
+  await noErrors();
+  expect(
+    await page.evaluate(() => document.documentElement.scrollWidth),
+  ).toBeLessThanOrEqual(360);
+});
