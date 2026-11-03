@@ -30,6 +30,11 @@ export type PlayerOverride = {
   exclude?: OverrideValue<boolean>;
   /** D-S2-4: known at home beyond his page views; +0.5 to his fame. */
   localStar?: OverrideValue<boolean>;
+  /**
+   * T-AD-5: fetch this id with the Tunisian footballers even when Wikidata
+   * does not list him as one (run.ts adds it to the three queries).
+   */
+  include?: OverrideValue<true>;
 };
 
 export type Overrides = {
@@ -66,6 +71,7 @@ const CHECKS: Record<keyof PlayerOverride, Check> = {
     typeof v.legend === "boolean",
   exclude: (v) => typeof v === "boolean",
   localStar: (v) => typeof v === "boolean",
+  include: (v) => v === true,
 };
 
 function isRecord(v: unknown): v is Record<string, unknown> {
@@ -178,6 +184,10 @@ export function validateOverrides(
       }
     }
     if (errors.length > before) continue;
+    if (Object.hasOwn(entry, "include") && Object.hasOwn(entry, "exclude")) {
+      errors.push(`players.${qid}: included and excluded at once`);
+      continue;
+    }
     // Exclusion would silently win over the rest: say so instead.
     if (
       isRecord(entry.exclude) &&
@@ -188,6 +198,13 @@ export function validateOverrides(
       continue;
     }
     if (!known.players.has(qid)) {
+      if (!checker && Object.hasOwn(entry, "include")) {
+        // A deleted or merged item must not stop the nightly.
+        warnings.push(
+          `players.${qid}: included, but Wikidata returned no footballer for this id; not applied`,
+        );
+        continue;
+      }
       if (checker) {
         // The build decides who exists; the checker only says what it saw.
         const reason = known.leftOut?.get(qid);

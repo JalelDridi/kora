@@ -284,3 +284,72 @@ describe("the build and the checker (fix round 3)", () => {
     ).toEqual({ ok: false, errors: ["players.Q5.caps: invalid value -1"] });
   });
 });
+
+describe("include (T-AD-5)", () => {
+  const known = {
+    players: new Set(["Q1"]),
+    clubs: new Set<string>(),
+    seen: new Set<string>(),
+  };
+  const v = (o: object) => ({
+    value: true,
+    by: "jalel",
+    at: "2026-11-03",
+    ...o,
+  });
+  it("an include for an id Wikidata did not return is a warning in build mode, never a refusal", () => {
+    const r = validateOverrides(
+      { players: { Q9: { include: v({}) } }, clubTitles: {} },
+      new Set(),
+      known,
+    );
+    expect(r.ok && r.warnings).toEqual([
+      "players.Q9: included, but Wikidata returned no footballer for this id; not applied",
+    ]);
+  });
+  it("include is true only, and never beside exclude", () => {
+    expect(
+      validateOverrides(
+        { players: { Q1: { include: v({ value: false }) } }, clubTitles: {} },
+        new Set(),
+        known,
+      ).ok,
+    ).toBe(false);
+    const both = validateOverrides(
+      { players: { Q1: { include: v({}), exclude: v({}) } }, clubTitles: {} },
+      new Set(),
+      known,
+    );
+    expect(!both.ok && both.errors).toEqual([
+      "players.Q1: included and excluded at once",
+    ]);
+  });
+  it("an included footballer Wikidata returned is applied with his other overrides", () => {
+    const r = validateOverrides(
+      {
+        players: {
+          Q1: {
+            include: v({}),
+            caps: { value: 3, by: "jalel", at: "2026-11-03" },
+          },
+        },
+        clubTitles: {},
+      },
+      new Set(),
+      known,
+    );
+    expect(r.ok && r.warnings).toEqual([]);
+    expect(r.ok && r.overrides.players.Q1.include?.value).toBe(true);
+  });
+  it("the checker treats an included id like any other it did not see", () => {
+    const r = validateOverrides(
+      { players: { Q9: { include: v({}) } }, clubTitles: {} },
+      new Set(),
+      known,
+      "check",
+    );
+    expect(r.ok && r.warnings).toEqual([
+      "players.Q9: not seen by the last build; the next build will decide",
+    ]);
+  });
+});
