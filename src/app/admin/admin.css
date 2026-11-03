@@ -93,7 +93,11 @@ a[aria-current] {
 }
 
 .scroll {
+  /* The containing block of the visually hidden text inside a table, so
+     it scrolls with the table instead of widening the page. */
+  position: relative;
   overflow-x: auto;
+  max-inline-size: 100%;
 }
 
 table {
@@ -441,4 +445,105 @@ ul.hits {
 
 .hit label {
   font-weight: 600;
+}
+
+/* What each game makes of the pool (/admin/games/chkoun, /admin/games/season). */
+
+dl.answers {
+  margin: 0;
+}
+
+.answers > div {
+  margin-block-end: 0.5rem;
+}
+
+.answers dt {
+  color: var(--chalk-dim);
+  font-size: 0.85rem;
+}
+
+.answers dd {
+  margin: 0;
+}
+
+table.game {
+  min-inline-size: 40rem;
+}
+
+table.game th[scope="row"] {
+  font-weight: 400;
+}
+
+tr.quick-row td {
+  padding-block-start: 0;
+}
+
+form.quick {
+  position: sticky;
+  inset-inline-start: 0;
+  inline-size: max-content;
+  max-inline-size: calc(100vw - 3rem);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem 0.5rem;
+  min-inline-size: 15rem;
+  margin-block-start: 0.25rem;
+}
+
+form.quick input[type="text"] {
+  box-sizing: border-box;
+  min-block-size: 44px;
+  font-size: 16px;
+  inline-size: 9rem;
+}
+
+form.quick button {
+  min-block-size: 44px;
+  font-size: 16px;
+}
+
+details.club {
+  border-block-end: 1px solid var(--pitch-700);
+}
+
+details.club > summary {
+  box-sizing: border-box;
+  min-block-size: 44px;
+  padding-block: 0.6rem;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+details.club > summary .dim {
+  font-weight: 400;
+}
+
+details.club p {
+  margin-block: 0 0.5rem;
+}
+
+table.season {
+  min-inline-size: 44rem;
+}
+
+table.season td {
+  inline-size: 25%;
+}
+
+ol.candidates {
+  list-style: none;
+  margin: 0.25rem 0 0;
+  padding: 0;
+}
+
+ol.candidates li {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.rating {
+  font-variant-numeric: tabular-nums;
+  color: var(--chalk-dim);
 }

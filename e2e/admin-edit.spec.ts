@@ -2,6 +2,7 @@ import AxeBuilder from "@axe-core/playwright";
 import { readFileSync } from "node:fs";
 import { expect, test } from "@playwright/test";
 import { E2E_ENV } from "../playwright.config";
+import { isAnswerReady } from "../src/pipeline/confidence";
 import type { Pool } from "../src/pipeline/types";
 import {
   fakeCommits,
@@ -369,4 +370,112 @@ test("excluding a footballer built from an include says the include goes with hi
   await expect(page.getByText(/^Saved as [0-9a-f]{7}/)).toBeVisible();
   await expect(page.getByTestId("excluded")).toBeVisible();
   await expect(page.getByTestId("include-goes")).toHaveText(goes);
+});
+
+const fits360 = async (page: import("@playwright/test").Page) =>
+  expect(
+    await page.evaluate(() => document.documentElement.scrollWidth),
+  ).toBeLessThanOrEqual(360);
+
+test("the Chkoun? view counts the pool and links each footballer to his editor", async ({
+  page,
+}) => {
+  const active = pool.players.filter((p) => p.pools.active);
+  const ready = active.filter((p) => isAnswerReady(p));
+  const tier = (t: string | null) =>
+    active.filter((p) => (p.fame?.tier ?? null) === t).length;
+  await page.setViewportSize({ width: 360, height: 800 });
+  await page.goto("/admin/games/chkoun");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText(
+    "Chkoun? view",
+  );
+  const count = (label: string) =>
+    page.getByRole("link", { name: `${label}: `, exact: false }).first();
+  await expect(count("Active")).toHaveAccessibleName(
+    `Active: ${active.length}, list them`,
+  );
+  await expect(count("Answer-ready")).toHaveText(String(ready.length));
+  for (const t of ["A", "B", "C", "D"] as const)
+    await expect(count(`Active, tier ${t}`)).toHaveText(String(tier(t)));
+  await expect(count("Active, not measured")).toHaveText(String(tier(null)));
+  await expect(
+    page.getByRole("heading", { name: "Today and tomorrow" }),
+  ).toBeVisible();
+  expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+  await fits360(page);
+
+  // The first row, by name, opens his editor.
+  const first = [...active, ...pool.players.filter((p) => p.pools.graceUntil)]
+    .map((p) => p.nameLatin)
+    .sort((a, b) => a.localeCompare(b, "en"))[0];
+  const who = pool.players.find((p) => p.nameLatin === first)!;
+  const table = page.getByRole("table", { name: "Footballers" });
+  await expect(table.getByRole("link", { name: first })).toHaveAttribute(
+    "href",
+    `/admin/footballers/${who.wikidataId}`,
+  );
+
+  // Answer-ready with tier D: fame is the field, and the local-star form
+  // previews in his editor; nothing is committed.
+  await page.goto("/admin/games/chkoun?show=away");
+  const star = ready.find((p) => p.fame?.tier === "D" && !p.fame.localStar)!;
+  const named = page
+    .getByRole("row")
+    .filter({ has: page.getByRole("link", { name: star.nameLatin }) });
+  await expect(named).toContainText("Fame");
+  // The form sits in the row under his.
+  const row = page.getByRole("row").filter({
+    has: page.getByRole("checkbox", { name: `Local star (${star.nameLatin})` }),
+  });
+  expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+  await fits360(page);
+  await row.getByRole("checkbox", { name: /Local star/ }).check();
+  await row.getByRole("textbox").fill("Known at home");
+  await row.getByRole("button", { name: /Preview/ }).click();
+  await expect(page).toHaveURL(
+    new RegExp(`/admin/footballers/${star.wikidataId}\\?`),
+  );
+  await expect(page.getByRole("table", { name: "Changes" })).toContainText(
+    "localStar",
+  );
+  await expect(page.getByRole("button", { name: "Save" })).toBeVisible();
+  expect(fakeCommits()).toEqual([]);
+});
+
+test("the 30–0 view lists every Ligue 1 club with its candidates and ratings", async ({
+  page,
+}) => {
+  const ligue1 = pool.clubs.filter((c) => c.ligue1);
+  await page.setViewportSize({ width: 360, height: 800 });
+  await page.goto("/admin/games/season");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("30–0 view");
+  const clubs = page.locator("details.club");
+  await expect(clubs).toHaveCount(ligue1.length);
+  for (const club of ligue1)
+    await expect(
+      page.locator(`details[id="${club.id}"] > summary`),
+    ).toContainText(club.nameLatin);
+  expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+  await fits360(page);
+
+  const esperance = page.locator('details[id="esperance-sportive-de-tunis"]');
+  await esperance.locator("summary").click();
+  await expect(
+    esperance.getByRole("link", { name: /^Strength \d+/ }),
+  ).toHaveAttribute(
+    "href",
+    "/admin/settings/ligue1-strength#esperance-sportive-de-tunis",
+  );
+  const candidate = esperance.locator("ol.candidates li").first();
+  await expect(candidate.locator(".rating")).toHaveText(/^\d+$/);
+  const name = (await candidate.getByRole("link").textContent())!;
+  const footballer = pool.players.find((p) => p.nameLatin === name)!;
+  await expect(candidate.getByRole("link")).toHaveAttribute(
+    "href",
+    `/admin/footballers/${footballer.wikidataId}`,
+  );
+  expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+  await fits360(page);
+  await candidate.getByRole("link").click();
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText(name);
 });
