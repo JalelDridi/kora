@@ -30,6 +30,14 @@ export async function saveCurated(form: FormData): Promise<void> {
       return edit.applied;
     },
   });
-  if (result.ok) redirect(`${page}?saved=${result.commit.sha}`);
+  if (result.ok) {
+    // The rows' filter (club-short) rides back to the page, not into the
+    // commit (Task 6 review, F1).
+    const sentQ = Array.isArray(fields.q) ? fields.q.at(-1) : fields.q;
+    const q = (sentQ ?? "").trim().slice(0, 80);
+    const saved = new URLSearchParams({ saved: result.commit.sha });
+    if (q !== "") saved.set("q", q);
+    redirect(`${page}?${saved}`);
+  }
   redirect(`${page}?error=${saveErrorCode(result.errors)}`);
 }

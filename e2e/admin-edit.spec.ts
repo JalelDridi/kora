@@ -816,6 +816,26 @@ test("club-short stays short at 360 px: a filter, a panel alone, warnings closed
   expect(fakeCommits()).toEqual([]);
 });
 
+// Task 6 review, F1 and F2: a save from a filtered preview comes back to
+// the filtered rows, and the filter never reaches the commit.
+test("a save from a filtered preview keeps the filter, not in the commit", async ({
+  page,
+}) => {
+  await page.goto("/admin/settings/club-short?edit=es-zarzis&q=zarzis");
+  await page.getByLabel("Latin").fill("ZRZ");
+  await page.getByLabel("Why").fill("Filter test");
+  await page.getByRole("button", { name: "Preview" }).click();
+  await page.getByRole("button", { name: "Save" }).click();
+  await expect(page.getByText(/^Saved as [0-9a-f]{7}/)).toBeVisible();
+  await expect(page).toHaveURL(
+    /\/admin\/settings\/club-short\?saved=[0-9a-f]{40}&q=zarzis$/,
+  );
+  await expect(page.locator("table[aria-label=Rows] tbody tr")).toHaveCount(1);
+  const commits = fakeCommits();
+  expect(commits).toHaveLength(1);
+  expect(commits[0].message).not.toMatch(/\bq\b|q=/);
+});
+
 test("club options show name and slug; an unknown id chooses nothing; ?error=constructor says nothing", async ({
   page,
 }) => {
