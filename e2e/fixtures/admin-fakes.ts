@@ -100,3 +100,14 @@ export function fakeFile(file: string): string {
   if (text === undefined) throw new Error(`no ${file} in the fake`);
   return text;
 }
+
+/** Sets one footballer's entry in the fake's data/overrides.json on main. */
+export function setOverride(qid: string, entry: unknown): void {
+  const current = state();
+  const json = JSON.parse(current.files["data/overrides.json"]!) as {
+    players: Record<string, unknown>;
+  };
+  json.players[qid] = entry;
+  current.files["data/overrides.json"] = `${JSON.stringify(json, null, 2)}\n`;
+  writeFileSync(FILE, JSON.stringify(current, null, 2));
+}

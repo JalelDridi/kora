@@ -10,12 +10,15 @@ import {
   editorNames,
   editorProblems,
   formRecord,
+  INCLUDE_GOES,
+  includeName,
+  inOrOut,
   SAVE_ERRORS,
 } from "@/admin/footballer-page";
 import type { EditorNames } from "@/admin/footballer-page";
 import { readOverrides } from "@/admin/edit/read-overrides.server";
 import { REPO } from "@/admin/github";
-import type { CommitInfo, GitHub } from "@/admin/github";
+import type { CommitInfo } from "@/admin/github";
 import { loadPool } from "@/admin/load-pool";
 import { NavLink } from "@/admin/nav-link";
 import {
@@ -86,7 +89,31 @@ export default async function FootballerEditorPage({
   const saved = one(query.saved);
   const savedSha = saved && /^[0-9a-f]{40}$/.test(saved) ? saved : null;
   const error = SAVE_ERRORS[one(query.error) ?? ""] ?? null;
-  const name = player?.nameLatin ?? dropped?.name ?? qid;
+  // "Saved as" only when GitHub returns the commit (Task 3 review, M6): a
+  // typed or stale `?saved=` gets the link, no claim.
+  const commit: CommitInfo | null =
+    savedSha && overrides.github
+      ? await overrides.github.getCommit(savedSha).catch(() => null)
+      : null;
+  const savedDiff = commit ? diffFromMessage(commit.message) : [];
+  const state = inOrOut({
+    qid,
+    entry,
+    built: player !== null || dropped !== null,
+    saved: savedDiff,
+  });
+  // An add no build has made yet: the pool has no name for him, his
+  // include commit's subject has.
+  const added =
+    state.state === "withdraw" && overrides.github
+      ? includeName(
+          await overrides.github
+            .listCommits({ paths: [PATH], perPage: 30 })
+            .catch(() => []),
+          qid,
+        )
+      : undefined;
+  const name = player?.nameLatin ?? dropped?.name ?? added ?? qid;
 
   return (
     <main className="editor">
@@ -123,7 +150,8 @@ export default async function FootballerEditorPage({
       {savedSha ? (
         <Saved
           sha={savedSha}
-          github={overrides.github}
+          commit={commit}
+          diff={savedDiff}
           joins={player === null && entry?.include?.value === true}
         />
       ) : null}
@@ -137,6 +165,7 @@ export default async function FootballerEditorPage({
           names={names}
           canSave={canSave}
           back={exclusion ? `/admin/footballers/${qid}` : null}
+          includeGoes={exclusion && state.includeGoes}
         />
       ) : (
         <>
@@ -147,7 +176,13 @@ export default async function FootballerEditorPage({
             sent={returned ? sent : null}
             disabled={!canSave}
           />
-          <InOrOut qid={qid} entry={entry} disabled={!canSave} />
+          <InOrOut
+            qid={qid}
+            entry={entry}
+            state={state}
+            name={added}
+            disabled={!canSave}
+          />
         </>
       )}
     </main>
@@ -179,27 +214,22 @@ function Diff({ diff }: { diff: DiffLine[] }) {
   );
 }
 
-/**
- * After a save's redirect. "Saved as" only when GitHub returns the commit
- * (Task 3 review, M6): a typed or stale `?saved=` gets the link, no claim.
- */
-async function Saved({
+/** After a save's redirect: `commit` is null when GitHub does not return it. */
+function Saved({
   sha,
-  github,
+  commit,
+  diff,
   joins,
 }: {
   sha: string;
-  github: GitHub | null;
+  commit: CommitInfo | null;
+  diff: DiffLine[];
   /** Included and not in the deployed pool yet. */
   joins: boolean;
 }) {
-  const commit: CommitInfo | null = github
-    ? await github.getCommit(sha).catch(() => null)
-    : null;
   const url =
     commit?.url ??
     `https://github.com/${REPO.owner}/${REPO.repo}/commit/${sha}`;
-  const diff = commit ? diffFromMessage(commit.message) : [];
   return (
     <section aria-labelledby="saved" className="notice">
       <p role="status" id="saved">
@@ -227,26 +257,34 @@ async function Saved({
 /**
  * In the games or out (T-AD-5): exclusion is its own form, previewed like
  * any change (the preview lists every override of his that goes); an
- * exclusion in force is undone by "Include again", which removes it.
+ * exclusion in force is undone by "Include again", which removes it. An add
+ * no build has made yet is withdrawn instead (Task 4 review, B1): one
+ * commit removes the include, and nothing else of his goes.
  */
 function InOrOut({
   qid,
   entry,
+  state,
+  name,
   disabled,
 }: {
   qid: string;
   entry: PlayerOverride | undefined;
+  state: ReturnType<typeof inOrOut>;
+  /** An add's name, for the withdrawal's commit subject. */
+  name: string | undefined;
   disabled: boolean;
 }) {
-  const excluded = entry?.exclude?.value === true ? entry.exclude : null;
-  const included = entry?.include?.value === true ? entry.include : null;
   const since = (o: { at: string; note?: string }) =>
     `${o.at}${o.note ? ` (${o.note})` : ""}`;
-  if (excluded)
+  if (state.state === "excluded" && entry?.exclude)
     return (
       <section aria-labelledby="in-or-out" className="field">
         <h2 id="in-or-out">Excluded</h2>
-        <p data-testid="excluded">Excluded since {since(excluded)}</p>
+        <p data-testid="excluded">Excluded since {since(entry.exclude)}</p>
+        {state.includeGoes ? (
+          <p data-testid="include-goes">{INCLUDE_GOES}</p>
+        ) : null}
         <form action={saveFootballer}>
           <input type="hidden" name="qid" value={qid} />
           <input type="hidden" name="remove.exclude" value="on" />
@@ -261,6 +299,37 @@ function InOrOut({
           {disabled ? null : (
             <div className="actions">
               <button type="submit">Include again</button>
+            </div>
+          )}
+        </form>
+      </section>
+    );
+  const included = entry?.include?.value === true ? entry.include : null;
+  if (state.state === "withdraw" && included)
+    return (
+      <section aria-labelledby="in-or-out" className="field">
+        <h2 id="in-or-out">Withdraw the add</h2>
+        <p data-testid="included">Included by search since {since(included)}</p>
+        <p className="dim" id="f-withdraw-hint">
+          No build has made him yet. Withdrawing removes the include: the
+          nightly no longer fetches him, and nothing else of his changes.
+        </p>
+        <form action={saveFootballer}>
+          <input type="hidden" name="qid" value={qid} />
+          <input type="hidden" name="remove.include" value="on" />
+          {name ? <input type="hidden" name="label" value={name} /> : null}
+          <label htmlFor="f-withdraw-why">Why withdraw the add</label>
+          <textarea
+            id="f-withdraw-why"
+            name="note"
+            rows={2}
+            maxLength={500}
+            disabled={disabled}
+            aria-describedby="f-withdraw-hint"
+          />
+          {disabled ? null : (
+            <div className="actions">
+              <button type="submit">Withdraw the add</button>
             </div>
           )}
         </form>
@@ -309,6 +378,7 @@ async function Preview({
   names,
   canSave,
   back,
+  includeGoes,
 }: {
   qid: string;
   sent: Record<string, string | string[]>;
@@ -320,6 +390,8 @@ async function Preview({
   canSave: boolean;
   /** Where "Change the values" goes when it is not the filled form. */
   back: string | null;
+  /** The exclusion removes the include he was added by (Task 4 review, I1). */
+  includeGoes: boolean;
 }) {
   const edit = await footballerEdit({
     form: { ...sent, qid },
@@ -357,6 +429,11 @@ async function Preview({
       {edit.ok && edit.applied.changed ? (
         <>
           <Diff diff={edit.applied.diff} />
+          {includeGoes ? (
+            <p className="notice" data-testid="include-goes">
+              {INCLUDE_GOES}
+            </p>
+          ) : null}
           <h3>Commit message</h3>
           <pre className="message">{edit.applied.message}</pre>
           {checked.warnings.length > 0 ? (

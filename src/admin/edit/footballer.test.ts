@@ -153,4 +153,36 @@ describe("footballerEdit", () => {
       `data(overrides): ${qid} ${player?.nameLatin}: exclude`,
     );
   });
+
+  it("withdrawing an add removes the include, in one commit whose subject says so", async () => {
+    const added = JSON.stringify({
+      players: {
+        Q999001: {
+          include: {
+            value: true,
+            by: "jalel",
+            at: "2026-11-02",
+            note: "Tunisia squad, 2026",
+          },
+        },
+      },
+      clubTitles: {},
+    });
+    const out = await footballerEdit({
+      form: { qid: "Q999001", "remove.include": "on", note: "" },
+      text: added,
+      player: null,
+      names,
+      today,
+      name: "Hamza Msakni",
+    });
+    if (!out.ok) throw new Error(out.errors.join("; "));
+    expect(out.applied.diff).toEqual([
+      { path: "players.Q999001.include", before: "yes", after: "none" },
+    ]);
+    expect(JSON.parse(out.applied.text).players).toEqual({});
+    expect(out.applied.message.split("\n")[0]).toBe(
+      "data(overrides): Q999001 Hamza Msakni: withdraw include",
+    );
+  });
 });

@@ -9,6 +9,7 @@ import {
   IN_POOL,
   OUTSIDE,
   resetFakes,
+  setOverride,
 } from "./fixtures/admin-fakes";
 
 // The footballer editor (/admin/footballers/[qid]) against the GitHub fake:
@@ -244,6 +245,8 @@ test("exclude previews every override that goes, saves, and Include again remove
   await expect(page.getByTestId("excluded")).toHaveText(
     /^Excluded since \d{4}-\d{2}-\d{2} \(Not Tunisian \(test\)\)$/,
   );
+  // He is not added by search: nothing says the include goes.
+  await expect(page.getByTestId("include-goes")).toHaveCount(0);
   expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
   await page.getByLabel("Why include him again").fill("Excluded by mistake");
   await page.getByRole("button", { name: "Include again" }).click();
@@ -268,4 +271,69 @@ test("a saved link GitHub does not know names the commit and claims no save", as
   await expect(page.getByRole("status")).toHaveText("Commit aaaaaaa");
   await expect(page.getByText(/Saved as/)).toHaveCount(0);
   await expect(page.getByRole("table", { name: "Changes" })).toHaveCount(0);
+});
+
+test("an add never built is withdrawn, not excluded: one commit removes the include", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 360, height: 800 });
+  await page.goto("/admin/add?q=Msakni");
+  const outside = card(page, OUTSIDE.label);
+  await outside.getByLabel("Note").fill("Called up by Tunisia, FTF list");
+  await outside.getByRole("button", { name: /^Add to the pool/ }).click();
+  await expect(page.getByText(/^Saved as [0-9a-f]{7}/)).toBeVisible();
+  // In neither the pool nor its left-out list: withdraw, not exclude.
+  await expect(
+    page.getByRole("heading", { name: "Withdraw the add" }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: "Exclude from every game" }),
+  ).toHaveCount(0);
+  await expect(page.getByTestId("included")).toContainText(
+    "Called up by Tunisia, FTF list",
+  );
+  expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+  expect(
+    await page.evaluate(() => document.documentElement.scrollWidth),
+  ).toBeLessThanOrEqual(360);
+  await page.getByLabel("Why withdraw the add").fill("Wrong Msakni");
+  await page.getByRole("button", { name: "Withdraw the add" }).click();
+  // The page after this save: the add is gone, the exclusion is back.
+  await expect(
+    page.getByRole("button", { name: "Exclude from every game" }),
+  ).toBeVisible();
+  await expect(page.getByText(/^Saved as [0-9a-f]{7}/)).toBeVisible();
+  await expect(page.getByTestId("included")).toHaveCount(0);
+  const commits = fakeCommits();
+  expect(commits).toHaveLength(2);
+  expect(commits[0].message.split("\n")[0]).toBe(
+    `data(overrides): ${OUTSIDE.qid} ${OUTSIDE.label}: withdraw include`,
+  );
+  expect(commits[0].message).toContain(
+    `- players.${OUTSIDE.qid}.include: yes → none`,
+  );
+  expect(overridesOf(OUTSIDE.qid)).toBeUndefined();
+  expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+});
+
+test("excluding a footballer built from an include says the include goes with him", async ({
+  page,
+}) => {
+  const stamp = { by: "jalel", at: "2026-11-01" };
+  setOverride(IN_POOL.qid, {
+    include: { value: true, ...stamp, note: "Added by search (test)" },
+  });
+  const goes =
+    "He was added by search: once excluded he is no longer fetched. Include again will not bring him back; search for him again to re-add him.";
+  await page.goto(`/admin/footballers/${IN_POOL.qid}`);
+  await page.getByLabel("Why exclude him").fill("Not him (test)");
+  await page.getByRole("button", { name: "Exclude from every game" }).click();
+  await expect(page.getByRole("table", { name: "Changes" })).toContainText(
+    `players.${IN_POOL.qid}.include`,
+  );
+  await expect(page.getByTestId("include-goes")).toHaveText(goes);
+  await page.getByRole("button", { name: "Save" }).click();
+  await expect(page.getByText(/^Saved as [0-9a-f]{7}/)).toBeVisible();
+  await expect(page.getByTestId("excluded")).toBeVisible();
+  await expect(page.getByTestId("include-goes")).toHaveText(goes);
 });

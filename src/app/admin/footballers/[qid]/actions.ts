@@ -19,7 +19,8 @@ import { tunisDay } from "@/engine/chkoun/day.ts";
 // again by data:check's rules. A server action is a public POST endpoint:
 // it checks the admin password itself before anything else (the proxy
 // checks it too). It answers with a redirect: the commit's sha, or a code.
-// The field form, the exclusion and "Include again" all post here.
+// The field form, the exclusion, "Include again" and "Withdraw the add"
+// all post here.
 
 export async function saveFootballer(form: FormData): Promise<void> {
   await requireAdmin();
@@ -43,7 +44,14 @@ export async function saveFootballer(form: FormData): Promise<void> {
         player,
         names,
         today,
-        ...(dropped ? { name: dropped.name } : {}),
+        // His name for the subject: the left-out list's, or for an add no
+        // build has made (withdrawing it) the one the editor posts, which
+        // footballerEdit folds and cuts like the add page's.
+        ...(dropped
+          ? { name: dropped.name }
+          : player === null && typeof fields.label === "string"
+            ? { name: fields.label }
+            : {}),
       });
       if (!edit.ok) throw new EditRefused(edit.errors);
       return edit.applied;

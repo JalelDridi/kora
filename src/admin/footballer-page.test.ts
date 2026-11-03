@@ -5,6 +5,9 @@ import {
   editorNames,
   editorProblems,
   formRecord,
+  INCLUDE_GOES,
+  inOrOut,
+  includeName,
   SAVE_ERRORS,
   saveErrorCode,
 } from "./footballer-page.ts";
@@ -116,5 +119,80 @@ describe("the footballer editor's shared helpers", () => {
       expect(SAVE_ERRORS[code]).toMatch(/^Not saved: /);
     }
     expect(SAVE_ERRORS.lists).toMatch(/^Not saved: /);
+  });
+});
+
+describe("in the games or out (T4 fix round)", () => {
+  const stamp = { by: "jalel", at: "2026-11-03", note: "why" };
+  const include = { include: { value: true as const, ...stamp } };
+  const exclude = { exclude: { value: true, ...stamp } };
+
+  it("an add never built is withdrawn, not excluded", () => {
+    expect(inOrOut({ qid: "Q9", entry: include, built: false })).toEqual({
+      state: "withdraw",
+      includeGoes: false,
+    });
+  });
+
+  it("excluding a footballer built from an include says the include goes with him", () => {
+    expect(inOrOut({ qid: "Q9", entry: include, built: true })).toEqual({
+      state: "exclude",
+      includeGoes: true,
+    });
+    expect(inOrOut({ qid: "Q9", entry: undefined, built: true })).toEqual({
+      state: "exclude",
+      includeGoes: false,
+    });
+    expect(inOrOut({ qid: "Q9", entry: undefined, built: false })).toEqual({
+      state: "exclude",
+      includeGoes: false,
+    });
+  });
+
+  it("the excluded notice says so when the saved exclusion removed his include, or the last build did not fetch him", () => {
+    const removed = [
+      { path: "players.Q9.include", before: "yes", after: "none (excluded)" },
+      { path: "players.Q9.exclude", before: "none", after: "yes" },
+    ];
+    expect(
+      inOrOut({ qid: "Q9", entry: exclude, built: true, saved: removed }),
+    ).toEqual({ state: "excluded", includeGoes: true });
+    // Excluded from Wikidata's own selection: the last build lists him as
+    // left out ("excluded"), so he is still fetched.
+    expect(inOrOut({ qid: "Q9", entry: exclude, built: true })).toEqual({
+      state: "excluded",
+      includeGoes: false,
+    });
+    expect(
+      inOrOut({
+        qid: "Q9",
+        entry: exclude,
+        built: true,
+        saved: [removed[1]!],
+      }),
+    ).toEqual({ state: "excluded", includeGoes: false });
+    expect(inOrOut({ qid: "Q9", entry: exclude, built: false })).toEqual({
+      state: "excluded",
+      includeGoes: true,
+    });
+  });
+
+  it("words what goes with the include", () => {
+    expect(INCLUDE_GOES).toBe(
+      "He was added by search: once excluded he is no longer fetched. Include again will not bring him back; search for him again to re-add him.",
+    );
+  });
+
+  it("finds an added footballer's name in the subject of his include commit", () => {
+    const commits = [
+      { message: "data(overrides): Q5 Someone: caps\n\nbody" },
+      { message: "data(overrides): Q999001 Hamza Msakni: include\n\n- x" },
+      { message: "data(overrides): Q999001 Old Name: include" },
+    ];
+    expect(includeName(commits, "Q999001")).toBe("Hamza Msakni");
+    expect(includeName(commits, "Q99900")).toBeUndefined();
+    expect(
+      includeName([{ message: "data(overrides): Q7: include" }], "Q7"),
+    ).toBeUndefined();
   });
 });

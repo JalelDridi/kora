@@ -1,5 +1,7 @@
 import type { DataSource } from "../pipeline/check.ts";
+import type { PlayerOverride } from "../pipeline/overrides.ts";
 import type { Pool, PoolPlayer } from "../pipeline/types.ts";
+import type { DiffLine } from "./edit/fields.ts";
 import type { Names } from "./pool.ts";
 
 // What the footballer editor's page and its save action share: the names
@@ -129,4 +131,60 @@ export function saveErrorCode(errors: string[]): string {
   if (first.startsWith("GitHub ")) return "github";
   if (first.startsWith("note: required")) return "note";
   return "refused";
+}
+
+/**
+ * What an exclusion takes with it when he was added by search (Task 4
+ * review, I1): the include goes, so the nightly no longer fetches him.
+ */
+export const INCLUDE_GOES =
+  "He was added by search: once excluded he is no longer fetched. Include again will not bring him back; search for him again to re-add him.";
+
+/**
+ * The editor's in-or-out section. `excluded`: an exclusion in force (its
+ * notice and "Include again"). `withdraw`: an include in force for a
+ * footballer the last build never made (in neither the pool nor its
+ * left-out list): taking the add back removes the include (Task 4 review,
+ * B1). `exclude`: the exclusion form. `includeGoes`: the exclusion
+ * removes, or removed, his include (I1): an exclusion about to remove one
+ * from a footballer built from it; or one in force that the saved commit
+ * (`saved`, its diff) shows removing it, or for a footballer the last build
+ * did not fetch (a footballer Wikidata selects and who is excluded is in
+ * the left-out list, as "excluded").
+ */
+export function inOrOut(input: {
+  qid: string;
+  entry: PlayerOverride | undefined;
+  /** In the deployed pool or its left-out list. */
+  built: boolean;
+  /** The diff of the commit the page was saved as, when there is one. */
+  saved?: DiffLine[];
+}): { state: "excluded" | "withdraw" | "exclude"; includeGoes: boolean } {
+  const { qid, entry, built } = input;
+  if (entry?.exclude?.value === true) {
+    const removed = (input.saved ?? []).some(
+      (line) => line.path === `players.${qid}.include` && line.after !== "yes",
+    );
+    return { state: "excluded", includeGoes: removed || !built };
+  }
+  const included = entry?.include?.value === true;
+  if (included && !built) return { state: "withdraw", includeGoes: false };
+  return { state: "exclude", includeGoes: included };
+}
+
+/**
+ * An added footballer's name, from the subject of the latest commit that
+ * included him ("data(overrides): Q… <name>: include"): the pool has none
+ * for him until a build makes him. Commits newest first.
+ */
+export function includeName(
+  commits: { message: string }[],
+  qid: string,
+): string | undefined {
+  const subject = new RegExp(`^data\\(overrides\\): ${qid} (.+): include$`);
+  for (const commit of commits) {
+    const match = subject.exec(commit.message.split("\n")[0] ?? "");
+    if (match) return match[1];
+  }
+  return undefined;
 }

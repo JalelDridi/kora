@@ -59,11 +59,13 @@ export async function footballerEdit(input: {
     );
     const fields = excluding
       ? [OVERRIDE_LABEL.exclude]
-      : diff.map(
-          (line) =>
-            OVERRIDE_LABEL[line.path.split(".").at(-1) as OverrideField] ??
-            line.path,
-        );
+      : diff.map((line) => {
+          const field = line.path.split(".").at(-1) as OverrideField;
+          // An add taken back before any build (T4 fix round).
+          if (field === "include" && line.after === "none")
+            return "Withdraw include";
+          return OVERRIDE_LABEL[field] ?? line.path;
+        });
     const name =
       input.player?.nameLatin ??
       [...(input.name ?? "").replace(/\s+/g, " ").trim()].slice(0, 80).join("");
