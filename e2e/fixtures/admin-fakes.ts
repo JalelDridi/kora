@@ -111,3 +111,10 @@ export function setOverride(qid: string, entry: unknown): void {
   current.files["data/overrides.json"] = `${JSON.stringify(json, null, 2)}\n`;
   writeFileSync(FILE, JSON.stringify(current, null, 2));
 }
+
+/** Reads the fake's state, lets `change` edit it, writes it back. */
+export function updateFakes(change: (state: FakeState) => void): void {
+  const current = state();
+  change(current);
+  writeFileSync(FILE, JSON.stringify(current, null, 2));
+}

@@ -263,10 +263,13 @@ function Saved({
       {diff.length > 0 ? <Diff diff={diff} /> : null}
       <p>
         {joins
-          ? "He joins the pool at the next rebuild if his data qualifies him: "
-          : "The games change after a rebuild: "}
-        <NavLink href="/admin/rebuild">Rebuild now</NavLink>
+          ? "He joins the pool at the next rebuild if his data qualifies him."
+          : "The games change after a rebuild."}
       </p>
+      {/* A 44 px target, as the form's own actions (Task 3 review, M2). */}
+      <div className="actions">
+        <NavLink href="/admin/rebuild">Rebuild now</NavLink>
+      </div>
     </section>
   );
 }
