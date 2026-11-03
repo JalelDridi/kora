@@ -14,7 +14,7 @@ import { diffFromMessage } from "@/admin/edit/message";
 import type { DiffLine } from "@/admin/edit/overrides-patch";
 import { readFromMain } from "@/admin/edit/read-overrides.server";
 import { validateEdit } from "@/admin/edit/validate";
-import { formRecord, SAVE_ERRORS } from "@/admin/footballer-page";
+import { formRecord, saveError } from "@/admin/footballer-page";
 import { REPO } from "@/admin/github";
 import type { CommitInfo } from "@/admin/github";
 import { loadPool } from "@/admin/load-pool";
@@ -128,7 +128,7 @@ export default async function CuratedPage({
   for (const name of CONTROL) delete sent[name];
   const saved = one(query.saved);
   const savedSha = saved && /^[0-9a-f]{40}$/.test(saved) ? saved : null;
-  const error = SAVE_ERRORS[one(query.error) ?? ""] ?? null;
+  const error = saveError(one(query.error));
   const commit: CommitInfo | null =
     savedSha && read.github
       ? await read.github.getCommit(savedSha).catch(() => null)
@@ -653,16 +653,21 @@ function RowField({
     );
   }
   if ((name === "id" && id === "club-short") || name === "clubWikidataId") {
-    // honours names a club by its Wikidata id, club-short by its id.
+    // honours names a club by its Wikidata id, club-short by its id. Each
+    // option shows the club's slug: two clubs may share a name. A value
+    // that is no option (a crafted ?id=) leaves the choice to him.
     const byQid = name === "clubWikidataId";
+    const known = names.clubs.some(
+      ([club, , qid]) => (byQid ? qid : club) === value,
+    );
     return (
       <div className="field">
         <label htmlFor={fid}>Club</label>
-        <select id={fid} name={name} defaultValue={value}>
-          {value === "" ? <option value="">choose a club</option> : null}
+        <select id={fid} name={name} defaultValue={known ? value : ""}>
+          {known ? null : <option value="">choose a club</option>}
           {names.clubs.map(([club, clubName, qid]) => (
             <option key={club} value={byQid ? qid : club}>
-              {clubName}
+              {clubName} ({club})
             </option>
           ))}
         </select>

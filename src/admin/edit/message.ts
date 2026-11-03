@@ -47,7 +47,8 @@ export function diffFromMessage(message: string): DiffLine[] {
   const block = message.split("\n\n")[1] ?? "";
   const out: DiffLine[] = [];
   for (const line of block.split("\n")) {
-    const match = /^- (\S+): (.*?) → (.*)$/.exec(line);
+    // A path may hold spaces (a Ligue 1 club's English Wikipedia title).
+    const match = /^- (.+?): (.*?) → (.*)$/.exec(line);
     if (!match) return [];
     out.push({ path: match[1], before: match[2], after: match[3] });
   }

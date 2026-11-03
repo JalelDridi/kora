@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { DEPLOYMENT_DATA } from "@/admin/edit/commit.server";
 import { readOverrides } from "@/admin/edit/read-overrides.server";
-import { SAVE_ERRORS } from "@/admin/footballer-page";
+import { saveError } from "@/admin/footballer-page";
 import { loadPool } from "@/admin/load-pool";
 import { NavLink } from "@/admin/nav-link";
 import { getWikidataFetch } from "@/admin/wikidata";
@@ -34,7 +34,7 @@ export default async function AddFootballerPage({
   const pool = await loadPool();
   const query = await searchParams;
   const q = (one(query.q) ?? "").trim().slice(0, 80);
-  const error = SAVE_ERRORS[one(query.error) ?? ""] ?? null;
+  const error = saveError(one(query.error));
   const overrides = await readOverrides();
   const players = (
     JSON.parse(overrides.text) as { players: Record<string, PlayerOverride> }

@@ -772,6 +772,36 @@ test("club-short stays short at 360 px: a filter, a panel alone, warnings closed
   expect(fakeCommits()).toEqual([]);
 });
 
+test("club options show name and slug; an unknown id chooses nothing; ?error=constructor says nothing", async ({
+  page,
+}) => {
+  await page.goto("/admin/settings/club-short?add=1&id=es-zarzis");
+  const club = page.getByLabel("Club");
+  await expect(club).toHaveValue("es-zarzis");
+  await expect(club.locator("option:checked")).toHaveText(
+    "ES Zarzis (es-zarzis)",
+  );
+  await expect(
+    club.locator("option", { hasText: "choose a club" }),
+  ).toHaveCount(0);
+  await page.goto("/admin/settings/club-short?add=1&id=nowhere");
+  await expect(club).toHaveValue("");
+  await expect(club.locator("option:checked")).toHaveText("choose a club");
+  for (const url of [
+    "/admin/settings/club-short?error=constructor",
+    `/admin/footballers/${someone.wikidataId}?error=constructor`,
+    "/admin/add?error=constructor",
+  ]) {
+    await page.goto(url);
+    await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+    await expect(page.getByRole("main").getByRole("alert")).toHaveCount(0);
+  }
+  await page.goto("/admin/settings/club-short?error=conflict");
+  await expect(page.getByRole("main").getByRole("alert")).toContainText(
+    "main changed twice",
+  );
+});
+
 test("ligue1-strength: 91 is refused with the validator's message and no commit", async ({
   page,
 }) => {

@@ -122,6 +122,13 @@ export const SAVE_ERRORS: Record<string, string> = {
     "Not saved: main's copy refuses this change now. Preview it again to see why.",
 };
 
+/** What a page says for its `?error=` code: a known code's sentence, else nothing (never Object's own names, such as "constructor"). */
+export function saveError(code: string | undefined): string | null {
+  return code !== undefined && Object.hasOwn(SAVE_ERRORS, code)
+    ? SAVE_ERRORS[code]
+    : null;
+}
+
 /** A save's refusal as the code its page explains; the details are the preview's. */
 export function saveErrorCode(errors: string[]): string {
   const first = errors[0] ?? "";

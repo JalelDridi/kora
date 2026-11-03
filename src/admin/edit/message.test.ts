@@ -1,4 +1,6 @@
+import { readFileSync } from "node:fs";
 import { expect, it } from "vitest";
+import { curatedEdit } from "./curated-patch.ts";
 import { commitMessage, diffFromMessage } from "./message.ts";
 
 it("lists each change, the note, then the trailer", () => {
@@ -61,4 +63,22 @@ it("reads the change lines back from a dashboard commit's message", () => {
     ),
   ).toEqual(lines);
   expect(diffFromMessage("fix: something\n\nbody")).toEqual([]);
+});
+
+it("reads back a ligue1-clubs line, whose path has spaces", async () => {
+  const edit = await curatedEdit({
+    id: "ligue1-clubs",
+    form: {
+      op: "set",
+      key: "Stade Tunisien",
+      title: "Stade Tunisien (football)",
+      note: "the article moved",
+    },
+    text: readFileSync("data/curated/ligue1-clubs.json", "utf8"),
+    today: "2026-11-03",
+  });
+  if (!edit.ok) throw new Error(edit.errors.join("; "));
+  const lines = diffFromMessage(edit.applied.message);
+  expect(lines).toEqual(edit.applied.diff);
+  expect(lines.some((l) => l.path.includes(" "))).toBe(true);
 });

@@ -9,6 +9,7 @@ import {
   inOrOut,
   includeName,
   SAVE_ERRORS,
+  saveError,
   saveErrorCode,
 } from "./footballer-page.ts";
 
@@ -119,6 +120,20 @@ describe("the footballer editor's shared helpers", () => {
       expect(SAVE_ERRORS[code]).toMatch(/^Not saved: /);
     }
     expect(SAVE_ERRORS.lists).toMatch(/^Not saved: /);
+  });
+
+  it("explains a known ?error= code and nothing else, not even Object's own names", () => {
+    expect(saveError("conflict")).toBe(SAVE_ERRORS.conflict);
+    for (const code of [
+      undefined,
+      "",
+      "nope",
+      "constructor",
+      "toString",
+      "__proto__",
+      "hasOwnProperty",
+    ])
+      expect(saveError(code)).toBeNull();
   });
 });
 

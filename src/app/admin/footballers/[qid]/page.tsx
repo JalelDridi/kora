@@ -13,7 +13,7 @@ import {
   INCLUDE_GOES,
   includeName,
   inOrOut,
-  SAVE_ERRORS,
+  saveError,
 } from "@/admin/footballer-page";
 import type { EditorNames } from "@/admin/footballer-page";
 import { readOverrides } from "@/admin/edit/read-overrides.server";
@@ -88,7 +88,7 @@ export default async function FootballerEditorPage({
   const returned = sent.qid === qid && !exclusion;
   const saved = one(query.saved);
   const savedSha = saved && /^[0-9a-f]{40}$/.test(saved) ? saved : null;
-  const error = SAVE_ERRORS[one(query.error) ?? ""] ?? null;
+  const error = saveError(one(query.error));
   // "Saved as" only when GitHub returns the commit (Task 3 review, M6): a
   // typed or stale `?saved=` gets the link, no claim.
   const commit: CommitInfo | null =
