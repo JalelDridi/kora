@@ -1,18 +1,18 @@
-# Nightly pool, 2026-11-03
+# Nightly pool, 2026-11-07
 
 | Source | Status | Read on | Note |
 | --- | --- | --- | --- |
-| wikidata | fresh | 2026-11-03 |  |
-| infobox-en | fresh | 2026-11-03 |  |
-| infobox-fr | fresh | 2026-11-03 |  |
-| redirects | fresh | 2026-11-03 |  |
-| clubs | fresh | 2026-11-03 |  |
-| commons | fresh | 2026-11-03 |  |
-| squads | fresh | 2026-11-03 |  |
-| squad-links | fresh | 2026-11-03 |  |
-| martj42 | fresh | 2026-11-03 |  |
-| martj42-goals | fresh | 2026-11-03 |  |
-| pageviews | fresh | 2026-11-03 | 3 of 3 articles read; 0 active footballers not measured yet |
+| wikidata | fresh | 2026-11-07 |  |
+| infobox-en | fresh | 2026-11-07 |  |
+| infobox-fr | fresh | 2026-11-07 |  |
+| redirects | fresh | 2026-11-07 |  |
+| clubs | fresh | 2026-11-07 |  |
+| commons | fresh | 2026-11-07 |  |
+| squads | fresh | 2026-11-07 |  |
+| squad-links | fresh | 2026-11-07 |  |
+| martj42 | fresh | 2026-11-07 |  |
+| martj42-goals | fresh | 2026-11-07 |  |
+| pageviews | fresh | 2026-11-07 | 0 of 0 articles read; 0 active footballers not measured yet |
 
 **368 footballers** (250 active, 150 legends, 34 in both), 634 clubs, 111 honours.
 
@@ -38,7 +38,7 @@ Active footballers who fail exactly one of the fields a puzzle needs: an overrid
 - alaeddine-marzouki: birthPlace (low)
 - alaeddine-zouhir: clubId (low)
 - amanallah-memmiche: birthPlace (missing)
-- assil-jaziri: caps (low)
+- assil-jaziri: clubId (low)
 - atef-dkhili: birthPlace (low)
 - aymen-mahmoud: birthPlace (low)
 - ayoub-tlili: birthPlace (missing)
@@ -80,9 +80,9 @@ Active footballers who fail exactly one of the fields a puzzle needs: an overrid
 - youssef-mosraty: clubId (low)
 - zied-machmoum: birthPlace (missing)
 
-## Low confidence, review first (612)
+## Low confidence, review first (611)
 
-Fields that two sources could confirm but do not, by footballer: the value, the sources that give it, and why it is low. Club histories are often low on a first build: French club titles often match no known club, so the French career cannot agree with the English one. 156 of the 612 are club histories; the rules are not tuned to hide them.
+Fields that two sources could confirm but do not, by footballer: the value, the sources that give it, and why it is low. Club histories are often low on a first build: French club titles often match no known club, so the French career cannot agree with the English one. 156 of the 611 are club histories; the rules are not tuned to hide them.
 
 - abdallah-amri: caps 0: no senior national row; sources: enwiki
 - abdallah-amri: goals 0: no senior national row; sources: enwiki
@@ -179,8 +179,7 @@ Fields that two sources could confirm but do not, by footballer: the value, the 
 - anisse-saidi: goals 0: no senior national row; sources: enwiki
 - anisse-saidi: clubId s-l-benfica: one undated source; sources: enwiki
 - anisse-saidi: history 4 spells: one undated source; sources: enwiki
-- assil-jaziri: caps 1 (as of 2025-01-26): one source, as of 2025-01-26; sources: frwiki
-- assil-jaziri: goals 0: one source, as of 2025-01-26; sources: frwiki
+- assil-jaziri: clubId jeunesse-sportive-d-el-omrane: one undated source; sources: enwiki
 - ayadi-hamrouni: caps 34: one undated source; sources: frwiki
 - ayadi-hamrouni: goals 9: one undated source; sources: frwiki
 - ayadi-hamrouni: history 6 spells: one undated source; sources: frwiki
@@ -234,7 +233,8 @@ Fields that two sources could confirm but do not, by footballer: the value, the 
 - ezzedine-chakroun: position forward: one source; sources: wikidata
 - fahmi-ben-romdhane: caps 0: no senior national row; sources: enwiki
 - fahmi-ben-romdhane: goals 0: no senior national row; sources: enwiki
-- … 462 more in data/pool.json
+- fahmi-ben-romdhane: clubId esperance-sportive-de-tunis: one undated source; sources: enwiki
+- … 461 more in data/pool.json
 
 Single-source fields: one source each. The governorate and the birthplace are medium when Wikidata gives a precise place (P36), else low; the Arabic name and the photo stay low until Jalel confirms them. Low: governorate 0, birthPlace 27, nameArabic 347, photo 150.
 
@@ -311,7 +311,7 @@ Stale (over 21 days): 133. Unused (our value changed, or no longer in the pool):
 
 ## Photos (P30)
 
-147 of the 150 footballers with a Commons photo have a copy in public/photos/. Tonight: 8 downloaded, 0 waiting for a later night's budget.
+147 of the 150 footballers with a Commons photo have a copy in public/photos/. Tonight: 6 downloaded, 0 waiting for a later night's budget.
 
 ### Not copied (3)
 
@@ -394,7 +394,7 @@ None.
 | Caps with an as-of date | 175 of 368 | 48% |
 | Three or more career spells | 313 of 368 | 85% |
 | Detailed position | 359 of 368 | 98% |
-| English article | 317 of 368 | 86% |
+| English article | 318 of 368 | 86% |
 | French article | 302 of 368 | 82% |
 
 ## Confidence
@@ -403,13 +403,13 @@ None means the field has no value to rate (for example no current club).
 
 | Field | High | Medium | Low | None |
 | --- | --- | --- | --- | --- |
-| caps | 44 | 158 | 166 | 0 |
-| goals | 64 | 151 | 153 | 0 |
-| clubId | 132 | 41 | 82 | 113 |
+| caps | 44 | 159 | 165 | 0 |
+| goals | 64 | 152 | 152 | 0 |
+| clubId | 131 | 41 | 83 | 113 |
 | birthDate | 340 | 15 | 13 | 0 |
 | position | 302 | 46 | 20 | 0 |
 | positionDetail | 302 | 46 | 11 | 9 |
-| history | 109 | 102 | 156 | 1 |
+| history | 110 | 101 | 156 | 1 |
 | nameLatin | 337 | 20 | 11 | 0 |
 | governorate | 8 | 197 | 0 | 163 |
 | birthPlace | 1 | 286 | 27 | 54 |
@@ -418,21 +418,21 @@ None means the field has no value to rate (for example no current club).
 
 ## Changes since the previous pool
 
-367 footballers before, 368 now. Shrink guard passed (it refuses a loss of more than a tenth).
+368 footballers before, 368 now. Shrink guard passed (it refuses a loss of more than a tenth).
 
-248 active footballers before, 250 now; 0 lost their club. Active guard passed (it refuses a loss of more than 5% of the actives, or more than 10 clubs becoming none; P59).
+250 active footballers before, 250 now; 0 lost their club. Active guard passed (it refuses a loss of more than 5% of the actives, or more than 10 clubs becoming none; P59).
 
-## Club changes, review each (1)
+## Club changes, review each (0)
 
-- oussama-boughanmi: none → FC Supra du Québec
+None.
 
 ## Other changes
 
-- Added (1): wajdi-sahli
+- Added (0): none
 - Removed (0): none
-- Caps or goals changed: 2. Other fields changed: 247.
+- Caps or goals changed: 0. Other fields changed: 13.
 
-## Flags (356)
+## Flags (357)
 
 ### birthdate-january-first (5)
 
@@ -517,7 +517,7 @@ None means the field has no value to rate (for example no current club).
 ### caps-newer-but-lower (5)
 
 - Ziad Jaziri (Q198291): frwiki 63 (2026-07-02) < wikidata 64 (undated)
-- Zoubeir Baya (Q227025): frwiki 71 (2020-11-08) < wikidata 81 (undated)
+- Zoubeir Baya (Q227025): frwiki 71 (2026-11-04) < wikidata 81 (undated)
 - Maher Kanzari (Q3277692): frwiki 28 (2026-09-24) < wikidata 31 (undated)
 - Ali Boumnijel (Q354220): frwiki 42 (2026-10-24) < wikidata 51 (undated)
 - Hamza Rafia (Q64736331): frwiki 37 (2026-10-29) < enwiki-national 38 (2026-09-28)
@@ -634,7 +634,7 @@ None means the field has no value to rate (for example no current club).
 - Jassem Hamdouni (Q60499799): frwiki EGS Gafsa (2026-08-18) vs enwiki CS Sfaxien (undated)
 - Nassim Hnid (Q60668439): frwiki Al-Ramtha SC (2026-08-18) vs enwiki Étoile Sportive du Sahel (undated)
 - Änis Ben-Hatira (Q62082): frwiki Hertha BSC (2026-10-10) vs enwiki Hertha BSC II (undated)
-- Mohamed Ali Ben Romdhane (Q64593906): frwiki Al-Shamal Sports Club (2026-10-30) vs enwiki Al Ahly SC (undated)
+- Mohamed Ali Ben Romdhane (Q64593906): frwiki Al-Shamal Sports Club (2026-11-03) vs enwiki Al Ahly SC (undated)
 - Rayanne Khemais (Q64746846): frwiki Olympique Alès (2026-06-21) vs enwiki Stade Tunisien (undated)
 - Ali Youssef (Q71806775): frwiki Mjällby AIF (2026-11-02) vs enwiki Apollon Limassol FC (undated)
 - Karim Laribi (Q723767): frwiki A.S.D. Albalonga (2026-11-02) vs enwiki Anzio (undated)
@@ -656,8 +656,9 @@ None means the field has no value to rate (for example no current club).
 - Mehdi Nafti (Q380173): enwiki: Mehdi Nafti
 - Mehdi Nafti (Q380173): frwiki: Sociedad Deportiva Ponferradina is where the other page has him on the staff
 
-### club-unresolved (5)
+### club-unresolved (6)
 
+- Faouzi Rouissi (Q1377046): frwiki: Tunisie -16
 - Anice Badri (Q17442694): enwiki: The Football Circle
 - Anice Badri (Q17442694): frwiki: The Football Circle
 - Mohamed Gouaida (Q18572053): frwiki: ESV Südstern Singen
